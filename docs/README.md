@@ -3,11 +3,11 @@
 ### VSCODE EASY WXLESS 插件编译问题之calc
 ![calc](./images/calc.jpg ':size=30%')
 
-VSCODE 使用EASY WXLESS插件 遇到一个问题
+VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 这个插件是让.less的文件能够自动转成.wxss文件
 确实方便了许多，但还是有点问题
 
-当我在less里写  width:calc(100%-10rpx)的时候,他就会自动给我编译成width:calc(90%)。很明显，这是个问题，后来去作者的github查看，发现有人遇到类似的问题
+当我在less里写 __width:calc(100%-10rpx)__ 的时候,他就会自动给我编译成 __width:calc(90%)__ 。很明显，这是个问题，后来去作者的github查看，发现有人遇到类似的问题
 
 解决方案就是在样式上加上
 ```less
