@@ -36,6 +36,54 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 这样就达到了我们想要的效果
 
 # Javascript
+## 方法
+### 数组按某个值排序
+?>按order值的大小，对数组List进行升序排序
+```Javascript
+<script>
+    let List = [
+        {
+            id:1,
+            order:1
+        },
+        {
+            id:2,
+            order:0
+        }
+    ];
+    List = List.sort((x, y) => {
+        return x.order - y.order
+    });
+</script>
+```
+### 数组对象按某个属性值分组
+?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
+```Javascript
+<script>
+    let List =  [
+        { id: '1001', name: '值1', value: '1' },
+        { id: '1001', name: '值1', value: '2' },
+        { id: '1002', name: '值2', value: '3' },
+        { id: '1002', name: '值2', value: '4' },
+        { id: '1002', name: '值2', value: '5' },
+        { id: '1003', name: '值3', value: '6' },
+    ];
+    let map = {}
+    for (let i = 0; i < List.length; i++) {
+        let item = List[i]
+        if (!map[item.id]) {
+            map[item.id] = [item]
+        } else {
+            map[item.id].push(item)
+        }
+    }
+    let res = []
+    Object.keys(map).forEach(key => {
+        res.push(map[key])
+    })
+    console.log(res)
+</script>
+```
 ## typescript
 ## es6
 ### 数组去重
