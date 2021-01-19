@@ -1,3 +1,4 @@
+# :id=notebook
 # Css
 ## less
 ### VSCODE EASY WXLESS 插件编译问题之calc
@@ -11,16 +12,24 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 
 解决方案就是在样式上加上
 ```less
+<style lang="less">
 ~''~
+</style>
 ```
 如下
 ```less
-width:~'calc(100%-10rpx)'~
+<style lang="less">
+    .class{
+        width:~'calc(100%-10rpx)'~
+    }
+</style>
 ```
 据说这样就会让浏览器去编译，而不是软件编译
 最后生成的wxss文件里面就是下面这样的
 ```Css
-width:calc(100%-10rpx)
+<style>
+    width:calc(100%-10rpx)
+</style>
 ```
 这样就达到了我们想要的效果
 
@@ -32,46 +41,46 @@ width:calc(100%-10rpx)
 #### 1.普通数组去重
 ```Javascript
 <script>
-let arr = [1, 2, 3, 2, 1];
-let temp = new Set(arr);
-console.log([...temp]); //输出[1, 2, 3]
+    let arr = [1, 2, 3, 2, 1];
+    let temp = new Set(arr);
+    console.log([...temp]); //输出[1, 2, 3]
 </script>
 ```
 #### 2.对象数组去重 某个值
 ##### 数组方法
 ```Javascript
 <script>
-arr = [
-    { name: 1, value: 2 },
-    { name: 2, value: 3 },
-    { name: 1, value: 2 },
-    { name: 4, value: 3 },
-];
-temp = [];
-let newArr = arr.filter(
-(item) => !temp.includes(item.value) && temp.push(item.value)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+    arr = [
+        { name: 1, value: 2 },
+        { name: 2, value: 3 },
+        { name: 1, value: 2 },
+        { name: 4, value: 3 },
+    ];
+    temp = [];
+    let newArr = arr.filter(
+    (item) => !temp.includes(item.value) && temp.push(item.value)
+    );
+    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 </script>
 ```
 ##### set方法
 ```Javascript
 <script>
-temp = new Set();
-newArr = arr.filter(
-(item) => !temp.has(item.value) && temp.add(item.value)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+    temp = new Set();
+    newArr = arr.filter(
+    (item) => !temp.has(item.value) && temp.add(item.value)
+    );
+    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 </script>
 ```
 ##### map方法
 ```Javascript
 <script>
-temp = new Map();
-newArr = arr.filter(
-(item,key) => !temp.has(item.value + '') && temp.set(item.value + '',true)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+    temp = new Map();
+    newArr = arr.filter(
+    (item,key) => !temp.has(item.value + '') && temp.set(item.value + '',true)
+    );
+    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 </script>
 ```
 ?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
@@ -79,10 +88,10 @@ console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 #### 3.对象数组去重 整个对象
 ```Javascript
 <script>
-temp = new Map();
-newArr = arr.filter((item,key)=> 
-    !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item),true)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
+    temp = new Map();
+    newArr = arr.filter((item,key)=> 
+        !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item),true)
+    );
+    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
 </script>
 ```
