@@ -17,9 +17,15 @@
       repo: 'https://github.com/shenxingchao',
       logo: '/images/doc_icon.svg',
       maxLevel: 3,
-      search : [
-        '/',            // => /README.md
-      ],
+      search: {
+        maxAge: 86400000, // Expiration time, the default one day
+        paths: ['/'], // or 'auto'
+        placeholder: '搜索',
+        noData: '找不到结果',
+        // Headline depth, 1 - 6
+        depth: 6,
+        hideOtherSidebarContent: false, // whether or not to hide other sidebar content
+      },
       count:{
         countable:true,
         fontsize:'0.9em',

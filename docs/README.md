@@ -145,3 +145,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
     console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
 </script>
 ```
+# Linux
+## 常用命令
+### 创建多级目录
+>mkdir -p
+## vim命令
