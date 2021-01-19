@@ -1,8 +1,8 @@
 ![logo](images/doc_icon.svg)
 
-> 日常BUG记录和技术要点记录
+> This is a notebook
 
-- Let's Go
+- Notebook
 
 [GitHub](https://github.com/shenxingchao)
-[Get Started](#docsify)
+[Get Started](#notebook)
