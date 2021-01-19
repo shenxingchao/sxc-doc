@@ -28,7 +28,9 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 最后生成的wxss文件里面就是下面这样的
 ```Css
 <style>
-    width:calc(100%-10rpx)
+    .class{
+        width:calc(100%-10rpx)
+    }
 </style>
 ```
 这样就达到了我们想要的效果
