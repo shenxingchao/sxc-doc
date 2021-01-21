@@ -51,11 +51,12 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
             order:0
         }
     ];
-    List = List.sort((x, y) => {
+    List.sort((x, y) => {
         return x.order - y.order
     });
 </script>
 ```
+!>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
 ### 数组对象按某个属性值分组
 ?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
 ```Javascript
