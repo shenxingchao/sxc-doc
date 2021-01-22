@@ -94,7 +94,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ## es6
 ### 数组去重
 ![calc](./images/es6_array_duplicate.png ':size=30%')
-- ##### 普通数组去重
+##### 普通数组去重
 ```Javascript
 <script>
     let arr = [1, 2, 3, 2, 1];
@@ -103,7 +103,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 </script>
 ```
 
-- ##### 对象数组去重 某个值
+##### 对象数组去重 某个值
 __1. 数组方法__
 ```Javascript
 <script>
@@ -143,7 +143,7 @@ __3. map方法__
 ?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
 
 
-- ##### 对象数组去重 整个对象
+##### 对象数组去重 整个对象
 ```Javascript
 <script>
     temp = new Map();
