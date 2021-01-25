@@ -2,6 +2,8 @@
 # Css
 ## less
 ### VSCODE EASY WXLESS 插件编译问题之calc
+<p align="right" style="color:#777777;">发布日期：2019-04-09</p>
+
 ![calc](./images/calc.jpg ':size=30%')
 
 VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
@@ -40,6 +42,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 # Javascript
 ## 方法
 ### 数组按某个值排序
+<p align="right" style="color:#777777;">发布日期：2021-01-22</p>
+
 ?>按order值的大小，对数组List进行升序排序
 ```Javascript
 <script>
@@ -60,6 +64,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```
 !>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
 ### 数组对象按某个属性值分组
+<p align="right" style="color:#777777;">发布日期：2021-01-22</p>
+
 ?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
 ```Javascript
 <script>
@@ -93,6 +99,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 
 ## es6
 ### 数组去重
+<p align="right" style="color:#777777;">发布日期：2020-11-13</p>
+
 ![calc](./images/es6_array_duplicate.png ':size=30%')
 ##### 普通数组去重
 ```Javascript
@@ -167,6 +175,8 @@ mkdir -p
 # 版本管理工具
 ## svn服务器搭建
 ### centos7.2 svn服务器搭建
+<p align="right" style="color:#777777;">发布日期：2020-02-25</p>
+
 ![calc](./images/svn.png ':size=30%')
 
 ##### 1.putty登陆服务器
@@ -289,6 +299,10 @@ svn update
 ```
 ## git
 ### 常用操作和命令
+<p align="right" style="color:#777777;">发布日期：2020-07-24</p>
+
+![calc](./images/git.jpg ':size=30%')
+
 ?> [SSH公钥配置](https://www.jianshu.com/p/464a3373d15c)
 
 ###### 1.下载git客户端 官网下载即可
