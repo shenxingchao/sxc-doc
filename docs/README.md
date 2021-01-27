@@ -8,6 +8,7 @@
 | 主题                                                                                                                                |    标签    |   更新日期    |
 | :---------------------------------------------------------------------------------------------------------------------------------- | :--------: | :-----------: |
 | [MDN 前端开发学习网站](https://developer.mozilla.org/zh-CN/)                                                                        |    MDN     | 2021年1月26日 |
+| [iconfont  阿里巴巴矢量图标库](https://www.iconfont.cn/)                                                                        |    MDN     | 2021年1月27日 |
 | [free api test 苍穹精华 API](https://api.xhboke.com/doc/)                                                                           |  Markdown  | 2021年1月25日 |
 | [json对比 用于接口json格式参数对比](https://www.sojson.com/jsondiff.html)                                                           |    json    | 2021年1月26日 |
 | [docsify一个神奇的文档网站生成器](https://docsify.js.org/#/zh-cn/)                                                                  |  Markdown  | 2021年1月25日 |
@@ -104,7 +105,6 @@ __效果如下图__
 ### VSCODE EASY WXLESS 插件编译问题之calc
 <p align="left" style="color:#777777;">发布日期：2019-04-09</p>
 
-![calc](./images/calc.jpg ':size=30%')  
 VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 这个插件是让.less的文件能够自动转成.wxss文件
 确实方便了许多，但还是有点问题
@@ -214,6 +214,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```
 ## jquery
 ### jquery插件编写模板
+<p align="left" style="color:#777777;">发布日期：2019-04-02</p>
+
 可以编写各种插件，如弹窗，表格，选项卡，等等。
 ```javascript
 ;(function($){
@@ -243,7 +245,6 @@ $.fn.functionName2 = function(options){
 ### 数组去重
 <p align="left" style="color:#777777;">发布日期：2020-11-13</p>
 
-![calc](./images/es6_array_duplicate.png ':size=30%')  
 ##### 普通数组去重
 ```javascript
 <script>
@@ -405,7 +406,6 @@ Content-Encoding: gzip
 ### centos7.2 svn服务器搭建
 <p align="left" style="color:#777777;">发布日期：2020-02-25</p>
 
-![calc](./images/svn.png ':size=30%')  
 ###### 1.putty登陆服务器
 
 ###### 2.安装svn服务端
@@ -528,7 +528,6 @@ svn update
 ### 常用操作和命令
 <p align="left" style="color:#777777;">发布日期：2020-07-24</p>
 
-![calc](./images/git.jpg ':size=30%')  
 ?> [SSH公钥配置](https://www.jianshu.com/p/464a3373d15c)
 
 ###### 1.下载git客户端 官网下载即可
