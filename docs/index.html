@@ -7,6 +7,28 @@
   <meta name="description" content="Description">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0">
   <link rel="stylesheet" href="//cdn.jsdelivr.net/npm/docsify@4/lib/themes/vue.css">
+  <style>
+    ::-webkit-scrollbar {
+      /*滚动条整体样式*/
+      width: 14px;
+      /*高宽分别对应横竖滚动条的尺寸*/
+      height: 10px;
+    }
+    ::-webkit-scrollbar-thumb {
+      /*滚动条里面小方块*/
+      border-radius: 2px;
+      background-color: #bbbbbb;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background-color: #f60f60;
+    }
+    ::-webkit-scrollbar-track {
+      /*滚动条里面轨道*/
+      box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.2);
+      background: #ededed;
+      border-radius: 10px;
+    }
+  </style>
 </head>
 <body>
   <div id="app"></div>
@@ -17,7 +39,7 @@
       repo: 'https://github.com/shenxingchao',
       logo: '/images/doc_icon.svg',
       maxLevel: 3,
-      themeColor: '#f60f60',
+      // themeColor: '#f60f60',
       // search
       search: {
         maxAge: 300, // 搜索索引过期时间，in localstorage
@@ -47,5 +69,6 @@
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-git.min.js"></script>
   <!-- php code high -->
   <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-php.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-nginx.min.js"></script>
 </body>
 </html>

@@ -4,10 +4,11 @@
 
 * * *
 
-# 常用网址
+# Site
 | 主题                                                                                                                                |    标签    |   更新日期    |
 | :---------------------------------------------------------------------------------------------------------------------------------- | :--------: | :-----------: |
 | [MDN 前端开发学习网站](https://developer.mozilla.org/zh-CN/)                                                                        |    MDN     | 2021年1月26日 |
+| [iconfont  阿里巴巴矢量图标库](https://www.iconfont.cn/)                                                                            |    MDN     | 2021年1月27日 |
 | [free api test 苍穹精华 API](https://api.xhboke.com/doc/)                                                                           |  Markdown  | 2021年1月25日 |
 | [json对比 用于接口json格式参数对比](https://www.sojson.com/jsondiff.html)                                                           |    json    | 2021年1月26日 |
 | [docsify一个神奇的文档网站生成器](https://docsify.js.org/#/zh-cn/)                                                                  |  Markdown  | 2021年1月25日 |
@@ -23,10 +24,26 @@
 
 * * *
 
+# My Project
+| 项目名称                                                                                                                                                                                          |             类型              |       更新日期        |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------------------: |
+| [Helpdeco网上商城](https://www.helpdeco.com/mobile/#/)-[扫码查看](http://demo.o8o8o8.com/vue/shop/qrcode.png)                                                                                     |          vue 公众号           | 2018年7月 ~ 2018年9月 |
+| [医药类H5基于vue+vantui+mockjs](http://demo.o8o8o8.com/fastmedicine/#/)                                                                                                                           |            vue h5             |       2020年1月       |
+| [多商家微信小程序](https://shenxingchao.github.io/project/image/lyqq_qrcode.jpg)                                                                                                                  |      wechat mini program      |       2019年7月       |
+| [工作台基于vue+electron+thinkphp5.0+elementui+workerman+redis](https://shenxingchao.github.io/project/video/workbench.mp4)                                                                        |         vue electron          |      2019年10月       |
+| [spladmin基于thinkphp5.1+adminLTE框架开发一键生成CURD 集成 权限管理 菜单管理 全局设置](http://spladmin.o8o8o8.com/admin) 演示账号：test 111111                                                    |      thinkphp5.1 bootstrap       |       2019年9月       |
+| [vue-admin-thinkphp5是基于vue-admin-template+thinkphp5的后台权限管理系统](https://github.com/shenxingchao/vue-admin-thinkphp5) -[演示视频](http://demo.o8o8o8.com/vue/vueAdminTemplate/index.html) | thinkphp5.0 vue-element-template |       2019年1月       |
+| [vue-admin-elementui mockjs async-router elementui i18n custom-table custom-theme curd-demo](https://shenxingchao.github.io/vue-admin-elementui/) 演示账号 任意字符登录                           |        vue elementui         |     2021年1月3日      |
+| [vue-admin-thinkphp6基于vue-admin-elementui 和 thinkphp6.0.* 的 前后端分离项目模板 ——登录 增删改查 权限管理 composer](http://demo.o8o8o8.com/vue-admin-thinkphp6/#/) 演示账号 admin admin                           |        vue thinkphp6.0.* vue-admin-elementui php8.0   |     2021年1月16日      |
+
+
+
+* * *
+
 # Css
 ## style
 ### 父元素高度不确定的情况下，子元素高度相等，右边元素高度始终与左边相等
-<p align="right" style="color:#777777;">发布日期：2021-01-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ###### 1.纯CSS实现
 ```html
@@ -102,9 +119,8 @@ __效果如下图__
 
 ## less
 ### VSCODE EASY WXLESS 插件编译问题之calc
-<p align="right" style="color:#777777;">发布日期：2019-04-09</p>
+<p align="left" style="color:#777777;">发布日期：2019-04-09</p>
 
-![calc](./images/calc.jpg ':size=30%')  
 VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 这个插件是让.less的文件能够自动转成.wxss文件
 确实方便了许多，但还是有点问题
@@ -141,7 +157,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 # Javascript
 ## 方法
 ### 浮点数四舍五入保留小数位数
-<p align="right" style="color:#777777;">发布日期：2021-01-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 错误写法使用toFixed()，导致精度丢失
 ```javascript
@@ -161,7 +177,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 !>精髓就是先四舍五入，再保留。保留几位小数就*多少
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
 ### 数组按某个值排序
-<p align="right" style="color:#777777;">发布日期：2021-01-22</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
 ?>按order值的大小，对数组List进行升序排序
 ```javascript
@@ -183,7 +199,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```
 !>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
 ### 数组对象按某个属性值分组
-<p align="right" style="color:#777777;">发布日期：2021-01-22</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
 ?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
 ```javascript
@@ -212,15 +228,39 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
     console.log(res)
 </script>
 ```
+## jquery
+### jquery插件编写模板
+<p align="left" style="color:#777777;">发布日期：2019-04-02</p>
+
+可以编写各种插件，如弹窗，表格，选项卡，等等。
+```javascript
+;(function($){
+    $.fn.functionName1 = function(options){
+        var defaults = {
+            //默认值
+        }
+        var options = $.extend(defaults,options);
+        this.each(function(){ 
+            var _this = $(this);
+			//功能编写
+        });
+        return this;
+}
+
+$.fn.functionName2 = function(options){
+		...
+}
+})(jQuery);
+```
+
 ## typescript
 
 * * *
 
 ## es6
 ### 数组去重
-<p align="right" style="color:#777777;">发布日期：2020-11-13</p>
+<p align="left" style="color:#777777;">发布日期：2020-11-13</p>
 
-![calc](./images/es6_array_duplicate.png ':size=30%')  
 ##### 普通数组去重
 ```javascript
 <script>
@@ -282,7 +322,7 @@ __3. map方法__
 ```
 
 ### 求数组并集、差集、交集
-<p align="right" style="color:#777777;">发布日期：2021-1-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-1-26</p>
 
 ```javascript
 <script>
@@ -346,12 +386,42 @@ mkdir -p
 
 * * *
 
+# Web服务器
+## apcahe
+## nginx
+### Nginx开启gzip压缩
+开启gzip压缩，可以大大减少请求文件的大小，加快网页的访问速度
+配置如下：
+```nginx
+server {
+	......
+
+    # 开启gzip
+    gzip on;
+    # 启用gzip压缩的最小文件，小于设置值的文件将不会压缩
+    gzip_min_length 1k;
+    # gzip 压缩级别，1-10，数字越大压缩的越好，也越占用CPU时间，后面会有详细说明
+    gzip_comp_level 2;
+    # 进行压缩的文件类型。javascript有多种形式。其中的值可以在 mime.types 文件中找到。
+    gzip_types text/plain application/javascript application/x-javascript text/css application/xml text/javascript application/x-httpd-php image/jpeg image/gif image/png;
+    # 是否在http header中添加Vary: Accept-Encoding，建议开启
+    gzip_vary on;
+    # 禁用IE 6 gzip
+    gzip_disable "MSIE [1-6]\.";
+}
+```
+查看是否开启，
+看浏览器->F12->network –>response headers 
+Content-Encoding: gzip
+那便是开启了，而且文件的SIZE和你上传的文件大小变小了很多
+
+* * *
+
 # 版本管理工具
 ## svn服务器搭建
 ### centos7.2 svn服务器搭建
-<p align="right" style="color:#777777;">发布日期：2020-02-25</p>
+<p align="left" style="color:#777777;">发布日期：2020-02-25</p>
 
-![calc](./images/svn.png ':size=30%')  
 ###### 1.putty登陆服务器
 
 ###### 2.安装svn服务端
@@ -472,9 +542,8 @@ svn update
 ```
 ## git
 ### 常用操作和命令
-<p align="right" style="color:#777777;">发布日期：2020-07-24</p>
+<p align="left" style="color:#777777;">发布日期：2020-07-24</p>
 
-![calc](./images/git.jpg ':size=30%')  
 ?> [SSH公钥配置](https://www.jianshu.com/p/464a3373d15c)
 
 ###### 1.下载git客户端 官网下载即可
@@ -723,10 +792,10 @@ $ git push -f origin master
 
 * * *
 
-# hybird app
+# Hybird App
 ## uniapp
 ### Native.js示例汇总
-<p align="right" style="color:#777777;">发布日期：2021-01-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 工作时用到了低功耗蓝牙开发BLE蓝牙  
 [示例地址](https://ask.dcloud.net.cn/article/114)
@@ -736,7 +805,7 @@ $ git push -f origin master
 # 微信
 ## 小程序
 ### 微信小程序之登录详解
-<p align="right" style="color:#777777;">发布日期：2021-01-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 直接上图，后面再写详细代码，及解释  
 ![calc](./images/wechat_mini_program.jpg ':size=70%')  
@@ -1126,7 +1195,7 @@ class WeChat extends Base {
 # 软件
 ## vscode
 ### 快捷键
-<p align="right" style="color:#777777;">发布日期：2021-01-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ![calc](./images/vscode_keyboard_shortcuts.png ':size=100%')  
 [英文原版pdf](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
