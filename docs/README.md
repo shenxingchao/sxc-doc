@@ -70,14 +70,14 @@
     }
 </style>
 <div class="wrap">
-   <div class="left">
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-   </div>
-   <div class="right"></div>
+    <div class="left">
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+    </div>
+    <div class="right"></div>
 </div>
 ```
 ###### 2.flex 实现
@@ -103,15 +103,15 @@
     }
 </style>
 <div class="wrap">
-   <div class="item left">
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-       <p>123</p>
-   </div>
-   <div class="item right">
-   </div>
+    <div class="item left">
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+        <p>123</p>
+    </div>
+    <div class="item right">
+    </div>
 </div>
 ```
 __效果如下图__   
@@ -128,16 +128,14 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 当我在less里写 __width:calc(100%-10rpx)__ 的时候,他就会自动给我编译成 __width:calc(90%)__ 。很明显，这是个问题，后来去作者的github查看，发现有人遇到类似的问题
 
 解决方案就是在样式上加上
-```less
-<style lang="less">
+```
 ~''~
-</style>
 ```
 如下
 ```less
 <style lang="less">
     .class{
-        width:~'calc(100%-10rpx)'~
+        width:~'calc(100%-10rpx)'~;
     }
 </style>
 ```
@@ -146,7 +144,7 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```Css
 <style>
     .class{
-        width:calc(100%-10rpx)
+        width:calc(100%-10rpx);
     }
 </style>
 ```
@@ -161,18 +159,14 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 
 错误写法使用toFixed()，导致精度丢失
 ```javascript
-<script>
-    let num = 0.35;
-    num = num.toFixed(1);//输出0.3 并没有进位
-</script>
+let num = 0.35;
+num = num.toFixed(1); //输出0.3 并没有进位
 ```
 !>千万不要直接使用toFixed 保留小数
 正确写法使用Math.round()四舍五入取整后，使用toFixed()保留
 ```javascript
-<script>
-    let num = 0.35;
-    num = (Math.round(num*10)/10).toFixed(1);//输出0.4
-</script>
+let num = 0.35;
+num = (Math.round(num * 10) / 10).toFixed(1); //输出0.4
 ```
 !>精髓就是先四舍五入，再保留。保留几位小数就*多少
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
@@ -181,21 +175,18 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 
 ?>按order值的大小，对数组List进行升序排序
 ```javascript
-<script>
-    let List = [
-        {
-            id:1,
-            order:1
-        },
-        {
-            id:2,
-            order:0
-        }
-    ];
-    List.sort((x, y) => {
-        return x.order - y.order
-    });
-</script>
+let List = [{
+        id: 1,
+        order: 1
+    },
+    {
+        id: 2,
+        order: 0
+    }
+];
+List.sort((x, y) => {
+    return x.order - y.order
+});
 ```
 !>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
 ### 数组对象按某个属性值分组
@@ -203,30 +194,51 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 
 ?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
 ```javascript
-<script>
-    let List =  [
-        { id: '1001', name: '值1', value: '1' },
-        { id: '1001', name: '值1', value: '2' },
-        { id: '1002', name: '值2', value: '3' },
-        { id: '1002', name: '值2', value: '4' },
-        { id: '1002', name: '值2', value: '5' },
-        { id: '1003', name: '值3', value: '6' },
-    ];
-    let map = {}
-    for (let i = 0; i < List.length; i++) {
-        let item = List[i]
-        if (!map[item.id]) {
-            map[item.id] = [item]
-        } else {
-            map[item.id].push(item)
-        }
+let List = [{
+        id: '1001',
+        name: '值1',
+        value: '1'
+    },
+    {
+        id: '1001',
+        name: '值1',
+        value: '2'
+    },
+    {
+        id: '1002',
+        name: '值2',
+        value: '3'
+    },
+    {
+        id: '1002',
+        name: '值2',
+        value: '4'
+    },
+    {
+        id: '1002',
+        name: '值2',
+        value: '5'
+    },
+    {
+        id: '1003',
+        name: '值3',
+        value: '6'
+    },
+];
+let map = {}
+for (let i = 0; i < List.length; i++) {
+    let item = List[i]
+    if (!map[item.id]) {
+        map[item.id] = [item]
+    } else {
+        map[item.id].push(item)
     }
-    let res = []
-    Object.keys(map).forEach(key => {
-        res.push(map[key])
-    })
-    console.log(res)
-</script>
+}
+let res = []
+Object.keys(map).forEach(key => {
+    res.push(map[key])
+})
+console.log(res)
 ```
 ## jquery
 ### jquery插件编写模板
@@ -263,77 +275,76 @@ $.fn.functionName2 = function(options){
 
 ##### 普通数组去重
 ```javascript
-<script>
-    let arr = [1, 2, 3, 2, 1];
-    let temp = new Set(arr);
-    console.log([...temp]); //输出[1, 2, 3]
-</script>
+let arr = [1, 2, 3, 2, 1];
+let temp = new Set(arr);
+console.log([...temp]); //输出[1, 2, 3]
 ```
 
 ##### 对象数组去重 某个值
 __1. 数组方法__
 ```javascript
-<script>
-    arr = [
-        { name: 1, value: 2 },
-        { name: 2, value: 3 },
-        { name: 1, value: 2 },
-        { name: 4, value: 3 },
-    ];
-    temp = [];
-    let newArr = arr.filter(
+arr = [{
+        name: 1,
+        value: 2
+    },
+    {
+        name: 2,
+        value: 3
+    },
+    {
+        name: 1,
+        value: 2
+    },
+    {
+        name: 4,
+        value: 3
+    },
+];
+temp = [];
+let newArr = arr.filter(
     (item) => !temp.includes(item.value) && temp.push(item.value)
-    );
-    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-</script>
+);
+console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 ```
 __2. set方法__
 ```javascript
-<script>
-    temp = new Set();
-    newArr = arr.filter(
+temp = new Set();
+newArr = arr.filter(
     (item) => !temp.has(item.value) && temp.add(item.value)
-    );
-    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-</script>
+);
+console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 ```
 __3. map方法__
 ```javascript
-<script>
-    temp = new Map();
-    newArr = arr.filter(
-    (item,key) => !temp.has(item.value + '') && temp.set(item.value + '',true)
-    );
-    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-</script>
+temp = new Map();
+newArr = arr.filter(
+    (item, key) => !temp.has(item.value + '') && temp.set(item.value + '', true)
+);
+console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
 ```
 ?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
 
 
 ##### 对象数组去重 整个对象
 ```javascript
-<script>
-    temp = new Map();
-    newArr = arr.filter((item,key)=> 
-        !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item),true)
-    );
-    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
-</script>
+temp = new Map();
+newArr = arr.filter((item, key) =>
+    !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item), true)
+);
+console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
 ```
 
 ### 求数组并集、差集、交集
 <p align="left" style="color:#777777;">发布日期：2021-1-26</p>
 
 ```javascript
-<script>
-    let a = new Set([1,2,3,4,5]);
-    let b = new Set([1,2,3,6]);
-    let union = new Set([...a,...b]);//并集 输出1,2,3,4,5,6
-    let difference1 = [...union].filter(x => (!a.has(x) || !b.has(x)));//差集 输出4,5,6
-    let difference2 = [...b].filter(x=>!a.has(x));//返回a在b中没有的  输出6
-    let difference3 = [...a].filter(x=>!b.has(x));//返回b在a中没有的  输出4,5
-    let intersect = [...a].filter(x => b.has(x));//交集 返回a和b共有的  也可以反着来 输出1,2,3
-</script>
+let a = new Set([1, 2, 3, 4, 5]);
+let b = new Set([1, 2, 3, 6]);
+let union = new Set([...a, ...b]); //并集 输出1,2,3,4,5,6
+let difference1 = [...union].filter(x => (!a.has(x) || !b.has(x))); //差集 输出4,5,6
+let difference2 = [...b].filter(x => !a.has(x)); //返回a在b中没有的  输出6
+let difference3 = [...a].filter(x => !b.has(x)); //返回b在a中没有的  输出4,5
+let intersect = [...a].filter(x => b.has(x)); //交集 返回a和b共有的  也可以反着来 输出1,2,3
 ```
 
 * * *
@@ -813,12 +824,11 @@ $ git push -f origin master
 ```javascript
 import auth from "../../utils/auth";
 Page({
-  data: {
-  },
-  //页面加载回调
-  onLoad: function(options) {
-    auth.checkSession();
-  },
+    data: {},
+    //页面加载回调
+    onLoad: function (options) {
+        auth.checkSession();
+    },
 });
 ```
 ###### 2.下面上auth.js文件
@@ -828,106 +838,112 @@ Page({
  */
 import http from "./request";
 const auth = {
-  /**
-   * 检查微信登录session_key是否过期
-   * 1.在需要获取敏感用户信息数据的时候，检查
-   * 2.再重新登陆之前检查session_key
-   */
-  checkSession: function() {
-    wx.checkSession({
-      success() {
-        //未过期，同时，检查token 是否存在，不存在也要重新执行登录流程,这里的token是和自己服务器换取信息重要凭证 这里其实还可以检查token的合法性 不合法token则重新登录 也可以在需要用token的时候返回错误代码，执行重新登录
-        wx.getStorage({
-          key: "token",
-          fail() {
-            // 不存在
-            auth.checkAuth();
-          }
-        });
-      },
-      fail() {
-        // session_key 已经失效，需要重新执行登录流程
-        auth.checkAuth("expire");
-      }
-    });
-  },
-  /**
-   * 检查是否授权 未授权则跳转到授权页
-   * @param {*传session是否过期} type
-   */
-  checkAuth: function(type = "") {
-    wx.getSetting({
-      success(res) {
-        if (res.authSetting["scope.userInfo"]) {
-          //已授权,则开始登录
-          auth.doLogin({ type: type, back: false });
-        } else {
-          //未授权
-          wx.navigateTo({
-            url: "/pages/auth_login/auth_login?type=" + type
-          });
-        }
-      }
-    });
-  },
-  /**
-   * 执行登录操作
-   * @param {Object} param0
-   */
-  doLogin: function({ type, back = true }) {
-    wx.login({
-      success(res) {
-        if (res.code) {
-          wx.getUserInfo({
-            lang: "zh_CN",
-            success(userInfo) {
-              // 发起网络请求
-              http.post({
-                url: "后端处理url",
-                data: {
-                  code: res.code,
-                  signature: userInfo.signature,
-                  encryptedData: userInfo.encryptedData,
-                  iv: userInfo.iv,
-                  type: type
-                },
-                showLoading: false,
-                success: function(res) {
-                  if (res.data.code === 0) {
-                    //设置token
-                    wx.setStorage({
-                      key: "token",
-                      data: res.data.data
-                    });
-                    if (back) {
-                      wx.navigateBack({
-                        delta: 1
-                      });
-                    } else {
-                      //刷新当前页
-                      const pages = getCurrentPages();
-                      const perpage = pages[pages.length - 1];
-                      perpage.onShow();
+    /**
+     * 检查微信登录session_key是否过期
+     * 1.在需要获取敏感用户信息数据的时候，检查
+     * 2.再重新登陆之前检查session_key
+     */
+    checkSession: function () {
+        wx.checkSession({
+            success() {
+                //未过期，同时，检查token 是否存在，不存在也要重新执行登录流程,这里的token是和自己服务器换取信息重要凭证 这里其实还可以检查token的合法性 不合法token则重新登录 也可以在需要用token的时候返回错误代码，执行重新登录
+                wx.getStorage({
+                    key: "token",
+                    fail() {
+                        // 不存在
+                        auth.checkAuth();
                     }
-                  } else {
-                    wx.showToast({
-                      title: "登录失败！",
-                      icon: "none"
-                    });
-                  }
-                }
-              });
+                });
+            },
+            fail() {
+                // session_key 已经失效，需要重新执行登录流程
+                auth.checkAuth("expire");
             }
-          });
-        } else {
-          wx.showToast({
-            title: "登录失败！",
-            icon: "none"
-          });
-        }
-      }
-    });
-  }
+        });
+    },
+    /**
+     * 检查是否授权 未授权则跳转到授权页
+     * @param {*传session是否过期} type
+     */
+    checkAuth: function (type = "") {
+        wx.getSetting({
+            success(res) {
+                if (res.authSetting["scope.userInfo"]) {
+                    //已授权,则开始登录
+                    auth.doLogin({
+                        type: type,
+                        back: false
+                    });
+                } else {
+                    //未授权
+                    wx.navigateTo({
+                        url: "/pages/auth_login/auth_login?type=" + type
+                    });
+                }
+            }
+        });
+    },
+    /**
+     * 执行登录操作
+     * @param {Object} param0
+     */
+    doLogin: function ({
+        type,
+        back = true
+    }) {
+        wx.login({
+            success(res) {
+                if (res.code) {
+                    wx.getUserInfo({
+                        lang: "zh_CN",
+                        success(userInfo) {
+                            // 发起网络请求
+                            http.post({
+                                url: "后端处理url",
+                                data: {
+                                    code: res.code,
+                                    signature: userInfo.signature,
+                                    encryptedData: userInfo.encryptedData,
+                                    iv: userInfo.iv,
+                                    type: type
+                                },
+                                showLoading: false,
+                                success: function (res) {
+                                    if (res.data.code === 0) {
+                                        //设置token
+                                        wx.setStorage({
+                                            key: "token",
+                                            data: res.data.data
+                                        });
+                                        if (back) {
+                                            wx.navigateBack({
+                                                delta: 1
+                                            });
+                                        } else {
+                                            //刷新当前页
+                                            const pages = getCurrentPages();
+                                            const perpage = pages[pages.length - 1];
+                                            perpage.onShow();
+                                        }
+                                    } else {
+                                        wx.showToast({
+                                            title: "登录失败！",
+                                            icon: "none"
+                                        });
+                                    }
+                                }
+                            });
+                        }
+                    });
+                } else {
+                    wx.showToast({
+                        title: "登录失败！",
+                        icon: "none"
+                    });
+                }
+            }
+        });
+    }
 };
 
 export default auth;
@@ -937,116 +953,120 @@ export default auth;
 import auth from "./auth";
 let app = getApp();
 let baseURL =
-  app.globalData.production === "1"
-    ? "正式接口url前缀"
-    : "测试接口url前缀";
+    app.globalData.production === "1" ?
+    "正式接口url前缀" :
+    "测试接口url前缀";
 
 const request = {
-  get: function({
-    url,
-    params = {},
-    success,
-    showLoading = true,
-    isAuth = false
-  }) {
-    if (showLoading) wx.showLoading({ title: "加载中" });
-    request.createHeader(isAuth, function(header) {
-      wx.request({
-        url: baseURL + url,
-        method: "get",
-        dataType: "json",
-        data: params,
-        header: header,
-        success: function(res) {
-          if (
-            typeof res.header.Code !== "undefined" &&
-            res.header.Code === "40001"
-          ) {
-            //token错误
-            wx.removeStorage({
-              key: "token",
-              success(res) {
-                auth.checkSession();
-              }
+    get: function ({
+        url,
+        params = {},
+        success,
+        showLoading = true,
+        isAuth = false
+    }) {
+        if (showLoading) wx.showLoading({
+            title: "加载中"
+        });
+        request.createHeader(isAuth, function (header) {
+            wx.request({
+                url: baseURL + url,
+                method: "get",
+                dataType: "json",
+                data: params,
+                header: header,
+                success: function (res) {
+                    if (
+                        typeof res.header.Code !== "undefined" &&
+                        res.header.Code === "40001"
+                    ) {
+                        //token错误
+                        wx.removeStorage({
+                            key: "token",
+                            success(res) {
+                                auth.checkSession();
+                            }
+                        });
+                    }
+                    if (typeof res.header.Token !== "undefined") {
+                        wx.setStorage({
+                            key: "token",
+                            data: res.header.Token
+                        });
+                    }
+                    success(res);
+                },
+                complete: function () {
+                    wx.hideLoading();
+                }
             });
-          }
-          if (typeof res.header.Token !== "undefined") {
-            wx.setStorage({
-              key: "token",
-              data: res.header.Token
+        });
+    },
+    post: function ({
+        url,
+        data = {},
+        success,
+        showLoading = true,
+        isAuth = false
+    }) {
+        if (showLoading) wx.showLoading({
+            title: "加载中"
+        });
+        request.createHeader(isAuth, function (header) {
+            wx.request({
+                url: baseURL + url,
+                method: "post",
+                dataType: "json",
+                data: data,
+                header: header,
+                success: function (res) {
+                    if (
+                        typeof res.header.Code !== "undefined" &&
+                        res.header.Code === "40001"
+                    ) {
+                        //token错误
+                        wx.removeStorage({
+                            key: "token",
+                            success(res) {
+                                auth.checkSession();
+                            }
+                        });
+                    }
+                    if (typeof res.header.Token !== "undefined") {
+                        wx.setStorage({
+                            key: "token",
+                            data: res.header.Token
+                        });
+                    }
+                    success(res);
+                },
+                complete: function () {
+                    wx.hideLoading();
+                }
             });
-          }
-          success(res);
-        },
-        complete: function() {
-          wx.hideLoading();
+        });
+    },
+    createHeader: function (isAuth, compete) {
+        let header = {
+            "content-type": "application/json;charset=UTF-8" // 默认值
+        };
+        if (isAuth) {
+            wx.getStorage({
+                key: "token",
+                success(res) {
+                    //token存在 但是session_key过期 这里不影响因为用不到session_key
+                    header.Auth = res.data;
+                    compete(header);
+                },
+                fail() {
+                    // 不存在
+                    auth.checkSession();
+                }
+            });
+        } else {
+            compete(header);
         }
-      });
-    });
-  },
-  post: function({
-    url,
-    data = {},
-    success,
-    showLoading = true,
-    isAuth = false
-  }) {
-    if (showLoading) wx.showLoading({ title: "加载中" });
-    request.createHeader(isAuth, function(header) {
-      wx.request({
-        url: baseURL + url,
-        method: "post",
-        dataType: "json",
-        data: data,
-        header: header,
-        success: function(res) {
-          if (
-            typeof res.header.Code !== "undefined" &&
-            res.header.Code === "40001"
-          ) {
-            //token错误
-            wx.removeStorage({
-              key: "token",
-              success(res) {
-                auth.checkSession();
-              }
-            });
-          }
-          if (typeof res.header.Token !== "undefined") {
-            wx.setStorage({
-              key: "token",
-              data: res.header.Token
-            });
-          }
-          success(res);
-        },
-        complete: function() {
-          wx.hideLoading();
-        }
-      });
-    });
-  },
-  createHeader: function(isAuth, compete) {
-    let header = {
-      "content-type": "application/json;charset=UTF-8" // 默认值
-    };
-    if (isAuth) {
-      wx.getStorage({
-        key: "token",
-        success(res) {
-          //token存在 但是session_key过期 这里不影响因为用不到session_key
-          header.Auth = res.data;
-          compete(header);
-        },
-        fail() {
-          // 不存在
-          auth.checkSession();
-        }
-      });
-    } else {
-      compete(header);
     }
-  }
 };
 export default request;
 ```
@@ -1054,101 +1074,107 @@ export default request;
 ```javascript
 import auth from "../../utils/auth";
 Page({
-  data: {
-    canIUse: wx.canIUse("button.open-type.getUserInfo"),
-    type: ""
-  },
-  onLoad: function(options) {
-    this.setData({
-      type: options.type
-    });
-  },
-  bindGetUserInfo: function(e) {
-    if (e.detail.errMsg !== "getUserInfo:ok") {
-      //取消授权等原因
-      wx.navigateBack({
-        delta: 1
-      });
+    data: {
+        canIUse: wx.canIUse("button.open-type.getUserInfo"),
+        type: ""
+    },
+    onLoad: function (options) {
+        this.setData({
+            type: options.type
+        });
+    },
+    bindGetUserInfo: function (e) {
+        if (e.detail.errMsg !== "getUserInfo:ok") {
+            //取消授权等原因
+            wx.navigateBack({
+                delta: 1
+            });
+        }
+        let _this = this;
+        auth.doLogin({
+            type: _this.data.type
+        });
     }
-    let _this = this;
-    auth.doLogin({
-      type: _this.data.type
-    });
-  }
 });
 ```
 ###### 5.最为期待的后端代码
 ```php
 <?php
+
 namespace app\index\controller;
+
 use app\index\common\Base;
 use think\Controller;
 use think\Db;
 use think\facade\Request;
 use think\Exception;
 
-class WeChat extends Base {
+class WeChat extends Base
+{
 
     private $appId = "你的appid";
     private $secret = "你的秘钥去你的小程序后台获取";
 
-    public function doLogin(){
+    public function doLogin()
+    {
         $code = 0;
         $msg = 'success';
         $data = null;
-        try{
-            if(Request::isPost()){
+        try {
+            if (Request::isPost()) {
                 $param = Request::param();
-                if(!isset($param['code'])||!isset($param['signature'])||
-                    !isset($param['encryptedData'])||!isset($param['iv'])||!isset($param['type'])){
+                if (
+                    !isset($param['code']) || !isset($param['signature']) ||
+                    !isset($param['encryptedData']) || !isset($param['iv']) || !isset($param['type'])
+                ) {
                     $code = 10002;
                     throw new Exception('缺少参数');
                 }
 
                 //从微信接口获取openid session_key
                 $url = "https://api.weixin.qq.com/sns/jscode2session?"
-                    ."appid={$this->appId}&secret={$this->secret}&js_code={$param['code']}&grant_type=authorization_code";
+                    . "appid={$this->appId}&secret={$this->secret}&js_code={$param['code']}&grant_type=authorization_code";
                 $response = json_decode(http_get($url));
-                if(isset($response->errcode)&&$response->errcode!=0){
+                if (isset($response->errcode) && $response->errcode != 0) {
                     $code = 10003;
                     throw new Exception('登录失败');
-                }else{
+                } else {
                     //获取用户信息，此处用到解密方法
-                    $pc=new \weChatLogin\WXBizDataCrypt($this->appId,$response->session_key);
-                    $errCode = $pc->decryptData($param['encryptedData'], $param['iv'], $userInfo );
-                    if($errCode!==0){
+                    $pc = new \weChatLogin\WXBizDataCrypt($this->appId, $response->session_key);
+                    $errCode = $pc->decryptData($param['encryptedData'], $param['iv'], $userInfo);
+                    if ($errCode !== 0) {
                         $code = 10004;
                         throw new Exception('解密用户数据失败');
                     }
                     //记录openID sessionKey 生成加密token返回
                     $user = Db::name('微信用户表')
                         ->where([
-                            'openId'=>$response->openid
+                            'openId' => $response->openid
                         ])
                         ->find();
-                    if($user){
-                        if($param['type'] === 'expire'){
+                    if ($user) {
+                        if ($param['type'] === 'expire') {
                             //session_key过期了 需要更新session_key
                             $update = [
-                                'sessionKey'=>$response->session_key,
+                                'sessionKey' => $response->session_key,
                             ];
                             Db::name('微信用户表')
                                 ->where([
-                                    'openId'=>$response->openid,
+                                    'openId' => $response->openid,
                                 ])
                                 ->update($update);
                         }
-                        $token= $user['token'];
-                    }else{
+                        $token = $user['token'];
+                    } else {
                         $userInfo = json_decode($userInfo);
                         $insert = [
-                            'nickName'=>base64_encode($userInfo->nickName),
-                            'city'=>$userInfo->city,
-                            'province'=>$userInfo->province,
-                            'country'=>$userInfo->country,
-                            'avatarUrl'=>$userInfo->avatarUrl,
-                            'openId'=>$response->openid,
-                            'sessionKey'=>$response->session_key,
+                            'nickName' => base64_encode($userInfo->nickName),
+                            'city' => $userInfo->city,
+                            'province' => $userInfo->province,
+                            'country' => $userInfo->country,
+                            'avatarUrl' => $userInfo->avatarUrl,
+                            'openId' => $response->openid,
+                            'sessionKey' => $response->session_key,
                         ];
                         $userId = Db::name('微信用户表')
                             ->insertGetId($insert);
@@ -1156,33 +1182,32 @@ class WeChat extends Base {
                     }
                     $data = $token;
                 }
-
-            }else{
+            } else {
                 $code = 10001;
                 throw new Exception('请求失败');
             }
-
-        }catch (Exception $e){
+        } catch (Exception $e) {
             $msg = $e->getMessage();
         }
-        return json(['data'=>$data,'msg'=>$msg,'code'=>$code]);
+        return json(['data' => $data, 'msg' => $msg, 'code' => $code]);
     }
 
-    public static function refreshUserToken($userId){
-        if(!$userId)
+    public static function refreshUserToken($userId)
+    {
+        if (!$userId)
             return false;
         //生成token
-        $rand_num = rand(10,99999);//随机数
-        $time = time();//时间戳
-        $token =  md5($userId.$rand_num.$time);
-        $expire_time = time() + 600;//过期时间为10分钟
+        $rand_num = rand(10, 99999); //随机数
+        $time = time(); //时间戳
+        $token =  md5($userId . $rand_num . $time);
+        $expire_time = time() + 600; //过期时间为10分钟
         //更新当前用户token 和 有效期
         $update = [
-            'token'=>$token,
-            'expire_time'=>$expire_time,
+            'token' => $token,
+            'expire_time' => $expire_time,
         ];
-        $update_res = Db::name('微信用户表')->where(['id'=>$userId])->update($update);
-        if(!$update_res)
+        $update_res = Db::name('微信用户表')->where(['id' => $userId])->update($update);
+        if (!$update_res)
             return false;
         else
             return $token;
