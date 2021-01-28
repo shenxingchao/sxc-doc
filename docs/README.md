@@ -1,5 +1,3 @@
-# :id=notebook
-
 ![https://api.xhboke.com/news/](https://api.xhboke.com/news/)
 
 * * *
@@ -25,16 +23,16 @@
 * * *
 
 # My Project
-| 项目名称                                                                                                                                                                                          |             类型              |       更新日期        |
-| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | :---------------------------: | :-------------------: |
-| [Helpdeco网上商城](https://www.helpdeco.com/mobile/#/)-[扫码查看](http://demo.o8o8o8.com/vue/shop/qrcode.png)                                                                                     |          vue 公众号           | 2018年7月 ~ 2018年9月 |
-| [医药类H5基于vue+vantui+mockjs](http://demo.o8o8o8.com/fastmedicine/#/)                                                                                                                           |            vue h5             |       2020年1月       |
-| [多商家微信小程序](https://shenxingchao.github.io/project/image/lyqq_qrcode.jpg)                                                                                                                  |      wechat mini program      |       2019年7月       |
-| [工作台基于vue+electron+thinkphp5.0+elementui+workerman+redis](https://shenxingchao.github.io/project/video/workbench.mp4)                                                                        |         vue electron          |      2019年10月       |
-| [spladmin基于thinkphp5.1+adminLTE框架开发一键生成CURD 集成 权限管理 菜单管理 全局设置](http://spladmin.o8o8o8.com/admin) 演示账号：test 111111                                                    |      thinkphp5.1 bootstrap       |       2019年9月       |
-| [vue-admin-thinkphp5是基于vue-admin-template+thinkphp5的后台权限管理系统](https://github.com/shenxingchao/vue-admin-thinkphp5) -[演示视频](http://demo.o8o8o8.com/vue/vueAdminTemplate/index.html) | thinkphp5.0 vue-element-template |       2019年1月       |
-| [vue-admin-elementui mockjs async-router elementui i18n custom-table custom-theme curd-demo](https://shenxingchao.github.io/vue-admin-elementui/) 演示账号 任意字符登录                           |        vue elementui         |     2021年1月3日      |
-| [vue-admin-thinkphp6基于vue-admin-elementui 和 thinkphp6.0.* 的 前后端分离项目模板 ——登录 增删改查 权限管理 composer](http://demo.o8o8o8.com/vue-admin-thinkphp6/#/) 演示账号 admin admin                           |        vue thinkphp6.0.* vue-admin-elementui php8.0   |     2021年1月16日      |
+| 项目名称                                                                                                                                                                                           |                     类型                     |       更新日期        |
+| :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------: | :-------------------: |
+| [Helpdeco网上商城](https://www.helpdeco.com/mobile/#/)-[扫码查看](http://demo.o8o8o8.com/vue/shop/qrcode.png)                                                                                      |                  vue 公众号                  | 2018年7月 ~ 2018年9月 |
+| [医药类H5基于vue+vantui+mockjs](http://demo.o8o8o8.com/fastmedicine/#/)                                                                                                                            |                    vue h5                    |       2020年1月       |
+| [多商家微信小程序](https://shenxingchao.github.io/project/image/lyqq_qrcode.jpg)                                                                                                                   |             wechat mini program              |       2019年7月       |
+| [工作台基于vue+electron+thinkphp5.0+elementui+workerman+redis](https://shenxingchao.github.io/project/video/workbench.mp4)                                                                         |                 vue electron                 |      2019年10月       |
+| [spladmin基于thinkphp5.1+adminLTE框架开发一键生成CURD 集成 权限管理 菜单管理 全局设置](http://spladmin.o8o8o8.com/admin) 演示账号：test 111111                                                     |            thinkphp5.1 bootstrap             |       2019年9月       |
+| [vue-admin-thinkphp5是基于vue-admin-template+thinkphp5的后台权限管理系统](https://github.com/shenxingchao/vue-admin-thinkphp5) -[演示视频](http://demo.o8o8o8.com/vue/vueAdminTemplate/index.html) |       thinkphp5.0 vue-element-template       |       2019年1月       |
+| [vue-admin-elementui mockjs async-router elementui i18n custom-table custom-theme curd-demo](https://shenxingchao.github.io/vue-admin-elementui/) 演示账号 任意字符登录                            |                vue elementui                 |     2021年1月3日      |
+| [vue-admin-thinkphp6基于vue-admin-elementui 和 thinkphp6.0.* 的 前后端分离项目模板 ——登录 增删改查 权限管理 composer](http://demo.o8o8o8.com/vue-admin-thinkphp6/#/) 演示账号 admin admin          | vue thinkphp6.0.* vue-admin-elementui php8.0 |     2021年1月16日     |
 
 
 
@@ -335,7 +333,7 @@ console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, val
 ```
 
 ### 求数组并集、差集、交集
-<p align="left" style="color:#777777;">发布日期：2021-1-26</p>
+<p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ```javascript
 let a = new Set([1, 2, 3, 4, 5]);
@@ -347,11 +345,110 @@ let difference3 = [...a].filter(x => !b.has(x)); //返回b在a中没有的  输�
 let intersect = [...a].filter(x => b.has(x)); //交集 返回a和b共有的  也可以反着来 输出1,2,3
 ```
 
+## 框架
+### apidoc
+<p align="left" style="color:#777777;">发布日期：2021-01-28</p>
+
+[apidoc官方网站](https://apidocjs.com/#demo)
+
+1. 已经安装了node.js 和 npm
+2. 安装apidoc
+```npm
+npm install apidoc -g
+```
+3. 创建apidoc.json 在项目根目录
+内容如下
+```json
+{
+    "name": "接口文档",
+    "version": "0.3.0",
+    "description": "接口描述",
+    "url": "http://www.baidu.com",
+    "sampleUrl": "http://test.baidu.com"
+}
+```
+
+?>url和sampleUrl分别为正式地址和测试地址
+
+4. 按他的规则写注释如下
+```
+/**
+ * @api {get} /user/:id Get方法获取用户信息（前面的是接口名称）
+ * @apiVersion 0.2.2
+ * @apiName getUserInfo（前面的是方法名）
+ * @apiGroup 用户
+ * 
+ * @apiParam (参数) {Number} id 用户id
+ * @apiParamExample {json} 请求示例
+ * {
+ *  "id": 1
+ * }
+ * @apiSuccess (返回字段) {String} firstname 姓
+ * @apiSuccess (返回字段) {String} lastname  名字
+ *
+ * @apiSuccessExample 成功示例
+ * HTTP/1.1 200 Success
+ *    {
+ *       "firstname": "张",
+ *       "lastname": "三四"
+ *     }
+ * @apiErrorExample 失败示例1
+ *     {
+ *       "code": "1001"
+ *     }
+ * @apiErrorExample 失败示例2
+ *     {
+ *       "code": "1002"
+ *     }
+ * @apiError (错误代码) 1001 内容1
+ * @apiError (错误代码) 1002 内容2
+ */
+/**
+ * @api {post} /user Post方法获取用户信息（前面的是接口名称）
+ * @apiVersion 0.2.2
+ * @apiName getUserInfoByPost（前面的是方法名）
+ * @apiGroup 用户
+ * 
+ * @apiParam (参数) {Number} id=2 用户id
+ * @apiParam (参数) {Number} [age=4] 年龄(中括号表示可选)
+ * @apiParamExample {json} 请求示例
+ * {
+ *  "id": 1，
+ *  "age": 2
+ * }
+ * @apiSuccess (返回字段) {String} firstname 姓
+ * @apiSuccess (返回字段) {String} lastname  名字
+ *
+ * @apiSuccessExample 成功示例
+ * HTTP/1.1 200 Success
+ *    {
+ *       "firstname": "张",
+ *       "lastname": "三四"
+ *     }
+ * @apiErrorExample 失败示例1
+ *     {
+ *       "code": "1001"
+ *     }
+ * @apiErrorExample 失败示例2
+ *     {
+ *       "code": "1002"
+ *     }
+ * @apiError (错误代码) 1001 内容1
+ * @apiError (错误代码) 1002 内容2
+ */
+```
+5. 生成api文档到指定目录
+```
+apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .php(需要生成接口的文件类型)
+```
+6. 版本控制
+建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
+
 * * *
 
 # Vue.js
 ## 一些技巧
-### vue 强制刷新子组件
+### vue强制刷新子组件
 [转](https://www.cnblogs.com/betty-niu/p/11199082.html)  
 父组件中利用v-if 强制刷新子组件
 ```Html
@@ -1224,3 +1321,148 @@ class WeChat extends Base
 
 ![calc](./images/vscode_keyboard_shortcuts.png ':size=100%')  
 [英文原版pdf](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
+### 格式化
+#### eslint+prettier+vetur 格式化vue项目
+<p align="left" style="color:#777777;">发布日期：2021-01-28</p>
+
+- 准备工作
+    - 安装vscode扩展vetur,安装prettier
+    - 安装node模块 
+    ```npm
+     npm -i eslint prettier  eslint-plugin-prettier eslint-config-prettier eslint-plugin-vue--save-dev
+    ```
+
+- vscode工作区配置文件  \\.vscode\settings.json
+```json
+{
+  //需要安装vetur
+  "vetur.format.defaultFormatter.html": "js-beautify-html", //html部分用这个插件
+  "vetur.format.defaultFormatter.js": "prettier", //js部分用prettier
+  "vetur.format.defaultFormatterOptions": {
+    "js-beautify-html": {
+      "indent_size": 2, //首行4个字符缩进
+      "wrap_line_length": 120, //一行最多字符
+      "wrap_attributes": "aligned-multiple", //属性强制换行 不对齐设置auto 强制对齐并换行force-aligned
+      "end_with_newline": false //末尾是否添加新行
+    },
+    "prettier": {
+      "semi": false, //不加分号
+      "singleQuote": true //用单引号
+    }
+  },
+  "[vue]": {
+    "editor.defaultFormatter": "octref.vetur" //vue 文件默认格式化
+  },
+  "eslint.validate": [
+    //eslint检查的语言
+    "javascript",
+    "html",
+    "vue"
+  ],
+  "editor.formatOnSave": true, //保存时自动格式化
+  "editor.codeActionsOnSave": {
+    //保存时eslint自动修复
+    "source.fixAll.eslint": true
+  },
+  //需要安装prettier
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "[json]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[javascript]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[scss]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "prettier.parser": "flow", //prettier格式化不能用时加
+  "prettier.singleQuote": true, //强制添加单引号
+  "prettier.semi": false, //末尾没有分号
+  "prettier.arrowParens": "avoid", //  (x) => {} 箭头函数参数只有一个时是否要有小括号。avoid：省略括号
+  "prettier.bracketSpacing": true, // 在对象，数组括号与文字之间加空格 "{ foo: bar }"
+  "prettier.jsxBracketSameLine": false, // 在jsx中把'>' 单独放一行
+  "prettier.trailingComma": "none",
+  "prettier.disableLanguages": ["vue"] // 不格式化vue文件
+}
+```
+- eslint规则配置文件 \.eslintrc.js
+```javascript
+module.exports = {
+  root: true,
+  env: {
+    node: true
+  },
+  extends: ['plugin:vue/recommended', 'eslint:recommended', 'prettier'], //prettier放最后解决冲突
+  parserOptions: {
+    parser: 'babel-eslint'
+  },
+  rules: {
+    'vue/max-attributes-per-line': [
+      'error', //不符合报错
+      {
+        singleline: 100, //单行最多属性数量
+        multiline: {
+          max: 100, //多行最多属性数量
+          allowFirstLine: true //是否允许属性在第一行 标签行
+        }
+      }
+    ],
+    'vue/html-closing-bracket-newline': [
+      //结束标签换行 > 配置为不换行
+      'error',
+      {
+        singleline: 'never',
+        multiline: 'never'
+      }
+    ],
+    'vue/html-indent': [
+      'error',
+      2,
+      {
+        attribute: 1,
+        baseIndent: 1,
+        closeBracket: 0,
+        alignAttributesVertically: true,
+        ignores: []
+      }
+    ],
+    'vue/mustache-interpolation-spacing': 0, //{{}}之间有没有空格
+    'vue/html-self-closing': [
+      //html标签闭合规则
+      'error',
+      {
+        html: {
+          void: 'always',
+          normal: 'any',
+          component: 'any'
+        },
+        svg: 'always',
+        math: 'always'
+      }
+    ],
+    'vue/singleline-html-element-content-newline': 'off',
+    'vue/multiline-html-element-content-newline': 'off',
+    'vue/name-property-casing': ['error', 'PascalCase'],
+    'vue/no-v-html': 'off', //以上几个与vetur冲突
+    'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
+    quotes: ['error', 'single'], //强制使用单引号
+    semi: ['error', 'never'], //强制不使用分号结尾
+    'no-unused-vars': 0 //变量未定义不提示
+  }
+}
+```
+- vetur 新版本需要的配置文件jsconfig.json 如果是ts 则需要tsconfig.json
+```json
+{
+  "compilerOptions": {
+    "baseUrl": "./",
+    "paths": {
+        "@/*": ["src/*"]
+    }
+  },
+  "exclude": ["node_modules", "dist"]
+}
+```
+__效果如下图__   
+![calc](./images/eslint_prettier_vetur.png ':size=50%')  
