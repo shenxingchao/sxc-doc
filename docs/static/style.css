@@ -3,7 +3,7 @@
   height: 1rem;
 }
 .sidebar-nav > ul > li {
-  font-size: 1rem;
+  font-size: 14px;
 }
 .sidebar-nav > ul > li a {
   font-size: 100%;
@@ -12,6 +12,12 @@
   font-size: 90%;
 }
 .sidebar-nav > ul > li > ul .active > a {
+  border-right: 0.3rem solid #27ae60;
+  background: #edfbf3;
+  color: #27ae60;
+  font-weight: 700;
+}
+.sidebar-nav > ul > li > ul .active > p > a {
   border-right: 0.3rem solid #27ae60;
   background: #edfbf3;
   color: #27ae60;
@@ -27,8 +33,8 @@
 }
 .icon-arrow {
   transition: all 0.2s;
-  width: .6rem;
-  height:.6rem;
+  width: 0.6rem;
+  height: 0.6rem;
   fill: #777777;
 }
 .icon-arrow-down {
