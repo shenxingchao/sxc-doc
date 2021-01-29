@@ -3,7 +3,7 @@
 ### 快捷键
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
-![calc](./images/vscode_keyboard_shortcuts.png ':size=100%')  
+![calc](../images/vscode_keyboard_shortcuts.png ':size=100%')  
 [英文原版pdf](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
 ### 格式化
 #### eslint+prettier+vetur 格式化vue项目
@@ -149,6 +149,6 @@ module.exports = {
 }
 ```
 __效果如下图__   
-![calc](./images/eslint_prettier_vetur.png ':size=50%')  
+![calc](../images/eslint_prettier_vetur.png ':size=50%')  
 
 
