@@ -4,7 +4,7 @@
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 直接上图，后面再写详细代码，及解释  
-![calc](./images/wechat_mini_program.jpg ':size=70%')  
+![calc](../images/wechat_mini_program.jpg ':size=70%')  
 ###### 1.入口文件pages/index/index.js onLoad或者OnShow检查session_key
 ```javascript
 import auth from "../../utils/auth";
