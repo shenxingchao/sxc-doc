@@ -49,33 +49,38 @@
 .first-title.active {
   color: #27ae60;
 }
-/* pre[data-lang] {
+pre[data-lang] {
   border-radius: 10px;
-  background: #282c34;
-  color: #fff !important;
+  /* background: #282c34; */
+  /* color: #fff !important; */
 }
 pre[data-lang] code {
   background: inherit;
   color: inherit;
-  font-size: 0.85em;
+  font-size: 0.9em;
+  font-family: Consolas;
 }
 pre[data-lang] code .attr-name,
 pre[data-lang] code .keyword,
 pre[data-lang] code .namespace {
-  color: #cc99cd;
+  color: #ab27ad;
+  font-weight: bold;
 }
 pre[data-lang] code .tag {
-  color: #e2777a;
+  color: #cf1117;
 }
 pre[data-lang] code .operator {
-  color: #67cdcc;
+  color: #25b9b7;
+}
+pre[data-lang] code .selector {
+  color: #ff0000;
 }
 pre[data-lang] code .punctuation {
-  color: #85cbdd;
+  color: #56c1db;
 }
 pre[data-lang] code .property {
-  color: #f8c555;
+  color: #0730e7;
 }
 pre[data-lang] code .attr-value {
-  color: #acd875;
-} */
+  color: #3abd20;
+}
