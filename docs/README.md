@@ -167,6 +167,7 @@ let num = 0.35;
 num = (Math.round(num * 10) / 10).toFixed(1); //输出0.4
 ```
 !>精髓就是先四舍五入，再保留。保留几位小数就*多少
+
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
 ### 数组按某个值排序
 <p align="left" style="color:#777777;">发布日期：2021-01-22</p>
