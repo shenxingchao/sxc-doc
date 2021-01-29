@@ -1,8 +1,6 @@
-<!-- Site -->
-- [Site](/md/Site#site)
+- [Site](/md/Site#site)<!-- Site -->
 
-<!-- MyProject -->
-- [MyProject](/md/MyProject#myproject)
+- [MyProject](/md/MyProject#myproject)<!-- MyProject -->
 
 <!-- Css -->
 - [Css](/md/Css#css)
