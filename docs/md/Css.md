@@ -3,7 +3,7 @@
 ### div水平垂直居中的常用方法
 <p align="left" style="color:#777777;">发布日期：2021-02-01</p>
 
-假如又如下代码
+假如有如下代码
 ```html
 <style>
     .wrap{
