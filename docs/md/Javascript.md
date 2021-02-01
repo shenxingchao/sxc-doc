@@ -113,73 +113,273 @@ $.fn.functionName2 = function(options){
 ```
 
 ## typescript
+<p align="left" style="color:#777777;">发布日期：2021-02-01</p>
 
-* * *
+1. 初始化tscofig
+    ```tsc
+    tsc --init
+    ```
+2. 编译
+    ```tsc
+    tsc test.ts
+    ```
+3. 编译遇到错误终止选项
+    ```tsc
+    tsc test.ts --noEmitOnError
+    ```
+4. 数据类型定义
+    ```typescript
+    let isFlag: boolean = false;
+    let num: number = 1;
+    let names: string = 'hello';
+    let n: null = null;
+    ```
+5. 没有返回值方法定义
+    ```typescript
+    function nFn(): void {
+        console.log('void');
+    }
+    ```
+6. 任意值类型定义
+    ```typescript
+    let anyValue: any = 'xxx';
+    ```
+    可随意改变类型 赋值， 如果设置了其他的类型就不可以改变了
+    ```typescript
+    anyValue = 3
+    ```
+    也可以随意调用属性和方法
+    ```typescript
+    anyValue.name;
+    anyValue.setName();
+    ```
+7. 类型推论
+    定义时赋值 则会被推出字符串类型
+    如下编译会报错， 会被推出let a: string = 3;
+    ```typescript
+    let a = '3';
+    a = 4;
+    ```
+    如下编译不会报错， 此时会被推出为任意类型let a: any;
+    ```typescript
+    let a;
+    a = '3';
+    a = 4;
+    ```
+8. 联合类型
+    ```typescript
+    let name: string | number;
+    ```
+9. 简单的接口
+    接口开头字母大写， 定义的变量的格式必须和接口格式一致
+    ```typescript
+    interface Person {
+        name: string;
+        age: number;
+    }
+    let tom: Person = {
+        name: 'Tom',
+        age: 25
+    };
+    ```
+10. 可选属性
+    不一致可定义可选属性
+    ```typescript
+    interface Person {
+        name: string;
+        age ? : number;
+    }
+    let tom: Person = {
+        name: 'Tom'
+    };
+    ```
+11. 任意属性
+    允许任意属性[propName: string]: any;
+    那么定义的name: string 和 可选属性age ? : number必须是string 类型的 所以下面的age也要改为age ? : string
+    ```typescript
+    interface Person {
+        name: string;
+        age ? : number;
+        [propName: string]: any;
+    }
+    let tom: Person = {
+        name: 'Tom',
+        gender: 'male'
+    };
+    ```
+    正确写法 多个任意属性 用联合类型定义
+    ```typescript
+    interface Person {
+        name: string;
+        age ? : number;
+        [propName: string]: string | number;
+    }
+    let tom: Person = {
+        name: 'Tom',
+        age: 25,
+        gender: 'male'
+    };
+    ```
+12. 只读属性
+用readonly定义只读属性
+    ```typescript
+    interface Person {
+        readonly id: number;
+        name: string;
+        age ? : number;
+        [propName: string]: any;
+    }
+    let tom: Person = {
+        id: 89757,
+        name: 'Tom',
+        gender: 'male'
+    };
+    ```
+    只读只有在第一次给对象复制的时候， 第二次给只读属性复制会报错
+    如tom.id = 333 会报错
+    如果第一次给对象复制的时候没有初始化只读属性， 也会报错
+    如
+    ```typescript
+    let tom: Person = {
+        name: 'Tom',
+        gender: 'male'
+    };
+    ```
+13. 数组声明【 类型 + 方括号】
+    ```typescript
+    let names: string[] = ['a', 'n', 'c'];
+    ```
+    【泛型表示】
+    ```typescript
+    let names: Array < string > = ['a', 'b', 'c', 'd'];
+    ```
+    【接口表示法】 一般不用这个
+    ```typescript
+    interface NumberArray {
+        [index: number]: number;
+    }
+    let fibonacci: NumberArray = [1, 1, 2, 3, 5];
+    ```
+14.  函数中定义数组
+    需要用接口对象来定义数组 而不是let args: number[] = arguments
+    length和 callee 额外的约束属性而已
+    ```typescript
+    function sum() {
+        let args: {
+            [index: number]: number;
+            length: number;
+            callee: Function;
+        } = arguments;
+    }
+    ```
+    也可以把接口事先定义好
+    ```typescript
+    interface IArguments {
+        [index: number]: any;
+        length: number;
+        callee: Function;
+    }
+    ```
+    再引用
+    ```typescript
+    function sum() {
+        let args: IArguments = arguments;
+    }
+    ```
+15. 任意类型的数组定义
+    ```typescript
+    let names: any[] = [1, '3', 444, {
+        name: 'ssss'
+    }];
+    ```
+16.  函数声明， 参数输入和返回输出都被约束
+    ```typescript
+    function sum(x: number, y: number): number {
+        return x + y;
+    }
+    ```
+    表达式定义法
+    ```typescript
+    let mySum: (x: number, y: number) => number = function (x: number, y: number): number {
+        return x + y;
+    };
+    ```
+    这里的 => 左边表示输入类型， 右边表示输出类型
+16. 函数变量可选参数
+    和可选属性一样加？
+    ```typescript
+    function fn(one: string, two ? : string) {
+        return one;
+    }
+    ```
+    可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
+
+[vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
 ## es6
 ### 数组去重
 <p align="left" style="color:#777777;">发布日期：2020-11-13</p>
 
-##### 普通数组去重
-```javascript
-let arr = [1, 2, 3, 2, 1];
-let temp = new Set(arr);
-console.log([...temp]); //输出[1, 2, 3]
-```
+- 普通数组去重
+    ```javascript
+    let arr = [1, 2, 3, 2, 1];
+    let temp = new Set(arr);
+    console.log([...temp]); //输出[1, 2, 3]
+    ```
 
-##### 对象数组去重 某个值
-__1. 数组方法__
-```javascript
-arr = [{
-        name: 1,
-        value: 2
-    },
-    {
-        name: 2,
-        value: 3
-    },
-    {
-        name: 1,
-        value: 2
-    },
-    {
-        name: 4,
-        value: 3
-    },
-];
-temp = [];
-let newArr = arr.filter(
-    (item) => !temp.includes(item.value) && temp.push(item.value)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-```
-__2. set方法__
-```javascript
-temp = new Set();
-newArr = arr.filter(
-    (item) => !temp.has(item.value) && temp.add(item.value)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-```
-__3. map方法__
-```javascript
-temp = new Map();
-newArr = arr.filter(
-    (item, key) => !temp.has(item.value + '') && temp.set(item.value + '', true)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-```
+- 对象数组去重 某个值
+  1. 数组方法
+      ```javascript
+      arr = [{
+              name: 1,
+              value: 2
+          },
+          {
+              name: 2,
+              value: 3
+          },
+          {
+              name: 1,
+              value: 2
+          },
+          {
+              name: 4,
+              value: 3
+          },
+      ];
+      temp = [];
+      let newArr = arr.filter(
+          (item) => !temp.includes(item.value) && temp.push(item.value)
+      );
+      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+      ```
+  2. set方法
+      ```javascript
+      temp = new Set();
+      newArr = arr.filter(
+          (item) => !temp.has(item.value) && temp.add(item.value)
+      );
+      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+      ```
+  3. map方法
+      ```javascript
+      temp = new Map();
+      newArr = arr.filter(
+          (item, key) => !temp.has(item.value + '') && temp.set(item.value + '', true)
+      );
+      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+      ```
 ?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
 
 
-##### 对象数组去重 整个对象
-```javascript
-temp = new Map();
-newArr = arr.filter((item, key) =>
-    !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item), true)
-);
-console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
-```
+- 对象数组去重 整个对象
+    ```javascript
+    temp = new Map();
+    newArr = arr.filter((item, key) =>
+        !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item), true)
+    );
+    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
+    ```
 
 ### 求数组并集、差集、交集
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
