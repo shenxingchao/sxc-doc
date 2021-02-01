@@ -29,6 +29,8 @@
     - [jquery插件编写模板](/md/Javascript#jquery插件编写模板)
   
   - [typescript](/md/Javascript#typescript)
+    
+    - [typescript从入门到出门](/md/Javascript#typescript从入门到出门)
   
   - [es6](/md/Javascript#es6)
     
@@ -76,6 +78,8 @@
 - [版本管理工具](/md/TeamVersion#版本管理工具)
   
   - [svn服务器搭建](/md/TeamVersion#svn服务器搭建)
+    
+    - [win10搭建TortoiseSvn](/md/TeamVersion#win10搭建TortoiseSvn)
     
     - [centos7.2 svn服务器搭建](/md/TeamVersion#centos72-svn服务器搭建)
   

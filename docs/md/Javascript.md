@@ -113,7 +113,8 @@ $.fn.functionName2 = function(options){
 ```
 
 ## typescript
-<p align="left" style="color:#777777;">发布日期：2021-02-01</p>
+### typescript从入门到出门
+<p align="left" style="color:#777777;">发布日期：2020-08-18</p>
 
 1. 初始化tscofig
     ```tsc
@@ -313,6 +314,15 @@ $.fn.functionName2 = function(options){
     }
     ```
     可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
+17. 类型断言
+    就是自己知道这是什么类型的时候，告诉编译器这是什么类型
+    ```typescript
+    let someValue: any = "this is a string";
+    //第一种方式
+    let strLength: number = (<string>someValue).length;
+    //第二种方式
+    let strLength: number = (someValue as string).length;
+    ```
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 

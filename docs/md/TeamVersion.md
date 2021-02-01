@@ -1,5 +1,38 @@
 # 版本管理工具
 ## svn服务器搭建
+### win10搭建TortoiseSvn
+<p align="left" style="color:#777777;">发布日期：2019-04-01</p>
+
+1. 准备、下载安装包  
+    - Svn客户端：[下载地址](https://tortoisesvn.net/downloads.html)
+    - Svn简体中文语言包：[下载地址](https://tortoisesvn.net/downloads.html)
+    - Svn服务端：[下载地址](https://www.visualsvn.com/downloads/)
+2. 安装SVN服务端
+    弹出错误使用命令行安装即可
+    msiexec /i VisualSVN-Server-2.7.3.msi NO_START_SERVICES=1
+    - 创建一个repositories
+    - 创建一个用户
+    - 创建一个组 将用户加入进去
+    - 修改配置文件如下  
+        ![calc](../images/win10_svn_1.png)  
+        ![calc](../images/win10_svn_2.png) ![calc](../images/win10_svn_3.png)  
+        ![calc](../images/win10_svn_4.png) ![calc](../images/win10_svn_5.png)  
+        ![calc](../images/win10_svn_6.png) ![calc](../images/win10_svn_7.png)  
+        ![calc](../images/win10_svn_8.png) ![calc](../images/win10_svn_9.png)  
+    - 启动visualSVNf http服务 若启动不了，需要去系统服务里面为该服务添加启动用户
+    至此服务端搭建完成
+3. 安装客户端
+   - 安装客户端
+   - 安装汉化包
+
+!> 问题 win10没有文件夹图标解决
+```
+输入：win+R，输入regedit，调出注册表信息，按下Ctrl+F,在注册表里搜索“ShellIconOverlayIdentifiers”
+<或者：右击文件夹------->“小乌龟”TortoiseConflict------>settings------>直接进入注册表>
+将TortoiseAdded、TortoiseConflict……TortoiseUnversioned分别重命名，命名为0TortoiseAdded、1TortoiseConflict……8TortoiseUnversioned。
+重启电脑更新注册表之后，最后文件夹连接服务器后有了图标
+````
+
 ### centos7.2 svn服务器搭建
 <p align="left" style="color:#777777;">发布日期：2020-02-25</p>
 
