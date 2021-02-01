@@ -39,6 +39,9 @@
     <link rel="stylesheet" href="./static/style.css" />
   </head>
   <body>
+    <nav>
+      <a href="#/">林林多</a>
+    </nav>
     <div id="app"></div>
     <script>
       window.$docsify = {
@@ -63,6 +66,7 @@
             "/md/Javascript",
             "/md/Linux",
             "/md/MyProject",
+            "/md/Php",
             "/md/Site",
             "/md/Software",
             "/md/TeamVersion",
@@ -83,6 +87,13 @@
           errorText: "复制失败",
           successText: "复制成功",
         },
+        //字数统计
+        count: {
+          countable: true,
+          fontsize: "0.9em",
+          color: "rgb(90,90,90)",
+          language: "chinese",
+        },
       };
     </script>
     <!-- Docsify v4 -->
@@ -96,6 +107,10 @@
     <script src="./static/docsify-copy-code.min.js"></script>
     <!-- 这是个多列布局插件-->
     <!-- <script src="//unpkg.com/docsify-slides/dist/docsify-slides.min.js"></script> -->
+    <!-- 图片缩放 -->
+    <script src="//cdn.jsdelivr.net/npm/docsify/lib/plugins/zoom-image.min.js"></script>
+    <!-- 字数统计 -->
+    <script src="./static/count.js"></script>
     <!-- git code high -->
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-git.min.js"></script>
     <!-- php code high -->
@@ -106,5 +121,9 @@
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-json.min.js"></script>
     <!-- typescript code high -->
     <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-typescript.min.js"></script>
+    <!-- ini code high -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-ini.min.js"></script>
+    <!-- bash code high -->
+    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.23.0/components/prism-bash.min.js"></script>
   </body>
 </html>

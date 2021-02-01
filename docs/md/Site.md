@@ -1,6 +1,6 @@
 # Site
 | 主题                                                                                                                                |    标签    |   更新日期    |
-| :---------------------------------------------------------------------------------------------------------------------------------- | :--------: | :-----------: |
+| :---------------------------------------------------------------------------------------------------------------------------------- | :--------: | -----------: |
 | [MDN 前端开发学习网站](https://developer.mozilla.org/zh-CN/)                                                                        |    MDN     | 2021年1月26日 |
 | [iconfont  阿里巴巴矢量图标库](https://www.iconfont.cn/)                                                                            |    MDN     | 2021年1月27日 |
 | [free api test 苍穹精华 API](https://api.xhboke.com/doc/)                                                                           |  Markdown  | 2021年1月25日 |
@@ -9,6 +9,7 @@
 | [mockjs在线格式编辑](http://mockjs.com/0.1/editor.html#help)                                                                        |  Mock.js   | 2021年1月25日 |
 | [Lodash JavaScript 实用工具库](https://www.lodashjs.com/)                                                                           |  js 插件   | 2021年1月26日 |
 | [SortableJS功能强大的JavaScript 拖拽库](http://www.sortablejs.com)                                                                  |  js 插件   | 2021年1月25日 |
+| [vue-devtools Chrome开发者调试工具](https://github.com/vuejs/vue-devtools)                                                                             |    vue     | 2020年9月7日 |
 | [Vuex Vue.js状态管理](https://vuex.vuejs.org/zh/guide/)                                                                             |    vue     | 2021年1月25日 |
 | [Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库](https://element.eleme.cn/#/zh-CN/component/installation) | vue ui框架 | 2021年1月25日 |
 | [uni-app一个使用 Vue.js 开发所有前端应用的框架](https://uniapp.dcloud.net.cn/quickstart-cli)                                        |  vue app   | 2021年1月25日 |

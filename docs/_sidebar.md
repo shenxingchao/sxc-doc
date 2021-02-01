@@ -49,6 +49,13 @@
     
     - [vue强制刷新子组件](/md/Vue#vue强制刷新子组件)
 
+<!-- Php -->
+- [Php](/md/Php#php)
+  
+  - [环境搭建](/md/Php#环境搭建)
+    
+    - [wnmp搭建](/md/Php#wnmp搭建)
+
 <!-- UI框架 -->
 - [UI框架](/md/UI#ui框架)
   
