@@ -1,5 +1,97 @@
 # Css
 ## style
+### div水平垂直居中的常用方法
+<p align="left" style="color:#777777;">发布日期：2021-02-01</p>
+
+假如又如下代码
+```html
+<style>
+    .wrap{
+        width:500px;
+        height:500px;
+        background:red;
+    }
+    .wrap-box{
+        width:300px;
+        height:300px;
+        background:blue;
+    }
+</style>
+<div class="wrap">
+    <div class="wrap-box">
+    </div>
+</div>
+```
+1. 最简单的采用flex
+   ```css
+    .wrap{
+        width:500px;
+        height:500px;
+        background:red;
+        display:flex;/*这句*/
+    }
+    .wrap-box{
+        width:300px;
+        height:300px;
+        background:blue;
+        margin:auto;/*这句*/
+    }
+   ```
+2. 采用绝对定位 需要确定wrap-box的高度
+    ```css
+    .wrap{
+        width:500px;
+        height:500px;
+        background:red;
+        position:relative;/*这句*/
+    }
+    .wrap-box{
+        width:300px;
+        height:300px;
+        background:blue;
+        position:absolute;/*这句*/
+        top:0;/*这句*/
+        right:0;/*这句*/
+        bottom:0;/*这句*/
+        left:0;/*这句*/
+        margin:auto;/*这句*/
+    }
+    ```
+3. 采用flex布局里的另外2个属性
+    ```css
+    .wrap{
+        width:500px;
+        height:500px;
+        background:red;
+        display:flex;/*这句*/
+        justify-content:center;/*这句*/
+        align-items:center;/*这句*/
+    }
+    .wrap-box{
+        width:300px;
+        height:300px;
+        background:blue;
+    }
+    ```
+4. 采用translate
+     ```css
+    .wrap{
+        width:500px;
+        height:500px;
+        background:red;
+        position:relative;/*这句*/
+    }
+    .wrap-box{
+        width:300px;
+        height:300px;
+        background:blue;
+        position:absolute;/*这句*/
+        top:50%;/*这句*/
+        left:50%;/*这句*/
+        transform:translate(-50%,-50%);/*这句*/
+    }
+    ```
+    
 ### 父元素高度不确定的情况下-子元素高度相等-右边元素高度始终与左边相等
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
