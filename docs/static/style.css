@@ -72,7 +72,10 @@ pre[data-lang] code .string {
   color: #A31515;
 }
 pre[data-lang] code .operator {
-  color: #67cdcc;
+  color: #25b9b7;
+}
+pre[data-lang] code .selector {
+  color: #ff0000;
 }
 pre[data-lang] code .selector {
   color: #800000;
