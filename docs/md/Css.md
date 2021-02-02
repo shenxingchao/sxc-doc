@@ -4,50 +4,70 @@
 <p align="left" style="color:#777777;">发布日期：2021-02-01</p>
 
 假如有如下代码
-```html
+```html run {height: '200px', row: true, open: true} 
+<template>
+<div class="wrap">
+    <div class="wrap-box">
+        333
+    </div>
+</div>
+</template>
 <style>
     .wrap{
-        width:500px;
-        height:500px;
+        width:50px;
+        height:50px;
         background:red;
     }
     .wrap-box{
-        width:300px;
-        height:300px;
+        width:30px;
+        height:30px;
         background:blue;
     }
 </style>
-<div class="wrap">
-    <div class="wrap-box">
-    </div>
-</div>
 ```
 1. 最简单的采用flex
-   ```css
+```html run {height: '200px', row: true, open: true} 
+<template>
+<div class="wrap">
+    <div class="wrap-box">
+        333
+    </div>
+</div>
+</template>
+<style>
     .wrap{
-        width:500px;
-        height:500px;
+        width:50px;
+        height:50px;
         background:red;
         display:flex;/*这句*/
     }
     .wrap-box{
-        width:300px;
-        height:300px;
+        width:30px;
+        height:30px;
         background:blue;
         margin:auto;/*这句*/
     }
-   ```
+</style>
+```
 2. 采用绝对定位 需要确定wrap-box的高度
-    ```css
+```html run {height: '200px', row: true, open: true} 
+<template>
+<div class="wrap">
+    <div class="wrap-box">
+        333
+    </div>
+</div>
+</template>
+<style>
     .wrap{
-        width:500px;
-        height:500px;
+        width:50px;
+        height:50px;
         background:red;
         position:relative;/*这句*/
     }
     .wrap-box{
-        width:300px;
-        height:300px;
+        width:30px;
+        height:30px;
         background:blue;
         position:absolute;/*这句*/
         top:0;/*这句*/
@@ -56,41 +76,60 @@
         left:0;/*这句*/
         margin:auto;/*这句*/
     }
-    ```
+</style>
+```
 3. 采用flex布局里的另外2个属性
-    ```css
+```html run {height: '200px', row: true, open: true} 
+<template>
+<div class="wrap">
+    <div class="wrap-box">
+        333
+    </div>
+</div>
+</template>
+<style>   
     .wrap{
-        width:500px;
-        height:500px;
+        width:50px;
+        height:50px;
         background:red;
         display:flex;/*这句*/
         justify-content:center;/*这句*/
         align-items:center;/*这句*/
     }
     .wrap-box{
-        width:300px;
-        height:300px;
+        width:30px;
+        height:30px;
         background:blue;
     }
-    ```
+</style>
+```
 4. 采用translate
-     ```css
+```html run {height: '200px', row: true, open: true} 
+<template>
+<div class="wrap">
+    <div class="wrap-box">
+        333
+    </div>
+</div>
+</template>
+<style>   
     .wrap{
-        width:500px;
-        height:500px;
-        background:red;
-        position:relative;/*这句*/
+    width:50px;
+    height:50px;
+    background:red;
+    position:relative;/*这句*/
     }
     .wrap-box{
-        width:300px;
-        height:300px;
+        width:30px;
+        height:30px;
         background:blue;
         position:absolute;/*这句*/
         top:50%;/*这句*/
         left:50%;/*这句*/
         transform:translate(-50%,-50%);/*这句*/
     }
-    ```
+</style>
+```
     
 ### 父元素高度不确定的情况下-子元素高度相等-右边元素高度始终与左边相等
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
