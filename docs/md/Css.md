@@ -135,7 +135,17 @@
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ###### 1.纯CSS实现
-```html
+```html run {height: '200px', row: true, open: true}
+<template>
+    <div class="wrap">
+        <div class="left">
+            <p>123</p>
+            <p>123</p>
+            <p>123</p>
+        </div>
+        <div class="right"></div>
+    </div>
+</template>
 <style>
     .wrap{
         width: 100%;
@@ -158,19 +168,19 @@
         background-color: blue;
     }
 </style>
-<div class="wrap">
-    <div class="left">
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-    </div>
-    <div class="right"></div>
-</div>
 ```
 ###### 2.flex 实现
-```html
+```html run {height: '200px', row: true, open: true}
+<template>
+    <div class="wrap">
+        <div class="left item">
+            <p>123</p>
+            <p>123</p>
+            <p>123</p>
+        </div>
+        <div class="right item"></div>
+    </div>
+</template>
 <style>
     .wrap{
         width: 100%;
@@ -182,7 +192,6 @@
     }
     .item{
         flex:1;
-        
     }
     .left{
         background-color: green;
@@ -191,20 +200,7 @@
         background-color: blue;
     }
 </style>
-<div class="wrap">
-    <div class="item left">
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-        <p>123</p>
-    </div>
-    <div class="item right">
-    </div>
-</div>
 ```
-__效果如下图__   
-![calc](../images/css_left_right_height.png ':size=30%')  
 
 ## less
 ### VSCODE EASY WXLESS 插件编译问题之calc
