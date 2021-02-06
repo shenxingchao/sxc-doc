@@ -58,6 +58,8 @@
     
     - [wnmp搭建](/md/Php#wnmp搭建)
 
+    - [lnmp搭建](/md/Php#lnmp搭建)
+
 <!-- UI框架 -->
 - [UI框架](/md/UI#ui框架)
   

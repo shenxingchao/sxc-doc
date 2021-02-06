@@ -25,7 +25,7 @@
    - 安装客户端
    - 安装汉化包
 
-!> 问题 win10没有文件夹图标解决
+!>问题 win10没有文件夹图标解决
 ```
 输入：win+R，输入regedit，调出注册表信息，按下Ctrl+F,在注册表里搜索“ShellIconOverlayIdentifiers”
 <或者：右击文件夹------->“小乌龟”TortoiseConflict------>settings------>直接进入注册表>
@@ -173,7 +173,7 @@
 ### 常用操作和命令
 <p align="left" style="color:#777777;">发布日期：2020-07-24</p>
 
-?> [SSH公钥配置](https://www.jianshu.com/p/464a3373d15c)
+?>[SSH公钥配置](https://www.jianshu.com/p/464a3373d15c)
 
 1. 下载git客户端 官网下载即可
 2. 打开命令行 配置全局用户名邮箱
