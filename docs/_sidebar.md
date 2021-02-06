@@ -53,12 +53,16 @@
 
 <!-- Php -->
 - [Php](/md/Php#php)
-  
+
   - [环境搭建](/md/Php#环境搭建)
-    
+
     - [wnmp搭建](/md/Php#wnmp搭建)
 
     - [lnmp搭建](/md/Php#lnmp搭建)
+
+  - [扩展](/md/Php#扩展)
+
+    - [linux为php添加redis扩展](/md/Php#linux为php添加redis扩展)
 
 <!-- UI框架 -->
 - [UI框架](/md/UI#ui框架)
@@ -84,6 +88,10 @@
   - [nginx](/md/WebServer#nginx)
     
     - [Nginx开启gzip压缩](/md/WebServer#nginx开启gzip压缩)
+
+    - [Nginx配置php可访问](/md/WebServer#Nginx配置php可访问)
+
+    - [Nginx配置Https](/md/WebServer#Nginx配置Https)
 
 <!-- 版本管理工具 -->
 - [版本管理工具](/md/TeamVersion#版本管理工具)

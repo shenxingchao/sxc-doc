@@ -377,7 +377,7 @@ yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcur
     group=www-data  
 5. 配置nginx支持php  
     vim /usr/local/nginx/conf/nginx.conf  
-    
+    ![calc](../images/nginx_php.png)  
     重启nigix  
     systemctl start nginx.service  
 6. 设置php-fpm为系统服务  
@@ -614,4 +614,21 @@ __统一下载路径cd /usr/local/src__
     重启 systemctl restart php8-fpm.service  
     查看是否启动 ps aux | grep php-fpm  
     Php配置目录  /usr/local/php8/etc/php.ini   
+
+## 扩展
+### linux为php添加redis扩展
+<p align="left" style="color:#777777;">发布日期：2020-07-23</p>
+
+1. cd /usr/local/src  
+2. 下载 wget http://pecl.php.net/get/redis-2.2.7.tgz  
+3. 解压 tar zxvf redis-2.2.7.tgz  
+4. cd redis-2.2.7  
+5. find / -name phpize   
+6. /usr/local/php/bin/phpize  
+7. ./configure --with-php-config=/usr/local/php/bin/php-config  
+8. make install  
+9. 编辑php.ini 加入redis.so  
+    /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
+10. systemctl restart php-fpm  
+
 
