@@ -1,4 +1,43 @@
 # Javascript
+## 效果
+### 浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告
+<p align="left" style="color:#777777;">发布日期：2019-03-27</p>
+
+经常可以看到网页上悬浮在边上的广告  
+无论你怎么拖动滚动条，他都不会离开视窗  
+
+实现悬浮广告的方法有两个  
+1. 用css的position：fixed;  
+    在页面内放一个div，给要悬浮的div元素加上如下样式  
+    ```css
+    div{
+        width:200px;
+        height:200px;
+        background:red;
+        position:fixed;
+        top:300px;
+        right:2px;
+    }
+    ```
+    这样既可以了，但是这样有个不好的问题，当你缩小浏览器窗口，会盖住其他内容。
+    所有你可以用js动态添加样式解决。
+
+2. 用滚动监听来实现悬浮广告  
+    ```javascript
+    $(window).scroll(function () {
+        if($(window).width() > 750){
+            var offsetTop = 0 + $(window).scrollTop() +"px";
+            $('div').css('margin-top',offsetTop);
+        }
+    });
+    ```
+    解释一下这段代码  
+    $(window).scroll()就是当你拖动滚动条时，会出发的事件  
+    $(window).width()是获取当前浏览器可视窗口的大小  
+    $(window).scrollTop()就是滚动条拖动的距离  
+    那么你滚动条拖动多少，悬浮的广告给他加上相应的margin-top他是不是跟着滚动条下来了呢，这样也就达到了和fixed同样的效果  
+    当然前提是这个div首先要浮动到浏览器窗口的右边  
+
 ## 方法
 ### 浮点数四舍五入保留小数位数
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
@@ -111,6 +150,33 @@ $.fn.functionName2 = function(options){
 }
 })(jQuery);
 ```
+
+### jquery重复执行事件导致的动画在队列里的问题,停止动画
+<p align="left" style="color:#777777;">发布日期：2019-03-17</p>
+
+用jquery动画的时候，经常会出现的一个问题
+比如鼠标移入移出事件中,在元素上加上 淡入淡出
+```javascript
+$('div').mousemove(function(){
+    $('span').fadeIn();
+});
+$('div').mouseout(function(){
+    $('span').fadeOut();
+});
+```
+我重复我移入移出div  
+那么span的动画会累积到队列里面，直到执行完毕，那么怎么解决这个问题呢  
+其实很简单,只要把当前元素要执行的动画前面的所有动画停止掉就好了，加上stop()  
+```javascript
+$('div').mousemove(function(){
+    $('span').stop().fadeIn();
+});
+$('div').mouseout(function(){
+    $('span').stop().fadeOut();
+});
+```
+这样，问题是不是解决了呢？  
+stop()方法还带有两个参数，自行百度  
 
 ## typescript
 ### typescript从入门到出门
@@ -502,4 +568,6 @@ apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .
 ```
 6. 版本控制
 建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
+
+
 

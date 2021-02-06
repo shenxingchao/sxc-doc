@@ -631,4 +631,32 @@ __统一下载路径cd /usr/local/src__
     /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
 10. systemctl restart php-fpm  
 
+## 算法
+### PHP之抽奖概率算法
+<p align="left" style="color:#777777;">发布日期：2019-03-27</p>
+
+无论是任何抽奖的小游戏，例如转盘，九宫格，砸金蛋，刮刮卡，都是基于抽奖算法来抽奖，都可以基于同一种抽奖算法。无非就是前端的展现形式不一样。目前只看到过一种，附上。
+```php
+function getRand($proArr){
+    $data = ''; 
+    $proSum = array_sum($proArr); //概率数组的总概率精度  
+    foreach ($proArr as $k => $v) { //概率数组循环 
+        $randNum = mt_rand(1, $proSum); //重点
+        if($randNum <= $v){ //重点
+            $data = $k; 
+            break;
+        } else { 
+            $proSum -= $v; 
+        } 
+    } 
+    unset($proArr); 
+    return $data; 
+}
+```
+这个被人称之为经典概率算法，$proArr就是概率数组。例如('1','2','3','4')这个概率数组，那么他的总概率为10  
+那么抽中1对应的概率就为1/10 。那怎么计算这个概率呢？  
+就是用1到10的随机数，随机一个整数，那么随机到小于等于2的概率不就是2/10。这里牵涉到mt_rand这个函数，有兴趣的研究下。  
+九宫格抽奖：http://www.cnblogs.com/starof/p/4933907.html  
+转盘抽奖：http://www.thinkphp.cn/code/1153.html  
+
 

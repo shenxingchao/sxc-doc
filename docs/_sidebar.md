@@ -17,31 +17,37 @@
 
 <!-- Javascript -->
 - [Javascript](/md/Javascript#javascript)
-  
+
+  - [效果](/md/Javascript#效果)
+
+    - [浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告](/md/Javascript#浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告)
+
   - [方法](/md/Javascript#方法)
-    
+
     - [浮点数四舍五入保留小数位数](/md/Javascript#浮点数四舍五入保留小数位数)
-    
+
     - [数组按某个值排序](/md/Javascript#数组按某个值排序)
-    
+
     - [数组对象按某个属性值分组](/md/Javascript#数组对象按某个属性值分组)
-  
+
   - [jquery](/md/Javascript#jquery)
-    
+
     - [jquery插件编写模板](/md/Javascript#jquery插件编写模板)
-  
+
+    - [jquery重复执行事件导致的动画在队列里的问题,停止动画](/md/Javascript#jquery重复执行事件导致的动画在队列里的问题停止动画)
+
   - [typescript](/md/Javascript#typescript)
-    
+
     - [typescript从入门到出门](/md/Javascript#typescript从入门到出门)
-  
+
   - [es6](/md/Javascript#es6)
-    
+
     - [数组去重](/md/Javascript#数组去重)
-    
+
     - [求数组并集、差集、交集](/md/Javascript#求数组并集-差集-交集)
-  
+
   - [框架](/md/Javascript#框架)
-    
+
     - [apidoc](/md/Javascript#apidoc)
 
 <!-- Vue -->
@@ -63,6 +69,10 @@
   - [扩展](/md/Php#扩展)
 
     - [linux为php添加redis扩展](/md/Php#linux为php添加redis扩展)
+  
+  - [算法](/md/Php#算法)
+
+    - [PHP之抽奖概率算法](/md/Php#PHP之抽奖概率算法)
 
 <!-- UI框架 -->
 - [UI框架](/md/UI#ui框架)
