@@ -4,7 +4,7 @@
 <p align="left" style="color:#777777;">发布日期：2021-02-01</p>
 
 假如有如下代码
-```html run {height: '200px', row: true, open: true} 
+```html
 <template>
 <div class="wrap">
     <div class="wrap-box">
@@ -26,7 +26,7 @@
 </style>
 ```
 1. 最简单的采用flex
-```html run {height: '200px', row: true, open: true} 
+```html
 <template>
 <div class="wrap">
     <div class="wrap-box">
@@ -49,8 +49,8 @@
     }
 </style>
 ```
-2. 采用绝对定位 需要确定wrap-box的高度
-```html run {height: '200px', row: true, open: true} 
+1. 采用绝对定位 需要确定wrap-box的高度
+```html
 <template>
 <div class="wrap">
     <div class="wrap-box">
@@ -78,8 +78,8 @@
     }
 </style>
 ```
-3. 采用flex布局里的另外2个属性
-```html run {height: '200px', row: true, open: true} 
+1. 采用flex布局里的另外2个属性
+```html
 <template>
 <div class="wrap">
     <div class="wrap-box">
@@ -103,8 +103,8 @@
     }
 </style>
 ```
-4. 采用translate
-```html run {height: '200px', row: true, open: true} 
+1. 采用translate
+```html
 <template>
 <div class="wrap">
     <div class="wrap-box">
@@ -135,7 +135,7 @@
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ###### 1.纯CSS实现
-```html run {height: '200px', row: true, open: true}
+```html
 <template>
     <div class="wrap">
         <div class="left">
@@ -170,7 +170,7 @@
 </style>
 ```
 ###### 2.flex 实现
-```html run {height: '200px', row: true, open: true}
+```html
 <template>
     <div class="wrap">
         <div class="left item">
