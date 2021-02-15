@@ -13,7 +13,7 @@
     - 安装vscode扩展vetur,安装prettier
     - 安装node模块 
       ```npm
-      npm -i eslint prettier  eslint-plugin-prettier eslint-config-prettier eslint-plugin-vue--save-dev
+      npm i eslint prettier  eslint-plugin-prettier eslint-config-prettier eslint-plugin-vue --save-dev
       ```
 
 - vscode工作区配置文件  \\.vscode\settings.json
