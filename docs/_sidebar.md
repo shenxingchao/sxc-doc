@@ -44,7 +44,7 @@
 
     - [数组去重](/md/Javascript#数组去重)
 
-    - [求数组并集、差集、交集](/md/Javascript#求数组并集-差集-交集)
+    - [求数组并集 差集 交集](/md/Javascript#求数组并集-差集-交集)
 
   - [框架](/md/Javascript#框架)
 

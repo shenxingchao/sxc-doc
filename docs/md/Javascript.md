@@ -457,7 +457,7 @@ stop()方法还带有两个参数，自行百度
     console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
     ```
 
-### 求数组并集、差集、交集
+### 求数组并集 差集 交集
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ```javascript
