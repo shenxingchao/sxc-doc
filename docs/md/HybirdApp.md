@@ -11,6 +11,8 @@
 
 ## react native
 ### 环境搭建
+<p align="left" style="color:#777777;">发布日期：2021-02-19</p>
+
 #### 一、java jdk安装和环境变量配置
 [jdk1.8.0下载地址](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html#license-lightbox)  
 环境变量配置
