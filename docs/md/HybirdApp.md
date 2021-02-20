@@ -120,7 +120,7 @@ adb reverse tcp:8097 tcp:8097
   react-native link react-native-safe-area-context
   ```
 
-!>  //0.6.0版本以上可不用link 使用 yarn add 速度快
+!>  //使用 yarn add 速度快 不管怎么样都link一下不会错
 
 #### 基本使用案例
 ```javascript
