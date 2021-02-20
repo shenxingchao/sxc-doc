@@ -309,6 +309,28 @@ https://reactnavigation.org/docs
   const Stack = createStackNavigator();
   const Tab = createBottomTabNavigator();
 
+  //定义一个发现页
+  let FindScreen = ({navigation, route}) => {
+    return (
+      <View
+        style={{
+          flex: 1,
+          alignItems: 'center',
+          justifyContent: 'center',
+          backgroundColor: 'blue',
+        }}>
+        <StatusBar
+          backgroundColor="transparent"
+          barStyle="dark-content" //字没变黑的话是安卓版本太低了
+          animated={true}
+          hidden={false}
+          translucent={true}
+        />
+        <Text>发现页</Text>
+      </View>
+    );
+  };
+
   //定义一个详情页
   let DetailsScreen = ({navigation, route}) => {
     const {id} = route.params; //获取路由参数
@@ -340,6 +362,14 @@ https://reactnavigation.org/docs
         <Button
           title="返回堆栈的第一个屏幕"
           onPress={() => navigation.popToTop()}
+        />
+        <Button
+          title="跳转到发现页"
+          onPress={() =>
+            navigation.navigate('发现页', {
+              params: {user: 'findle'},
+            })
+          } // 跳转到其他屏幕 第一个是屏幕name 第二个是参数  多级嵌套 params: {screen: '发现页详情'}, 就可以了
         />
       </View>
     );
@@ -380,7 +410,6 @@ https://reactnavigation.org/docs
           title="跳转到我的"
           onPress={() =>
             navigation.navigate('我的', {
-              screen: 'MyScreen',
               params: {user: 'jane'},
             })
           } //路由跳转传参
@@ -441,20 +470,28 @@ https://reactnavigation.org/docs
   //定义一个主屏幕
   let HomeScreen = ({navigation, route}) => {
     return (
-      <Tab.Navigator>
+      <Tab.Navigator keyboardHidesTabBar={true}>
         <Tab.Screen name="首页" component={IndexStack} />
         <Tab.Screen name="我的" component={MyScreen} />
       </Tab.Navigator>
     );
   };
 
+  //APP堆栈导航
   let App = () => {
     return (
       <NavigationContainer>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="HomeScreen">
           <Stack.Screen
             name="HomeScreen"
             component={HomeScreen}
+            options={{
+              headerShown: false, //隐藏导航栏 就能用沉浸式导航啦
+            }}
+          />
+          <Stack.Screen
+            name="发现页"
+            component={FindScreen}
             options={{
               headerShown: false, //隐藏导航栏 就能用沉浸式导航啦
             }}
@@ -466,5 +503,4 @@ https://reactnavigation.org/docs
 
   export default App;
   //嵌套  堆栈导航->tab导航->堆栈导航->实际页面
-
   ```
