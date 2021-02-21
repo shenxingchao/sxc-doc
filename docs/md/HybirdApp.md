@@ -504,3 +504,47 @@ https://reactnavigation.org/docs
   export default App;
   //嵌套  堆栈导航->tab导航->堆栈导航->实际页面
   ```
+
+### react-native-scrollable-tab-view
+#### 滚动tab
+- 安装
+  ```
+  yarn add @react-native-community/viewpager
+  react-native link @react-native-community/viewpager 
+  //上面的是依赖库
+  yarn add react-native-scrollable-tab-view
+  ```
+- 使用
+  ```javascript
+  import ScrollableTabView, {
+    ScrollableTabBar
+  } from 'react-native-scrollable-tab-view'
+  
+  <ScrollableTabView
+    style={{ marginTop: 20 }}
+    initialPage={0}
+    renderTabBar={() => <ScrollableTabBar />}
+    onChangeTab={(key, ref) => {
+      // console.log(key) //在这里处理点击显示哪个tab key 就是tabitem的key
+    }}
+  >
+    <ScrollView tabLabel="选项卡1">
+      <Text>选项卡1内容</Text>
+    </ScrollView>
+    <ScrollView tabLabel="选项卡2">
+      <Text>选项卡2内容</Text>
+    </ScrollView>
+    <ScrollView tabLabel="选项卡3">
+      <Text>选项卡3内容</Text>
+    </ScrollView>
+    <ScrollView tabLabel="选项卡4">
+      <Text>选项卡4内容</Text>
+    </ScrollView>
+    <ScrollView tabLabel="选项卡5">
+      <Text>选项卡5内容</Text>
+    </ScrollView>
+  </ScrollableTabView>
+  ```
+
+!> 假如这里报getNode()函数的问题，去react-native-scrollable-tab-view/index.js 搜索那个函数，把他删了就行了，高版本的rn>0.62.0不需要，低版本的话又需要
+
