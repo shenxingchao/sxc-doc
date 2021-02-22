@@ -419,3 +419,13 @@
     $ git commit --amend
     $ git push -f origin master
     ```
+57. 忽略本地某个文件提交 注意是 /
+    ```git
+    $ git update-index --assume-unchanged dir/filename.ext
+    $ git status
+    ```
+58. 恢复本地某个文件提交
+    ```git
+    $ git update-index --no-assume-unchanged dir/filename.ext
+    $ git status
+    ```
