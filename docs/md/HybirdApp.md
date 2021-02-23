@@ -575,17 +575,32 @@ https://reactnavigation.org/docs
   //定义一个首页堆栈导航
   import React, { useState } from 'react'
   //导入基础组件
-  import { View, Text, StatusBar, ScrollView } from 'react-native'
+  import {
+    View,
+    Text,
+    StatusBar,
+    ScrollView,
+    ActivityIndicator,
+    Dimensions
+  } from 'react-native'
   import SafeAreaView from 'react-native-safe-area-view'
   //导入吸顶导航嵌套滚动
   import { HPageViewHoc } from 'react-native-head-tab-view'
   import { CollapsibleHeaderTabView } from 'react-native-scrollable-tab-view-collapsible-header'
   const HScrollView = HPageViewHoc(ScrollView)
+  //导入UI组件
+  import { Image } from 'react-native-elements'
+  //导入自定义组件
+  import AutoHeightImage from '../../components/AutoHeightImage'
   //导入主题
   import { theme, ThemeColor } from '../../../styles/theme'
 
+  const SCREEN_WIDTH = Dimensions.SCREEN_WIDTH
+
   //定义一个首页
   export default IndexScreen = ({ navigation, route, props }) => {
+    const [isRefreshing, setIsRefreshing] = useState(false)
+    const [showActivityIndicator, setShowActivityIndicator] = useState(false)
     return (
       <SafeAreaView
         style={{
@@ -593,7 +608,7 @@ https://reactnavigation.org/docs
         }}
       >
         <CollapsibleHeaderTabView
-          makeHeaderHeight={() => 150}
+          makeHeaderHeight={() => 120}
           renderScrollHeader={() => (
             <View>
               <StatusBar
@@ -603,7 +618,11 @@ https://reactnavigation.org/docs
                 hidden={false}
                 translucent={true}
               />
-              <View style={{ height: 150, backgroundColor: 'red' }} />
+              <AutoHeightImage
+                style={{ height: 120 }} //必须设高度 不然吸顶会失效
+                source={{ uri: 'http://www.ay1.cc/img?w=720&h=180&c=f60f60' }}
+                resizeMode="cover" //先设contain 再设cover 保证高度和图片差不多都能正好显示
+              />
             </View>
           )}
           style={{
@@ -612,7 +631,9 @@ https://reactnavigation.org/docs
           initialPage={0} //初始化第一个tab
           tabBarPosition="top" //顶部
           locked={false} //锁定拖动 默认否
-          tabBarUnderlineStyle={{ backgroundColor: ThemeColor.primary }} //下划线颜色
+          tabBarUnderlineStyle={{
+            backgroundColor: ThemeColor.primary
+          }} //下划线颜色
           tabBarActiveTextColor={ThemeColor.primary}
           tabBarInactiveTextColor={ThemeColor.h2}
           tabBarTextStyle={{ fontSize: 16 }}
@@ -622,6 +643,16 @@ https://reactnavigation.org/docs
           onChangeTab={(key, ref) => {
             // console.log(key)//在这里处理点击显示哪个tab key 就是tabitem的key
           }}
+          //整个页面下拉刷新
+          // isRefreshing={isRefreshing}
+          // onStartRefresh={() => {
+          //   setIsRefreshing(true)
+          //   console.log('开始刷新')
+          //   setTimeout(() => {
+          //     console.log('刷新结束')
+          //     setIsRefreshing(false)
+          //   }, 2000)
+          // }}
         >
           {/* 选项卡标签 */}
           <HScrollView
@@ -630,7 +661,38 @@ https://reactnavigation.org/docs
             style={{
               backgroundColor: 'yellow'
             }}
+            //标签页下拉刷新
+            isRefreshing={isRefreshing}
+            onStartRefresh={() => {
+              // console.log('开始刷新')
+              setIsRefreshing(true)
+              setShowActivityIndicator(true)
+              setTimeout(() => {
+                // console.log('刷新结束')
+                setIsRefreshing(false)
+                setShowActivityIndicator(false)
+              }, 1500)
+            }}
           >
+            {showActivityIndicator && (
+              <View
+                style={{
+                  position: 'relative',
+                  justifyContent: 'center'
+                }}
+              >
+                <ActivityIndicator
+                  style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0
+                  }}
+                  size="large"
+                  color={ThemeColor.primary}
+                />
+              </View>
+            )}
             <Text style={{ height: 500 }}>推荐列表1</Text>
             <Text style={{ height: 500 }}>推荐列表2</Text>
             <Text style={{ height: 500 }}>推荐列表3</Text>
@@ -664,10 +726,24 @@ https://reactnavigation.org/docs
   ```
 
 !> 假如这里报 Require cycle 警告 需要去 node_modules\react-native-scrollable-tab-view-collapsible-header\SlideTabView.tsx 把
-```
+```javascript
 import { createHeaderTabsComponent } from './index'
 ```
 改为
-```
+```javascript
 import  createHeaderTabsComponent  from './createHeaderTabsComponent'
 ```
+如果想要tab可以滚动，用下面的替换CollapsibleHeaderTabView，这个目前我测试下还是有卡顿，等完善再用吧
+```javascript
+import {SlideTabView} from 'react-native-tab-view-collapsible-header' 
+import {ScrollableTabBar} from 'react-native-scrollable-tab-view'
+const SScrollView = HPageViewHoc(ScrollView, { slideAnimated: true })
+```
+然后用自定义渲染tabbar
+```javascript
+renderTabBar={() => <ScrollableTabBar />}
+```
+标签页的HScrollView 也不能用了  要用SScrollView
+
+
+
