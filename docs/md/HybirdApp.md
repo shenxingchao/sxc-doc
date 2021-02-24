@@ -101,6 +101,13 @@ adb reverse tcp:8097 tcp:8097
 
 ?> 打开开发菜单 在cli.js start窗口按d就可以了 或者 adb shell input keyevent 82
 
+其他工具  
+更好看 官方
+https://fbflipper.com 布局 日志 网络
+功能更强大 第三方 用这个
+https://github.com/jhen0409/react-native-debugger 布局 日志 网络 redux props
+
+
 ### react native elements
 <p align="left" style="color:#777777;">发布日期：2021-02-19</p>
 
