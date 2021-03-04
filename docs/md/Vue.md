@@ -31,3 +31,26 @@ export default {
 </script>
 ```
 
+## Vue3
+### vue3-vite-electron
+
+!> nodejs版本 > 12.0
+
+- 创建
+  ```
+  yarn create @vitejs/app project-name --template vue
+  ```
+- 安装依赖
+  ```
+  cd project-name
+  yarn
+  ```
+- 启动
+  ```
+  yarn dev
+  ```
+- 安装electron相关依赖
+  ```
+  yarn add electron electron-builder electron-updater -dev
+  //核心 构建工具 更新工具
+  ```
