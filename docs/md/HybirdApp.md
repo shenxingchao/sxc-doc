@@ -602,8 +602,6 @@ https://reactnavigation.org/docs
   //导入主题
   import { theme, ThemeColor } from '../../../styles/theme'
 
-  const SCREEN_WIDTH = Dimensions.SCREEN_WIDTH
-
   //定义一个首页
   export default IndexScreen = ({ navigation, route, props }) => {
     const [isRefreshing, setIsRefreshing] = useState(false)
@@ -732,14 +730,6 @@ https://reactnavigation.org/docs
   }
   ```
 
-!> 假如这里报 Require cycle 警告 需要去 node_modules\react-native-scrollable-tab-view-collapsible-header\SlideTabView.tsx 把
-```javascript
-import { createHeaderTabsComponent } from './index'
-```
-改为
-```javascript
-import  createHeaderTabsComponent  from './createHeaderTabsComponent'
-```
 如果想要tab可以滚动，用下面的替换CollapsibleHeaderTabView，这个目前我测试下还是有卡顿，等完善再用吧
 ```javascript
 import {SlideTabView} from 'react-native-tab-view-collapsible-header' 
@@ -751,6 +741,3 @@ const SScrollView = HPageViewHoc(ScrollView, { slideAnimated: true })
 renderTabBar={() => <ScrollableTabBar />}
 ```
 标签页的HScrollView 也不能用了  要用SScrollView
-
-
-
