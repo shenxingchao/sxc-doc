@@ -32,7 +32,8 @@ export default {
 ```
 
 ## Vue3
-### vue3-vite-electron 待成熟再用，现在没啥好的工具
+### vue3-vite-electron
+待成熟再用，现在没啥好的工具
 
 [官方推荐github模板地址](https://github.com/vitejs/awesome-vite#templates)  
 [vite推荐社区模板](https://cn.vitejs.dev/guide/#%E7%A4%BE%E5%8C%BA%E6%A8%A1%E6%9D%BF)
@@ -51,4 +52,32 @@ export default {
 - 启动
   ```
   yarn dev
+  ```
+
+### vue3-vuecli-electron 
+有成熟工具
+
+- 创建
+  ```
+  vue create project-name
+  ```
+- 添加electron builder
+  ```
+  cd project-name
+  vue add electron-builder
+  ```
+- 启动
+  ```
+  yarn electron:dev
+  ```
+- 打包
+  ```
+  yarn electron:build
+  ```
+
+[electron打包配置](https://www.electron.build/configuration/configuration)
+
+- 添加自动更新
+  ```
+  yarn add electron-updater
   ```
