@@ -32,13 +32,16 @@ export default {
 ```
 
 ## Vue3
-### vue3-vite-electron
+### vue3-vite-electron 待成熟再用，现在没啥好的工具
+
+[官方推荐github模板地址](https://github.com/vitejs/awesome-vite#templates)  
+[vite推荐社区模板](https://cn.vitejs.dev/guide/#%E7%A4%BE%E5%8C%BA%E6%A8%A1%E6%9D%BF)
 
 !> nodejs版本 > 12.0
 
 - 创建
   ```
-  yarn create @vitejs/app project-name --template vue
+  yarn create @vitejs/app  project-name --template vue-ts
   ```
 - 安装依赖
   ```
@@ -48,9 +51,4 @@ export default {
 - 启动
   ```
   yarn dev
-  ```
-- 安装electron相关依赖
-  ```
-  yarn add electron electron-builder electron-updater -dev
-  //核心 构建工具 更新工具
   ```
