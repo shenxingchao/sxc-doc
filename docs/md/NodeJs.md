@@ -66,3 +66,5 @@
     yarn config set fse_binary_host_mirror https://npm.taobao.org/mirrors/fsevents -gyarn
     查看当前地址源：yarn config get registry
   ```
+- yarn 超时
+  删除yarn.lock文件 重新执行yarn
