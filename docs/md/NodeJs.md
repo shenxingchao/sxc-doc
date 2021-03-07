@@ -25,8 +25,8 @@
         "postinstall": "patch-package"
     }
     ```
-## npm
 
+## npm
 ### npm基本操作
 - 设置镜像
   ```
@@ -37,8 +37,8 @@
     npm config set phantomjs_cdnurl https://npm.taobao.org/mirrors/phantomjs/
     npm查看当前地址源：npm get registry
   ```
-## yarn
 
+## yarn
 ### yarn基本操作
 - 安装
   ```
