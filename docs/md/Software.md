@@ -5,6 +5,13 @@
 
 ![calc](../images/vscode_keyboard_shortcuts.png ':size=100%')  
 [英文原版pdf](https://code.visualstudio.com/shortcuts/keyboard-shortcuts-windows.pdf)
+
+- 多行光标
+  ```
+  shift+alt+鼠标左键
+  ctrl+shift+alt+↓
+  ```
+
 ### 格式化
 #### eslint+prettier+vetur 格式化vue项目
 <p align="left" style="color:#777777;">发布日期：2021-01-28</p>
