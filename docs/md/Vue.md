@@ -31,6 +31,108 @@ export default {
 </script>
 ```
 
+## 组件
+### vue2/vue3 svg组件
+1. 安装
+  ```
+  yarn add svg-sprite-loader -D
+  ```
+2. 配置vue.config.js
+  ```javascript
+  module.exports = {
+    chainWebpack: config => {
+      // svg 配置 开始
+      const svgRule = config.module.rule('svg') // 找到svg-loader
+      svgRule.uses.clear() // 清除已有的loader, 如果不这样做会添加在此loader之后
+      svgRule.exclude.add(/node_modules/) // 正则匹配排除node_modules目录
+      svgRule // 添加svg新的loader处理
+        .test(/\.svg$/)
+        .use('svg-sprite-loader')
+        .loader('svg-sprite-loader')
+        .options({
+          symbolId: 'icon-[name]'
+        })
+        .end()
+      // svg配置结束
+    },
+  }
+  ```
+3. 组件
+  - SvgIonc.vue
+    ```typescript
+    <template>
+      <svg :class="'svg-icon ' + props.className" aria-hidden="true">
+        <use :xlink:href="`#icon-${props.name}`" />
+      </svg>
+    </template>
+    <script lang="ts">
+    import { defineComponent } from 'vue'
+
+    export default defineComponent({
+      name: 'SvgIcon',
+      props: {
+        className: {
+          type: String,
+          default: '',
+        },
+        name: {
+          type: String,
+          required: true,
+          default: '',
+        },
+      },
+      setup(props) {
+        return { props }
+      },
+    })
+    </script>
+    ```
+  - 编写svg插件Index.ts
+  ```typescript
+  import SvgIcon from './SvgIcon.vue'
+
+  const componentPlugin: any = {
+    install: function (vue: any, options: any) {
+      if (
+        options &&
+        options.imports &&
+        Array.isArray(options.imports) &&
+        options.imports.length > 0
+      ) {
+        // 按需引入图标
+        const { imports } = options
+        imports.forEach((name: any) => {
+          require(`@/assets/svg/${name}.svg`)
+        })
+      } else {
+        // 全量引入图标
+        const ctx = require.context('@/assets/svg', false, /\.svg$/)
+        ctx.keys().forEach(path => {
+          const temp = path.match(/\.\/([A-Za-z0-9\-_]+)\.svg$/)
+          if (!temp) return
+          const name = temp[1]
+          require(`@/assets/svg/${name}.svg`)
+        })
+      }
+      vue.component(SvgIcon.name, SvgIcon)
+    }
+  }
+  export default componentPlugin
+  ```
+4. 使用插件
+  main.ts使用
+  ```typescript
+  import SvgPlugin from '@/components/SvgIcon'
+  app.use(SvgPlugin, {
+    imports: []
+  })
+  ```
+5. 使用
+  src/assets/下创建svg文件夹  
+  ```typescript
+   <svg-icon name="mini" className="icon"/>
+  ```
+
 ## Vue3
 ### vue3基础
 #### Composition API
