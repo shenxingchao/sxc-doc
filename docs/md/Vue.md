@@ -33,6 +33,8 @@ export default {
 
 ## 组件
 ### vue2/vue3 svg组件
+<p align="left" style="color:#777777;">发布日期：2021-03-08</p>
+
 1. 安装
   ```
   yarn add svg-sprite-loader -D
@@ -135,6 +137,8 @@ export default {
 
 ## Vue3
 ### vue3基础
+<p align="left" style="color:#777777;">发布日期：2021-03-07 更新日期：2021-03-08</p>
+
 #### Composition API
 - setup()函数
   - 在beforeCreate之前调用，所有变量、方法都在setup函数中定义，最后return出去给模板使用
@@ -178,6 +182,8 @@ export default {
   ```
 
 ### vue3-vite-electron
+<p align="left" style="color:#777777;">发布日期：2021-03-04</p>
+
 待成熟再用，现在没啥好的工具
 
 [官方推荐github模板地址](https://github.com/vitejs/awesome-vite#templates)  
@@ -200,6 +206,8 @@ export default {
   ```
 
 ### vue3-vue-cli-electron 
+<p align="left" style="color:#777777;">发布日期：2021-03-04 更新日期：2021-03-08</p>
+
 有成熟工具
 
 - 创建
@@ -219,6 +227,54 @@ export default {
   ```
   yarn electron:build
   ```
+- 打包配置 vue.config.js
+  ```javascript
+  module.exports = {
+    pluginOptions: {
+      electronBuilder: {
+        nodeIntegration: true, //配置防止浏览器报错'__dirname' is not defind
+        builderOptions: {
+          appId: 'com.sxc.code-auto-tool', //appId
+          productName: 'code-auto-tool', //安装目录名称
+          copyright: 'Copyright © sxc', //版权
+          directories: {
+            buildResources: 'build', //打包时的资源文件夹
+            output: './dist' //打包文件输出路径
+          },
+          win: {
+            //windows平台配置
+            target: [
+              //打包类型
+              'nsis' //打包为nsis安装文件
+            ],
+            icon: './public/favicon.ico' //app图标
+          },
+          nsis: {
+            //nsis配置参数
+            oneClick: false, //单击安装
+            allowToChangeInstallationDirectory: true, //允许用户选择安装位置
+            perMachine: true, //显示是否为所有用户安装程序
+            allowElevation: true, //运行提升为管理员权限
+            installerIcon: './public/favicon.ico', //安装图标
+            uninstallerIcon: './public/favicon.ico', //卸载图标
+            installerHeaderIcon: './public/favicon.ico', //安装头部图标
+            deleteAppDataOnUninstall: false, //卸载时是否清除数据
+            createDesktopShortcut: true, //创建桌面图标
+            createStartMenuShortcut: false, //创建开始菜单图标
+            shortcutName: '代码自动生成工具' //快捷图标名称
+          },
+          publish: [
+            //更新参数 http服务器方式 其他方式见#https://www.electron.build/configuration/publish
+            {
+              provider: 'generic',
+              url: 'http://demo.o8o8o8.com/download/' //存放软件版本的地址 自动更新用
+            }
+          ]
+        }
+      }
+    }
+  }
+  ```
 
 [electron打包配置](https://www.electron.build/configuration/configuration)
 
@@ -226,3 +282,34 @@ export default {
   ```
   yarn add electron-updater
   ```
+- 自动更新部分代码 background.ts
+  ```javascript
+  import {
+    dialog,
+    MessageBoxReturnValue,
+  } from 'electron'
+
+  if (!isDevelopment) {
+    autoUpdater.checkForUpdates()
+    autoUpdater.on('update-downloaded', () => {
+      dialog
+        .showMessageBox({
+          type: 'info',
+          title: '提示',
+          message: '有新版本已经下载完毕，是否立即安装？',
+          buttons: ['ok', 'cancel']
+        })
+        .then((res: MessageBoxReturnValue) => {
+          if (res.response == 0) {
+            //下载完成后执行 quitAndInstall
+            autoUpdater.quitAndInstall() //关闭软件并安装新版本
+          } else {
+            //关闭应用程序时安装
+          }
+        })
+    })
+  }
+  ```
+- [解决第一次显示画面闪烁问题](https://www.electronjs.org/docs/api/browser-window#%E4%BD%BF%E7%94%A8ready-to-show%E4%BA%8B%E4%BB%B6)
+- 解决运行超时 vue devtool  vue electron Failed to fetch extension, trying 4 more times
+  注释VUEJS_DEVTOOLS相关内容

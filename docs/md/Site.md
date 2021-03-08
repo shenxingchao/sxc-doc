@@ -12,6 +12,7 @@
 | [vue-devtools Chrome开发者调试工具](https://github.com/vuejs/vue-devtools)                                                                             |    vue     | 2020年9月7日 |
 | [Vuex Vue.js状态管理](https://vuex.vuejs.org/zh/guide/)                                                                             |    vue     | 2021年1月25日 |
 | [Element，一套为开发者、设计师和产品经理准备的基于 Vue 2.0 的桌面端组件库](https://element.eleme.cn/#/zh-CN/component/installation) | vue ui框架 | 2021年1月25日 |
+| [element-plus element ui vue3版本](https://element-plus.gitee.io/#/zh-CN/component/installation) | vue ui框架 | 2021年3月8日 |
 | [uni-app一个使用 Vue.js 开发所有前端应用的框架](https://uniapp.dcloud.net.cn/quickstart-cli)                                        |  vue app   | 2021年1月25日 |
 | [vue-gaode在Vue中完美的使用高德地图](http://vue-gaode.rxshc.com/)                                                                   |  vue 地图  | 2021年1月25日 |
 | [香蕉云编无苹果电脑上传ipa](https://www.yunedit.com/)                                                                               |    ios     | 2021年1月25日 |
