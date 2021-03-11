@@ -159,4 +159,17 @@
 __效果如下图__   
 ![calc](../images/eslint_prettier_vetur.png ':size=50%')  
 
-
+### 字体设置 主题用atom one dark
+```json
+{
+  "editor.fontFamily": "Consolas, 'Microsoft YaHei', monospace",
+  "editor.fontSize": 14,
+  "editor.tokenColorCustomizations": {
+    "comments": {
+      // 注释
+      "fontStyle": "", //字体样式 加粗，斜线，下划线，要覆盖主题就设置为空就行
+      "foreground": "#aaaaaa" //字体颜色。
+    }
+  }
+}
+```
