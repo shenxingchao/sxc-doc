@@ -57,6 +57,10 @@
 
     - [vue强制刷新子组件](/md/Vue#vue强制刷新子组件)
 
+  - [组件](/md/Vue#组件)
+
+    - [vue2/vue3 svg组件](/md/Vue#vue2vue3-svg组件)
+
   - [Vue3](/md/Vue#vue3)
 
     - [vue3基础](/md/Vue#vue3基础)

@@ -313,3 +313,32 @@ export default {
 - [解决第一次显示画面闪烁问题](https://www.electronjs.org/docs/api/browser-window#%E4%BD%BF%E7%94%A8ready-to-show%E4%BA%8B%E4%BB%B6)
 - 解决运行超时 vue devtool  vue electron Failed to fetch extension, trying 4 more times
   注释VUEJS_DEVTOOLS相关内容
+
+- 使用预加载 preload.js 解决nodeapi使用问题
+  主进程main.ts
+  ```typescript
+  const path = require('path')
+
+  webPreferences: {
+    nodeIntegration: true,
+    preload: path.join(__dirname, 'preload.js'),
+    contextIsolation: false
+  }
+  ```
+  preload.js 需要放在dist_electron才生效！！！
+  ```javascript
+  const { ipcRenderer } = require('electron')
+  window.ipcRenderer = ipcRenderer
+  ```
+  使用
+  ```typescript
+  (window as any).ipcRenderer.send
+  ```
+- 不使用preload 解决nodeapi使用问题 nodeIntegration设置为true
+  ```typescript
+  webPreferences: {
+    nodeIntegration: true,
+    contextIsolation: false
+  }
+  ```
+
