@@ -9,6 +9,7 @@
   ```
   找到安装路径node bin location
   新的安装路径覆盖就的就可以了
+
 ##  node_modules
 ### 使用patch-package修改Node.js依赖包内容
 - 安装patch-package
