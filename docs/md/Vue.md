@@ -206,7 +206,7 @@ export default {
   ```
 
 ### vue3-vue-cli-electron 
-<p align="left" style="color:#777777;">发布日期：2021-03-04 更新日期：2021-03-08</p>
+<p align="left" style="color:#777777;">发布日期：2021-03-04 更新日期：2021-03-22</p>
 
 有成熟工具
 
@@ -342,3 +342,21 @@ export default {
   }
   ```
 
+!> 解决build失败,could not find:messages.nsh
+node_module/app-builder-lib/out/targets/nsis/NsisTarget.js 文件里设一行编码
+```javascript
+async executeMakensis(defines, commands, script) {
+const args = this.options.warningsAsErrors === false ? [] : ["-WX"];
+//此处新增
+args.push("-INPUTCHARSET", "UTF8");
+//结束
+for (const name of Object.keys(defines)) {
+  const value = defines[name];
+
+  if (value == null) {
+    args.push(`-D${name}`);
+  } else {
+    args.push(`-D${name}=${value}`);
+  }
+}
+```

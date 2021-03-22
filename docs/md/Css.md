@@ -235,4 +235,23 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```
 这样就达到了我们想要的效果
 
+## scss
+### mixin用法
+<p align="left" style="color:#777777;">发布日期：2021-03-22</p>
 
+```scss
+//定义一个变量
+$theme:#cccccc;
+//定义mixin 混入方法
+@mixin theme($theme) {
+  .title {
+    background: $theme;
+  }
+}
+//在需要的地方引入mixin方法，并传参$theme，设置优先级为最高
+.theme{
+  @include theme(
+    $theme !important
+  );
+}
+```
