@@ -314,7 +314,7 @@ export default {
 - 解决运行超时 vue devtool  vue electron Failed to fetch extension, trying 4 more times
   注释VUEJS_DEVTOOLS相关内容
 
-- 使用预加载 preload.js 解决nodeapi使用问题
+- 使用预加载 preload.js 解决nodeapi使用问题,官方推荐
   主进程main.ts
   ```typescript
   const path = require('path')
@@ -334,11 +334,31 @@ export default {
   ```typescript
   (window as any).ipcRenderer.send
   ```
-- 不使用preload 解决nodeapi使用问题 nodeIntegration设置为true
+- electron version 12+,vue项目使用ts,不使用preload 解决nodeapi使用问题 nodeIntegration设置为true
   ```typescript
   webPreferences: {
     nodeIntegration: true,
     contextIsolation: false
+  }
+  ```
+- electron version 12+,vue项目使用js,报fs.existsSync is not a function,官方不推荐的解决方法
+  background.js
+  ```javascript
+  webPreferences: {
+    nodeIntegration: true,
+    nodeIntegrationInWorker: true,
+    contextIsolation: false
+  }
+  ```
+  vue.config.js
+  ```javascript
+  module.exports = {
+    pluginOptions: {
+      electronBuilder: {
+        nodeIntegration: true
+      }
+    }
+    //...
   }
   ```
 
