@@ -341,7 +341,7 @@ export default {
     contextIsolation: false
   }
   ```
-- The remote module is deprecated https://github.com/electron/remote
+- [The remote module is deprecated解决方法](https://github.com/electron/remote) 
 - electron version 12+,vue项目使用js,报fs.existsSync is not a function,官方不推荐的解决方法
   background.js
   ```javascript
@@ -381,3 +381,5 @@ for (const name of Object.keys(defines)) {
   }
 }
 ```
+
+- [asar解压工具](https://www.npmjs.com/package/asar)
