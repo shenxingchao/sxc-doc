@@ -97,7 +97,7 @@ adb reverse tcp:8097 tcp:8097
 
 !> 安装调式工具react-devtools 时 一定要先安装electron 再安装 react-devtools
 
-!> 启动不成功 adb reverse tcp:8097 tcp:8097  或其他端口
+!> 启动不成功 adb reverse tcp:8097 tcp:8097
 
 ?> 打开开发菜单 在cli.js start窗口按d就可以了 或者 adb shell input keyevent 82
 
