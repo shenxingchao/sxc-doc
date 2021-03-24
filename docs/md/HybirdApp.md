@@ -592,9 +592,9 @@ https://reactnavigation.org/docs
   } from 'react-native'
   import SafeAreaView from 'react-native-safe-area-view'
   //导入吸顶导航嵌套滚动
-  import { HPageViewHoc } from 'react-native-head-tab-view'
+  import { HScrollView as HHScrollView } from 'react-native-head-tab-view'
   import { CollapsibleHeaderTabView } from 'react-native-scrollable-tab-view-collapsible-header'
-  const HScrollView = HPageViewHoc(ScrollView)
+  const HScrollView = HHScrollView(ScrollView)
   //导入UI组件
   import { Image } from 'react-native-elements'
   //导入自定义组件
@@ -613,7 +613,7 @@ https://reactnavigation.org/docs
         }}
       >
         <CollapsibleHeaderTabView
-          makeHeaderHeight={() => 120}
+          headerHeight={() => 120}
           renderScrollHeader={() => (
             <View>
               <StatusBar
