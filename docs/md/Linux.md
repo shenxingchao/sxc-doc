@@ -12,3 +12,7 @@ mkdir -p
 搜索 esc + / + search_string  
 移动到末尾 G  
 移动到开始 g  
+
+### 直播或监控解决方案
+1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流
+2. [rtsp直接转webrtc播放,以组件形式](https://github.com/mpromonet/webrtc-streamer)
