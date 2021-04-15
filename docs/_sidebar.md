@@ -109,6 +109,8 @@
   - [算法](/md/Php#算法)
     
     - [PHP之抽奖概率算法](/md/Php#php之抽奖概率算法)
+  
+- [Python](/md/Python#Python)
 
 - [软件](/md/Software#软件)
   
