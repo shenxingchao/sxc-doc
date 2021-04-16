@@ -1,4 +1,6 @@
 # Python
+## 文档地址
+[地址](https://docs.python.org/zh-cn/3/)
 ## 环境搭建
 ### windows10 python3.9.4环境搭建
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
@@ -140,6 +142,34 @@ else:
 ```
 ?> 非! 在python用not表示
 
+###  循环
+[这里](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#for-statements)
+1. for循环计算0-100的和,循环100次用range
+```py
+sum = 0
+for i in range(1, 101):#也可以写做for i in range(101):
+    sum += i
+print(sum)
+```
+2. for循环输出数组
+```py
+arr = [1, 2, 3, 4]
+for i in arr:
+    print(i)
+```
+3. while循环最好是用在不确定次数的循环上,也可计算0-100的和
+```py
+sum = 0
+i = 1
+while True:
+    if i <= 100:
+        sum += i
+        i += 1
+    else:
+        break
+print(sum)
+```
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -150,12 +180,14 @@ a = 3
 print(type(a))
 ```
 输出<class 'int'>
+
 #### 类型转换
 - int()：将一个数值或字符串转换成整数，可以指定进制。
 - float()：将一个字符串转换成浮点数。
 - str()：将指定的对象转换成字符串形式，可以指定编码。
 - chr()：将整数转换成该编码对应的字符串（一个字符）。
 - ord()：将字符串（一个字符）转换成对应的编码（整数）。
+
 #### 输入和输出函数
 输入input("请输入：")
 输出print("输出")
@@ -176,6 +208,27 @@ print(
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
 
+#### 随机数
+```py
+import random
+#随机整数
+print(random.randint(1, 100))
+#一个范围内的随机数
+print(random.randrange(1, 100))
+```
+
+#### 数学方法
+数学方法很多,参照[这里](https://docs.python.org/zh-cn/3/library/math.html)
+```py
+# 导入函数
+import math
+
+# 平方根
+print(math.sqrt(4))
+# sin函数
+print(math.sin(90))
+```
+
 ### pip
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -184,10 +237,12 @@ a=1,b=2,c=3,d=4.000,a+b=3
 ```
 pip -V
 ```
+
 ####查看已经安装的第三方库
 ```
 pip list
 ```
+
 #### 切换安装源
 echo %APPDATA% 路径下创建pip文件夹
 创建pip.ini文件
@@ -198,6 +253,7 @@ index-url=http://mirrors.aliyun.com/pypi/simple/
 [install]
 trusted-host=mirrors.aliyun.com
 ```
+
 #### pip升级
 ```bash
 pyp install --upgrade pip
