@@ -157,7 +157,7 @@ arr = [1, 2, 3, 4]
 for i in arr:
     print(i)
 ```
-3. while循环最好是用在不确定次数的循环上,也可计算0-100的和
+3. while循环最好是用在不确定循环次数的时,也可计算0-100的和
 ```py
 sum = 0
 i = 1
@@ -168,6 +168,34 @@ while True:
     else:
         break
 print(sum)
+```
+4.while循环斐波那契数列
+```py
+import time
+
+a = 0  # 数1
+b = 0  # 数2
+c = 0  # 数3
+arr = []  # list
+t1 = time.time()
+print("开始计时", t1)
+while len(arr) < 42:
+    if c == 0:
+        a = 1
+        arr.append(1)
+    elif c == 1:
+        b = 1
+        arr.append(1)
+    elif (a + b) == c:
+        # 如果前2个数之后等于第三个数
+        a = b
+        b = c
+        arr.append(c)
+    c += 1
+print(arr)
+t2 = time.time()
+print("计时结束", t2)
+print("耗时", t2 - t1)
 ```
 
 ### 内置函数
