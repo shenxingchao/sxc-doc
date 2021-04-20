@@ -173,3 +173,22 @@ __效果如下图__
   }
 }
 ```
+
+### 注释生成
+这里以python为例
+**文件-首选项-用户片段** 
+输入python.json 配置函数注释如下，其他语言方法一样
+```json
+{
+  "function": {        
+		"prefix": "function",        
+		"body": [            
+			"\"\"\"",            
+			"@description ",                    
+			"@param ",             
+			"@return ",          
+			"\"\"\"",                 
+		],	
+	}
+}
+```

@@ -110,7 +110,37 @@
     
     - [PHP之抽奖概率算法](/md/Php#php之抽奖概率算法)
   
-- [Python](/md/Python#Python)
+- [Python](/md/Python#python)
+
+  - [文档地址](/md/Python#文档地址)
+
+  - [环境搭建](/md/Python#环境搭建)
+
+    - [windows10 python3.9.4环境搭建](/md/Python#windows10-python394环境搭建)
+
+  - [python100天入门笔记](/md/Python#python100天入门笔记)
+
+    - [第一个python脚本](/md/Python#第一个python脚本)
+
+    - [注释](/md/Python#注释)
+
+    - [变量定义](/md/Python#变量定义)
+
+    - [运算符](/md/Python#运算符)
+
+    - [代码折行](/md/Python#代码折行)
+
+    - [条件语句](/md/Python#条件语句)
+
+    - [循环](/md/Python#循环)
+
+    - [函数（方法）](/md/Python#函数方法)
+
+    - [模块](/md/Python#模块)
+
+    - [内置函数](/md/Python#内置函数)
+
+    - [pip](/md/Python#pip)
 
 - [软件](/md/Software#软件)
   

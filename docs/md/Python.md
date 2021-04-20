@@ -10,6 +10,8 @@
 3. 能安装的插件全部勾上，选中Add to Path添加到环境变量
 4. win+r 打开cmd 输入python -V  命令行输出Python 3.9.4 解释器安装成功
 
+## python100天入门笔记
+
 ### 第一个python脚本
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -130,6 +132,8 @@ b:
 ```
 
 ### 条件语句
+<p align="left" style="color:#777777;">发布日期：2021-04-16</p>
+
 ```py
 a = True
 b = False
@@ -143,6 +147,8 @@ else:
 ?> 非! 在python用not表示
 
 ###  循环
+<p align="left" style="color:#777777;">发布日期：2021-04-16</p>
+
 [这里](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#for-statements)
 1. for循环计算0-100的和,循环100次用range
 ```py
@@ -169,7 +175,9 @@ while True:
         break
 print(sum)
 ```
-4.while循环斐波那契数列
+4. 循环斐波那契数列
+
+第一种可测试语言速度
 ```py
 import time
 
@@ -196,6 +204,129 @@ print(arr)
 t2 = time.time()
 print("计时结束", t2)
 print("耗时", t2 - t1)
+```
+
+第二种方法
+```py
+# 取斐波那契数列的前n项
+"""
+@description 取斐波那契数列的前n项
+@param n 项数
+@return arr 存储数据的列表
+"""
+
+
+def fbnq(n):
+    arr = [1, 1]
+    if n == 1 or n == 2:
+        return 1
+    else:
+        for i in range(2, n):
+            s = arr[i - 2] + arr[i - 1]  # i-2项 和 i-1项的和等于当前项，再把当前项记录下来
+            arr.append(s)
+        return arr
+
+
+arr = fbnq(100)
+print(arr)
+```
+
+### 函数（方法）
+<p align="left" style="color:#777777;">发布日期：2021-04-19</p>
+
+#### 最基础的函数定义 参数和返回值
+```py
+"""
+@description 求输入的两个数之和 
+@param a 数1
+@param b 数2
+@return int 两个数之和
+"""
+
+
+def sum(a, b):
+    return a + b
+
+
+a = int(input("请输入第一个数："))
+b = int(input("请输入第二个数："))
+print(sum(a, b))
+```
+
+#### 可变参数
+不确定参数个数的情况下可以使用
+```py
+"""
+@description 求输入的两个数之和 
+@param a 数1
+@param b 数2
+@return int 两个数之和
+"""
+
+
+def sum(*args):
+    sum = 0
+    for item in args:
+        sum += item
+    return sum
+
+
+a = int(input("请输入第一个数："))
+b = int(input("请输入第二个数："))
+c = int(input("请输入第三个数："))
+print(sum(a, b))
+print(sum(a, b, c))
+```
+
+#### 正确的函数书写方法
+```py
+def main():
+    # Todo: Add your code here
+    pass
+
+#python里当前执行的模块名字是__main__ 如果当前文件被导入到其他文件时，下面代码不会执行
+if __name__ == '__main__':
+    main()
+```
+
+### 模块
+<p align="left" style="color:#777777;">发布日期：2021-04-20</p>
+
+假如有一个函数库fn.py
+```py
+"""
+@description 求输入的两个数之和 
+@param a 数1
+@param b 数2
+@return int 两个数之和
+"""
+
+
+def sum(*args):
+    sum = 0
+    for item in args:
+        sum += item
+    return sum
+
+
+# 下面是演示导入的模块代码不会被执行的方法
+print("我会被执行")
+# python里当前执行的模块名字是__main__
+if __name__ == "__main__":
+    print("我不会被执行")
+```
+
+导入方法
+```py
+from fn import sum  # 从fn模块导入sum函数
+import fn  # 直接导入整个模块 也可以重命名模块 import fn as f
+
+a = int(input("请输入第一个数："))
+b = int(input("请输入第二个数："))
+c = int(input("请输入第三个数："))
+print(sum(a, b))
+print(sum(a, b, c))
+print(fn.sum(a, c))
 ```
 
 ### 内置函数
