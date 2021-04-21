@@ -134,7 +134,7 @@
 
     - [循环](/md/Python#循环)
 
-    - [函数（方法）](/md/Python#函数方法)
+    - [函数](/md/Python#函数)
 
     - [模块](/md/Python#模块)
 
