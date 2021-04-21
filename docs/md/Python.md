@@ -329,6 +329,71 @@ print(sum(a, b, c))
 print(fn.sum(a, c))
 ```
 
+### 字符串
+<p align="left" style="color:#777777;">发布日期：2021-04-21</p>
+
+#### 字符串切片操作
+!> 切片操作索引都是从0开始的,负数表示从最后开始操作
+
+```py
+str = "hello world"
+
+print(str[1])  # 输出e
+# 截取指定区间的字符串 不包含最后一个 从前面开始
+print(str[0:2])  # 输出he
+# 指定字符位置后面的字符串 包含第一个
+print(str[1:])  # 输出ello world
+# 指定字符位置之前的字符串 不包含自身
+print(str[:10])  # 输出hello worl
+# 截取偶数索引位的数
+print(str[0::2])  # 输出hlowrd
+# 截取奇数索引位的数
+print(str[1::2])  # 输出el ol
+# 截取最后2位
+print(str[-2:])  # 输出ld
+# 去除最后2位
+print(str[:-2])  # 输出hello wor
+# 字符串反向输出
+print(str[::-1])  # 输出dlrow olleh
+# 截取指定区间 从最后开始
+print(str[-3:-1])  # 输出rl
+```
+
+#### 字符串函数操作
+```py
+str = "hello world"
+# 通过内置函数len计算字符串的长度
+print(len(str))  # 11
+# 获得字符串首字母大写的拷贝
+print(str.capitalize())  # Hello, world!
+# 获得字符串每个单词首字母大写的拷贝
+print(str.title())  # Hello, World!
+# 获得字符串变大写后的拷贝
+print(str.upper())  # HELLO, WORLD!
+# 从字符串中查找子串所在位置
+print(str.find("or"))  # 8
+print(str.find("shit"))  # 没找到返回-1
+# 检查字符串是否以指定的字符串开头
+print(str.startswith("He"))  # False
+print(str.startswith("hel"))  # True
+# 检查字符串是否以指定的字符串结尾
+print(str.endswith("!"))  # True
+# 将字符串以指定的宽度居中并在两侧填充指定的字符
+print(str.center(50, "*"))
+# 将字符串以指定的宽度靠右放置左侧填充指定的字符
+print(str.rjust(50, "*"))
+str = "abc123456"
+# 检查字符串是否由数字构成
+print(str.isdigit())  # False
+# 检查字符串是否以字母构成
+print(str.isalpha())  # False
+# 检查字符串是否以数字和字母构成
+print(str.isalnum())  # True
+# 获得字符串修剪左右两侧空格之后的拷贝
+str = " hello world "
+print(str.strip())  # 输出hello world
+```
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -386,6 +451,14 @@ import math
 print(math.sqrt(4))
 # sin函数
 print(math.sin(90))
+```
+
+#### 计算长度
+```py
+str = "hello world"
+arr = [1, 2, 3, 4]
+print(len(str))  # 输出11
+print(len(arr))  # 输出4
 ```
 
 ### pip
