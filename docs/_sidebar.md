@@ -138,6 +138,16 @@
 
     - [模块](/md/Python#模块)
 
+    - [字符串](/md/Python#字符串)
+
+    - [列表](/md/Python#列表)
+
+    - [元组](/md/Python#元组)
+
+    - [集合](/md/Python#集合)
+
+    - [字典](/md/Python#字典)
+
     - [内置函数](/md/Python#内置函数)
 
     - [pip](/md/Python#pip)

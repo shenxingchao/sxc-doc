@@ -96,28 +96,35 @@ print(a + b)
 ### 运算符
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
-| 运算符                                                              | 描述                           |
-| ------------------------------------------------------------------- | ------------------------------ |
-| `[]` `[:]`                                                          | 下标，切片                     |
-| `**`                                                                | 指数                           |
-| `~` `+` `-`                                                         | 按位取反, 正负号               |
-| `*` `/` `%` `//`                                                    | 乘，除，模，整除               |
-| `+` `-`                                                             | 加，减                         |
-| `>>` `<<`                                                           | 右移，左移                     |
-| `&`                                                                 | 按位与                         |
-| `^` `\|`                                                            | 按位异或，按位或               |
-| `<=` `<` `>` `>=`                                                   | 小于等于，小于，大于，大于等于 |
-| `==` `!=`                                                           | 等于，不等于                   |
-| `is`  `is not`                                                      | 身份运算符                     |
-| `in` `not in`                                                       | 成员运算符                     |
-| `not` `or` `and`                                                    | 逻辑运算符                     |
-| `=` `+=` `-=` `*=` `/=` `%=` `//=` `**=` `&=` `|=` `^=` `>>=` `<<=` | （复合）赋值运算符             |
+| 运算符                                                         | 描述                           |
+| -------------------------------------------------------------- | ------------------------------ |
+| `[]` `[:]`                                                     | 下标，切片                     |
+| `**`                                                           | 指数                           |
+| `~` `+` `-`                                                    | 按位取反, 正负号               |
+| `*` `/` `%` `//`                                               | 乘，除，模，整除               |
+| `+` `-`                                                        | 加，减                         |
+| `>>` `<<`                                                      | 右移，左移                     |
+| `&`                                                            | 按位与                         |
+| `^` `\|`                                                       | 按位异或，按位或               |
+| `<=` `<` `>` `>=`                                              | 小于等于，小于，大于，大于等于 |
+| `==` `!=`                                                      | 等于，不等于                   |
+| `is`  `is not`                                                 | 身份运算符                     |
+| `in` `not in`                                                  | 成员运算符                     |
+| `not` `or` `and`                                               | 逻辑运算符                     |
+| `=` `+=` `-=` `*=` `/=` `%=` `//=` `**=` `&=` `^=` `>>=` `<<=` | （复合）赋值运算符             |
+
+| &操作
 ```py
 a = True
 b = False
-print(a | b, a & b)
+print(a | b, a & b) # 输出True False
 ```
-输出True False
+in操作
+```py
+str = "hello world"
+if "llo" in str:
+    print(True)
+```
 
 ### 代码折行
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
@@ -157,7 +164,7 @@ for i in range(1, 101):#也可以写做for i in range(101):
     sum += i
 print(sum)
 ```
-2. for循环输出数组
+2. for循环输出列表
 ```py
 arr = [1, 2, 3, 4]
 for i in arr:
@@ -333,7 +340,8 @@ print(fn.sum(a, c))
 <p align="left" style="color:#777777;">发布日期：2021-04-21</p>
 
 #### 字符串切片操作
-!> 切片操作索引都是从0开始的,负数表示从最后开始操作
+!> 切片操作索引都是从0开始的,切片操作基本表达式：object[start_index : end_index : step]  
+step的正负号决定方向,start_index开始位置,end_index结束位置
 
 ```py
 str = "hello world"
@@ -355,9 +363,10 @@ print(str[-2:])  # 输出ld
 print(str[:-2])  # 输出hello wor
 # 字符串反向输出
 print(str[::-1])  # 输出dlrow olleh
-# 截取指定区间 从最后开始
-print(str[-3:-1])  # 输出rl
+# 截取指定区间 从倒数第三个开始
+print(str[-3::1])  # 输出rld
 ```
+
 
 #### 字符串函数操作
 ```py
@@ -365,19 +374,23 @@ str = "hello world"
 # 通过内置函数len计算字符串的长度
 print(len(str))  # 11
 # 获得字符串首字母大写的拷贝
-print(str.capitalize())  # Hello, world!
+print(str.capitalize())  # Hello world
 # 获得字符串每个单词首字母大写的拷贝
-print(str.title())  # Hello, World!
+print(str.title())  # Hello World
 # 获得字符串变大写后的拷贝
-print(str.upper())  # HELLO, WORLD!
+print(str.upper())  # HELLO WORLD
 # 从字符串中查找子串所在位置
-print(str.find("or"))  # 8
+print(str.find("or"))  # 7
 print(str.find("shit"))  # 没找到返回-1
+# 查找指定字符串最后出现的位置
+print(str.rfind("o"))  # 7
+# 查找指定字符串第一次出现的位置
+print(str.find("o"))  # 4
 # 检查字符串是否以指定的字符串开头
 print(str.startswith("He"))  # False
 print(str.startswith("hel"))  # True
 # 检查字符串是否以指定的字符串结尾
-print(str.endswith("!"))  # True
+print(str.endswith("d"))  # True
 # 将字符串以指定的宽度居中并在两侧填充指定的字符
 print(str.center(50, "*"))
 # 将字符串以指定的宽度靠右放置左侧填充指定的字符
@@ -392,6 +405,232 @@ print(str.isalnum())  # True
 # 获得字符串修剪左右两侧空格之后的拷贝
 str = " hello world "
 print(str.strip())  # 输出hello world
+```
+
+### 列表
+
+#### 列表基本操作
+<p align="left" style="color:#777777;">发布日期：2021-04-22</p>
+
+```py
+# 定义一个列表
+arr = [1, 2, 3]
+# 打印整个列表
+print(arr)  # [1,2,3]
+# 打印列表第一个索引的值
+print(arr[0])  # 输出1
+# 列表元素重复次数输出
+print(arr * 3)  # 输出[1,2,3,1,2,3,1,2,3]
+# 列表长度
+print(len(arr))  # 输出3
+# for循环通过下标遍历列表
+for i in range(len(arr)):
+    print(arr[i])  # 输出 1 2 3
+# for循环直接遍历列表
+for item in arr:
+    print(item)  # 输出 1 2 3
+# 通过enumerate处理后遍历输出
+for index, item in enumerate(arr):
+    print(item, index)  # 输出1 0 2 1 3 2
+```
+!> 一般用emunerate遍历就可以了
+
+#### 列表操作方法
+```py
+# 定义一个列表
+arr = [1, 2, 3]
+# 向列表末尾添加一个元素
+arr.append(4)
+print(arr)  # 输出[1,2,3,4]
+# 向列表指定索引位置插入一个元素
+arr.insert(0, 0)  # insert(索引位置，插入的数)
+print(arr)  # 输出[0,1,2,3,4]
+# 判断元素是否在列表中，在就删除
+if (0 and 4) in arr:
+    arr.remove(0)
+    arr.remove(4)
+print(arr)  # 输出[1,2,3]
+# 从指定位置删除一个元素
+arr.pop(0)  # 删除索引位置为0的元素
+print(arr)  # 输出[2,3]
+# 清空列表1
+arr = [] #重新初始化
+print(arr)  # 输出[]
+# 清空列表2
+arr = [1, 2, 3]
+arr.clear()  # clear()会清空引用内存占用空间，导致列表不能引用
+print(arr)  # 输出[]
+# 清空列表3
+arr = [1, 2, 3]
+arr *= 0 #不明觉厉
+print(arr)
+# 清空列表4
+arr = [1, 2, 3]
+del arr[:]  # del可以清楚范内的列表元素 如果不给定索引值，就会清除所有元素 这种方法和clear一样
+print(arr)
+# 列表排序
+arr = [1, 3, 2]
+print(arr.sort(reverse=True))  # 它会直接修改原列表 如果不需要原列表性能更好 返回none 输出 none，reverse参数从大到小
+print(arr)  # 输出[3,2,1]
+arr = [1, 3, 2]
+print(sorted(arr, reverse=True))  # sorted返回排序后的列表，不会改变原列表， 输出[3,2,1]
+arr = ["1", "12", "123"]
+print(sorted(arr, key=len, reverse=True))  # key =len表示根据列表元素的长度进行排序,reverse参数从大到小
+
+```
+!> clear()会清空内存占用空间，导致列表不能复用,所以用重新初始化即可 = []
+```py
+arr = [1, 2, 3]
+arr2 = arr
+arr.clear()
+print(arr2)  # 输出[] arr2的引用内存空间没被清空
+
+arr = [1, 2, 3]
+arr2 = arr
+arr = []
+print(arr2)  # 输出[1, 2, 3] arr2的引用内存空间没被清空
+```
+
+#### 列表切片和拷贝
+```py
+arr = [1, 2, 3]
+# 输出指定范围内的元素 不包含最后一个，和字符串切片相同
+print(arr[0:1])  # 输出[1]
+# 列表连接用+
+print(arr + [4])  # 输出[1,2,3,4]
+# 列表倒转
+print(arr[::-1])  # 输出[3,2,1]
+# 通过切片复制列表，实现第一层深拷贝
+copy = arr[:]
+print(copy)  # 输出[1,2,3]
+# 通过直接赋值复制，2个列表的内存地址是一样的，改变一个都会影响另一个
+copy = arr
+print(copy)  # 输出[1,2,3]
+# 通过copy()，实现第一层深拷贝
+copy = arr.copy()
+print(copy)  # 输出[1,2,3]
+# 通过列表循环生成，实现第一层深拷贝
+copy = []
+for index, item in enumerate(arr):
+    copy.append(item)
+print(copy)  # 输出[1,2,3]
+
+# 通过deepcopy()深拷贝列表
+import copy
+
+copys = copy.deepcopy(arr)
+print(copys)
+```
+
+### 元组
+
+#### 基本操作
+```py
+tup = ("hello", 1, True)
+# 打印元组
+print(tup)  # 输出('hello', 1, True)
+# 打印元组第一个元素
+print(tup[0])  # 输出 hello
+# 遍历元组
+for item in tup:
+    print(item)  # 输出hello 1 True
+# 元组元素不能重新赋值可以重新赋值整个元祖
+tup = ("hello tuple", 1, True)
+print(tup)  # 输出('hello tuple', 1, True)
+# 元组转换成列表
+arr = list(tup)
+print(arr)  # 输出['hello tuple', 1, True]
+# 列表转回元组
+tup = tuple(arr)
+print(tup)  # 输出('hello tuple', 1, True)
+```
+
+### 集合
+
+#### 集合创建
+```py
+sets = {1, 2, 3, 1, 2, 3}
+# 利用集合去重
+print(sets)  # 输出{1,2,3}
+# 利用set构造器创建
+sets = set((1, 2, 3, 1, 2))
+print(sets)  # 输出{1,2,3}
+# python推导式语法
+sets = {(i + 1) for i in range(0, 3)}
+print(sets)  # 输出{1,2,3}
+```
+!>推导式语法，{返回的实际数据处理 + for循环 }
+
+#### 基本操作
+```py
+sets = {1, 2, 3}
+# 集合末尾添加一项
+sets.add(4)
+print(sets)  # 输出{1, 2, 3, 4}
+# 集合指定位置插入一项
+sets.update([0, 1])
+print(sets)  # 输出{0, 1, 2, 3, 4}
+# 删除指定元素
+sets.remove(0)
+sets.remove(4)
+print(sets)  # 输出{1, 2, 3}
+# 删除第一个相当于队列出去一个
+sets.pop()
+print(sets)  # 输出{2, 3}
+
+# 交集，差集，并集运算
+set1, set2 = {1, 2, 3}, {2, 3, 4}
+# 交集
+print(set1 & set2)  # 输出{2, 3}
+# 并集
+print(set1 | set2)  # 输出{1, 2, 3, 4}
+# 差集
+print(set1 - set2)  # 输出{1}
+# 两者都没有的
+print((set1 - set2) | (set2 - set1))  # 输出{1,4}
+
+# 判断是否是子集
+set1, set2 = {1, 2, 3}, {1, 2, 3, 4}
+print(set1 <= set2)  # 输出True
+```
+
+### 字典
+```py
+# 字典和js里的对象无异 比较常用吧 由键值对组成
+dictionary = {"age": 18, "sex": "男"}
+print(dictionary)  # 输出 {'age': 18, 'sex': '男'}
+# 使用构造器创建
+dictionary = dict(age=18, sex="男")
+print(dictionary)  # 输出 {'age': 18, 'sex': '男'}
+# 取值
+print(dictionary["age"])  # 输出18
+# 遍历字典
+for key in dictionary:
+    item = dictionary[key]
+    print(key, item)
+# 通过方法取值
+print(dictionary.get("age"))  # 输出18
+# 通过方法取值没有这个值并设置默认值,不会改变原字典数据
+print(dictionary.get("name", "张三"))  # 输出张三
+# 更新一个元素
+dictionary["age"] = 20
+print(dictionary)  # 输出{'age': 20, 'sex': '男'}
+# 更新多个元素
+dictionary.update(age=3, sex="女")
+print(dictionary)  # 输出{'age': 3, 'sex': '女'}
+# 删除最后一项
+dictionary.popitem()
+print(dictionary)  # 输出{'age': 3}
+# 删除指定索引的值 删除age，若删除失败，则返回False,否则返回age对应的值3
+dictionary.pop("age", False)
+print(dictionary)  # 输出{}
+# 现在是{}的没有age元素所以下面的输出False
+print(dictionary.pop("age", False))  # 输出False
+# 创建两个列表
+arr1 = [1, 2, 3]
+arr2 = [4, 5, 6]
+dictionary = dict(zip(arr1, arr2))  # 以arr1值为键名 arr2值为键值创建字典
+print(dictionary)  # 输出{1: 4, 2: 5, 3: 6}
 ```
 
 ### 内置函数
@@ -459,6 +698,29 @@ str = "hello world"
 arr = [1, 2, 3, 4]
 print(len(str))  # 输出11
 print(len(arr))  # 输出4
+```
+
+#### os模块函数
+**清除输出**
+```py
+import os
+
+print("hello")
+os.system("cls")
+print("world")
+# 只会看到输出world
+```
+
+#### time模块
+**睡眠**
+```py
+import time
+
+i = 0
+while True:
+    print(i)
+    time.sleep(1)  # 睡眠1秒
+    i += 1
 ```
 
 ### pip
