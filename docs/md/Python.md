@@ -603,8 +603,11 @@ print(set1 <= set2)  # 输出True
 # 字典和js里的对象无异 比较常用吧 由键值对组成
 dictionary = {"age": 18, "sex": "男"}
 print(dictionary)  # 输出 {'age': 18, 'sex': '男'}
-# 使用构造器创建
+# 使用构造器创建1
 dictionary = dict(age=18, sex="男")
+print(dictionary)  # 输出 {'age': 18, 'sex': '男'}
+# 使用构造器创建2
+dictionary = dict([("age", 18), ("sex", "男")])
 print(dictionary)  # 输出 {'age': 18, 'sex': '男'}
 # 取值
 print(dictionary["age"])  # 输出18
