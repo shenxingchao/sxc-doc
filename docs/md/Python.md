@@ -523,6 +523,7 @@ print(copys)
 ```
 
 ### 元组
+<p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
 #### 基本操作
 ```py
@@ -546,6 +547,7 @@ print(tup)  # 输出('hello tuple', 1, True)
 ```
 
 ### 集合
+<p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
 #### 集合创建
 ```py
@@ -595,6 +597,8 @@ print(set1 <= set2)  # 输出True
 ```
 
 ### 字典
+<p align="left" style="color:#777777;">发布日期：2021-04-22</p>
+
 ```py
 # 字典和js里的对象无异 比较常用吧 由键值对组成
 dictionary = {"age": 18, "sex": "男"}
