@@ -640,6 +640,147 @@ dictionary = dict(zip(arr1, arr2))  # 以arr1值为键名 arr2值为键值创建
 print(dictionary)  # 输出{1: 4, 2: 5, 3: 6}
 ```
 
+### 类
+
+#### 创建类
+<p align="left" style="color:#777777;">发布日期：2021-04-23</p>
+
+```py
+# 定义一个Person类
+class Person:
+    """
+    @description 构造方法
+    @param name姓名
+    @return
+    """
+
+    def __init__(self, name):
+        self.name = name
+
+    """
+    @description 介绍自己的姓名
+    @param 
+    @return 
+    """
+
+    def sayName(self):
+        print("my name is " + self.name)
+
+    """
+    @description 说话的方法 
+    @param content 说话的内容
+    @return 
+    """
+
+    def say(self, content):
+        print("I say " + content)
+
+    """
+    @description 私有方法类外部直接通过方法名不能访问，可以通过_Person__saySex()访问
+    @param 
+    @return 
+    """
+
+    def __saySex(self):
+        print("I am a boy")
+
+
+# 定义入口函数
+def main():
+    # 创建一个Person对象
+    person = Person("绘梦")
+    # 调用介绍自己的姓名的方法
+    person.sayName()
+    # 调用说话的方法
+    person.say("hello")
+    # 调用私有方法介绍性别
+    person._Person__saySex()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 私有属性 get set装饰器
+<p align="left" style="color:#777777;">发布日期：2021-04-23</p>
+
+```py
+class Person:
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    """
+    @description  定义一个get装饰器 用于获取类内部私有属性
+    @param
+    @return name
+    """
+
+    @property
+    def name(self):
+        return self.__name
+
+    """
+    @description 定义一个set装饰器，用于设置类内部私有属性值
+    @param 
+    @return 
+    """
+
+    @name.setter
+    def name(self, name):
+        self.__name = name
+
+    """
+    @description  定义一个get装饰器 用于获取类内部私有属性
+    @param
+    @return age
+    """
+
+    @property
+    def age(self):
+        return self.__age
+
+
+def main():
+    person = Person("绘梦", 18)
+    person.name = "豆豆"
+    print(person.name, person.age)  # 输出 豆豆 18
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 静态方法装饰器
+```py
+class Person:
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    """
+    @description 静态方法装饰器 不需要创建对象即可调用 ,即第一个参数不需要传self
+    @param 
+    @return 
+    """
+
+    @staticmethod
+    def staticFn(content):
+        print(content)
+    
+
+def main():
+    # 直接调用
+    Person.staticFn("直接调用")
+    # 创建对象调用
+    person = Person("绘梦", 18)
+    person.staticFn("创建对象调用")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
