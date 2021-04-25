@@ -260,7 +260,7 @@ b = int(input("请输入第二个数："))
 print(sum(a, b))
 ```
 
-#### 可变参数
+#### 可选参数
 不确定参数个数的情况下可以使用
 ```py
 """
@@ -285,7 +285,31 @@ print(sum(a, b))
 print(sum(a, b, c))
 ```
 
-#### 正确的函数书写方法
+理解位置参数*args 和**kwargs  kw=>keywords 这两个的参数名字可以随便起,不固定
+```py
+"""
+@description 定义一个函数有三个参数，function(正常参数，将7,8,9打包成元组给函数使用,将a=1,b=2,c=3打包成字典给函数使用)
+@param arg 正常参数
+@param *args 位置参数，不确定个数的参数打包成的元组
+@param **kwargs 关键字参数，不确定个数的参数打包成的字典
+@return 
+"""
+
+
+def function(arg, *args, **kwargs):
+    print(arg, args, kwargs)  # 输出6 (7, 8, 9) {'a': 1, 'b': 2, 'c': 3}
+
+
+def main():
+    # 按顺序传入参数
+    function(6, 7, 8, 9, a=1, b=2, c=3)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 正确的main函数书写方法
 ```py
 def main():
     # Todo: Add your code here
@@ -750,6 +774,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> 注意get装饰器必须在set装饰器之前,不然会出错
 
 #### 静态方法装饰器
 ```py
@@ -779,6 +804,271 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+!>定义：使用装饰器@staticmethod。参数随意，没有“self”和“cls”参数，但是方法体中不能使用类或实例的任何属性和方法  
+  调用：类和实例对象都可以调用
+
+
+#### 类方法装饰器
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
+```py
+# 定义一个公司类
+class Company:
+    __num = 0  # 公司总人数
+
+    # 初始化类时调用统计公司人数方法,不用实例化公司类就能统计人数
+    def __new__(cls):
+        Company.addNum()  # 类名直接调用类方法
+        return super().__new__(cls)  # 必须返回，这里super()就是调用父类object的方法或数学，直接返回父类的__new__方法
+
+    # 定义类方法  直接用类名去调用 和静态方法一样
+    @classmethod
+    def addNum(cls):
+        cls.__num += 1
+
+    # 定义类方法  直接用类名去调用 和静态方法一样
+    @classmethod
+    def getNum(cls):
+        return cls.__num
+
+
+# 定义个员工类
+class Person(Company):
+    # 实例化方法
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    # 初始化方法 这里必须要定义自己的__new__,不然会去继承父类的__new__,直接调用Company类的__new__,因为父类的__new__只有一个参数，这样就报错误了
+    # 这里定义之后，会先调用这里的__new__,在调用父类的__new__
+    def __new__(cls, name, age):
+        return super().__new__(cls)
+
+
+def main():
+    # 创建2个员工实例
+    a = Person("张三", 18)
+    b = Person("李四", 20)
+    print(Company.getNum())  # 类名调用类方法 输出2
+
+
+if __name__ == "__main__":
+    main()
+```
+
+!>定义：使用装饰器@classmethod。第一个参数必须是当前类对象，该参数名一般约定为“cls”，通过它来传递类的属性和方法（不能传实例的属性和方法）  
+  调用：类和实例对象都可以调用
+
+#### 继承和多态
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
+```py
+# 定义一个公司类
+class Company:
+    __address = "浙江省杭州市"  # 公司地址
+    __company_name = "阿里巴巴"  # 公司名称
+
+    @property
+    def address(self):
+        return self.__address
+
+    """
+    @description 设置公司地址 
+    @param 
+    @return 
+    """
+
+    @address.setter
+    def address(self, address):
+        self.__address = address
+
+    """
+    @description 获取公司名称 
+    @param 
+    @return 
+    """
+
+    def getCompanyName(self):
+        return self.__company_name
+
+
+# 定义个员工类  继承公司类
+class Person(Company):
+    # 实例化方法
+    def __init__(self, name, age):
+        self.__name = name
+        self.__age = age
+
+    # 重写父类的方法 称之为多态。。。
+    """
+    @description 获取公司名称 
+    @param 
+    @return 
+    """
+
+    def getCompanyName(self):
+        return "某东"
+
+
+def main():
+    # 创建2个员工实例
+    person = Person("张三", 18)
+    # 继承后可调用父类的属性
+    person.address = "上海市金融大厦"
+    print(person.address)  # 输出上海市金融大厦
+    # 继承后可调用父类的方法
+    print(person.getCompanyName())  # 输出某东
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 抽象类和抽象方法
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
+```py
+# 从abc模块 抽象类需要的模块
+from abc import ABCMeta, abstractmethod
+
+# 定义一个动物抽象类
+class Animal(metaclass=ABCMeta):
+
+    """
+    @description 定义一个抽象方法 不需要实现 也不强制为空
+    @param
+    @return
+    """
+
+    @abstractmethod
+    def say(self):
+        pass
+
+
+# 定义一个狗类 去实现动物类的所有方法
+class Dog(Animal):
+    # 实现了Animal类的say方法
+    def say(self, content):
+        print(content)
+
+
+# 定义一个猫类 去实现动物类的所有方法
+class Cat(Animal):
+    # 实现了Animal类的say方法
+    def say(self, content):
+        print(content)
+
+
+def main():
+    dog = Dog()
+    dog.say("汪汪汪")  # 输出汪汪汪
+    cat = Cat()
+    cat.say("我们一起喵喵喵")  # 输出我们一起喵喵喵
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 接口类
+接口类和抽象类大致相同
+1. 接口类支持多继承，抽象类尽量避免多继承
+2. 接口类只有方法，抽象类可以有方法和属性
+3. 接口类的方法实现为空，具体有子类去实现，抽象类可以写一些方法去做基础实现，供子类参考
+
+### 文件和异常处理
+#### 打开文件并读取内容，并处理打开文件的异常
+```py
+def main():
+    f = None  # 定义空变量，不然不能在finally代码块使用
+    try:
+        # 以r只读方式打开file.txt,没有文件会报错，使用utf-8编码打开
+        f = open("file.txt", "r", encoding="utf-8")
+        # 读取文件内容
+        print(f.read())
+    # 处理异常，异常类型可以在运行的结果中找到如：FileNotFoundError: [Errno 2] No such file or directory: 'file.txt'
+    except FileNotFoundError:
+        print("文件找不到")
+    # LookupError: unknown encoding: utf-8xxx
+    except LookupError:
+        print("指定了未知的编码")
+    # finally代码块是不管有没有异常都会执行的
+    finally:
+        if f:
+            # 关闭文件
+            f.close()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 上下文对象
+**用法**
+```py
+class Demo:
+    def __enter__(self):
+        print("In __enter__()")
+        return self
+
+    def __exit__(self, type, value, trace):
+        print("In__exit__()")
+        # 输出<class 'Exception'> 异常抛出 <traceback object at 0x0000021C61A70D80>
+        print(f"{type}, {value}, {trace}")
+        # 处理异常
+        return True  # 异常处理后返回True 后面代码才会被执行
+
+    @staticmethod
+    def getObject():
+        return Demo()
+
+
+def main():
+    with Demo.getObject() as object:
+        raise Exception("异常抛出")  # 手动抛出异常
+    print("我会被执行")
+
+
+if __name__ == "__main__":
+    main()
+```
+**实例一，文件自动关闭,使用with ··· as ···代码块结束后会自动调用f.close()关闭文件流**
+```py
+def main():
+    try:
+        # 以r只读方式打开file.txt,没有文件会报错，使用utf-8编码打开
+        with  open("file.txt", "r", encoding="utf-8") as f:
+            # 读取文件内容
+            print(f.read())
+    # 处理异常，异常类型可以在运行的结果中找到如：FileNotFoundError: [Errno 2] No such file or directory: 'file.txt'
+    except FileNotFoundError:
+        print("文件找不到")
+    # LookupError: unknown encoding: utf-8xxx
+    except LookupError:
+        print("指定了未知的编码")
+
+if __name__ == "__main__":
+    main()
+```
+**实例二,数据自动关闭——[转自](https://zhuanlan.zhihu.com/p/164457246)**
+```py
+class DBCM: 
+   # 负责对数据库进行初始化，也就是将主机名、接口（这里是 localhost 和 8080）分别赋予变量 hostname 和 port；
+    def __init__(self, hostname, port): 
+        self.hostname = hostname 
+        self.port = port 
+        self.connection = None
+   # 连接数据库，并且返回对象 DBCM；
+    def __enter__(self): 
+        self.connection = DBClient(self.hostname, self.port) 
+        return self
+   # 负责关闭数据库的连接
+    def __exit__(self, exc_type, exc_val, exc_tb): 
+        self.connection.close() 
+  
+with DBCM('localhost', '8080') as db_client: 
+    ....
 ```
 
 ### 内置函数
@@ -822,11 +1112,13 @@ a=1,b=2,c=3,d=4.000,a+b=3
 #### 随机数
 ```py
 import random
-#随机整数
-print(random.randint(1, 100))
-#一个范围内的随机数
-print(random.randrange(1, 100))
+
+# 随机整数
+print(random.randint(0, 100))  # 输出0~100中随机的一个数
+# 一个范围内的随机数
+print(random.randrange(0, 101, 50))  # 只能输出 0 50 100 三个数中的一个
 ```
+!> randint产生的随机数包含左右边界，randrange只包含左边界，且randrange可以设定步长
 
 #### 数学方法
 数学方法很多,参照[这里](https://docs.python.org/zh-cn/3/library/math.html)

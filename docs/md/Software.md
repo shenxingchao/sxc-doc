@@ -180,7 +180,7 @@ __效果如下图__
 输入python.json 配置函数注释如下，其他语言方法一样
 ```json
 {
-  "function": {        
+  "function": {
 		"prefix": "function",        
 		"body": [            
 			"\"\"\"",            
@@ -188,6 +188,14 @@ __效果如下图__
 			"@param ",             
 			"@return ",          
 			"\"\"\"",                 
+		],	
+	},
+  "python": {
+		"prefix": "python",        
+		"body": [            
+			"def main():",            
+			"if __name__ == \"__main__\":",
+			"    main()",           
 		],	
 	}
 }
