@@ -1551,6 +1551,8 @@ if __name__ == "__main__":
 ### 网络请求
 
 #### requests库
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
 **基本案例**
 ```py
 # 导入网络请求库
@@ -1591,6 +1593,47 @@ def main():
         i += 1
         if i == 100:
             break
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 图片处理
+
+#### 常用操作
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
+```py
+from PIL import Image, ImageFilter
+
+
+def main():
+    image = Image.open("./1.png")
+    # 获取图片真实格式 假如是jpg的图片命名为png  也会获取到jpg的
+    print(image.format)  # 输出png
+    # 获取图片的分辨率
+    print(image.size)  # 输出(1024, 1024)
+    # 获取图片的颜色模式
+    print(image.mode)  # 输出RGBA
+    # 用默认模式打开图片
+    image.show()
+    # 裁剪 crop((x1,y1,x2,y2)) 传元组
+    image.crop((300, 200, 600, 800)).show()
+    # 生成缩略图thumbnail((width,height))
+    image.thumbnail((100, 100))
+    image.show()
+    # 缩放图片resize((width,height))
+    image.resize((10, 10)).show()
+    # 合并图像paste(src,(x,y))
+    image.paste(image.resize((100, 100)), (100, 100))
+    image.show()
+    # 旋转180度
+    image.rotate(180).show()
+    # 左右翻转
+    image.transpose(Image.FLIP_LEFT_RIGHT).show()
+    # 滤镜 随便搞个模糊滤镜
+    image.filter(ImageFilter.BLUR).show()
 
 
 if __name__ == "__main__":
