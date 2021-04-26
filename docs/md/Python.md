@@ -1151,6 +1151,404 @@ with DBCM('localhost', '8080') as db_client:
     ....
 ```
 
+### 正则表达式
+#### 常用表达式符号
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
+| 符号               | 解释                             | 示例                | 说明                                                                            |
+| ------------------ | -------------------------------- | ------------------- | ------------------------------------------------------------------------------- |
+| .                  | 匹配任意字符                     | b.t                 | 可以匹配bat / but / b#t / b1t等                                                 |
+| \\w                | 匹配字母/数字/下划线             | b\\wt               | 可以匹配bat / b1t / b_t等<br>但不能匹配b#t                                      |
+| \\s                | 匹配空白字符（包括\r、\n、\t等） | love\\syou          | 可以匹配love you                                                                |
+| \\d                | 匹配数字                         | \\d\\d              | 可以匹配01 / 23 / 99等                                                          |
+| \\b                | 匹配单词的边界                   | \\bThe\\b           |                                                                                 |
+| ^                  | 匹配字符串的开始                 | ^The                | 可以匹配The开头的字符串                                                         |
+| $                  | 匹配字符串的结束                 | .exe$               | 可以匹配.exe结尾的字符串                                                        |
+| \\W                | 匹配非字母/数字/下划线           | b\\Wt               | 可以匹配b#t / b@t等<br>但不能匹配but / b1t / b_t等                              |
+| \\S                | 匹配非空白字符                   | love\\Syou          | 可以匹配love#you等<br>但不能匹配love you                                        |
+| \\D                | 匹配非数字                       | \\d\\D              | 可以匹配9a / 3# / 0F等                                                          |
+| \\B                | 匹配非单词边界                   | \\Bio\\B            |                                                                                 |
+| []                 | 匹配来自字符集的任意单一字符     | [aeiou]             | 可以匹配任一元音字母字符                                                        |
+| [^]                | 匹配不在字符集中的任意单一字符   | [^aeiou]            | 可以匹配任一非元音字母字符                                                      |
+| *                  | 匹配0次或多次                    | \\w*                |                                                                                 |
+| +                  | 匹配1次或多次                    | \\w+                |                                                                                 |
+| ?                  | 匹配0次或1次                     | \\w?                |                                                                                 |
+| {N}                | 匹配N次                          | \\w{3}              |                                                                                 |
+| {M,}               | 匹配至少M次                      | \\w{3,}             |                                                                                 |
+| {M,N}              | 匹配至少M次至多N次               | \\w{3,6}            |                                                                                 |
+| \|                 | 分支                             | foo\|bar            | 可以匹配foo或者bar                                                              |
+| (?#)               | 注释                             |                     |                                                                                 |
+| (exp)              | 匹配exp并捕获到自动命名的组中    |                     |                                                                                 |
+| (?&lt;name&gt;exp) | 匹配exp并捕获到名为name的组中    |                     |                                                                                 |
+| (?:exp)            | 匹配exp但是不捕获匹配的文本      |                     |                                                                                 |
+| (?=exp)            | 匹配exp前面的位置                | \\b\\w+(?=ing)      | 可以匹配I'm dancing中的danc                                                     |
+| (?<=exp)           | 匹配exp后面的位置                | (?<=\\bdanc)\\w+\\b | 可以匹配I love dancing and reading中的第一个ing                                 |
+| (?!exp)            | 匹配后面不是exp的位置            |                     |                                                                                 |
+| (?<!exp)           | 匹配前面不是exp的位置            |                     |                                                                                 |
+| *?                 | 重复任意次，但尽可能少重复       | a.\*b<br>a.\*?b     | 将正则表达式应用于aabab，前者会匹配整个字符串aabab，后者会匹配aab和ab两个字符串 |
+| +?                 | 重复1次或多次，但尽可能少重复    |                     |                                                                                 |
+| ??                 | 重复0次或1次，但尽可能少重复     |                     |                                                                                 |
+| {M,N}?             | 重复M到N次，但尽可能少重复       |                     |                                                                                 |
+| {M,}?              | 重复M次以上，但尽可能少重复      |                     |                                                                                 |
+
+#### re函数使用方法
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
+```py
+import re
+
+"""
+@description 测试所有正则表达式方法 
+@param 
+@return 
+"""
+
+
+def main():
+    # 定义我们要处理的字符串
+    str = "The \. apple is a big apple!"
+    """
+    re.match(pattern, string, flags) 返回匹配的对象
+    从字符串起始位置匹配，如果起始位置没匹配到，返回None
+    r'' 匹配\的时候直接用\就行 不用\\去匹配了
+    re.I 大小写不敏感 re.M 多行匹配
+    """
+    res = re.match(r"the\s\\.", str, re.I | re.M)  # \s匹配空白字符串 \匹配\   \.匹配.
+    """
+    res.gorup(num) res为匹配的对象 num默认为0  输出一组结果，这里没加括号所以输出第一个结果
+    """
+    if res:
+        print(res.group())  # 输出The \. 或者res.group(0)
+
+    res = re.match(r"(the)\s(\\.)", str, re.I | re.M)
+    """
+    res.gorups(num) res为匹配的对象 num不传返回所有结果组成的元组
+    """
+    if res:
+        print(res.groups())  # 输出('The', '\\.')
+
+    """
+    re.search(pattern, string, flags) 返回匹配的对象
+    搜索整个字符串  返回第一个匹配的结果
+    """
+    res = re.search(r"apple", str, re.I | re.M)
+    if res:
+        print(res.group())  # 输出apple
+        # 返回起始位置
+        print(res.start())  # 输出7
+        # 返回重点位置
+        print(res.end())  # 输出12
+        # 以元组形式返回位置
+        print(res.span())  # 输出(7, 12)
+
+    """
+    re.sub(pattern, repl, string, count=0, flags) 表达式，替换的字符串，搜索的字符串，替换次数，模式
+    正则指定次数替换字符串 返回替换后的字符串
+    """
+    res = re.sub(r"apple", "oppo", str, 1, re.I | re.M)
+    if res:
+        print(res)  # 输出 The \. oppo is a big apple!
+
+    """
+    re.compile(pattern,flags) 表达式 模式
+    返回一个正则表达式对象(Pattern) 可调用其他的re函数
+    """
+    pattern = re.compile(r"the", re.I | re.M)
+    res = pattern.match(str)
+    if res:
+        print(res.group())  # 输出 The
+
+    """
+    findall(pattern,string,start,end,flags) 表达式 字符串 开始位置默认为0 结束位置默认为最后 模式
+    查找指定返回内的字符 并返回到列表 没找到返回[]
+    """
+    res = re.findall(r"apple", str, re.I | re.M)
+    if len(res) > 0:
+        print(res)  # 输出 ['apple', 'apple']
+
+    """
+    re.finditer(pattern, string, flags) 表达式 字符串 模式
+    匹配指定字符返回迭代器 迭代器可以直接for循环遍历
+    """
+    res = re.finditer(r"apple", str, re.I | re.M)
+    for item in res:
+        print(item.group())  # 依次输出apple apple
+
+    """
+    re.split(pattern,string) 拆分表达式 字符串
+    按指定字符拆分字符串，返回拆分的列表
+    """
+    str2 = "窗前明月光，疑是地上霜。举头望明月，低头思故乡。"
+    res = re.split(r"['，'，'。']", str2)  # 按逗号和句号拆分
+    print(res)  # 输出 ['窗前明月光', '疑是地上霜', '举头望明月', '低头思故乡', '']
+    # 这段代码可以删除空格
+    while "" in res:
+        res.remove("")
+    print(res)  # 输出 ['窗前明月光', '疑是地上霜', '举头望明月', '低头思故乡']
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 多进程和多线程
+
+#### 多进程
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
+**基本案例**
+```py
+# 导入多进程模块
+from multiprocessing import Process
+from time import sleep, time
+from os import getpid
+
+"""
+@description 计算2个数的和 
+@param  a 数a
+@param  b 数b
+@return 
+"""
+
+
+def fn(a, b):
+    # 假如要计算5秒钟
+    print(getpid())
+    sleep(5)
+    return a + b
+
+
+def main():
+    # 开始计时
+    start_time = time()
+    """
+    Process(target = 执行的函数,args =  函数的参数,元组类型)
+    """
+    p1 = Process(target=fn, args=(1, 2))
+    p2 = Process(target=fn, args=(3, 4))
+    # 开启进程p1
+    p1.start()
+    # 开启进程p2
+    p2.start()
+    # 等待p1进程执行完毕
+    p1.join()
+    # 等待p2进程执行结束
+    p2.join()
+    # 结束计时
+    end_time = time()
+    # 花费的总时间
+    print(f"总耗时{(end_time - start_time):.3f}s")  # 2个进程同时执行，最后的执行时间是5.132s
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**使用类的方式创建进程**
+```py
+# 导入多进程模块
+from multiprocessing import Process
+from time import sleep, time
+from os import getpid
+
+
+class Sum(Process):
+    # 重写父类的初始化方法
+    def __init__(self, a, b):
+        super().__init__()  # 调用父类的初始化方法
+        self.__a = a
+        self.__b = b
+
+    # 重写Process的启动函数
+    def run(self):
+        # 假如要计算5秒钟
+        print(getpid())
+        sleep(5)
+        print(self.__a + self.__b)
+
+
+def main():
+    # 开始计时
+    start_time = time()
+    # 使用类创建p1,p2进程
+    p1 = Sum(1, 2)
+    p2 = Sum(3, 4)
+    # 开启进程p1
+    p1.start()
+    # 开启进程p2
+    p2.start()
+    # 等待p1进程执行完毕
+    p1.join()
+    # 等待p2进程执行结束
+    p2.join()
+    # 结束计时
+    end_time = time()
+    # 花费的总时间
+    print(f"总耗时{(end_time - start_time):.3f}s")  # 2个进程同时执行，最后的执行时间是5.132s
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 类方式创建进程和创建线程是相同的
+
+**多进程共享队列模块**
+```py
+# 导入多进程模块,进程队列模块
+from multiprocessing import Process, Queue
+
+
+"""
+@description 计算2个数的和 
+@param  q 队列
+@param  a 数1
+@param  b 数2
+@return 
+"""
+
+
+def fn(q, a, b):
+    # 把a+b的结果放入队列
+    q.put(a + b)
+
+
+"""
+@description 读取计算的和
+@param  q 队列
+@return 
+"""
+
+
+def readRes(q):
+    while True:
+        print(q.get())  # 一次输出 7 9
+
+
+def main():
+    # 开启一个队列
+    q = Queue()
+
+    # 开启计算和进程
+    p1 = Process(target=fn, args=(q, 3, 4))
+    p2 = Process(target=fn, args=(q, 4, 5))
+
+    # 读取队列进程
+    p3 = Process(target=readRes, args=(q,))
+    # 开启进程p1
+    p1.start()
+    # 开启进程p2
+    p2.start()
+    # 开启进程p3
+    p3.start()
+    # 等待p1，p2进程结束
+    p1.join()
+    p2.join()
+    # 强行结束p3进程
+    p3.terminate()
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 多线程
+<p align="left" style="color:#777777;">发布日期：2021-04-26</p>
+
+**基本案例**
+```py
+from threading import Thread
+from time import sleep, time
+
+"""
+@description 计算2个数的和 
+@param  a 数a
+@param  b 数b
+@return 
+"""
+
+
+def fn(a, b):
+    # 假如要计算5秒钟
+    sleep(5)
+    return a + b
+
+
+def main():
+    # 开始计时
+    start_time = time()
+    """
+    Thread(target = 执行的函数,args =  函数的参数,元组类型)
+    """
+    t1 = Thread(target=fn, args=(1, 2))
+    t2 = Thread(target=fn, args=(3, 4))
+    # 开启线程t1
+    t1.start()
+    # 开启线程t2
+    t2.start()
+    # 等待t1线程执行完毕
+    t1.join()
+    # 等待t2线程执行结束
+    t2.join()
+    # 结束计时
+    end_time = time()
+    # 花费的总时间
+    print(f"总耗时{(end_time - start_time):.3f}s")  # 2个线程同时执行，总耗时5.002s
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**多线程加锁**
+```py
+from threading import Thread, Lock
+from time import sleep
+
+lock = Lock()
+
+"""
+@description 把num放入List 
+@param List 列表
+@param num 数
+@return 
+"""
+
+
+def fn(List, num):
+    # 获取锁
+    lock.acquire()
+    try:
+        sleep(0.01)  # 假如放入一个数的时间需要0.01秒
+        List.append(num)
+    finally:
+        # 释放锁
+        lock.release()
+
+
+def main():
+    # 初始化列表
+    List = []
+    Threads = []
+    # 循环创建100个数
+    for i in range(100):
+        # 创建线程
+        t = Thread(target=fn, args=(List, i))
+        # 线程保存到列表
+        Threads.append(t)
+        # 启动线程
+        t.start()
+    # 等待所有线程结束
+    for t in Threads:
+        t.join()
+    print(List)  # 如果不加锁 那么顺序是乱的，因为同时操作一个List
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 这里注意 多线程和多进程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享，所以，任何一个变量都可以被任何一个线程修改，因此，线程之间共享数据最大的危险在于多个线程同时改一个变量，把内容给改乱了
+
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
