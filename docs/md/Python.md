@@ -1548,6 +1548,54 @@ if __name__ == "__main__":
 ```
 !> 这里注意 多线程和多进程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享，所以，任何一个变量都可以被任何一个线程修改，因此，线程之间共享数据最大的危险在于多个线程同时改一个变量，把内容给改乱了
 
+### 网络请求
+
+#### requests库
+**基本案例**
+```py
+# 导入网络请求库
+import requests
+
+# 导入正则表达库
+import re
+
+# 导入多线程
+from threading import Thread
+
+# 保存图片线程类
+class SaveImage(Thread):
+    def __init__(self, url, filename):
+        super().__init__()
+        self.__url = url
+        self.__filename = filename
+
+    def run(self):
+        with open(self.__filename, "wb") as f:
+            res = requests.get(self.__url)
+            # .content是二进制数据 比如图片，音频，视频
+            f.write(res.content)
+
+
+def main():
+    # 请求当前地址内容
+    res = requests.get("http://www.netbian.com/quanping/")
+    # 匹配所有输出（）里的内容 .text是文本数据
+    match = re.findall(r"src=\"(.*?.[jpg|png])\"", res.text, re.I | re.M)
+    # 输出所有匹配到的图片地址列表 ['http://img.netbian.com/file/2020/0908/e02f00702a7cb32024f71ecce443e78d.jpg',···]
+    # print(match)
+    # 循环保存图片
+    i = 1
+    for url in match:
+        t = SaveImage(url, str(i) + ".jpg")
+        t.start()
+        i += 1
+        if i == 100:
+            break
+
+
+if __name__ == "__main__":
+    main()
+```
 
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
