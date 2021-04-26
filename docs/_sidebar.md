@@ -148,6 +148,12 @@
 
     - [字典](/md/Python#字典)
 
+    - [类](/md/Python#类)
+
+    - [文件和异常处理](/md/Python#文件和异常处理)
+
+    - [上下文对象](/md/Python#上下文对象)
+
     - [内置函数](/md/Python#内置函数)
 
     - [pip](/md/Python#pip)

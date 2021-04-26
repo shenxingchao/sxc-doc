@@ -972,6 +972,8 @@ if __name__ == "__main__":
 ```
 
 #### 接口类
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
 接口类和抽象类大致相同
 1. 接口类支持多继承，抽象类尽量避免多继承
 2. 接口类只有方法，抽象类可以有方法和属性
@@ -979,6 +981,8 @@ if __name__ == "__main__":
 
 ### 文件和异常处理
 #### 打开文件并读取内容，并处理打开文件的异常
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
 ```py
 def main():
     f = None  # 定义空变量，不然不能在finally代码块使用
@@ -1003,8 +1007,84 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> 一般还是用with···as···方便
+
+#### 读写文件操作
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
+```py
+def main():
+    # 写入文件 覆盖写入 文件不存在会创建
+    with open("file.txt", "w", encoding="utf-8") as f:
+        f.write("text write line 1" + "\n")
+        f.write("text write line 2" + "\n")
+    # 追加方式写入 文件不存在会创建
+    with open("file.txt", "a", encoding="utf-8") as f:
+        f.write("text write line 3" + "\n")
+    # 追加方式写入并读取
+    with open("file.txt", "a+", encoding="utf-8") as f:
+        f.write("text write line 4" + "\n")
+        f.seek(0, 0)  # 移动光标到最前面 不然追加写完光标再最后 输出就为空了
+        print(f.read())
+    # 文件内容读取到列表
+    with open("file.txt", "r", encoding="utf-8") as f:
+        lines = f.readlines()
+        print(lines)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 读写json文件及序列化和反序列化
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
+```py
+import json
+
+
+def main():
+    # 字典数据（这里暂时称之为json）
+    obj = {
+        "name": "张三",
+        "age": 18,
+        "address": "浙江杭州阿里巴巴",
+    }
+
+    # json序列化 输出{"name": "\u5f20\u4e09", "age": 18, "address": "\u6d59\u6c5f\u676d\u5dde\u963f\u91cc\u5df4\u5df4"}
+    obj = json.dumps(obj)
+    print(obj)
+    # json 反序列化 输出{'name': '张三', 'age': 18, 'address': '浙江杭州阿里巴巴'}
+    obj = json.loads(obj)
+    print(obj)
+
+    with open("file.json", "w+", encoding="utf-8") as f:
+        # 将json数据序列化写入文件
+        json.dump(obj, f)
+        # 光标移到最前面
+        f.seek(0, 0)
+        # 直接读取文件内容输出 {"name": "\u5f20\u4e09", "age": 18, "address": "\u6d59\u6c5f\u676d\u5dde\u963f\u91cc\u5df4\u5df4"}
+        print(f.read())
+        # 光标移到最前面
+        f.seek(0, 0)
+        # 处理成json格式的字符串并输出 输出 "{\"name\": \"\\u5f20\\u4e09\", \"age\": 18, \"address\": \"\\u6d59\\u6c5f\\u676d\\u5dde\\u963f\\u91cc\\u5df4\\u5df4\"}"
+        print(json.dumps(f.read()))
+        # 光标移到最前面
+        f.seek(0, 0)
+        # 将上面输出的json格式字符串反序列化成python对象 输出 {"name": "\u5f20\u4e09", "age": 18, "address": "\u6d59\u6c5f\u676d\u5dde\u963f\u91cc\u5df4\u5df4"}
+        print(json.loads(json.dumps(f.read())))
+        f.seek(0, 0)
+        # 将文件中的内容反序列化成对象 输出{'name': '张三', 'age': 18, 'address': '浙江杭州阿里巴巴'}
+        print(json.load(f))
+
+
+if __name__ == "__main__":
+    main()
+```
 
 ### 上下文对象
+<p align="left" style="color:#777777;">发布日期：2021-04-25</p>
+
 **用法**
 ```py
 class Demo:
