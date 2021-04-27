@@ -154,6 +154,16 @@
 
     - [上下文对象](/md/Python#上下文对象)
 
+    - [正则表达式](/md/Python#正则表达式)
+
+    - [多进程和多线程](/md/Python#多进程和多线程)
+
+    - [网络请求](/md/Python#网络请求)
+
+    - [图片处理](/md/Python#图片处理)
+
+    - [excel基础操作](/md/Python#excel基础操作)
+
     - [内置函数](/md/Python#内置函数)
 
     - [pip](/md/Python#pip)
