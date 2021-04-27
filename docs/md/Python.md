@@ -1,6 +1,8 @@
 # Python
 ## 文档地址
 [地址](https://docs.python.org/zh-cn/3/)
+[在线调试地址](http://pythontutor.com/)
+
 ## 环境搭建
 ### windows10 python3.9.4环境搭建
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
@@ -215,15 +217,12 @@ print("耗时", t2 - t1)
 
 第二种方法
 ```py
-# 取斐波那契数列的前n项
-"""
-@description 取斐波那契数列的前n项
-@param n 项数
-@return arr 存储数据的列表
-"""
-
-
 def fbnq(n):
+    """
+    @description 取斐波那契数列的前n项
+    @param n 项数
+    @return arr 存储数据的列表
+    """
     arr = [1, 1]
     if n == 1 or n == 2:
         return 1
@@ -234,8 +233,13 @@ def fbnq(n):
         return arr
 
 
-arr = fbnq(100)
-print(arr)
+def main():
+    arr = fbnq(100)
+    print(arr)
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 ### 函数
@@ -243,60 +247,61 @@ print(arr)
 
 #### 最基础的函数定义 参数和返回值
 ```py
-"""
-@description 求输入的两个数之和 
-@param a 数1
-@param b 数2
-@return int 两个数之和
-"""
-
-
 def sum(a, b):
+    """
+    @description 求输入的两个数之和
+    @param a 数1
+    @param b 数2
+    @return int 两个数之和
+    """
     return a + b
 
-
-a = int(input("请输入第一个数："))
-b = int(input("请输入第二个数："))
-print(sum(a, b))
+def main():
+    a = int(input("请输入第一个数："))
+    b = int(input("请输入第二个数："))
+    print(sum(a, b))
+if __name__ == "__main__":
+    main()
 ```
 
 #### 可选参数
 不确定参数个数的情况下可以使用
 ```py
-"""
-@description 求输入的两个数之和 
-@param a 数1
-@param b 数2
-@return int 两个数之和
-"""
-
-
 def sum(*args):
+    """
+    @description 求输入的两个数之和
+    @param a 数1
+    @param b 数2
+    @return int 两个数之和
+    """
     sum = 0
     for item in args:
         sum += item
     return sum
 
 
-a = int(input("请输入第一个数："))
-b = int(input("请输入第二个数："))
-c = int(input("请输入第三个数："))
-print(sum(a, b))
-print(sum(a, b, c))
+def main():
+    a = int(input("请输入第一个数："))
+    b = int(input("请输入第二个数："))
+    c = int(input("请输入第三个数："))
+    print(sum(a, b))
+    print(sum(a, b, c))
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 理解位置参数*args 和**kwargs  kw=>keywords 这两个的参数名字可以随便起,不固定
 ```py
-"""
-@description 定义一个函数有三个参数，function(正常参数，将7,8,9打包成元组给函数使用,将a=1,b=2,c=3打包成字典给函数使用)
-@param arg 正常参数
-@param *args 位置参数，不确定个数的参数打包成的元组
-@param **kwargs 关键字参数，不确定个数的参数打包成的字典
-@return 
-"""
-
-
 def function(arg, *args, **kwargs):
+    """
+    @description 定义一个函数有三个参数，function(正常参数，将7,8,9打包成元组给函数使用,将a=1,b=2,c=3打包成字典给函数使用)
+    @param arg 正常参数
+    @param *args 位置参数，不确定个数的参数打包成的元组
+    @param **kwargs 关键字参数，不确定个数的参数打包成的字典
+    @return
+    """
     print(arg, args, kwargs)  # 输出6 (7, 8, 9) {'a': 1, 'b': 2, 'c': 3}
 
 
@@ -315,8 +320,9 @@ def main():
     # Todo: Add your code here
     pass
 
-#python里当前执行的模块名字是__main__ 如果当前文件被导入到其他文件时，下面代码不会执行
-if __name__ == '__main__':
+
+# python里当前执行的模块名字是__main__ 如果当前文件被导入到其他文件时，下面代码不会执行
+if __name__ == "__main__":
     main()
 ```
 
@@ -325,15 +331,12 @@ if __name__ == '__main__':
 
 假如有一个函数库fn.py
 ```py
-"""
-@description 求输入的两个数之和 
-@param a 数1
-@param b 数2
-@return int 两个数之和
-"""
-
-
 def sum(*args):
+    """
+    @description 求输入的两个数之和
+    @param a 数1
+    @param b 数2
+    @return int 两个数之和"""
     sum = 0
     for item in args:
         sum += item
@@ -352,12 +355,18 @@ if __name__ == "__main__":
 from fn import sum  # 从fn模块导入sum函数
 import fn  # 直接导入整个模块 也可以重命名模块 import fn as f
 
-a = int(input("请输入第一个数："))
-b = int(input("请输入第二个数："))
-c = int(input("请输入第三个数："))
-print(sum(a, b))
-print(sum(a, b, c))
-print(fn.sum(a, c))
+
+def main():
+    a = int(input("请输入第一个数："))
+    b = int(input("请输入第二个数："))
+    c = int(input("请输入第三个数："))
+    print(sum(a, b))
+    print(sum(a, b, c))
+    print(fn.sum(a, c))
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 ### 字符串
@@ -672,40 +681,36 @@ print(dictionary)  # 输出{1: 4, 2: 5, 3: 6}
 ```py
 # 定义一个Person类
 class Person:
-    """
-    @description 构造方法
-    @param name姓名
-    @return
-    """
-
     def __init__(self, name):
+        """
+        @description 构造方法
+        @param name姓名
+        @return
+        """
         self.name = name
 
-    """
-    @description 介绍自己的姓名
-    @param 
-    @return 
-    """
-
     def sayName(self):
+        """
+        @description 介绍自己的姓名
+        @param
+        @return
+        """
         print("my name is " + self.name)
 
-    """
-    @description 说话的方法 
-    @param content 说话的内容
-    @return 
-    """
-
     def say(self, content):
+        """
+        @description 说话的方法
+        @param content 说话的内容
+        @return
+        """
         print("I say " + content)
 
-    """
-    @description 私有方法类外部直接通过方法名不能访问，可以通过_Person__saySex()访问
-    @param 
-    @return 
-    """
-
     def __saySex(self):
+        """
+        @description 私有方法类外部直接通过方法名不能访问，可以通过_Person__saySex()访问
+        @param
+        @return
+        """
         print("I am a boy")
 
 
@@ -734,34 +739,31 @@ class Person:
         self.__name = name
         self.__age = age
 
-    """
-    @description  定义一个get装饰器 用于获取类内部私有属性
-    @param
-    @return name
-    """
-
     @property
     def name(self):
+        """
+        @description  定义一个get装饰器 用于获取类内部私有属性
+        @param
+        @return name
+        """
         return self.__name
-
-    """
-    @description 定义一个set装饰器，用于设置类内部私有属性值
-    @param 
-    @return 
-    """
 
     @name.setter
     def name(self, name):
+        """
+        @description 定义一个set装饰器，用于设置类内部私有属性值
+        @param
+        @return
+        """
         self.__name = name
-
-    """
-    @description  定义一个get装饰器 用于获取类内部私有属性
-    @param
-    @return age
-    """
 
     @property
     def age(self):
+        """
+        @description  定义一个get装饰器 用于获取类内部私有属性
+        @param
+        @return age
+        """
         return self.__age
 
 
@@ -783,16 +785,15 @@ class Person:
         self.__name = name
         self.__age = age
 
-    """
-    @description 静态方法装饰器 不需要创建对象即可调用 ,即第一个参数不需要传self
-    @param 
-    @return 
-    """
-
     @staticmethod
     def staticFn(content):
+        """
+        @description 静态方法装饰器 不需要创建对象即可调用 ,即第一个参数不需要传self
+        @param
+        @return
+        """
         print(content)
-    
+
 
 def main():
     # 直接调用
@@ -873,23 +874,21 @@ class Company:
     def address(self):
         return self.__address
 
-    """
-    @description 设置公司地址 
-    @param 
-    @return 
-    """
-
     @address.setter
     def address(self, address):
+        """
+        @description 设置公司地址
+        @param
+        @return
+        """
         self.__address = address
 
-    """
-    @description 获取公司名称 
-    @param 
-    @return 
-    """
-
     def getCompanyName(self):
+        """
+        @description 获取公司名称
+        @param
+        @return
+        """
         return self.__company_name
 
 
@@ -901,13 +900,12 @@ class Person(Company):
         self.__age = age
 
     # 重写父类的方法 称之为多态。。。
-    """
-    @description 获取公司名称 
-    @param 
-    @return 
-    """
-
     def getCompanyName(self):
+        """
+        @description 获取公司名称
+        @param
+        @return
+        """
         return "某东"
 
 
@@ -934,15 +932,13 @@ from abc import ABCMeta, abstractmethod
 
 # 定义一个动物抽象类
 class Animal(metaclass=ABCMeta):
-
-    """
-    @description 定义一个抽象方法 不需要实现 也不强制为空
-    @param
-    @return
-    """
-
     @abstractmethod
     def say(self):
+        """
+        @description 定义一个抽象方法 不需要实现 也不强制为空
+        @param
+        @return
+        """
         pass
 
 
@@ -1398,30 +1394,24 @@ if __name__ == "__main__":
 from multiprocessing import Process, Queue
 
 
-"""
-@description 计算2个数的和 
-@param  q 队列
-@param  a 数1
-@param  b 数2
-@return 
-"""
-
-
 def fn(q, a, b):
+    """
+    @description 计算2个数的和
+    @param  q 队列
+    @param  a 数1
+    @param  b 数2
+    @return"""
     # 把a+b的结果放入队列
     q.put(a + b)
 
 
-"""
-@description 读取计算的和
-@param  q 队列
-@return 
-"""
-
-
 def readRes(q):
+    """
+    @description 读取计算的和
+    @param  q 队列
+    @return"""
     while True:
-        print(q.get())  # 一次输出 7 9
+        print(q.get())  # 依次输出 7 9
 
 
 def main():
@@ -1459,15 +1449,13 @@ if __name__ == "__main__":
 from threading import Thread
 from time import sleep, time
 
-"""
-@description 计算2个数的和 
-@param  a 数a
-@param  b 数b
-@return 
-"""
-
 
 def fn(a, b):
+    """
+    @description 计算2个数的和
+    @param  a 数a
+    @param  b 数b
+    @return"""
     # 假如要计算5秒钟
     sleep(5)
     return a + b
@@ -1506,15 +1494,13 @@ from time import sleep
 
 lock = Lock()
 
-"""
-@description 把num放入List 
-@param List 列表
-@param num 数
-@return 
-"""
-
 
 def fn(List, num):
+    """
+    @description 把num放入List
+    @param List 列表
+    @param num 数
+    @return"""
     # 获取锁
     lock.acquire()
     try:
@@ -1787,6 +1773,81 @@ def main():
     ws.unmerge_cells("A2:B2")
     # excel覆盖保存文件到当前文件夹
     wb.save("第一个excel.xlsx")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 进阶
+#### 推导式语法
+<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
+
+```py
+def main():
+    # 用推导式语法创建一个列表
+    list = [item for item in range(1, 9)]
+    print(list)  # 输出[1, 2, 3, 4, 5, 6, 7, 8]
+    # 用推导式语法取出大于2的数据加上2,组成新的列表
+    list = [(item + 2) for item in list if item > 2]
+    print(list)  # 输出[5, 6, 7, 8, 9, 10]
+    # 用推导式语法生成相邻两数之和，并存入列表
+    list = [
+        item + list[index + 1]
+        for index, item in enumerate(list)
+        if index < (len(list) - 1)
+    ]
+    print(list)  # 输出[11, 13, 15, 17, 19]
+    # 定义一个学生列表
+    student = [
+        {"name": "小红", "age": 18},
+        {"name": "小明", "age": 17},
+        {"name": "小张", "age": 19},
+    ]
+    # 用推导式语法创建满18岁的学生列表
+    student = [item for item in student if item["age"] >= 18]
+    print(student)  # 输出 [{'name': '小红', 'age': 18}, {'name': '小张', 'age': 19}]
+    # 用推导式语法创建一个集合
+    set = {item for item in range(1, 9)}
+    print(set)  # 输出{1, 2, 3, 4, 5, 6, 7, 8}
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 嵌套列表的坑
+<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
+
+```py
+from random import randint
+
+
+def main():
+    # 简单错误案例
+    list = [0, 0, 0]
+    list = [list] * 2  # 这个过程种的list指向的内存地址是同一个
+    list[0][0] = 1  # 只改了一个索引
+    print(list)  # 输出[[1, 0, 0], [1, 0, 0]]   只改了一个索引 另外一个也跟着变了
+    # 正确写法
+    list = [[0] * 3 for _ in range(2)]
+    list[0][0] = 1
+    print(list)  # 输出 [[1, 0, 0], [0, 0, 0]]
+
+    # 复杂错误案例
+    list = [[0] * 3] * 5
+    for index, item in enumerate(list):
+        for key, value in enumerate(item):
+            list[index][key] = randint(0, 100)
+    # 会输出类似的[[64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44]]，发现每个数都是一样的
+    print(list)
+    # 正确写法
+    list = [[0] * 3 for _ in range(5)]
+    for index, item in enumerate(list):
+        for key, value in enumerate(item):
+            list[index][key] = randint(0, 100)
+    # 会输出[[12, 51, 68], [83, 83, 55], [0, 81, 29], [75, 33, 25], [60, 80, 60]] 发现这个是正确的
+    print(list)
 
 
 if __name__ == "__main__":
