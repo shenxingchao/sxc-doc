@@ -1640,6 +1640,159 @@ if __name__ == "__main__":
     main()
 ```
 
+### excel基础操作
+<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
+
+```py
+# 导入excel处理库
+from openpyxl import Workbook, load_workbook
+
+# 导入日期处理库
+from datetime import datetime as dt
+
+# 这些都是样式处理库 见 https://openpyxl.readthedocs.io/en/stable/styles.html
+from openpyxl.styles import (
+    PatternFill,
+    Border,
+    Side,
+    Alignment,
+    Protection,
+    Font,
+    Color,
+)
+
+
+def main():
+    # 初始化工作簿对象
+    wb = Workbook()
+    """下面是工作表worksheet操作"""
+    # 在最末尾插入一个worksheet
+    wb.create_sheet("最后一个sheet")
+    # 在指定位置插入worksheet
+    wb.create_sheet("我是插入的sheet", 1)
+    # 获取当前激活的worksheet
+    ws = wb.active
+    # 更改默认的sheet名字
+    ws.title = "我是默认的sheet,标题被修改了"
+    # 查看所有的表格
+    print(wb.sheetnames)  # 输出['我是默认的sheet,标题被修改了', '我是插入的sheet', '最后一个sheet']
+    # 更改sheet的选项卡下划线颜色
+    ws.sheet_properties.tabColor = "f60f60"
+    # 激活指定的worksheet
+    ws = wb["最后一个sheet"]  # 知道名字可以这么切换sheet
+    ws.title = "最后一个sheet标题也被改啦"
+    print(wb.sheetnames)  # 输出['我是默认的sheet,标题被修改了', '我是插入的sheet', '最后一个sheet']
+    ws = wb.worksheets[0]  # 使用索引激活回到第一个sheet
+
+    """下面是单元格操作"""
+    # 改变指定单元格内容
+    ws["A3"] = "我是A3单元格内容"
+    # 根据行列创建数据
+    ws.cell(3, 2, "我是第三行第二列内容")
+    # 访问指定单元格内容
+    print(ws["A3"].value)  # 输出我是A3单元格内容
+    print(ws["B3"].value)  # 输出我是第三行第二列内容
+    # Cell对象.value可以直接赋值 为了避免混淆。这种方式不要用  用这种 ws["A3"] = "我是A3单元格内容"
+    ws["A3"].value = "我是A3单元格内容新赋值的"
+    print(ws["A3"].value)  # 输出我是A3单元格内容新赋值的
+    # 当问多个单元格
+    # 切片方式 访问指定范围, 访问一列用ws[A], 访问一行用ws[3]
+    for row in ws["A1":"B3"]:
+        for cell in row:
+            print(cell.value)  # 分别输出None None None None 我是A3单元格内容新赋值的 我是第三行第二列内容
+    # 行列方式
+    for cell in ws["A"]:
+        print(cell.value)  # 分别输出 None None 我是A3单元格内容新赋值的  没有内容会输出None
+    # 如果需要按一行一行访问 参考 https://openpyxl.readthedocs.io/en/stable/tutorial.html#accessing-many-cells  iter_rows方法
+    for row in ws.iter_rows(min_row=1, max_col=2, max_row=3):
+        for cell in row:
+            print(cell)
+    # 输出
+    # <Cell '我是默认的sheet,标题被修改了'.A1>
+    # <Cell '我是默认的sheet,标题被修改了'.B1>
+    # <Cell '我是默认的sheet,标题被修改了'.A2>
+    # <Cell '我是默认的sheet,标题被修改了'.B2>
+    # <Cell '我是默认的sheet,标题被修改了'.A3>
+    # <Cell '我是默认的sheet,标题被修改了'.B3>
+    # 如果需要按一列一列访问
+    for col in ws.iter_cols(min_row=1, max_col=2, max_row=3):
+        for cell in col:
+            print(cell)
+    # 输出
+    # <Cell '我是默认的sheet,标题被修改了'.A1>
+    # <Cell '我是默认的sheet,标题被修改了'.A2>
+    # <Cell '我是默认的sheet,标题被修改了'.A3>
+    # <Cell '我是默认的sheet,标题被修改了'.B1>
+    # <Cell '我是默认的sheet,标题被修改了'.B2>
+    # <Cell '我是默认的sheet,标题被修改了'.B3>
+    # 只遍历输出值
+    for row in ws.values:
+        for value in row:
+            print(value)
+    # 获取每一行 .rows 每一列 columns
+    for row in ws.rows:
+        for cell in row:
+            print(cell)
+    # 输出
+    # <Cell '我是默认的sheet,标题被修改了'.A1>
+    # <Cell '我是默认的sheet,标题被修改了'.B1>
+    # <Cell '我是默认的sheet,标题被修改了'.A2>
+    # <Cell '我是默认的sheet,标题被修改了'.B2>
+    # <Cell '我是默认的sheet,标题被修改了'.A3>
+    # <Cell '我是默认的sheet,标题被修改了'.B3>
+    # excel覆盖保存文件到当前文件夹
+    wb.save("第一个excel.xlsx")
+    # 打开已有文档
+    wb = load_workbook("第一个excel.xlsx")
+    ws = wb.active
+    # 插入到第3行
+    ws.insert_rows(3)
+    # 插入到第二列
+    ws.insert_cols(2)
+    # 删除行
+    ws.delete_rows(3)
+    # 删除列
+    ws.delete_cols(2)
+    # 删除多行 删除第4行到第六行
+    ws.delete_rows(4, 3)
+    # 删除多列 删除C到E列
+    ws.delete_cols(3, 3)  # 3 => C ,3 => 从C开始删除3列
+    # 创建一下数据
+    for row in ws["A1":"B2"]:
+        for cell in row:
+            cell.value = 1  # 这里直接赋值给cell会失败，注意
+    # 使用函数 求和
+    ws["C1"] = "=SUM(A1:B1)"
+    # 日期格式化
+    ws["D1"] = dt.now().strftime("%Y-%m-%d %H:%M:%S")  # strftime 格式化日期
+
+    # 样式什么的，我觉得导出来再处理会比较好，毕竟毕竟简单。
+    # 可以设个隔行变色
+    i = 0
+    ft = Font(name="微软雅黑", size=18, color="f60f60", bold=True, italic=True)
+    for row in ws.rows:
+        for cell in row:
+            if i % 2 == 0:
+                cell.font = ft
+            # 上下左右居中 还可以使用right、left等等参数
+            cell.alignment = Alignment(horizontal="center", vertical="center")
+        i += 1
+    # 第2行行高
+    ws.row_dimensions[3].height = 100
+    # C列列宽
+    ws.column_dimensions["C"].width = 150
+    # 合并单元格 合并的值以左上角为例
+    ws.merge_cells("A2:B2")
+    # 拆分单元格 拆分后只有左上角的单元格有值
+    ws.unmerge_cells("A2:B2")
+    # excel覆盖保存文件到当前文件夹
+    wb.save("第一个excel.xlsx")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
