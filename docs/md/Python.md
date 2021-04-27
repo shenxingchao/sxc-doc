@@ -1816,7 +1816,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 嵌套列表的坑
+#### 嵌套列表的坑
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
 ```py
@@ -1853,6 +1853,116 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+#### 堆排序
+
+**堆的定义 第i个数总是大于第i/2处的元素**
+
+```py
+# 导入堆模块
+import heapq
+
+
+def main():
+    # 定义一个乱序列表
+    list = [2, 3, 4, 5, 1, 6, 7, 9, 8]
+    # 找到堆里最大的几个数 不转换成堆调用也正确
+    print(heapq.nlargest(2, list))  # 输出[9,8]
+    # 找到堆里最小的几个数 不转换成堆调用也正确
+    print(heapq.nsmallest(2, list))  # 输出[1,2]
+    # 首先要转换为堆
+    heapq.heapify(list)
+    # 入堆
+    heapq.heappush(list, 10)
+    # 出堆并生成列表看排序结果  输出[1, 2, 3, 4, 5, 6, 7, 8, 9, 10]
+    print([heapq.heappop(list) for _ in range(len(list))])
+
+    # 将多个排序号的列表，从小到大合并成一个排序 没啥用的
+    list1 = [32, 3, 5, 34, 54, 23, 132]
+    list2 = [23, 2, 12, 656, 324, 23, 54]
+    list1 = sorted(list1)
+    list2 = sorted(list2)
+
+    list = heapq.merge(list1, list2)  # 返回生成器  generator object merge
+    # 输出 [2, 3, 5, 12, 23, 23, 23, 32, 34, 54, 54, 132, 324, 656]
+    print([item for item in list])
+
+    # 更简单的
+    list = sorted(list1 + list2)
+    print(list)  # 输出 [2, 3, 5, 12, 23, 23, 23, 32, 34, 54, 54, 132, 324, 656]
+
+    p = lambda x, y: x + y
+    print(p(4, 6))
+
+    # 定义一个列表嵌套字典的
+    list = [
+        {"name": "IBM", "shares": 100, "price": 91.1},
+        {"name": "AAPL", "shares": 50, "price": 543.22},
+        {"name": "FB", "shares": 200, "price": 21.09},
+        {"name": "HPQ", "shares": 35, "price": 31.75},
+        {"name": "YHOO", "shares": 45, "price": 16.35},
+        {"name": "ACME", "shares": 75, "price": 115.65},
+    ]
+    # 取出价格最大的2项
+    print(heapq.nlargest(2, list, key=lambda x: x["price"]))
+    # 输出 [{'name': 'AAPL', 'shares': 50, 'price': 543.22}, {'name': 'ACME', 'shares': 75, 'price': 115.65}]
+    # 等同于下面的方式
+    """  
+    def fn(x):
+        return x["price"]
+
+    print(heapq.nlargest(2, list, key=fn))
+    """
+    # 取出分享最少的两项
+    print(heapq.nlargest(2, list, key=lambda x: x["shares"]))
+    # 输出[{'name': 'FB', 'shares': 200, 'price': 21.09}, {'name': 'IBM', 'shares': 100, 'price': 91.1}]
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 生成器
+<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
+
+```py
+def createGenerator():
+    """
+    @description 创建一个生成器
+    @param
+    @return
+    """
+    list = range(3)
+    for i in list:
+        res = yield i * i
+        print(res)
+
+
+def main():
+    # 创建一个生成器 创建方法和列表类似
+    list = (item for item in range(10))  # generator object
+    for item in list:
+        print(item)  # 输出0~9的数字
+    # 迭代完一次后再迭代发现没有输出
+    for item in list:
+        print(item)
+    # 创建生成器
+    g = createGenerator()
+    # 通过next()可以打印下一个yield返回的结果
+    print(next(g))  # 输出0
+    print(next(g))  # 输出None和1 这里的None是函数里Print(res)输出的
+    # g.send(10) 把10返回给了res，所以res有值
+    print(g.send(10))  # 输出10和4 这里的10是函数里Print(res)输出的
+    # 创建生成器
+    g = createGenerator()
+    for item in g:
+        print(item)  # 依次输出0 None 1 None 4 None 这里的None是函数里Print(res)输出的
+
+
+if __name__ == "__main__":
+    main()
+```
+!>生成器用完一次后即被释放,大列表都可以用生成器去创建
 
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
