@@ -164,9 +164,17 @@
 
     - [excel基础操作](/md/Python#excel基础操作)
 
+    - [推导式语法](/md/Python#推导式语法)
+
+    - [生成器](/md/Python#生成器)
+
+    - [内置模块](/md/Python#内置模块)
+
     - [内置函数](/md/Python#内置函数)
 
     - [pip](/md/Python#pip)
+
+    - [别人遇到的坑](/md/Python#别人遇到的坑)
 
 - [软件](/md/Software#软件)
   

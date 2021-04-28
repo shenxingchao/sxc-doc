@@ -326,6 +326,56 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 装饰器函数（高级特性）
+```py
+# 导入装饰器模块
+from functools import wraps
+
+
+def a_new_decorator_with_parma(name):
+    """
+    @description 最外面的包裹是带参数的装饰器函数，不需要参数可以去掉
+    @param
+    @return
+    """
+    print(name)
+
+    def a_new_decorator(fn):
+        """
+        @description 创建装饰器函数
+        @param
+        @return
+        """
+        param_default = fn.__defaults__  # 这个是原函数参数的默认值元组,如果需要从这里拿,可以拿到 (你好我是原函数参数,)
+        # wraps接受一个函数来进行装饰 这可以让我们在装饰器里面访问在装饰之前的函数的属性。
+        @wraps(fn)
+        def wrapTheFunction(*args):
+            """
+            @description 装饰函数，实际在这里进行装饰（进行别的操作，并调用原函数）
+            @param
+            @return
+            """
+            print("装饰后输出")  # 输出装饰后输出
+            print(*args)  # 没有输出 原函数的默认值不会被传过来
+            fn(*args)  # 输出我是原函数输出
+
+        # 把装饰后的函数返回回去，它还是一个函数
+        return wrapTheFunction
+
+    return a_new_decorator
+
+
+@a_new_decorator_with_parma("你好我是带参数的装饰器函数的参数")
+def a_function_requiring_decoration(name="你好我是原函数参数"):
+    print("我是原函数输出")
+
+
+# 调用装饰后的函数
+a_function_requiring_decoration()
+# 输出装饰后函数的名称
+print(a_function_requiring_decoration.__name__)  # a_function_requiring_decoration
+```
+
 ### 模块
 <p align="left" style="color:#777777;">发布日期：2021-04-20</p>
 
@@ -448,6 +498,7 @@ print(str.strip())  # 输出hello world
 ```py
 # 定义一个列表
 arr = [1, 2, 3]
+arr = list(range(3))
 # 打印整个列表
 print(arr)  # [1,2,3]
 # 打印列表第一个索引的值
@@ -1779,8 +1830,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 进阶
-#### 推导式语法
+### 推导式语法
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
 ```py
@@ -1808,53 +1858,143 @@ def main():
     student = [item for item in student if item["age"] >= 18]
     print(student)  # 输出 [{'name': '小红', 'age': 18}, {'name': '小张', 'age': 19}]
     # 用推导式语法创建一个集合
-    set = {item for item in range(1, 9)}
-    print(set)  # 输出{1, 2, 3, 4, 5, 6, 7, 8}
+    sets = {item for item in range(1, 9)}
+    print(sets)  # 输出{1, 2, 3, 4, 5, 6, 7, 8}
 
 
 if __name__ == "__main__":
     main()
 ```
 
-#### 嵌套列表的坑
+### 生成器
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
+#### 生成器基本执行流程
 ```py
-from random import randint
+def createGenerator():
+    """
+    @description 创建一个生成器
+    @param
+    @return
+    """
+    list = range(3)
+    for i in list:
+        res = yield i * i
+        print(res)
 
 
 def main():
-    # 简单错误案例
-    list = [0, 0, 0]
-    list = [list] * 2  # 这个过程种的list指向的内存地址是同一个
-    list[0][0] = 1  # 只改了一个索引
-    print(list)  # 输出[[1, 0, 0], [1, 0, 0]]   只改了一个索引 另外一个也跟着变了
-    # 正确写法
-    list = [[0] * 3 for _ in range(2)]
-    list[0][0] = 1
-    print(list)  # 输出 [[1, 0, 0], [0, 0, 0]]
+    # 创建一个生成器 创建方法和列表类似
+    list = (item for item in range(10))  # generator object
+    for item in list:
+        print(item)  # 输出0~9的数字
+    # 迭代完一次后再迭代发现没有输出
+    for item in list:
+        print(item)
+    # 创建生成器
+    g = createGenerator()
+    # 通过next()可以打印下一个yield返回的结果
+    print(next(g))  # 输出0
+    print(next(g))  # 输出None和1 这里的None是函数里Print(res)输出的
+    # g.send(10) 把10返回给了res，所以res有值
+    print(g.send(10))  # 输出10和4 这里的10是函数里Print(res)输出的
+    # 创建生成器
+    g = createGenerator()
+    for item in g:
+        print(item)  # 依次输出0 None 1 None 4 None 这里的None是函数里Print(res)输出的
 
-    # 复杂错误案例
-    list = [[0] * 3] * 5
-    for index, item in enumerate(list):
-        for key, value in enumerate(item):
-            list[index][key] = randint(0, 100)
-    # 会输出类似的[[64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44]]，发现每个数都是一样的
-    print(list)
-    # 正确写法
-    list = [[0] * 3 for _ in range(5)]
-    for index, item in enumerate(list):
-        for key, value in enumerate(item):
-            list[index][key] = randint(0, 100)
-    # 会输出[[12, 51, 68], [83, 83, 55], [0, 81, 29], [75, 33, 25], [60, 80, 60]] 发现这个是正确的
-    print(list)
+
+if __name__ == "__main__":
+    main()
+```
+!>生成器用完一次后即被释放,大列表都可以用生成器去创建
+
+#### 用生成器生成无限序列
+```py
+def createGenerator():
+    """
+    @description 创建生成器
+    @param
+    @return
+    """
+    num = 0
+    while True:
+        yield num
+        num = num + 1
+        # 下面给个条件，让生成器终止
+        if num > 1000000:
+            break
+
+
+def main():
+    # 这将是一个无限序列的生成器
+    g = createGenerator()
+    # 除非手动停止，不然无限输出下去
+    for item in range(10000):
+        print(item)
 
 
 if __name__ == "__main__":
     main()
 ```
 
-#### 堆排序
+#### 生成器深入理解与应用
+```py
+from time import time
+
+
+def createGenerator():
+    """
+    @description 创建生成器
+    @param
+    @return
+    """
+    list = []
+    for item in range(100000):
+        list = [item] * 2000  # 在函数内部处理时间很长的时候，这个时候，用生成器速度快，且不占内存
+        yield list
+
+
+def main():
+    # 列表推导式开始计时
+    start_time1 = time()
+    # 列表推导式生成list
+    list = [[item] * 2000 for item in range(100000)]
+    # 迭代
+    for _ in list:
+        continue
+    #  列表推导式计时结束
+    end_time1 = time()
+
+    # 函数生成器开始计时
+    start_time2 = time()
+    # 创建函数生成器
+    g = createGenerator()
+    for _ in g:
+        continue
+    # 函数生成器计时结束
+    end_time2 = time()
+
+    # 列表推导式生成器开始计时
+    start_time3 = time()
+    # 列表推导式生成器生成list
+    g = ([item] * 2000 for item in range(100000))
+    for _ in g:
+        continue
+    # 列表推导式生成器计时结束
+    end_time3 = time()
+
+    print(f"列表推导式时间{(end_time1-start_time1):.8f}s")  # 输出2.15891385s
+    print(f"函数生成器时间{(end_time2-start_time2):.8f}s")  # 输出0.60804820s
+    print(f"列表推导式生成器时间{(end_time3-start_time3):.8f}s")  # 输出0.61485124s
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 内置模块
+#### 堆模块排序
 
 **堆的定义 第i个数总是大于第i/2处的元素**
 
@@ -1922,47 +2062,127 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 生成器
-<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
-
+#### 迭代工具模块
 ```py
-def createGenerator():
-    """
-    @description 创建一个生成器
-    @param
-    @return
-    """
-    list = range(3)
-    for i in list:
-        res = yield i * i
-        print(res)
+# 导入迭代工具模块
+import itertools
 
 
 def main():
-    # 创建一个生成器 创建方法和列表类似
-    list = (item for item in range(10))  # generator object
-    for item in list:
-        print(item)  # 输出0~9的数字
-    # 迭代完一次后再迭代发现没有输出
-    for item in list:
+    # count(num) 是无限序列数的迭代器,从num开始无限加1
+    num = itertools.count(0)
+
+    for item in num:
+        print(item)  # 一直不停的输出下去 0,1,2,3,···
+        # 手动让它终止
+        if item == 100:
+            break
+
+    # cycle 无限重复输出序列 一下几种等效
+    # str = itertools.cycle(["a", "b", "c"])  # 也可以直接传其他的字典对象字符串都可以算序列
+    # str = itertools.cycle({"a", "b", "c"})
+    # str = itertools.cycle(("a", "b", "c"))
+    # str = itertools.cycle({"a": 1, "b": 2, "c": 3})
+    str = itertools.cycle("abc")
+    i = 0
+    for item in str:
+        print(item)  # 一直不停的输出a b c a b c a ···
+        i += 1
+        # 手动让它终止
+        if i == 100:
+            break
+
+    # repeat 无限重复输出指定元素，但可以指定次数
+    str = itertools.repeat("abc", 3)
+    for item in str:
+        print(item)  # 输出abc  abc  abc
+
+    # combinations产生3选2组合 相当于C-3-2
+    str = itertools.combinations("abc", 2)
+    for item in str:
+        print(item)  # 输出 ('a', 'b') ('a', 'c') ('b', 'c')
+
+    # permutations 输出全排列 相当于A-3-3
+    str = itertools.permutations("abc", 3)
+    for item in str:
         print(item)
-    # 创建生成器
-    g = createGenerator()
-    # 通过next()可以打印下一个yield返回的结果
-    print(next(g))  # 输出0
-    print(next(g))  # 输出None和1 这里的None是函数里Print(res)输出的
-    # g.send(10) 把10返回给了res，所以res有值
-    print(g.send(10))  # 输出10和4 这里的10是函数里Print(res)输出的
-    # 创建生成器
-    g = createGenerator()
-    for item in g:
-        print(item)  # 依次输出0 None 1 None 4 None 这里的None是函数里Print(res)输出的
+    # 输出
+    # ('a', 'b', 'c')
+    # ('a', 'c', 'b')
+    # ('b', 'a', 'c')
+    # ('b', 'c', 'a')
+    # ('c', 'a', 'b')
+    # ('c', 'b', 'a')
 
 
 if __name__ == "__main__":
     main()
 ```
-!>生成器用完一次后即被释放,大列表都可以用生成器去创建
+
+**分组**
+```py
+from itertools import groupby
+
+
+def main():
+    # 定义一个字典列表
+    lists = [
+        {"name": "老二", "age": 18},
+        {"name": "老三", "age": 18},
+        {"name": "老大", "age": 50},
+        {"name": "老四", "age": 15},
+        {"name": "老五", "age": 15},
+    ]
+    # 先进行排序，sort()会改变原列表
+    lists.sort(key=lambda x: x["age"])
+    # 再进行分租
+    for key, group in groupby(lists, lambda x: x["age"]):
+        for g in group:
+            print(key, g)
+    # 输出
+    # 15 {'name': '老四', 'age': 15}
+    # 15 {'name': '老五', 'age': 15}
+    # 18 {'name': '老二', 'age': 18}
+    # 18 {'name': '老三', 'age': 18}
+    # 50 {'name': '老大', 'age': 50}
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 集合模块
+
+```py
+from collections import deque, Counter
+
+
+def main():
+    """ 高效率操作列表 """
+    # deque底层是双向链表，因此当你需要在头尾添加和删除元素是，deque会表现出更好的性能
+    list = [item for item in range(1, 10)]
+    # 创建链表
+    dq = deque(list)
+    # 往链表最后添加一个值
+    dq.append(10)
+    # 往链表最左边添加一个值
+    dq.appendleft(0)
+    print(dq)  # 输出deque([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10])
+
+    """ 统计字符出现的个数 这个有用"""
+    # Counter
+    list = ["小明", "小红", "小张", "小明", "小红", "小明"]
+    counter = Counter(list)
+    # 找出元素出现个数最多的2个
+    print(counter.most_common(2))  # 输出[('小明', 3), ('小红', 2)]
+    # 统计每个元素出现的次数
+    print(counter)  # 输出Counter({'小明': 3, '小红': 2, '小张': 1})
+    print(counter["小明"])  # 输出3
+
+
+if __name__ == "__main__":
+    main()
+```
 
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
@@ -2056,6 +2276,109 @@ while True:
     i += 1
 ```
 
+#### map函数
+```py
+from functools import reduce
+
+
+def main():
+    lists = [item for item in range(1, 10)]
+    # map函数 对每个列表元素进行处理 并返回新的列表
+    # map(fn,list) 第一个参数是个函数 第二个参数是迭代器
+    lists = list(map(lambda x: x * x, lists))  # 输出[1, 4, 9, 16, 25, 36, 49, 64, 81]
+    print(lists)
+    # 推导式可以等效于map 推导式更简洁
+    # 输出[1, 4, 9, 16, 25, 36, 49, 64, 81]
+    lists = [item * item for item in range(1, 10)]
+    print(lists)
+    """ 
+    lambda x: x * x 等效于
+    def fn(x):
+        return x * x
+    """
+
+    # map实例 将英文单词转换为驼峰式
+    lists = ["adam", "LISA", "barT"]
+    lists = list(map(lambda x: x[0:1:1].upper() + x[1::1].lower(), lists))
+    print(lists)  # 输出['Adam', 'Lisa', 'Bart']
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### reduce累加器,累乘器
+```py
+from functools import reduce
+
+
+def main():
+    lists = [item for item in range(1, 11)]
+    # 利用reduce 求1-10的和 这里做一下示例，其实可以直接用sum
+    # reduce就是把结果继续和序列的下一个元素做累积计算 相当于 fn(fn(fn(x1, x2), x3), x4)
+    print(reduce(lambda x, y: x + y, lists))  # 输出55
+    print(sum(lists))  # 输出55
+
+    # reduce实例 求1~10的积
+    lists = [item for item in range(1, 11)]
+    print(reduce(lambda x, y: x * y, lists))  # 输出3628800
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### filter过滤器
+```py
+def main():
+    lists = [item for item in range(100)]
+    # 找出所有偶数
+    lists = list(filter(lambda x: x % 2 == 0, lists))
+    print(lists)
+    # 输出[0, 2, 4, 6, 8, 10, 12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 34, 36,
+    # 38, 40, 42, 44, 46, 48, 50, 52, 54, 56, 58, 60, 62, 64, 66, 68, 70, 72, 74,
+    #  76, 78, 80, 82, 84, 86, 88, 90, 92, 94, 96, 98]
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### sorted排序
+```py
+import random
+
+
+def main():
+    # 定义一个随机数列表
+    lists = [random.randint(0, 10) for item in range(10)]
+    # 按值从小到大排序
+    print(sorted(lists))  # 输出类似[0, 3, 3, 3, 5, 5, 5, 8, 8, 9]
+
+    # 定义一个列表
+    lists = [1, -2, -4, 3, 5]
+    # 按绝对值从大到小排序
+    print(sorted(lists, key=lambda x: abs(x), reverse=True))  # 输出[5, -4, 3, -2, 1]
+    # 简写
+    print(sorted(lists, key=abs, reverse=True))  # 输出[5, -4, 3, -2, 1]
+
+    # 定义一个字典列表
+    lists = [
+        {"name": "老二", "age": 18},
+        {"name": "老三", "age": 18},
+        {"name": "老大", "age": 50},
+        {"name": "老四", "age": 15},
+        {"name": "老五", "age": 15},
+    ]
+    # 按年龄从小到大排序
+    print(sorted(lists, key=lambda x: x["age"]))
+    # 输出[{'name': '老四', 'age': 15}, {'name': '老五', 'age': 15}, {'name': '老二', 'age': 18}, {'name': '老三', 'age': 18}, {'name': '老大', 'age': 50}]
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### pip
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -2096,3 +2419,44 @@ python -m pip install --upgrade pip
 ```bash
 pip install black
 ```
+
+### 别人遇到的坑
+
+#### 嵌套列表的坑
+<p align="left" style="color:#777777;">发布日期：2021-04-27</p>
+
+```py
+from random import randint
+
+
+def main():
+    # 简单错误案例
+    list = [0, 0, 0]
+    list = [list] * 2  # 这个过程种的list指向的内存地址是同一个
+    list[0][0] = 1  # 只改了一个索引
+    print(list)  # 输出[[1, 0, 0], [1, 0, 0]]   只改了一个索引 另外一个也跟着变了
+    # 正确写法
+    list = [[0] * 3 for _ in range(2)]
+    list[0][0] = 1
+    print(list)  # 输出 [[1, 0, 0], [0, 0, 0]]
+
+    # 复杂错误案例
+    list = [[0] * 3] * 5
+    for index, item in enumerate(list):
+        for key, value in enumerate(item):
+            list[index][key] = randint(0, 100)
+    # 会输出类似的[[64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44], [64, 39, 44]]，发现每个数都是一样的
+    print(list)
+    # 正确写法
+    list = [[0] * 3 for _ in range(5)]
+    for index, item in enumerate(list):
+        for key, value in enumerate(item):
+            list[index][key] = randint(0, 100)
+    # 会输出[[12, 51, 68], [83, 83, 55], [0, 81, 29], [75, 33, 25], [60, 80, 60]] 发现这个是正确的
+    print(list)
+
+
+if __name__ == "__main__":
+    main()
+```
+
