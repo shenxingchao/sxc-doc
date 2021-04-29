@@ -349,15 +349,15 @@ def a_new_decorator_with_parma(name):
         param_default = fn.__defaults__  # 这个是原函数参数的默认值元组,如果需要从这里拿,可以拿到 (你好我是原函数参数,)
         # wraps接受一个函数来进行装饰 这可以让我们在装饰器里面访问在装饰之前的函数的属性。
         @wraps(fn)
-        def wrapTheFunction(*args):
+        def wrapTheFunction(*args, **kwargs):
             """
-            @description 装饰函数，实际在这里进行装饰（进行别的操作，并调用原函数）
+            @description 装饰函数，实际在这里进行装饰（进行别的操作，调用原函数并返回，最里层返不返回随便你）
             @param
             @return
             """
             print("装饰后输出")  # 输出装饰后输出
-            print(*args)  # 没有输出 原函数的默认值不会被传过来
-            fn(*args)  # 输出我是原函数输出
+            print(*args, **kwargs)  # 没有输出 原函数的默认值不会被传过来
+            return fn(*args, **kwargs)  # 输出我是原函数输出
 
         # 把装饰后的函数返回回去，它还是一个函数
         return wrapTheFunction
@@ -368,12 +368,50 @@ def a_new_decorator_with_parma(name):
 @a_new_decorator_with_parma("你好我是带参数的装饰器函数的参数")
 def a_function_requiring_decoration(name="你好我是原函数参数"):
     print("我是原函数输出")
+    print(f"原函数参数输出:{name}")
 
 
 # 调用装饰后的函数
 a_function_requiring_decoration()
 # 输出装饰后函数的名称
 print(a_function_requiring_decoration.__name__)  # a_function_requiring_decoration
+```
+
+#### 类装饰器
+```py
+from functools import wraps
+from time import time
+
+
+class Record:
+    """通过定义类的方式定义装饰器"""
+
+    def __init__(self, name):
+        print(name)  # 输出你好我是带参数的类装饰器的参数
+
+    def __call__(self, fn):
+        """
+        __call__允许类用
+        record = Record()
+        record(fn)  类的实例去调用 相当于record.__call__(fn)
+        """
+
+        @wraps(fn)
+        def wrapper(*args, **kwargs):
+            print("装饰后输出")  # 输出装饰后输出
+            return fn(*args, **kwargs)  # 输出我是原函数输出 原函数参数输出:你好我是原函数参数
+
+        return wrapper
+
+
+@Record("你好我是带参数的类装饰器的参数")  # 相当于 record = Record("你好我是带参数的类装饰器的参数") ; record(fn)
+def a_function_requiring_decoration(name="你好我是原函数参数"):
+    print("我是原函数输出")
+    print(f"原函数参数输出:{name}")
+
+
+# 调用装饰后的函数
+a_function_requiring_decoration()
 ```
 
 ### 模块
@@ -604,6 +642,41 @@ import copy
 
 copys = copy.deepcopy(arr)
 print(copys)
+```
+
+#### 浅拷贝和深拷贝实战
+```py
+import copy
+
+
+def main():
+    """ 浅拷贝 """
+    # 创建一个二维列表
+    list = [[1, 2, 3], [4, 5, 6]]
+    list_copy = list.copy()  # 也可以 list_copy = copy.copy(list)
+    # 分别改变第一层和第二层的内容
+    list_copy[0] = [11, 22, 33]
+    list_copy[1][0] = [44]
+    # 输出拷贝后的列表
+    print(list_copy)  # 输出[[11, 22, 33], [[44], 5, 6]]
+    # 输出原列表，发现原列表的深层列表值被改变，浅层的未发生变化
+    print(list)  # 输出[[1, 2, 3], [[44], 5, 6]]
+
+    """ 深拷贝 """
+    # 创建一个二维列表
+    list = [[1, 2, 3], [4, 5, 6]]
+    list_copy = copy.deepcopy(list)  # 只能这种方式
+    # 分别改变第一层和第二层的内容
+    list_copy[0] = [11, 22, 33]
+    list_copy[1][0] = [44]
+    # 输出拷贝后的列表
+    print(list_copy)  # 输出[[11, 22, 33], [[44], 5, 6]]
+    # 输出原列表，发现原列表的深层和浅层的均未发生变化，实现了深拷贝
+    print(list)  # 输出[[1, 2, 3], [4, 5, 6]]
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 ### 元组
@@ -1025,6 +1098,110 @@ if __name__ == "__main__":
 1. 接口类支持多继承，抽象类尽量避免多继承
 2. 接口类只有方法，抽象类可以有方法和属性
 3. 接口类的方法实现为空，具体有子类去实现，抽象类可以写一些方法去做基础实现，供子类参考
+
+#### 常见魔术方法
+```py
+# 这是一个装饰器，你只需要实现 __eq__ 方法和其他任意一个方法如__lt__就可以推导出所有的 __ge__, __le__, __gt__
+from functools import total_ordering
+
+
+@total_ordering
+class Person:
+    def __new__(cls, age):
+        """
+        @description 创建方法在__init__之前被调用
+        @param
+        @return
+        """
+        print("__new__被调用")
+        return super().__new__(cls)  # 必须返回，这里super()就是调用父类object的方法或属性，直接返回父类的__new__方法
+
+    def __init__(self, age):
+        self.age = age
+        """
+        @description 初始化方法
+        @param
+        @return
+        """
+        print("__init__被调用")
+
+    def __del__(self):
+        """
+        @description 实例销毁实输出 ，一般是程序运行结束后 简单的调用方法 : del obj
+        @param
+        @return
+        """
+        print("__del__被调用")
+
+    def __call__(self):
+        """
+        @description 定义这个方法 就可以用实例() 去调用  p() ，在类装饰器中有用到
+        @param
+        @return
+        """
+        print("__call__被调用")
+
+    def __str__(self):
+        """
+        @description return 值在打印对象时会被输出，一般用来描写这个对象  简单的调用方法 : str(obj)
+        @param
+        @return
+        """
+        print(self.age)
+        return "__str__被调用"
+
+    def __repr__(self):
+        """
+        @description  return 值在打印对象时会被输出 用来代替__str__输出，若不存在__str__方法，就会输出这个方法 简单的调用方法 : repr(obj)
+        @param
+        @return
+        """
+        return "__repr__被调用"
+
+    def __eq__(self, s):
+        """
+        @description __eq__用实例自身self和传入的实例 s 进行比较，返回相等的比较
+        @param self 自身实例
+        @param s 传入的实例
+        @return
+        """
+        print("__eq__被调用")
+        return self.age == s.age
+
+    def __lt__(self, s):
+        """
+        @description __lt__用实例自身self和传入的实例 s 进行比较，返回小于的比较
+        @param self 自身实例
+        @param s 传入的实例
+        @return
+        """
+        print("__lt__被调用")
+        return self.age < s.age
+
+
+def main():
+    # 类实例化对象
+    p = Person(18)  # 输出__new__被调用 __init__被调用
+    # 实例调用__call__方法调用
+    p()  # 相当于p.__call() 输出__call__被调用
+    # 打印实例
+    print(p)  # 输出__str__被调用
+    print("%s" % p)  # 输出__str__被调用
+    print("%r" % p)  # 输出__repr__被调用
+    print("程序运行结束")  # 输出__repr__被调用
+    # 结束后输出__del__被调用
+
+    # # 为了避免和上面的输出混淆，要测试__lt__单独测试这块
+    # list = sorted([Person(20), Person(10), Person(30)])
+    # for item in list:
+    #     print(item)
+    # # 依次输出 __lt__被调用 __lt__被调用 __lt__被调用 10 __str__被调用 20 __str__被调用 30 __str__被调用
+    # print(Person(20) < Person(25))  # 输出True
+
+
+if __name__ == "__main__":
+    main()
+```
 
 ### 文件和异常处理
 #### 打开文件并读取内容，并处理打开文件的异常
@@ -1540,10 +1717,10 @@ if __name__ == "__main__":
 
 **多线程加锁**
 ```py
-from threading import Thread, Lock
+from threading import Thread, Lock, RLock
 from time import sleep
 
-lock = Lock()
+lock = Lock()  # 一个线程里多次使用lock的话用RLock，防止阻塞
 
 
 def fn(List, num):
@@ -1560,6 +1737,13 @@ def fn(List, num):
     finally:
         # 释放锁
         lock.release()
+
+    """
+    #推荐用这种写法
+    with lock:  # 会自动调用release是否锁
+        sleep(0.01)  # 假如放入一个数的时间需要0.01秒
+        List.append(num)
+    """
 
 
 def main():
