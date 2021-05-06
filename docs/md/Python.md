@@ -2178,6 +2178,130 @@ if __name__ == "__main__":
 ```
 
 ### 内置模块
+
+#### random随机数
+```py
+import random
+
+
+def main():
+    # 随机浮点数 0<=n<=100
+    print(random.random() * 100)
+    # 范围内的随机浮点数 0<=n<=100
+    print(random.uniform(0, 100))
+    # 随机整数 0<=n<=100
+    print(random.randint(0, 100))  # 输出0~100中随机的一个数
+    # 范围内的随机整数 0<=n<100
+    print(random.randrange(0, 101, 50))  # 只能输出 0 50 100 三个数中的一个
+    # 定义一个列表
+    list = ["a", "b", "c", "d", "e"]
+    # 随机取一个数
+    print(random.choice(list))  # 输出是随机的 如c
+    # 将列表随机打乱
+    random.shuffle(list)
+    print(list)  # 输出是随机的 如['d', 'c', 'e', 'a', 'b']
+    # 取指定个数的随机列表
+    print(random.sample(list, 3))  # 输出是随机的 如['c', 'b', 'd']
+
+
+if __name__ == "__main__":
+    main()
+```
+!> randint产生的随机数包含左右边界，randrange只包含左边界，且randrange可以设定步长  
+shuffle会改变原数据源 sample不会
+
+#### Math数学方法
+数学方法很多,没有的参照[这里](https://docs.python.org/zh-cn/3/library/math.html)
+```py
+import math
+
+
+def main():
+    # 绝对值
+    print(abs(-10))  # 输出10
+    # 最大值
+    print(max([1, 2, 3, 4, 5]))  # 输出5
+    # 最小值
+    print(min([1, 2, 3, 4, 5]))  # 输出1
+    # n的n次方
+    print(pow(2, 2))  # 输出4
+    # n的n次方
+    print(3 ** 3)  # 输出27
+    # 四舍五入 并保留2位小数
+    print(round(3.1415, 3))  # 输出3.142
+    # 向上取整
+    print(math.ceil(3.4))  # 输出4
+    # 向下取整
+    print(math.floor(3.4))  # 输出3
+    # 平方根
+    print(int(math.sqrt(4)))  # 输出2
+    # sin函数
+    print(math.sin(90))  # 输出0.8939966636005579
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### os操作系统
+基本是操作文件和执行shell命令有用
+```py
+import os
+
+
+def main():
+    # 获取操作系统平台
+    print(os.name)  # 输出nt
+    # 获取当前文件所在目录
+    print(os.getcwd())  # 输出D:\···
+    # 列出指定目录下的所有文件名和目录名 默认输出当前目录下的所有文件名和目录名
+    print(os.listdir())  # 输出D盘下的所有文件名和目录名
+    # 运行shell命令
+    os.system("cd.>1.txt")  # os.system("cls") 清理屏幕输出
+    # 删除文件
+    try:
+        os.remove("1.txt")
+    except FileNotFoundError:
+        print("文件找不到")
+    # 检查目录是否存在
+    print(os.path.exists(os.getcwd()))  # 输出True
+    # 判断是否是文件
+    print(os.path.isfile("1.txt"))  # 输出False
+    # 判断是否是文件夹
+    print(os.path.isdir(os.getcwd()))  # 输出True
+    # 获取绝对路径
+    print(os.path.abspath("1.txt"))  # 输出以传入的文件名和当前绝对路径组合的完整路径
+    # 输出D:\···\1.txt
+    # 分离文件名与扩展名
+    print(os.path.splitext("1.txt")[1])  # 输出.txt   完整返回('1', '.txt')
+    print("." + "1.txt".split(".")[1])  # 输出.txt
+    # 拆分路径为 目录+文件名
+    print(os.path.split("D:\\test\\1.txt"))  # 输出('D:\\test', '1.txt')
+    # 连接目录和文件名
+    print(os.path.join("D:\\test", "1.txt"))  # 输出D:\test\1.txt
+    print("D:\\test" + "\\" + "1.txt")  # 输出D:\test\1.txt
+    # 获得文件名
+    print(os.path.basename("D:\\test\\1.txt"))  # 输出1.txt
+    # 获得文件路径
+    print(os.path.dirname("D:\\test\\1.txt"))  # 输出D:\test
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### time时间
+**睡眠**
+```py
+import time
+
+i = 0
+while True:
+    print(i)
+    time.sleep(1)  # 睡眠1秒
+    i += 1
+```
+
 #### 堆模块排序
 
 **堆的定义 第i个数总是大于第i/2处的元素**
@@ -2246,7 +2370,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 迭代工具模块
+#### 迭代工具
 ```py
 # 导入迭代工具模块
 import itertools
@@ -2335,7 +2459,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 集合模块
+#### 集合
 
 ```py
 from collections import deque, Counter
@@ -2406,58 +2530,12 @@ print(
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
 
-#### 随机数
-```py
-import random
-
-# 随机整数
-print(random.randint(0, 100))  # 输出0~100中随机的一个数
-# 一个范围内的随机数
-print(random.randrange(0, 101, 50))  # 只能输出 0 50 100 三个数中的一个
-```
-!> randint产生的随机数包含左右边界，randrange只包含左边界，且randrange可以设定步长
-
-#### 数学方法
-数学方法很多,参照[这里](https://docs.python.org/zh-cn/3/library/math.html)
-```py
-# 导入函数
-import math
-
-# 平方根
-print(math.sqrt(4))
-# sin函数
-print(math.sin(90))
-```
-
 #### 计算长度
 ```py
 str = "hello world"
 arr = [1, 2, 3, 4]
 print(len(str))  # 输出11
 print(len(arr))  # 输出4
-```
-
-#### os模块函数
-**清除输出**
-```py
-import os
-
-print("hello")
-os.system("cls")
-print("world")
-# 只会看到输出world
-```
-
-#### time模块
-**睡眠**
-```py
-import time
-
-i = 0
-while True:
-    print(i)
-    time.sleep(1)  # 睡眠1秒
-    i += 1
 ```
 
 #### map函数
