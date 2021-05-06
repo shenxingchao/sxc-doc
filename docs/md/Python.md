@@ -2328,7 +2328,11 @@ if __name__ == "__main__":
 
 #### 加密模块
 ```python
+# 各种hash算法 如md5 sha1
 import hashlib
+
+# key+md5的算法
+import hmac
 
 
 def main():
@@ -2337,9 +2341,13 @@ def main():
     # sha1加密
     print(hashlib.sha1("123456".encode("utf-8")).hexdigest())  # 输出7c4a8d09ca3762af61e59520943dc26494f8941b
     # sha256加密
-    print(
-        hashlib.sha256("123456".encode("utf-8")).hexdigest()
-    )  # 输出8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+    print(hashlib.sha256("123456".encode("utf-8")).hexdigest())
+    # 输出8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+    # hmac算法
+    print(hmac.new("keystr".encode("utf-8"), "123456".encode("utf-8"), digestmod="MD5").hexdigest())
+    # 输出185a0a1af7ec0be8a71b6aba67f687ba
+    print(hmac.new(b"keystr", b"123456", digestmod="MD5").hexdigest())  # 输出185a0a1af7ec0be8a71b6aba67f687ba
+    # b转换成bytes和encode编码转换成bytes效果等同,传参都是需要二进制的
 
 
 if __name__ == "__main__":
