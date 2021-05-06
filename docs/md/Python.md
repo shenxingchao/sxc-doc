@@ -2290,16 +2290,60 @@ if __name__ == "__main__":
     main()
 ```
 
-#### time时间
-**睡眠**
+#### 日期和时间
 ```py
+# 导入日期处理库
+from datetime import datetime as dt
+
+# 导入时间处理库
 import time
 
-i = 0
-while True:
-    print(i)
-    time.sleep(1)  # 睡眠1秒
-    i += 1
+
+def main():
+    """ datetime """
+    # 输出当前日期时间并格式化 推荐
+    print(dt.now().strftime("%Y-%m-%d %H:%M:%S"))  # 输出2021-05-06 08:52:19
+    # 日期转换为时间戳 不推荐
+    print(dt(2020, 5, 6, 8, 52, 19).timestamp())  # 输出 1588726339.0
+    # 时间戳转换为日期 推荐
+    print(dt.fromtimestamp(1588726339.0))  # 输出2020-05-06 08:52:19
+    # 日期转换成datetime类型
+    print(type(dt.strptime("2020-05-06 08:52:19", "%Y-%m-%d %H:%M:%S")))  # 输出<class 'datetime.datetime'>
+    """ time """
+    # 输出当前时间戳 推荐
+    print(time.time())  # 输出1620263243.0934012
+    # 输出当前日期时间并格式化 不推荐
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime()))  # 输出2021-05-06 09:39:09
+    # 日期转换成时间戳 推荐
+    print(time.mktime(time.strptime("2020-05-06 08:52:19", "%Y-%m-%d %H:%M:%S")))  # 输出1588726339.0
+    # 时间戳转换成日期 不推荐
+    print(time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(1588726339.0)))  # 输出2020-05-06 08:52:19
+    # 睡眠1秒
+    time.sleep(1)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 加密模块
+```python
+import hashlib
+
+
+def main():
+    # md5加密
+    print(hashlib.md5("123456".encode("utf-8")).hexdigest())  # 输出e10adc3949ba59abbe56e057f20f883e
+    # sha1加密
+    print(hashlib.sha1("123456".encode("utf-8")).hexdigest())  # 输出7c4a8d09ca3762af61e59520943dc26494f8941b
+    # sha256加密
+    print(
+        hashlib.sha256("123456".encode("utf-8")).hexdigest()
+    )  # 输出8d969eef6ecad3c29a3a629280e686cf0c3f5d5a86aff3ca12020c923adc6c92
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 #### 堆模块排序
@@ -2680,6 +2724,15 @@ python -m pip install --upgrade pip
 #### 代码格式化库black
 ```bash
 pip install black
+```
+vscode格式化配置
+```json
+{
+    "python.pythonPath": "D:\\sxc\\python3\\python.exe",//python.exe绝对路径
+    "python.formatting.provider": "black",//python格式化工具
+    "editor.formatOnSave": true, //保存时自动格式化
+    "python.formatting.blackArgs": ["--line-length", "120"]
+}
 ```
 
 ### 别人遇到的坑
