@@ -2177,6 +2177,212 @@ if __name__ == "__main__":
     main()
 ```
 
+### 数据库pymysql
+```py
+import pymysql
+
+# 数据库配置 也可写在配置文件里，然后去读取
+database = {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "db": "test",
+    "user": "root",
+    "passwd": "",
+    "charset": "utf8",
+}
+
+
+class Db:
+    def __init__(self):
+        """
+        @description 初始化Db类
+        @param
+        @return
+        """
+        self.conn = pymysql.connect(
+            host=database["host"],
+            port=database["port"],
+            db=database["db"],
+            user=database["user"],
+            passwd=database["passwd"],
+            charset=database["charset"],
+        )
+        # 创建游标，操作设置为字典类型
+        self.cur = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        # 分页字符串
+        self.limit = ""
+
+    def __enter__(self):
+        """
+        @description with语法入口 返回实例化对象
+        @param
+        @return self 数据库操作对象 Class
+        """
+        return self
+
+    def __exit__(self, type, value, trace):
+        """
+        @description with语法出口 每次执行完sql关闭数据库连接 释放资源
+        @param
+        @return
+        """
+        # 提交数据库并执行
+        self.conn.commit()
+        # 关闭游标
+        self.cur.close()
+        # 关闭数据库连接
+        self.conn.close()
+
+    def executeOne(self, sql, values=None):
+        """
+        @description 执行sql语句，并返回单个结果集
+        @param sql sql语句 string
+        @param values 查询条件值元组 tuple | list
+        @return result 结果集 dict
+        """
+        self.cur.execute(sql, values)
+        self.clearSql()
+        result = self.cur.fetchone()
+        return result
+
+    def execute(self, sql, values=None):
+        """
+        @description 执行sql语句，并返回所有结果集
+        @param sql sql语句 string
+        @param values 查询条件值元组 tuple | list
+        @return result 结果集 dict
+        """
+        self.cur.execute(sql, values)
+        self.clearSql()
+        result = self.cur.fetchall()
+        return result
+
+    def getWhere(self, wheres=None):
+        """
+        @description 获取需要的查询条件 和 execute 需要的传参values
+        @param wheres 查询条件 tuple(dict | list)
+        @return
+        """
+        param = []
+        where_sql = " WHERE "
+        if wheres:
+            for where in wheres:
+                if len(param) != 0:
+                    where_sql += "or "
+                if where and isinstance(where, dict):
+                    # 如果where不为空且是字典传参 等值查找条件
+                    for key in where:
+                        if len(param) != 0 and where_sql[-3:-1:1] != "or":
+                            where_sql += "and "
+                        where_sql += key
+                        where_sql += "="
+                        where_sql += "%s "
+                        param.append(where[key])
+                elif where and isinstance(where, list):
+                    # 如果where不为空且是嵌套列表传参 高级查询
+                    for item in where:
+                        if len(param) != 0 and where_sql[-3:-1:1] != "or":
+                            where_sql += "and "
+                        where_sql += item[0]
+                        if item[1] == "between" or item[1] == "BETWEEN":
+                            where_sql += " BETWEEN %s AND %s "
+                            param.append(item[2])
+                            param.append(item[3])
+                        else:
+                            where_sql += " " + item[1] + " "
+                            where_sql += "%s "
+                            param.append(item[2])
+                else:
+                    continue
+        else:
+            return "", []
+
+        return where_sql, param
+
+    def find(self, table_name, field="*", *where):
+        """
+        @description 查询符合条件的一条记录
+        @param table_name 表名 string
+        @param field 查询字段 string
+        @param *where 查询条件 可变参数 多个参数表示或  一个参数里若是list表示与 若只是简单的等值查找用集合
+        @return 结果集 dict
+        """
+        where, values = self.getWhere(where)
+        sql = "SELECT " + field + " FROM " + table_name + where + self.limit
+        return self.executeOne(sql, values)
+
+    def select(self, table_name, field="*", *where):
+        """
+        @description 查询符合条件的所有记录
+        @param table_name 表名 string
+        @param field 查询字段 string
+        @param *where 查询条件 可变参数 多个参数表示或  一个参数里若是list表示与 若只是简单的等值查找用集合
+        @return 结果集 dict
+        """
+        where, values = self.getWhere(where)
+        sql = "SELECT " + field + " FROM " + table_name + where + self.limit
+        return self.execute(sql, values)
+
+    def setLimit(self, page=1, page_size=10):
+        """
+        @description 设置实例对象的分页字符串
+        @param page 当前页 int
+        @param page_size 分页页数 int
+        @return
+        """
+        self.limit = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
+
+    def clearSql(self):
+        """
+        @description  清除全局拼接的sql字符串
+        @param
+        @return
+        """
+        self.limit = ""  # 清除分页字符串
+
+
+def main():
+    """
+    假如有表格haha数据如下
+    id  name
+    1   a
+    2   b
+    3   c
+    4   d
+    5   1c23
+    下面是使用案例:
+    """
+    with Db() as db:
+        """ 查询方法 """
+        # 查询一条记录
+        res = db.find("haha", "id,name", {"id": 3, "name": "c"})
+        print(res)  # 输出{'id': 3, 'name': 'c'}
+        # 简单查询
+        res = db.select("haha", "id,name", {"id": 3, "name": "c"})
+        print(res)  # 输出[{'id': 3, 'name': 'c'}]
+        # 高级查询
+        res = db.select("haha", "id,name", [["id", ">", 2], ["name", "like", "%c%"]])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 5, 'name': '1c23'}]
+        # 或查询
+        res = db.select("haha", "id,name", [["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"})
+        print(res)  # 输出[{'id': 2, 'name': 'b'}, {'id': 3, 'name': 'c'}, {'id': 5, 'name': '1c23'}]
+        # between
+        res = db.select("haha", "id,name", [["id", "between", 3, 5]])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': '1c23'}]
+        # 分页查询
+        db.setLimit(2, 2)
+        res = db.select("haha")
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}]
+        # 原生查询
+        res = db.execute("SELECT * FROM haha WHERE `id` = %s AND `name` = %s", [3, "c"])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}]
+        """ 添加方法  暂存"""
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 内置模块
 
 #### random随机数
@@ -2327,7 +2533,7 @@ if __name__ == "__main__":
 ```
 
 #### 加密模块
-```python
+```py
 # 各种hash算法 如md5 sha1
 import hashlib
 
