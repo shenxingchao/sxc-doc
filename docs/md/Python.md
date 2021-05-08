@@ -2569,12 +2569,27 @@ class Db:
 def main():
     """
     假如有表格user数据如下
-    id  name
-    1   a
-    2   b
-    3   c
-    4   d
-    5   hack
+    SET FOREIGN_KEY_CHECKS=0;
+
+    -- ----------------------------
+    -- Table structure for user
+    -- ----------------------------
+    DROP TABLE IF EXISTS `user`;
+    CREATE TABLE `user` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `name` varchar(255) NOT NULL DEFAULT '',
+    PRIMARY KEY (`id`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+    -- ----------------------------
+    -- Records of user
+    -- ----------------------------
+    INSERT INTO `user` VALUES ('1', 'a');
+    INSERT INTO `user` VALUES ('2', 'b');
+    INSERT INTO `user` VALUES ('3', 'c');
+    INSERT INTO `user` VALUES ('4', 'd');
+    INSERT INTO `user` VALUES ('5', 'hack');
+
     下面是使用案例:
     """
     with Db() as db:
