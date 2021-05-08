@@ -1221,6 +1221,9 @@ def main():
     # LookupError: unknown encoding: utf-8xxx
     except LookupError:
         print("指定了未知的编码")
+    #未知的异常
+    except Exception as result:
+        print(result)
     # finally代码块是不管有没有异常都会执行的
     finally:
         if f:
@@ -2177,7 +2180,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 数据库pymysql
+### 数据库
 ```py
 import pymysql
 
@@ -2211,6 +2214,12 @@ class Db:
         self.cur = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
         # 分页字符串
         self.limit = ""
+        # 保存的最后一次执行sql语句
+        self.sql = ""
+        # 保存查询的排序方式
+        self.order = ""
+        # 是否自动提交 否的时候用在执行事务流程上
+        self.auto_commit = True
 
     def __enter__(self):
         """
@@ -2226,102 +2235,266 @@ class Db:
         @param
         @return
         """
-        # 提交数据库并执行
-        self.conn.commit()
         # 关闭游标
         self.cur.close()
         # 关闭数据库连接
         self.conn.close()
 
-    def executeOne(self, sql, values=None):
+    def __execute(self, sql, values=None, return_last_row_id=False):
+        """
+        @description 执行sql语句，并返回影响的行数
+        @param sql sql语句 string
+        @param values 执行条件值元组 tuple | list
+        @param return_last_row_id 是否返回当前游标所在的行id boolean
+        @return 影响的行数或游标所在的行id int
+        """
+        try:
+            effect_num = self.cur.execute(sql, values)
+            if self.auto_commit:
+                self.conn.commit()
+            if return_last_row_id:
+                return self.cur.lastrowid
+            else:
+                return effect_num
+        except Exception as result:
+            raise result
+        finally:
+            self.__setLastSql(sql)
+            self.__clearSql()
+
+    def queryOne(self, sql, values=None):
         """
         @description 执行sql语句，并返回单个结果集
         @param sql sql语句 string
         @param values 查询条件值元组 tuple | list
         @return result 结果集 dict
         """
-        self.cur.execute(sql, values)
-        self.clearSql()
-        result = self.cur.fetchone()
-        return result
+        try:
+            self.cur.execute(sql, values)
+            if self.auto_commit:
+                self.conn.commit()
+            result = self.cur.fetchone()
+            return result
+        except Exception as result:
+            raise result
+        finally:
+            self.__setLastSql(sql)
+            self.__clearSql()
 
-    def execute(self, sql, values=None):
+    def query(self, sql, values=None):
         """
         @description 执行sql语句，并返回所有结果集
         @param sql sql语句 string
         @param values 查询条件值元组 tuple | list
         @return result 结果集 dict
         """
-        self.cur.execute(sql, values)
-        self.clearSql()
-        result = self.cur.fetchall()
-        return result
+        try:
+            self.cur.execute(sql, values)
+            if self.auto_commit:
+                self.conn.commit()
+            result = self.cur.fetchall()
+            return result
+        except Exception as result:
+            raise result
+        finally:
+            self.__setLastSql(sql)
+            self.__clearSql()
 
-    def getWhere(self, wheres=None):
+    def __getWhere(self, wheres=None):
         """
-        @description 获取需要的查询条件 和 execute 需要的传参values
+        @description 获取需要的查询条件 和 query等方法中，execute执行需要的传参values
         @param wheres 查询条件 tuple(dict | list)
-        @return
+        @return where_sql 拼接完成的查询条件 string
+        @return values execute所需参数 list
         """
-        param = []
-        where_sql = " WHERE "
+        values = []
+        where_sql = ""
         if wheres:
+            where_sql = " WHERE "
             for where in wheres:
-                if len(param) != 0:
+                if len(values) != 0:
                     where_sql += "or "
                 if where and isinstance(where, dict):
                     # 如果where不为空且是字典传参 等值查找条件
                     for key in where:
-                        if len(param) != 0 and where_sql[-3:-1:1] != "or":
+                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
                             where_sql += "and "
-                        where_sql += key
+                        where_sql += "`" + key + "`"
                         where_sql += "="
                         where_sql += "%s "
-                        param.append(where[key])
+                        values.append(where[key])
                 elif where and isinstance(where, list):
                     # 如果where不为空且是嵌套列表传参 高级查询
                     for item in where:
-                        if len(param) != 0 and where_sql[-3:-1:1] != "or":
+                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
                             where_sql += "and "
-                        where_sql += item[0]
+                        where_sql += "`" + item[0] + "`"
                         if item[1] == "between" or item[1] == "BETWEEN":
                             where_sql += " BETWEEN %s AND %s "
-                            param.append(item[2])
-                            param.append(item[3])
+                            values.append(item[2])
+                            values.append(item[3])
                         else:
                             where_sql += " " + item[1] + " "
                             where_sql += "%s "
-                            param.append(item[2])
+                            values.append(item[2])
                 else:
                     continue
-        else:
-            return "", []
+        return where_sql, values
 
-        return where_sql, param
+    def __getSelectFeild(self, field):
+        """
+        @description  根据传入的field组装成带``的field
+        @param field 逗号分隔的字段字符串 string
+        @return field 带``的field或者*  string
+        """
+        if field != "*":
+            # 按英文逗号拆分后，用引号包裹组装
+            list = field.split(",")
+            field_list = []
+            for item in list:
+                field_list.append("`" + item + "`")
+            field = ",".join(field_list)
+        return field
+
+    def __getFieldValues(self, data=None):
+        """
+        @description 根据原始数据组装要插入的数据Sql语句
+        @param data 插入的数据 dict | list
+        @return value_sql 拼接完成的insert into value字符串 string
+        @return values execute所需参数 list
+        """
+        field_str = ""  # 字段字符串
+        value_str = ""  # %s拼接的字符串
+        value_sql = ""  # 拼接完成的insert into value字符串
+        values = []  # execute所需参数
+        if data:
+            if isinstance(data, dict):
+                # 插入一条记录
+                for key in data:
+                    if len(values) != 0:
+                        field_str += ","
+                        value_str += ","
+                    field_str += "`" + key + "`"
+                    value_str += "%s"
+                    values.append(data[key])
+                value_sql = "(" + field_str + ") VALUES " + "(" + value_str + ")"
+            if isinstance(data, list):
+                # 插入多条记录
+                # 只组装一遍字段名称
+                for key in data[0]:
+                    if field_str:
+                        field_str += ","
+                    field_str += "`" + key + "`"
+                for item in data:
+                    # 临时变量 单个Value (%s,%s,%s···)
+                    value_str_sub = ""
+                    for key in item:
+                        if len(value_str_sub) != 0:
+                            value_str_sub += ","
+                        value_str_sub += "%s"
+                        values.append(item[key])
+                    if value_str:
+                        value_str += ","
+                    value_str += "(" + value_str_sub + ")"
+                value_sql = "(" + field_str + ") VALUES " + value_str
+        return value_sql, values
+
+    def __getSetField(self, data):
+        """
+        @description 根据原始数据组装要更新的update set table 【field】部分的Sql语句
+        @param data 更新的数据 dict
+        @return field 更新设置field部分的sql语句  string
+        @return values execute所需参数 list
+        """
+        field = ""
+        values = []
+        if data:
+            for key in data:
+                if len(values) != 0:
+                    field += ","
+                field += "`" + key + "`=%s"
+                values.append(data[key])
+        return field, values
 
     def find(self, table_name, field="*", *where):
         """
         @description 查询符合条件的一条记录
         @param table_name 表名 string
         @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  一个参数里若是list表示与 若只是简单的等值查找用集合
+        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.getWhere(where)
-        sql = "SELECT " + field + " FROM " + table_name + where + self.limit
-        return self.executeOne(sql, values)
+        where, values = self.__getWhere(where)
+        field = self.__getSelectFeild(field)
+        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
+        return self.queryOne(sql, values)
 
     def select(self, table_name, field="*", *where):
         """
         @description 查询符合条件的所有记录
         @param table_name 表名 string
         @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  一个参数里若是list表示与 若只是简单的等值查找用集合
+        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.getWhere(where)
-        sql = "SELECT " + field + " FROM " + table_name + where + self.limit
-        return self.execute(sql, values)
+        where, values = self.__getWhere(where)
+        field = self.__getSelectFeild(field)
+        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
+        return self.query(sql, values)
+
+    def insert(self, table_name, data, return_last_row_id=False):
+        """
+        @description 插入一条记录
+        @param table_name 表名 string
+        @param data 插入的数据 dict | list
+        @param return_last_row_id 是否返回当前游标所在的行id boolean
+        @return 影响行数或游标所在id int
+        """
+        value_sql, values = self.__getFieldValues(data)
+        sql = "INSERT INTO `" + table_name + "` " + value_sql
+        return self.__execute(sql, values, return_last_row_id)
+
+    def update(self, table_name, data, *where):
+        """
+        @description 更新符合条件的所有记录的多个字段
+        @param table_name 表名 string
+        @param data 更新的数据 dict
+        @param *where 查询条件 可变参数 多个参数表示或  list | dict
+        @return 影响行数 int
+        """
+        where, where_values = self.__getWhere(where)
+        field, field_values = self.__getSetField(data)
+        # 注意field在前 where在后
+        values = field_values + where_values
+        sql = "UPDATE `" + table_name + "` SET " + field + where
+        return self.__execute(sql, values)
+
+    def delete(self, table_name, *where):
+        """
+        @description 删除符合条件的所有记录
+        @param table_name 表名 string
+        @param *where 查询条件 可变参数 多个参数表示或  list | dict
+        @return 影响行数 int
+        """
+        where, values = self.__getWhere(where)
+        sql = "DELETE FROM `" + table_name + "`" + where
+        return self.__execute(sql, values)
+
+    def getLastSql(self):
+        """
+        @description 获取最后一次执行保存的sql语句
+        @param
+        @return sql sql语句 string
+        """
+        return self.sql
+
+    def __setLastSql(self, sql):
+        """
+        @description 设置最后一次执行保存的sql语句
+        @param sql sql语句 string
+        @return
+        """
+        self.sql = sql
 
     def setLimit(self, page=1, page_size=10):
         """
@@ -2332,13 +2505,49 @@ class Db:
         """
         self.limit = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
 
-    def clearSql(self):
+    def setOrder(self, order=""):
+        """
+        @description  设置查询的排序方式
+        @param order 排序字符串 格式 id desc,name asc
+        @return
+        """
+        self.order = " ORDER BY " + order
+
+    def beginTransaction(self):
+        """
+        @description 开启事务
+        @param
+        @return
+        """
+        self.auto_commit = False
+
+    def commit(self):
+        """
+        @description 提交事务
+        @param
+        @return
+        """
+        # 提交数据库并执行
+        self.conn.commit()
+        self.auto_commit = True
+
+    def rollback(self):
+        """
+        @description 事务回滚
+        @param
+        @return
+        """
+        self.conn.rollback()
+        self.auto_commit = True
+
+    def __clearSql(self):
         """
         @description  清除全局拼接的sql字符串
         @param
         @return
         """
         self.limit = ""  # 清除分页字符串
+        self.order = ""  # 清除排序字符串
 
 
 def main():
@@ -2353,7 +2562,10 @@ def main():
     下面是使用案例:
     """
     with Db() as db:
-        """ 查询方法 """
+        """
+        查询方法
+        原生语句 SELECT `field1`,`field2` FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
+        """
         # 查询一条记录
         res = db.find("haha", "id,name", {"id": 3, "name": "c"})
         print(res)  # 输出{'id': 3, 'name': 'c'}
@@ -2373,10 +2585,48 @@ def main():
         db.setLimit(2, 2)
         res = db.select("haha")
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}]
+        # 排序查询
+        db.setOrder("id desc,name asc")
+        res = db.select("haha")
+        print(res)
+        # 输出 [{'id': 5, 'name': 'id=4的c我被修改了'}, {'id': 4, 'name': 'd'}, {'id': 3, 'name': 'c'}, {'id': 2, 'name': 'b'}, {'id': 1, 'name': 'a'}]
         # 原生查询
-        res = db.execute("SELECT * FROM haha WHERE `id` = %s AND `name` = %s", [3, "c"])
+        res = db.query("SELECT * FROM `haha` WHERE `id` = %s AND `name` = %s", [3, "c"])
         print(res)  # 输出[{'id': 3, 'name': 'c'}]
-        """ 添加方法  暂存"""
+        """
+        添加方法
+        原生语句  INSERT INTO `table_name` (`field1`,`field2`) VALUES (value1,value2),(value3,value4)
+        """
+        # 插入一条记录
+        res = db.insert("haha", {"name": "e"})  # 返回影响行数
+        print(res)  # 输出1
+        res = db.insert("haha", {"name": "f"}, True)  # 返回插入的Id值
+        print(res)  # 输出7
+        # 插入多条记录
+        res = db.insert("haha", [{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
+        print(res)  # 输出2
+        """
+        修改方法
+        原生语句 UPDATE `table_name` SET `field1`=value1,`field2`=value2 WHERE where1 AND where2  OR where3 AND where4
+        """
+        res = db.update("haha", {"name": "id=4的c我被修改了"}, {"id": 5})  # 返回影响的行数
+        print(res)  # 输出1 输出0 说明没更新，或更新失败
+        """ 
+        删除方法
+        原生语句 DELETE FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
+        """
+        res = db.delete("haha", [["id", ">", 5]])  # 返回影响的行数
+        print(res)  # 输出4
+        """
+        事务
+        """
+        db.beginTransaction()
+        try:
+            db.update("不存在的表名", {"name": "事务更新"}, {"id": 1})  # 返回影响的行数
+            db.commit()
+        except Exception as result:
+            print(result)  # 输出(1146, "Table 'test.不存在的表名' doesn't exist")
+            db.rollback()
 
 
 if __name__ == "__main__":
@@ -2988,4 +3238,5 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
 
