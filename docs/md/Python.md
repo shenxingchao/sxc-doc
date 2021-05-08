@@ -2333,6 +2333,22 @@ class Db:
                             where_sql += " BETWEEN %s AND %s "
                             values.append(item[2])
                             values.append(item[3])
+                        elif item[1] == "in" or item[1] == "IN":
+                            sub_where_sql = ""
+                            for item_value in item[2]:
+                                if sub_where_sql:
+                                    sub_where_sql += ","
+                                sub_where_sql += "%s"
+                                values.append(item_value)
+                            where_sql += " IN (" + sub_where_sql + ")"
+                        elif item[1] == "not in" or item[1] == "NOT IN":
+                            sub_where_sql = ""
+                            for item_value in item[2]:
+                                if sub_where_sql:
+                                    sub_where_sql += ","
+                                sub_where_sql += "%s"
+                                values.append(item_value)
+                            where_sql += " NOT IN (" + sub_where_sql + ")"
                         else:
                             where_sql += " " + item[1] + " "
                             where_sql += "%s "
@@ -2552,13 +2568,13 @@ class Db:
 
 def main():
     """
-    假如有表格haha数据如下
+    假如有表格user数据如下
     id  name
     1   a
     2   b
     3   c
     4   d
-    5   1c23
+    5   hack
     下面是使用案例:
     """
     with Db() as db:
@@ -2567,55 +2583,58 @@ def main():
         原生语句 SELECT `field1`,`field2` FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
         # 查询一条记录
-        res = db.find("haha", "id,name", {"id": 3, "name": "c"})
+        res = db.find("user", "id,name", {"id": 3, "name": "c"})
         print(res)  # 输出{'id': 3, 'name': 'c'}
         # 简单查询
-        res = db.select("haha", "id,name", {"id": 3, "name": "c"})
+        res = db.select("user", "id,name", {"id": 3, "name": "c"})
         print(res)  # 输出[{'id': 3, 'name': 'c'}]
         # 高级查询
-        res = db.select("haha", "id,name", [["id", ">", 2], ["name", "like", "%c%"]])
-        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 5, 'name': '1c23'}]
+        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 5, 'name': 'hack'}]
         # 或查询
-        res = db.select("haha", "id,name", [["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"})
-        print(res)  # 输出[{'id': 2, 'name': 'b'}, {'id': 3, 'name': 'c'}, {'id': 5, 'name': '1c23'}]
+        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"})
+        print(res)  # 输出[{'id': 2, 'name': 'b'}, {'id': 3, 'name': 'c'}, {'id': 5, 'name': 'hack'}]
         # between
-        res = db.select("haha", "id,name", [["id", "between", 3, 5]])
-        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': '1c23'}]
+        res = db.select("user", "id,name", [["id", "between", 3, 5]])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': 'hack'}]
+        # in | not in
+        res = db.select("user", "id,name", [["id", "in", [3, 4, 5]]])
+        print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': 'hack'}]
         # 分页查询
         db.setLimit(2, 2)
-        res = db.select("haha")
+        res = db.select("user")
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}]
         # 排序查询
         db.setOrder("id desc,name asc")
-        res = db.select("haha")
+        res = db.select("user")
         print(res)
         # 输出 [{'id': 5, 'name': 'id=4的c我被修改了'}, {'id': 4, 'name': 'd'}, {'id': 3, 'name': 'c'}, {'id': 2, 'name': 'b'}, {'id': 1, 'name': 'a'}]
         # 原生查询
-        res = db.query("SELECT * FROM `haha` WHERE `id` = %s AND `name` = %s", [3, "c"])
+        res = db.query("SELECT * FROM `user` WHERE `id` = %s AND `name` = %s", [3, "c"])
         print(res)  # 输出[{'id': 3, 'name': 'c'}]
         """
         添加方法
         原生语句  INSERT INTO `table_name` (`field1`,`field2`) VALUES (value1,value2),(value3,value4)
         """
         # 插入一条记录
-        res = db.insert("haha", {"name": "e"})  # 返回影响行数
+        res = db.insert("user", {"name": "e"})  # 返回影响行数
         print(res)  # 输出1
-        res = db.insert("haha", {"name": "f"}, True)  # 返回插入的Id值
+        res = db.insert("user", {"name": "f"}, True)  # 返回插入的Id值
         print(res)  # 输出7
         # 插入多条记录
-        res = db.insert("haha", [{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
+        res = db.insert("user", [{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
         print(res)  # 输出2
         """
         修改方法
         原生语句 UPDATE `table_name` SET `field1`=value1,`field2`=value2 WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.update("haha", {"name": "id=4的c我被修改了"}, {"id": 5})  # 返回影响的行数
+        res = db.update("user", {"name": "hack"}, {"id": 5})  # 返回影响的行数
         print(res)  # 输出1 输出0 说明没更新，或更新失败
         """ 
         删除方法
         原生语句 DELETE FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.delete("haha", [["id", ">", 5]])  # 返回影响的行数
+        res = db.delete("user", [["id", ">", 5]])  # 返回影响的行数
         print(res)  # 输出4
         """
         事务
