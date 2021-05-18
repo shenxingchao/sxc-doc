@@ -1823,6 +1823,70 @@ if __name__ == "__main__":
     main()
 ```
 
+!> 若请求不了把系统设置里的代理关掉就行了
+
+**常用方法**
+```py
+import requests
+
+# 定义header头
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+}
+# 定义数据
+data = {"key": "value"}
+# 发送post请求
+post_response = requests.post("https://httpbin.org/post", headers=headers, data=None, json=data)
+"""
+request.post(url,header,data,json)
+@description requests post请求方法
+@param url 请求地址
+@param headers 请求头
+@param data application/x-www-form-urlencoded 表单数据提交方式
+@param json application/json json数据提交方式
+@return response对象
+"""
+print(post_response.status_code)  # 状态码 200 404 503等
+print(post_response.encoding)  # 编码 utf-8 等
+print(post_response.headers)  # 响应头 response header
+print(post_response.text)  # 文档格式返回
+print(post_response.content)  # 二进制类型 例如获取视频音频图片就可以用这个
+print(post_response.json())  # json格式返回
+# 发送get请求
+get_response = requests.get("https://httpbin.org", params=data)
+"""
+requests.get(url,params)
+@description  gets请求方法
+@param url 请求地址
+@param params 请求get参数
+@return 
+"""
+print(get_response.text)  # 文本格式返回 返回的是html源代码
+
+
+get_stream = requests.get("https://api.github.com/events", stream=True)
+"""
+@description 获取流相应内容
+@param stream bool 是否获取流内容
+@return 
+"""
+print(get_stream.content)
+```
+
+**应用**
+抓取m3u8  ts类型的视频
+```py
+import requests
+
+with requests.get(
+    "https://apd-vliveachy.apdcdn.tc.qq.com/vqq/moviets.tc.qq.com/AJYii2wcis67IqvazEtSo4i8eeh3hpdbGPkpGroBNOEU/uwMROfz2r5xgoaQXGdGnC2df64gVTKzl5C_X6A3JOVT0QIb-/TpCabJQXXHCtRpDp-mq7mZCOmwwko_kxe3rMOrnioOdPj3kg9M_YqrTBeUzH6lpLJzhmCQsA0hurm48QCAmsCdBozEdlWybosPhwqaID8VbsMrrpzJPCY4JaWAyPTffTTt3-SUlNpBkcxE5BZ1b78Q/03_n0036mf5isl.321004.1.ts?index=3&start=30400&end=42400&brs=12516100&bre=18324923&ver=4",
+    stream=True,
+) as r:
+    with open("1.ts", "wb") as f:#后缀名.mp4也可以
+        for chunk in r.iter_content(chunk_size=1024):
+            f.write(chunk)
+```
+
 ### 图片处理
 
 #### 常用操作

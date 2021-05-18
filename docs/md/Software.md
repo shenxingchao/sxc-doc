@@ -200,3 +200,37 @@ __效果如下图__
 	}
 }
 ```
+
+## fiddler 4
+### 快捷键
+# Site
+| 功能           | 按键 |
+| :------------- | ---: |
+| 开启/停止 抓包 |   F12 |
+| 请求前拦截 |   F11 |
+| 响应前拦截 |   Alt+F11 |
+| 禁用拦截 |   Shift+F11 |
+
+
+### 拦截请求并修改返回数据
+1. 方法一
+   - 开启响应前拦截 Rules-Automatic Breakpoints-AfterResponse 或者直接Alt+F11
+   - 按Go（三角形按钮）单步跳过请求
+   - 找到要修改请求的Url
+   - 点击后改请求-右下找到TextView或者Raw
+   - 修改需要的数据
+   - 点击上方的Run to Completion
+2. 方法二
+   - 选中需要修改的请求
+   - 点击右上AutoResponder
+   - 打开Enable rules 开启规则
+   - 点击Add Rule
+   - 去掉EXACT:等额外参数
+   - 双击左边链接，右下找到Raw并复制
+   - 切换回AutoResponder选项卡
+   - 点击第二个输入~框右边的下拉箭头
+   - 在下拉列表中选择Create New Response
+   - 点击Save出现弹窗
+   - 赋值刚刚的Raw内容到Save弹窗中点击保存
+   - 刷新页面，可以发现添加的规则已经启用了
+   - 修改的话直接在添加的规则上右键编辑
