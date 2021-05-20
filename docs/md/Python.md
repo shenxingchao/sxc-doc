@@ -1823,7 +1823,7 @@ if __name__ == "__main__":
     main()
 ```
 
-!> 若请求不了把系统设置里的代理关掉就行了
+!> 若出现ValueError: check_hostname requires server_hostname把系统设置里的代理关掉就行了
 
 **常用方法**
 ```py
@@ -1853,12 +1853,15 @@ print(post_response.text)  # 文档格式返回
 print(post_response.content)  # 二进制类型 例如获取视频音频图片就可以用这个
 print(post_response.json())  # json格式返回
 # 发送get请求
-get_response = requests.get("https://httpbin.org", params=data)
+cookies = {"c_key": "c_value"}
+# 发送get请求
+get_response = requests.get("https://httpbin.org/cookies", params=data, cookies=cookies)
 """
 requests.get(url,params)
 @description  gets请求方法
 @param url 请求地址
 @param params 请求get参数
+@param cookies cookies参数
 @return 
 """
 print(get_response.text)  # 文本格式返回 返回的是html源代码
@@ -3337,4 +3340,79 @@ if __name__ == "__main__":
     main()
 ```
 
+### 爬虫
+#### 爬取网站的所有标题
+```py
+# 导入网络请求库
+import requests
 
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多线程
+from threading import Thread, Lock
+
+lock = Lock()  # 初始化锁
+
+# 请求线程类
+class Request(Thread):
+    def __init__(self, url_list, response_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param response_list list 返回的数据列表
+        @param index 返回列表的的起始索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__response_list = response_list
+        self.__index = index
+
+    def run(self):
+        # 多线程同时请求url
+        print(f"线程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            # print(f"请求{self.__index + 1}-{key}发出")
+            res = requests.get(value)
+            # 正则匹配每个网站的标题
+            match = re.findall(r"<title>(.*)</title>", res.text, re.I | re.M)
+            # 会自动调用release是否锁
+            with lock:
+                # 将获取的内容存入list
+                self.__response_list[self.__index + key] = match
+            # 设置请求间隔
+            time.sleep(0.01)
+
+
+def main():
+    # 请求当前地址内容
+    base_url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-"
+    # 生成器生成url列表
+    base_url_list = [base_url + str(item) for item in range(1, 26)]
+    # url分组 10个为1组,分成3组  每组用一个线程去处理
+    request_url_list = []
+    for i in range(0, len(base_url_list), 10):
+        request_url_list.append(base_url_list[i : i + 10])
+
+    # 最终内容存入list，初始化一个26长度的list，用于后面赋值到指定位置
+    response_list = [i for i in range(1, 26)]
+    Threads = []
+    for key, value in enumerate(request_url_list):
+        t = Request(value, response_list, key * 10)
+        Threads.append(t)
+        t.start()
+    # 等待所有线程结束
+    for t in Threads:
+        t.join()
+    # 输出结果
+    for item in response_list:
+        print(item)
+
+
+if __name__ == "__main__":
+    main()
+```
