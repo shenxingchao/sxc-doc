@@ -3661,4 +3661,69 @@ selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_pac
 """
 ```
 
+#### 爬取ajax数据
+- 安装
+```
+pip install browsermob-proxy
+```
+下载browsermob-proxy 并放到项目目录下
+[下载地址](https://github.com/lightbody/browsermob-proxy/releases) 再在releases包即可
 
+- 使用
+```py
+# 导入了 web 驱动模块
+from selenium import webdriver
+
+# 导入browsermobproxy
+from browsermobproxy import Server
+
+# 导入浏览器配置
+from selenium.webdriver.chrome.options import Options
+
+# 导入时间模块
+import time
+
+
+def main():
+    # 启动代理
+    server = Server(r"D:\\browsermob-proxy-2.1.4\\bin\\browsermob-proxy.bat", options={"port": 8090})
+    server.start()
+    proxy = server.create_proxy(params={"trustAllServers": "true"})
+
+    # 启动浏览器
+    chrome_options = Options()
+    chrome_options.add_argument("--ignore-certificate-errors")  # 忽略https证书错误
+    chrome_options.add_argument(f"--proxy-server={proxy.proxy}")  # 启动时设置代理的地址
+
+    # 创建了一个Chrome浏览器
+    driver = webdriver.Chrome(options=chrome_options)
+    # 最大化 防止一些元素被遮挡不能交互
+    driver.maximize_window()
+    # 调用 new_har 方法，同时指定捕获 Resopnse Body 和 Headers 信息
+    proxy.new_har(options={"captureContent": True, "captureHeaders": True})
+    # 打开97看片网
+    driver.get("https://dynamic2.scrape.center/page/1")
+    # 休眠3秒 不然页面没有渲染完 数据没有
+    time.sleep(3)
+    # 代理拦截对象
+    result = proxy.har
+    # print(result)
+    for entry in result["log"]["entries"]:
+        _url = entry["request"]["url"]
+        # 获取异步请求的url
+        # print(_url)
+        #  根据URL找到数据接口,
+        if "https://dynamic2.scrape.center/api/movie" in _url:
+            _response = entry["response"]
+            _content = _response["content"]
+            # 获取接口返回内容
+            print(_response)
+    # 记得关闭服务器了
+    server.stop()
+    # 关闭浏览器
+    driver.quit()
+
+
+if __name__ == "__main__":
+    main()
+```
