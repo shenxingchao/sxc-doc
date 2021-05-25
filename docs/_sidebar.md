@@ -178,6 +178,10 @@
 
     - [别人遇到的坑](/md/Python#别人遇到的坑)
 
+    - [爬虫](/md/Python#爬虫)
+
+    - [自动化测试工具selenium](/md/Python#自动化测试工具selenium)
+
 - [软件](/md/Software#软件)
   
   - [vscode](/md/Software#vscode)

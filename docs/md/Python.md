@@ -3341,7 +3341,44 @@ if __name__ == "__main__":
 ```
 
 ### 爬虫
-#### 爬取网站的所有标题
+
+#### beautifulsoup4
+- 安装
+    ```bash
+    pip install beautifulsoup4
+    pip install lxml
+    ```
+- 使用
+    ```py
+    # 导入BeautifulSoup类库
+    from bs4 import BeautifulSoup
+
+    # 导入requests
+    import requests
+
+
+    def main():
+        request_url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-1"
+        res = requests.get(request_url)
+        # 创建BeautifulSoup对象 使用lxml解析器
+        soup = BeautifulSoup(res.text, "lxml")
+        # 获取页面标题
+        print(soup.select_one("title"))  # 输出<title>【5星图书】畅销榜-近30日5星图书榜-当当5星图书排行榜</title>
+        print(soup.select_one("title").name)  # 输出title
+        print(soup.select_one("title").text)  # 输出 【5星图书】畅销榜-近30日5星图书榜-当当5星图书排行榜
+        # 获取属性
+        for item in soup.select(".bang_list .name a"):
+            print(item["title"])  # 循环输出书名 也可用item.get("title")
+        # 用属性获取内容
+        for item in soup.select("div[class='list_num red']"):
+            print(item.text)  # 输出了前三名的排行数字
+
+
+    if __name__ == "__main__":
+        main()
+    ```
+
+#### 爬取当当网top500书籍
 ```py
 # 导入网络请求库
 import requests
@@ -3354,6 +3391,9 @@ import re
 
 # 导入多线程
 from threading import Thread, Lock
+
+# 导入excel处理库
+from openpyxl import Workbook, load_workbook
 
 lock = Lock()  # 初始化锁
 
@@ -3376,14 +3416,27 @@ class Request(Thread):
         # 多线程同时请求url
         print(f"线程{self.__index + 1}启动")
         for key, value in enumerate(self.__url_list):
-            # print(f"请求{self.__index + 1}-{key}发出")
+            print(f"请求{self.__index + 1}-{key}发出")
             res = requests.get(value)
             # 正则匹配每个网站的标题
-            match = re.findall(r"<title>(.*)</title>", res.text, re.I | re.M)
+            match = re.findall(
+                r"<div class=\"list_num.*?\">(\d+).</div>.*?<div class=\"name\">.*?title=\"(.*?)\">.*?</a></div>.*?<span class=\"price_n\">&yen;(.*?)</span>",
+                res.text,
+                re.S | re.I | re.M,
+            )
             # 会自动调用release是否锁
             with lock:
-                # 将获取的内容存入list
-                self.__response_list[self.__index + key] = match
+                # 将获取的内容存入list.
+                data = []
+                for item in match:
+                    data.append(
+                        {
+                            "rank": item[0],
+                            "title": item[1],
+                            "price": item[2],
+                        }
+                    )
+                self.__response_list[self.__index + key] = data
             # 设置请求间隔
             time.sleep(0.01)
 
@@ -3409,10 +3462,203 @@ def main():
     for t in Threads:
         t.join()
     # 输出结果
+    # for item in response_list:
+    #     for book in item:
+    #         print(book["rank"] + "." + book["title"] + " ￥" + book["price"] + "\n")
+    # 写入excel
+    # 初始化工作簿对象
+    wb = Workbook()
+    # 获取当前激活的worksheet
+    ws = wb.active
+    ws["A1"] = "排名"
+    ws["B1"] = "书名"
+    ws["C1"] = "折后价格"
+    i = 2
     for item in response_list:
-        print(item)
+        for book in item:
+            ws.cell(i, 1, book["rank"])
+            ws.cell(i, 2, book["title"])
+            ws.cell(i, 3, book["price"])
+            i += 1
+    # excel覆盖保存文件到当前文件夹
+    wb.save("当当网500本书抓取记录.xlsx")
 
 
 if __name__ == "__main__":
     main()
 ```
+
+### 自动化测试工具selenium
+#### 安装
+```bash
+pip install selenium
+```
+
+#### 安装谷歌驱动
+找到自己的谷歌浏览器版本
+浏览器地址栏输入
+```
+chrome://version/
+```
+[下载地址](https://npm.taobao.org/mirrors/chromedriver)
+找到对应版本的驱动，解压后配置.exe路径的环境变量
+如
+```
+D:\chromedriver
+```
+
+#### 基本用法
+```py
+# 导入了 web 驱动模块
+from selenium import webdriver
+
+# 创建了一个 Chrome 驱动
+driver = webdriver.Chrome()
+# 打开百度
+driver.get("https://www.baidu.com")
+
+# 找到输入框元素
+input = driver.find_element_by_css_selector("#kw")
+# 输入哈哈
+input.send_keys("哈哈")
+
+# 找到搜索按钮
+button = driver.find_element_by_css_selector("#su")
+# 模拟点击
+button.click()
+
+""" 
+# 其他获取元素的方法
+driver.find_element_by_id
+driver.find_element_by_name
+driver.find_element_by_xpath
+driver.find_element_by_link_text
+driver.find_element_by_partial_link_text
+driver.find_element_by_tag_name
+driver.find_element_by_class_name
+driver.find_element_by_css_selector
+#获取多个
+driver.find_elements_by_name
+driver.find_elements_by_xpath
+driver.find_elements_by_link_text
+driver.find_elements_by_partial_link_text
+driver.find_elements_by_tag_name
+driver.find_elements_by_class_name
+driver.find_elements_by_css_selector
+
+#获取源代码
+driver.page_source
+"""
+```
+
+#### 官方文档
+[地址](https://www.selenium.dev/documentation/en/)
+
+#### 利用selenium爬取b站数据
+```py
+# 导入了 web 驱动模块
+from selenium import webdriver
+
+# 导入浏览器配置
+from selenium.webdriver.chrome.options import Options
+
+# 导入等待模块显性等待类
+from selenium.webdriver.support.wait import WebDriverWait
+
+# 导入等待模块条件类
+from selenium.webdriver.support import expected_conditions as EC
+
+# 定位方式类
+from selenium.webdriver.common.by import By
+
+# 导入动作类
+from selenium.webdriver.common.action_chains import ActionChains as AC
+
+# 导入BeautifulSoup类库
+from bs4 import BeautifulSoup
+
+# 导入时间模块
+import time
+
+
+def recursive_click_next_page(driver, wait):
+    """
+    @description  递归点击下一页 并抓取页面数据
+    @param
+    @return
+    """
+    page = 1  # 抓取页数
+    # 这里抓取前3页的数据
+    while page < 4:
+        # 获取所有窗口句柄
+        all_h = driver.window_handles
+        # 切换到刚刚打开的新窗口，这里其实会自己切换到新窗口打开,如果没有，可以手动切换一下
+        driver.switch_to.window(all_h[1])
+        # 解析源代码  获取所有标题
+        # 创建BeautifulSoup对象 使用lxml解析器
+        soup = BeautifulSoup(driver.page_source, "lxml")
+        # 循环输出标题
+        for item in soup.select(".video-list .video-item .img-anchor"):
+            print(item["title"] + "\n")
+        # 解析完当前页 点击下一页
+        button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".pages .next")))
+        button.click()
+        page += 1
+        # 休眠1秒 不然页面没有渲染完 数据没有
+        time.sleep(1)
+
+
+def main():
+    # 下面是设置无痕浏览器的配置
+    chrome_options = Options()
+    chrome_options.add_argument("window-size=1920x3000")  # 指定浏览器分辨率 必须指定 不然元素不存在
+    chrome_options.add_argument("--disable-gpu")  # 谷歌文档提到需要加上这个属性来规避bug
+    chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
+    chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
+    chrome_options.add_argument("--headless")  # 浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+    chrome_options.add_argument("log-level=3")  # 关闭控制台输出 INFO = 0 WARNING = 1 LOG_ERROR = 2 LOG_FATAL = 3 default is 0
+    # 创建了一个无痕Chrome浏览器
+    driver = webdriver.Chrome(options=chrome_options)
+    # 最大化 防止一些元素被遮挡不能交互
+    driver.maximize_window()
+    # 打开B站
+    driver.get("https://www.bilibili.com/")
+    # 获取header头
+    # agent = driver.execute_script("return navigator.userAgent")
+    # print(agent)
+    # 第二个参数30，表示等待的最长时间，超过30秒则抛出TimeoutException
+    # 第三个参数0.2，表示0.2秒去检查一次
+    wait = WebDriverWait(driver, 30, 0.2)
+    # EC.presence_of_element_located 验证元素是否出现
+    input = wait.until(EC.presence_of_element_located((By.CSS_SELECTOR, ".unlogin-avatar")))
+    # 移动鼠标到指定元素上
+    AC(driver).move_to_element(input).perform()
+    # 移动鼠标到指定偏移位置
+    AC(driver).move_by_offset(-200, 0).perform()
+    # EC.visibility_of_element_located 验证元素是否可见-可以在页面被看见
+    input = wait.until(EC.visibility_of_element_located((By.CSS_SELECTOR, "#nav_searchform input")))
+    # input输入字符串 随便你输入啥
+    input.send_keys("三国演义")
+    # EC.element_to_be_clickable 验证元素是否可以点击
+    button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".nav-search-btn")))
+    button.click()  # 如果点击被其他元素遮挡，用下面的方法，否则会报错selenium.common.exceptions.ElementClickInterceptedException: Message: element click intercepted
+    # driver.execute_script("arguments[0].click();", button)
+    # 刷新窗口
+    # driver.refresh()
+    # 递归点击下一页 抓取数据
+    recursive_click_next_page(driver, wait)
+    # 停留10秒
+    time.sleep(10)
+    # 关闭驱动
+    driver.quit()
+
+
+if __name__ == "__main__":
+    main()
+
+""" 
+selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_packages/mouse_and_keyboard_actions_in_detail/
+"""
+```
+
+
