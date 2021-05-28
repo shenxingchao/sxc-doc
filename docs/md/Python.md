@@ -3663,6 +3663,7 @@ selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_pac
 
 #### 爬取ajax数据
 - 安装
+
 ```
 pip install browsermob-proxy
 ```
@@ -3670,6 +3671,7 @@ pip install browsermob-proxy
 [下载地址](https://github.com/lightbody/browsermob-proxy/releases) 再在releases包即可
 
 - 使用
+
 ```py
 # 导入了 web 驱动模块
 from selenium import webdriver
