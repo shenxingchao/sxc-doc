@@ -3760,3 +3760,11 @@ pyinstaller -F filename.py
 
 !>打包的python文件要有main()入口函数
 
+### python图表pyecharts
+
+#### 安装
+```py
+pip install pyecharts
+```
+#### 使用
+[文档地址](!https://pyecharts.org/#/zh-cn/quickstart)
