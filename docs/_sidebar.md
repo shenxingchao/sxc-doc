@@ -182,6 +182,8 @@
 
     - [自动化测试工具selenium](/md/Python#自动化测试工具selenium)
 
+    - [pyinstaller打包python脚本](/md/Python#pyinstaller打包python脚本)
+
 - [软件](/md/Software#软件)
   
   - [vscode](/md/Software#vscode)

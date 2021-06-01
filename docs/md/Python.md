@@ -3513,7 +3513,7 @@ D:\chromedriver
 from selenium import webdriver
 
 # 创建了一个 Chrome 驱动
-driver = webdriver.Chrome()
+driver = webdriver.Chrome() 
 # 打开百度
 driver.get("https://www.baidu.com")
 
@@ -3549,6 +3549,11 @@ driver.find_elements_by_css_selector
 #获取源代码
 driver.page_source
 """
+```
+
+> 创建浏览器扩展
+```py
+driver = webdriver.Chrome(options=chrome_options, executable_path="./chromedriver.exe")
 ```
 
 #### 官方文档
@@ -3729,3 +3734,29 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+### pyinstaller打包python脚本
+
+#### 安装
+```py
+pip install pyinstaller
+```
+
+#### 使用
+```bash
+pyinstaller -F filename.py
+```
+
+其他选项
+
+| 选项       | 描述                       |
+| ---------- | -------------------------- |
+| -h         | 帮助                       |
+| -F         | 产生单个可执行文件         |
+| -D         | 产生一个目录作为可执行程序 |
+| -w         | 不显示windows命令行窗口    |
+| --distpath | 指定输出目录               |
+| -n         | 指定项目名称               |
+
+!>打包的python文件要有main()入口函数
+
