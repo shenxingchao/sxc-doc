@@ -3768,3 +3768,97 @@ pip install pyecharts
 ```
 #### 使用
 [文档地址](!https://pyecharts.org/#/zh-cn/quickstart)
+
+
+### 桌面软件自动化
+#### 安装
+需要pywinauto、win32gui、pyautogui
+
+#### 实例 微信小程序自动发送弹幕
+这里鼠标点击的窗口固定死了是小程序直播节目输入框的位置，如果要设置输入值，那么任何一个应用都可以自动发送
+```py
+# 时间接口
+from time import sleep
+
+# 打开已有窗口或者启动窗口
+from pywinauto.application import Application
+
+# win32界面接口
+import win32gui
+
+# 鼠标键盘自动化操作基于窗口
+import pyautogui
+
+# 复制粘贴
+import pyperclip
+
+# 忽略64python  运行win32的警告
+import warnings
+
+
+def autoSend(process, name, text, second):
+    # 忽略警告
+    with warnings.catch_warnings():
+        warnings.simplefilter("ignore")
+        # backend 有2种 win32  uia
+        app = Application(backend="win32").connect(process=int(process))
+    win = app[name]
+    # 置顶当前窗口
+    win.set_focus()
+
+    # 找到gui界面
+    hwnd = win32gui.FindWindow("Chrome_WidgetWin_0", u"" + name + "")
+
+    # 获取窗口边界
+    left, top, right, bottom = win32gui.GetWindowRect(hwnd)
+
+    # 复制文字
+    pyperclip.copy(text)
+
+    while True:
+        # 移动鼠标  这里不需要了
+        # pyautogui.moveTo(x=left + 100, y=bottom - 30, duration=0, tween=pyautogui.linear)
+        # 单击
+        pyautogui.click(x=left + 100, y=bottom - 30)
+
+        # 输入文本
+        # pyautogui.typewrite(message=text, interval=0.25)
+        # 这里可以直接ctrl+c复制,使用组合键
+        # 模拟组合热键
+        pyautogui.hotkey("ctrl", "v")
+
+        # 发送
+        pyautogui.press("enter")
+
+        # 发送间隔
+        sleep(float(second))
+
+
+def main():
+    print("欢迎使用小程序直播自动发送脚本")
+    process = input("请输入进程号：")
+    name = input("请输入窗口名：")
+    text = input("请输入发送的弹幕文字：")
+    second = input("请输入发送频率：")
+    autoSend(process, name, text, second)
+
+
+if __name__ == "__main__":
+    main()
+
+"""
+# 最大化
+win.maximize()
+# 最小化
+win.minimize()
+# 恢复正常
+win.restore()
+# 关闭窗口
+win.close()
+# 连接窗口 https://www.kancloud.cn/gnefnuy/pywinauto_doc/1193049 搜索connect
+Application(backend="win32").connect(handle =21564) #句柄通过ViewWizard2.8.0获取
+Application(backend="win32").connect(process=21564)
+#pywinauto 文档
+#https://www.kancloud.cn/gnefnuy/pywinauto_doc/1193049
+"""
+```
