@@ -3774,8 +3774,14 @@ pip install pyecharts
 #### 安装
 需要pywinauto、win32gui、pyautogui
 
-#### 实例 微信小程序自动发送弹幕
-这里鼠标点击的窗口固定死了是小程序直播节目输入框的位置，如果要设置输入值，那么任何一个应用都可以自动发送
+#### 实例 自动发送文字 按ENTER键发送
+例如输入
+请输入进程号：22744
+请输入窗口名：微信
+请输入输入框坐标x:500
+请输入输入框坐标y:550
+请输入发送的弹幕文字：自动发送
+请输入发送频率：3
 ```py
 # 时间接口
 from time import sleep
@@ -3796,18 +3802,24 @@ import pyperclip
 import warnings
 
 
-def autoSend(process, name, text, second):
+def autoSend(process, name, x, y, text, second):
     # 忽略警告
     with warnings.catch_warnings():
         warnings.simplefilter("ignore")
         # backend 有2种 win32  uia
         app = Application(backend="win32").connect(process=int(process))
+
+    # 找到当前窗口
     win = app[name]
+
     # 置顶当前窗口
     win.set_focus()
 
+    # 获取窗口控件类名
+    calss_name = win.element_info.class_name
+
     # 找到gui界面
-    hwnd = win32gui.FindWindow("Chrome_WidgetWin_0", u"" + name + "")
+    hwnd = win32gui.FindWindow(calss_name, u"" + name + "")
 
     # 获取窗口边界
     left, top, right, bottom = win32gui.GetWindowRect(hwnd)
@@ -3819,7 +3831,7 @@ def autoSend(process, name, text, second):
         # 移动鼠标  这里不需要了
         # pyautogui.moveTo(x=left + 100, y=bottom - 30, duration=0, tween=pyautogui.linear)
         # 单击
-        pyautogui.click(x=left + 100, y=bottom - 30)
+        pyautogui.click(x=left + int(x), y=top + int(y))
 
         # 输入文本
         # pyautogui.typewrite(message=text, interval=0.25)
@@ -3835,12 +3847,21 @@ def autoSend(process, name, text, second):
 
 
 def main():
-    print("欢迎使用小程序直播自动发送脚本")
+    print("欢迎使用自动发送脚本")
     process = input("请输入进程号：")
     name = input("请输入窗口名：")
+    x = input("请输入输入框坐标x:")
+    y = input("请输入输入框坐标y:")
     text = input("请输入发送的弹幕文字：")
     second = input("请输入发送频率：")
-    autoSend(process, name, text, second)
+    autoSend(
+        process,
+        name,
+        x,
+        y,
+        text,
+        second,
+    )
 
 
 if __name__ == "__main__":
