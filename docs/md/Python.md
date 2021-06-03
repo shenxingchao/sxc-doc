@@ -3767,7 +3767,7 @@ pyinstaller -F filename.py
 pip install pyecharts
 ```
 #### 使用
-[文档地址](!https://pyecharts.org/#/zh-cn/quickstart)
+[文档地址](https://pyecharts.org/#/zh-cn/quickstart)
 
 
 ### 桌面软件自动化
