@@ -160,6 +160,8 @@
 
     - [网络请求](/md/Python#网络请求)
 
+    - [异步IO](/md/Python#异步io)
+
     - [图片处理](/md/Python#图片处理)
 
     - [excel基础操作](/md/Python#excel基础操作)
@@ -183,6 +185,10 @@
     - [自动化测试工具selenium](/md/Python#自动化测试工具selenium)
 
     - [pyinstaller打包python脚本](/md/Python#pyinstaller打包python脚本)
+
+    - [python图表pyecharts](/md/Python#python图表pyecharts)
+
+    - [桌面软件自动化](/md/Python#桌面软件自动化)
 
 - [软件](/md/Software#软件)
   
