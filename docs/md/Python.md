@@ -1890,6 +1890,153 @@ with requests.get(
             f.write(chunk)
 ```
 
+### 异步IO
+#### asyncio 和 async/await
+
+同步
+```py
+import time
+
+
+def http_request():
+    """
+    @description 模拟一个http请求
+    @param
+    @return
+    """
+    # 睡眠1秒
+    time.sleep(1)
+    print("返回数据了")
+
+
+def main():
+    for _ in range(5):
+        http_request()
+
+
+if __name__ == "__main__":
+    main()
+""" 
+请求同步执行（顺序执行）
+"""
+```
+
+异步 async/await 创建任务
+```py
+import asyncio
+
+
+async def http_request():
+    """
+    @description 模拟一个http请求
+    @param
+    @return
+    """
+    # 睡眠1秒
+    await asyncio.sleep(1)
+    print("返回数据了")
+
+
+async def main():
+    # asyncio.create_task 创建一个任务
+    tasks = [asyncio.create_task(http_request()) for _i in range(5)]
+    for item in tasks:
+        await item
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+"""
+请求并发执行（一起执行）
+"""
+```
+
+等待任务，然后一起执行
+```py
+import asyncio
+
+
+async def http_request():
+    """
+    @description 模拟一个http请求
+    @param
+    @return
+    """
+    # 睡眠1秒
+    await asyncio.sleep(1)
+    print("返回数据了")
+
+
+def main():
+    tasks = [http_request() for _ in range(5)]
+    asyncio.run(asyncio.wait(tasks))
+
+
+if __name__ == "__main__":
+    main()
+"""
+请求并发执行（一起执行）
+"""
+```
+
+并发运行任务
+```py
+import asyncio
+
+
+async def http_request():
+    """
+    @description 模拟一个http请求
+    @param
+    @return
+    """
+    # 睡眠1秒
+    await asyncio.sleep(1)
+    print("返回数据了")
+
+
+async def main():
+    tasks = [http_request() for _ in range(5)]
+    # 并发运行任务，也可叫做协程
+    await asyncio.gather(*tasks)
+    # 上面的等同于 await asyncio.gather(http_request(), http_request(), http_request(), http_request(), http_request())
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+"""
+请求并发执行（一起执行）
+"""
+```
+
+实例 异步请求 aiohttp
+[文档地址](https://docs.aiohttp.org/en/stable/)
+```py
+import asyncio
+import aiohttp
+
+
+async def http_request():
+    # 创建了一个异步的网络请求的上线文管理具柄  用了with 会自动释放调用close的
+    async with aiohttp.ClientSession() as session:
+        # 异步请求数据
+        async with session.get("http://www.baidu.com") as resp:
+            # 输出请求成功状态码
+            print(resp.status)
+            # text = await resp.text()
+            # html = await response.read()
+
+
+async def main():
+    tasks = [http_request() for _ in range(5)]
+    # 并发运行任务
+    await asyncio.gather(*tasks)
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
+```
+
 ### 图片处理
 
 #### 常用操作
