@@ -3647,14 +3647,13 @@ import time
 import re
 
 # 导入多线程
-from threading import Thread, Lock
+from threading import Thread
 
 # 导入excel处理库
 from openpyxl import Workbook, load_workbook
 
+# 导入操作系统模块
 import os
-
-lock = Lock()  # 初始化锁
 
 # 请求线程类
 class Request(Thread):
@@ -3681,21 +3680,21 @@ class Request(Thread):
                 res.text,
                 re.S | re.I | re.M,
             )
-            dir_name = "./97kpw/第" + str(self.__index + 1) + "集"
+            dir_name = "./97kpw/sscf/第" + str(self.__index + 1) + "集"
             if not os.path.exists(dir_name):
                 os.makedirs(dir_name)
+            # ts片段序号最大长度 假如是399 那么长度是3
+            max_length = len(str(len(match)))
             for index, item in enumerate(match):
                 with requests.get(
                     item,
                     stream=True,
                 ) as r:
-                    # 补0
-                    if (index + 1) < 10:
-                        list_num = "00" + str(index + 1)
-                    elif (index + 1) > 0 and (index + 1) < 100:
-                        list_num = "0" + str(index + 1)
-                    else:
-                        list_num = str(index + 1)
+                    # 当前ts索引数长度
+                    cur_length = len(str(index + 1))
+                    # 根据长度差计算补0数
+                    list_num = "0" * (max_length - cur_length) + str(index + 1)
+                    # 保存
                     with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
                         for chunk in r.iter_content(chunk_size=1024):
                             f.write(chunk)
@@ -3710,15 +3709,6 @@ def main():
     # 请求当前地址内容  一个url为1集
     base_url_list = [
         "https://n1.szjal.cn/20210601/WtIJbUjL/index.m3u8",
-        "https://n1.szjal.cn/20210601/ew19OR3h/index.m3u8",
-        "https://n1.szjal.cn/20210601/r0xMg1H8/index.m3u8",
-        "https://n1.szjal.cn/20210601/ZwEPyWXC/index.m3u8",
-        "https://n1.szjal.cn/20210601/h22BOvhW/index.m3u8",
-        "https://n1.szjal.cn/20210601/94XNrUiD/index.m3u8",
-        "https://n1.szjal.cn/20210601/2Zv8nJrA/index.m3u8",
-        "https://n1.szjal.cn/20210601/YAF6EmqY/index.m3u8",
-        "https://n1.szjal.cn/20210602/PMMJSmiO/index.m3u8",
-        "https://n1.szjal.cn/20210602/FS1Fp0pK/index.m3u8",
     ]
 
     # 生成器生成url列表
@@ -3737,9 +3727,10 @@ def main():
         t.join()
     for key, value in enumerate(base_url_list):
         # 执行合并
-        path1 = "D:\sxc\python3study\97kpw\第" + str(key + 1) + "集\*.ts"
-        path2 = "D:\sxc\python3study\97kpw\第" + str(key + 1) + "集.mp4"
+        path1 = ".\97kpw\sscf\第" + str(key + 1) + "集\*.ts"
+        path2 = ".\97kpw\sscf\第" + str(key + 1) + "集.mp4"
         os.system("copy /b " + path1 + " " + path2)
+
     print("合并完成")
 
 
