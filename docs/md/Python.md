@@ -3635,6 +3635,119 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 爬取m3u8视频，批量合并爬取的视频为mp4
+```py
+# 导入网络请求库
+import requests
+
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多线程
+from threading import Thread, Lock
+
+# 导入excel处理库
+from openpyxl import Workbook, load_workbook
+
+import os
+
+lock = Lock()  # 初始化锁
+
+# 请求线程类
+class Request(Thread):
+    def __init__(self, url_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param index 每集的索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__index = index
+
+    def run(self):
+        # 多线程同时请求url
+        print(f"线程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            print(f"请求{self.__index + 1}-{key}发出")
+            res = requests.get(value)
+            # 正则匹配每个网站的标题
+            match = re.findall(
+                r"(http.*?)\n#EXT",
+                res.text,
+                re.S | re.I | re.M,
+            )
+            dir_name = "./97kpw/第" + str(self.__index + 1) + "集"
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            for index, item in enumerate(match):
+                with requests.get(
+                    item,
+                    stream=True,
+                ) as r:
+                    # 补0
+                    if (index + 1) < 10:
+                        list_num = "00" + str(index + 1)
+                    elif (index + 1) > 0 and (index + 1) < 100:
+                        list_num = "0" + str(index + 1)
+                    else:
+                        list_num = str(index + 1)
+                    with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
+                        for chunk in r.iter_content(chunk_size=1024):
+                            f.write(chunk)
+                # 设置请求间隔
+                time.sleep(0.02)
+            self.__index = self.__index + 1
+            # 设置请求间隔
+            time.sleep(0.02)
+
+
+def main():
+    # 请求当前地址内容  一个url为1集
+    base_url_list = [
+        "https://n1.szjal.cn/20210601/WtIJbUjL/index.m3u8",
+        "https://n1.szjal.cn/20210601/ew19OR3h/index.m3u8",
+        "https://n1.szjal.cn/20210601/r0xMg1H8/index.m3u8",
+        "https://n1.szjal.cn/20210601/ZwEPyWXC/index.m3u8",
+        "https://n1.szjal.cn/20210601/h22BOvhW/index.m3u8",
+        "https://n1.szjal.cn/20210601/94XNrUiD/index.m3u8",
+        "https://n1.szjal.cn/20210601/2Zv8nJrA/index.m3u8",
+        "https://n1.szjal.cn/20210601/YAF6EmqY/index.m3u8",
+        "https://n1.szjal.cn/20210602/PMMJSmiO/index.m3u8",
+        "https://n1.szjal.cn/20210602/FS1Fp0pK/index.m3u8",
+    ]
+
+    # 生成器生成url列表
+    # url分组 3个为1组,分成3组  每组用一个线程去处理
+    request_url_list = []
+    for i in range(0, len(base_url_list), 3):
+        request_url_list.append(base_url_list[i : i + 3])
+
+    Threads = []
+    for key, value in enumerate(request_url_list):
+        t = Request(value, key * 3)
+        Threads.append(t)
+        t.start()
+    # 等待所有线程结束
+    for t in Threads:
+        t.join()
+    for key, value in enumerate(base_url_list):
+        # 执行合并
+        path1 = "D:\sxc\python3study\97kpw\第" + str(key + 1) + "集\*.ts"
+        path2 = "D:\sxc\python3study\97kpw\第" + str(key + 1) + "集.mp4"
+        os.system("copy /b " + path1 + " " + path2)
+    print("合并完成")
+
+
+if __name__ == "__main__":
+    main()
+```
+!>这里的base_url_list 需要自己去找或者利用各种ajax拦截获取,我这里破解不了97看片网的链接sign，所以是一个一个找的
+
 ### 自动化测试工具selenium
 #### 安装
 ```bash
