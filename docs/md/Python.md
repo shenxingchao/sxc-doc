@@ -3424,7 +3424,7 @@ trusted-host=mirrors.aliyun.com
 
 #### pip升级
 ```bash
-pyp install --upgrade pip
+pip install --upgrade pip
 ```
 !> 如果升级出现错误ModuleNotFoundError: No module named 'pip'
 ```bash
@@ -3648,9 +3648,6 @@ import re
 
 # 导入多线程
 from threading import Thread
-
-# 导入excel处理库
-from openpyxl import Workbook, load_workbook
 
 # 导入操作系统模块
 import os
