@@ -4068,7 +4068,9 @@ class Request(Thread):
                         with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
                             # 也可以 f.write(cipher.decrypt(r.content)) 推荐下面的 迭代的方式读取 边下载边存盘
                             for chunk in r.iter_content(chunk_size=1024):
-                                f.write(cipher.decrypt(chunk))
+                                if len(chunk) % 16 == 0:
+                                    # 解密是数据必须是16的倍数
+                                    f.write(cipher.decrypt(chunk))
 
                 # 设置请求间隔
                 time.sleep(0.02)
