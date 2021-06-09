@@ -3983,6 +3983,170 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 利用selenium爬取视频
+有些地址是需要破解的，这里举出不需要破解的
+```py
+# 导入了 web 驱动模块
+from selenium import webdriver
+
+# 导入browsermobproxy
+from browsermobproxy import Server
+
+# 导入浏览器配置
+from selenium.webdriver.chrome.options import Options
+
+# 导入网络请求库
+import requests
+
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多线程
+from threading import Thread
+
+# 导入操作系统模块
+import os
+
+# 请求线程类
+class Request(Thread):
+    def __init__(self, url_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param index 每集的索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__index = index
+
+    def run(self):
+        # 多线程同时请求url
+        print(f"线程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            print(f"请求{self.__index + 1}-{key}发出")
+            res = requests.get(value)
+            # 正则匹配每个网站的标题
+            match = re.findall(
+                r"(http.*?.ts)\n#EXT",
+                res.text,
+                re.S | re.I | re.M,
+            )
+            dir_name = "./video/第" + str(self.__index + 1) + "集"
+            if not os.path.exists(dir_name):
+                os.makedirs(dir_name)
+            # ts片段序号最大长度 假如是399 那么长度是3
+            max_length = len(str(len(match)))
+            for index, item in enumerate(match):
+                with requests.get(
+                    item,
+                    stream=True,
+                ) as r:
+                    # 当前ts索引数长度
+                    cur_length = len(str(index + 1))
+                    # 根据长度差计算补0数
+                    list_num = "0" * (max_length - cur_length) + str(index + 1)
+                    # 保存
+                    with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
+                        for chunk in r.iter_content(chunk_size=1024):
+                            f.write(chunk)
+                # 设置请求间隔
+                time.sleep(0.02)
+            self.__index = self.__index + 1
+            # 设置请求间隔
+            time.sleep(0.02)
+
+
+def main():
+    # 启动代理
+    server = Server(r"D:\\browsermob-proxy-2.1.4\\bin\\browsermob-proxy.bat", options={"port": 8090})
+    server.start()
+    proxy = server.create_proxy(params={"trustAllServers": "true"})
+
+    # 启动浏览器
+    chrome_options = Options()
+    chrome_options.add_argument("--ignore-certificate-errors")  # 忽略https证书错误
+    chrome_options.add_argument(f"--proxy-server={proxy.proxy}")  # 启动时设置代理的地址
+    # 去除自动化弹窗提示
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+
+    # 创建了一个Chrome浏览器
+    driver = webdriver.Chrome(options=chrome_options)
+    # 最大化 防止一些元素被遮挡不能交互
+    driver.maximize_window()
+    # 设定页面加载timeout时长，需要的元素能加载出来就行
+    driver.set_page_load_timeout(10)
+    driver.set_script_timeout(10)
+    # 调用 new_har 方法，同时指定捕获 Resopnse Body 和 Headers 信息
+    proxy.new_har(options={"captureContent": True, "captureHeaders": True})
+    # 当前页数
+    page = 1
+    # 请求当前地址内容  一个url为1集
+    base_url_list = []
+
+    for _ in range(2):
+        # 打开看片网
+        try:
+            driver.get("https://www.kpkuang.com/vodplay/421945-5-" + str(page) + ".html")
+        except:
+            print("加载页面太慢，停止加载，继续下一步操作")
+        # 代理拦截对象
+        result = proxy.har
+        # print(result)
+        _url = ""
+        for entry in result["log"]["entries"]:
+            # 获取异步请求的url
+            _url = entry["request"]["url"]
+            if "https://qimihe.com/?url" in _url:
+                break
+        try:
+            driver.get(_url)
+        except:
+            print("加载页面太慢，停止加载，继续下一步操作")
+        # 代理拦截对象
+        result = proxy.har
+        for entry in result["log"]["entries"]:
+            # 获取异步请求的url
+            _url = entry["request"]["url"]
+            if "hls/index.m3u8" in _url:
+                break
+        # 请求当前地址内容  一个url为1集
+        base_url_list.append(_url)
+        page = page + 1
+    # 记得关闭服务器了
+    # 关闭浏览器
+    server.stop()
+    driver.quit()
+    # 生成器生成url列表
+    # url分组 3个为1组,分成3组  每组用一个线程去处理
+    request_url_list = []
+    for i in range(0, len(base_url_list), 3):
+        request_url_list.append(base_url_list[i : i + 3])
+
+    Threads = []
+    for key, value in enumerate(request_url_list):
+        t = Request(value, key * 3)
+        Threads.append(t)
+        t.start()
+    # 等待所有线程结束
+    for t in Threads:
+        t.join()
+    for key, value in enumerate(base_url_list):
+        # 执行合并
+        path1 = ".\video\第" + str(key + 1) + "集\*.ts"
+        path2 = ".\video\第" + str(key + 1) + "集.mp4"
+        os.system("copy /b " + path1 + " " + path2)
+    print("合并完成")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### pyinstaller打包python脚本
 
 #### 安装
