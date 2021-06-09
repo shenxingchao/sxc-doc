@@ -3723,9 +3723,9 @@ def main():
     for t in Threads:
         t.join()
     for key, value in enumerate(base_url_list):
-        # 执行合并
-        path1 = ".\97kpw\sscf\第" + str(key + 1) + "集\*.ts"
-        path2 = ".\97kpw\sscf\第" + str(key + 1) + "集.mp4"
+        # 执行合并 r防止转义
+        path1 = r".\97kpw\sscf\第" + str(key + 1) + "集\*.ts"
+        path2 = r".\97kpw\sscf\第" + str(key + 1) + "集.mp4"
         os.system("copy /b " + path1 + " " + path2)
 
     print("合并完成")
@@ -4086,7 +4086,7 @@ def main():
     # 当前页数
     page = 1
     # 请求当前地址内容  一个url为1集
-    base_url_list = []
+    base_url_list = [1, 2]
 
     for _ in range(2):
         # 打开看片网
@@ -4136,10 +4136,12 @@ def main():
     for t in Threads:
         t.join()
     for key, value in enumerate(base_url_list):
-        # 执行合并
-        path1 = ".\video\第" + str(key + 1) + "集\*.ts"
-        path2 = ".\video\第" + str(key + 1) + "集.mp4"
+        # 执行合并 r防止转义
+        path1 = r".\video\第" + str(key + 1) + "集\*.ts"
+        path2 = r".\video\第" + str(key + 1) + "集.mp4"
+
         os.system("copy /b " + path1 + " " + path2)
+
     print("合并完成")
 
 
