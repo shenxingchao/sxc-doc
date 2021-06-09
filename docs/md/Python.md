@@ -4010,6 +4010,10 @@ from threading import Thread
 # 导入操作系统模块
 import os
 
+# 导入加密模块
+from Crypto.Cipher import AES
+
+
 # 请求线程类
 class Request(Thread):
     def __init__(self, url_list, index):
@@ -4029,7 +4033,20 @@ class Request(Thread):
         for key, value in enumerate(self.__url_list):
             print(f"请求{self.__index + 1}-{key}发出")
             res = requests.get(value)
-            # 正则匹配每个网站的标题
+            # 获取加密秘钥地址
+            match = re.search(
+                r"https.*?key.key",
+                res.text,
+                re.S | re.I | re.M,
+            )
+            # 获取秘钥内容
+            key = requests.get(match.group()).text
+            key = bytes(key, encoding="utf8")
+
+            # 解密
+            cipher = AES.new(key, AES.MODE_CBC)  # 第三个参数传啥不清楚  好像是iv b"0000000000000000" 也好像是key
+
+            # 正则匹配m3u8 地址列表
             match = re.findall(
                 r"(http.*?.ts)\n#EXT",
                 res.text,
@@ -4041,18 +4058,18 @@ class Request(Thread):
             # ts片段序号最大长度 假如是399 那么长度是3
             max_length = len(str(len(match)))
             for index, item in enumerate(match):
-                with requests.get(
-                    item,
-                    stream=True,
-                ) as r:
-                    # 当前ts索引数长度
-                    cur_length = len(str(index + 1))
-                    # 根据长度差计算补0数
-                    list_num = "0" * (max_length - cur_length) + str(index + 1)
-                    # 保存
-                    with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
-                        for chunk in r.iter_content(chunk_size=1024):
-                            f.write(chunk)
+                with requests.get(item) as r:
+                    if r.status_code == 200:
+                        # 当前ts索引数长度
+                        cur_length = len(str(index + 1))
+                        # 根据长度差计算补0数
+                        list_num = "0" * (max_length - cur_length) + str(index + 1)
+                        # 保存
+                        with open(dir_name + "/" + list_num + ".ts", "wb") as f:  # 后缀名.mp4也可以
+                            # 也可以 f.write(cipher.decrypt(r.content)) 推荐下面的 迭代的方式读取 边下载边存盘
+                            for chunk in r.iter_content(chunk_size=1024):
+                                f.write(cipher.decrypt(chunk))
+
                 # 设置请求间隔
                 time.sleep(0.02)
             self.__index = self.__index + 1
@@ -4084,9 +4101,9 @@ def main():
     # 调用 new_har 方法，同时指定捕获 Resopnse Body 和 Headers 信息
     proxy.new_har(options={"captureContent": True, "captureHeaders": True})
     # 当前页数
-    page = 1
+    page = 10
     # 请求当前地址内容  一个url为1集
-    base_url_list = [1, 2]
+    base_url_list = []
 
     for _ in range(2):
         # 打开看片网
@@ -4136,18 +4153,18 @@ def main():
     for t in Threads:
         t.join()
     for key, value in enumerate(base_url_list):
-        # 执行合并 r防止转义
+        # 执行合并
         path1 = r".\video\第" + str(key + 1) + "集\*.ts"
         path2 = r".\video\第" + str(key + 1) + "集.mp4"
-
         os.system("copy /b " + path1 + " " + path2)
-
     print("合并完成")
 
 
 if __name__ == "__main__":
     main()
 ```
+!>  安装AES解密模块 pip install pycryptodome --no-binary :all:  [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
+
 
 ### pyinstaller打包python脚本
 
