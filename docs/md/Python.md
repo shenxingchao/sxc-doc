@@ -4165,7 +4165,10 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-!>  安装AES解密模块 pip install pycryptodome --no-binary :all:  [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
+!>  安装AES解密模块 [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
+```bash
+pip install pycryptodome --no-binary :all: 
+```
 
 
 ### pyinstaller打包python脚本
