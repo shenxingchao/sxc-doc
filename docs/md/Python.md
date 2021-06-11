@@ -4170,6 +4170,20 @@ if __name__ == "__main__":
 pip install pycryptodome --no-binary :all: 
 ```
 
+### 自动化测试工具playwright
+
+1. 安装
+   ```bash
+    pip install playwright
+    playwright install
+   ```
+2. 打开谷歌浏览器，并开启录制
+   ```bash
+   playwright codegen -b chromium http://rc.aiyunc.cn
+   ```
+3. 文档地址
+   [使用](https://playwright.dev/python/docs/intro/) [api](https://playwright.dev/python/docs/api/class-page)
+
 
 ### pyinstaller打包python脚本
 
