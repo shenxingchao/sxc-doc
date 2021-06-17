@@ -184,6 +184,8 @@
 
     - [自动化测试工具selenium](/md/Python#自动化测试工具selenium)
 
+    - [自动化测试工具playwright](/md/Python#自动化测试工具playwright)
+
     - [pyinstaller打包python脚本](/md/Python#pyinstaller打包python脚本)
 
     - [python图表pyecharts](/md/Python#python图表pyecharts)
