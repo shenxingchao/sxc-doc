@@ -192,6 +192,26 @@
 
     - [桌面软件自动化](/md/Python#桌面软件自动化)
 
+  - [python图形界面之pyqt5](/md/Python#python图形界面之pyqt5)
+
+    - [安装](/md/Python#安装-4)
+
+    - [基本案例](/md/Python#基本案例)
+
+    - [类模板](/md/Python#类模板)
+
+    - [父子元素操作，元素删除](/md/Python#父子元素操作元素删除)
+
+    - [事件处理机制](/md/Python#事件处理机制)
+
+    - [类封装进阶和gui里的定时器](/md/Python#类封装进阶和gui里的定时器)
+
+    - [自定义按钮事件含传参](/md/Python#自定义按钮事件含传参)
+
+    - [使用装饰器自动连接绑定的事件](/md/Python#使用装饰器自动连接绑定的事件)
+
+    - [类之间信号和槽的用法](/md/Python#类之间信号和槽的用法)
+
 - [软件](/md/Software#软件)
   
   - [vscode](/md/Software#vscode)

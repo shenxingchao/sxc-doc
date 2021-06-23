@@ -22,11 +22,11 @@
 print("hello,world!")
 ```
 命令行运行 
-```bash
+```shell
 python hello.py
 ```
 或 
-```bash
+```shell
 py hello.py
 ```
 输出 hello,world！
@@ -3248,6 +3248,28 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 定时器功能实现
+```py
+from threading import Timer
+
+# 定时器函数
+def fn(text, i=0):
+    i+=1
+    t = Timer(1, fn, (text,i,))
+    t.start()
+    print(text)
+    if i == 10:
+        t.cancel()
+
+
+def main():
+    fn("1秒输出1次")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
@@ -3281,7 +3303,7 @@ print(
 ```
 上面的例子包含了input和print的用法，还有占位符%,输出字符f的用法,推荐f用法，简单高效
 输出
-```bash
+```shell
 您输入了：a=1,b=2,c=3,d=4.000000,a+b=3
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
@@ -3423,18 +3445,18 @@ trusted-host=mirrors.aliyun.com
 ```
 
 #### pip升级
-```bash
+```shell
 pip install --upgrade pip
 ```
 !> 如果升级出现错误ModuleNotFoundError: No module named 'pip'
-```bash
+```shell
 python -m ensurepip
 python -m pip install --upgrade pip
 ```
 [找到其来源](https://docs.python.org/3/library/ensurepip.html#command-line-interface)
 
 #### 代码格式化库black
-```bash
+```shell
 pip install black
 ```
 vscode格式化配置
@@ -3491,7 +3513,7 @@ if __name__ == "__main__":
 
 #### beautifulsoup4
 - 安装
-    ```bash
+    ```shell
     pip install beautifulsoup4
     pip install lxml
     ```
@@ -3738,7 +3760,7 @@ if __name__ == "__main__":
 
 ### 自动化测试工具selenium
 #### 安装
-```bash
+```shell
 pip install selenium
 ```
 
@@ -4166,19 +4188,19 @@ if __name__ == "__main__":
     main()
 ```
 !>  安装AES解密模块 [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
-```bash
+```shell
 pip install pycryptodome --no-binary :all: 
 ```
 
 ### 自动化测试工具playwright
 
 1. 安装
-   ```bash
+   ```shell
     pip install playwright
     playwright install
    ```
 2. 打开谷歌浏览器，并开启录制
-   ```bash
+   ```shell
    playwright codegen -b chromium http://rc.aiyunc.cn
    ```
 3. 文档地址
@@ -4193,7 +4215,7 @@ pip install pyinstaller
 ```
 
 #### 使用
-```bash
+```shell
 pyinstaller -F filename.py
 ```
 
@@ -4332,5 +4354,688 @@ Application(backend="win32").connect(process=21564)
 #pywinauto 文档
 #https://www.kancloud.cn/gnefnuy/pywinauto_doc/1193049
 """
+```
+
+## python图形界面之pyqt5
+### 安装
+1. 安装pyqt5
+```shell
+pip install pyqt5
+```
+
+2. 安装designer
+```shell
+pip install PyQt5Designer
+```
+
+### 基本案例
+```py
+import sys
+
+# 这里我们提供必要的引用。基本控件位于pyqt5.qtwidgets模块中。
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = QWidget()
+    # 设置窗口标题
+    window.setWindowTitle("hello pyqt5!")
+    # 设置窗口大小
+    window.resize(500, 500)
+    # 设置窗口背景颜色
+    window.setStyleSheet("background:#fafafa;")
+
+    # 在窗口上放置一个按钮
+    btn = QPushButton(window)
+    # 设置按钮文字
+    btn.setText("第一个按钮")
+    # 设置按钮宽高
+    btn.resize(120, 40)
+    # 移动按钮
+    btn.move(190, 230)
+    # 设置样式
+    btn.setStyleSheet("width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;")
+
+    # 在窗口上放置一个bi标签
+    label = QLabel(window)
+    label.setText("我是标签名")
+    label.setStyleSheet("font-size:20px")
+    label.move(200, 200)
+
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 类模板
+未完善，不确定
+```py
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        self.addBtn("第一个按钮", 120, 40, 190, 230)
+        self.addBtn("第二个按钮", 120, 40, 0, 230)
+        self.addBtn("第三个按钮", 120, 40, 380, 230)
+
+    def addBtn(
+        self,
+        text="",
+        width=0,
+        height=0,
+        x=0,
+        y=0,
+        style="width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置按钮宽高
+        btn.resize(width, height)
+        # 移动按钮
+        btn.move(x, y)
+        # 设置样式
+        btn.setStyleSheet(style)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 父子元素操作，元素删除
+```py
+""" 
+父子元素操作
+"""
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = self.addBtn("父按钮", 300, 100, 100, 200)
+        # 相当于js 设置按钮的ID
+        btn.setObjectName("btn")
+        # 打印按钮的ID
+        print(btn.objectName())  # 输出 btn
+        # 设置按钮的附加属性
+        btn.setProperty("attr", "属性值1")
+        btn.setProperty("name", "属性值2")
+        # 打印属性
+        print(btn.property("attr"))  # 输出 属性值1
+        # 获取所有属性对象列表
+        print(btn.dynamicPropertyNames())  # 输出[PyQt5.QtCore.QByteArray(b'attr'), PyQt5.QtCore.QByteArray(b'name')]
+        # 创建一个按钮 这里注意的是子元素是相对于父元素定位的
+        btn_son1 = self.addBtn("子按钮1", 120, 40, 0, 0, "background:red;")
+        # 设置为子按钮
+        btn_son1.setParent(btn)
+        # 创建一个按钮
+        btn_son2 = self.addBtn("子按钮2", 120, 40, 0, 50, "background:green;")
+        # 设置为子按钮
+        btn_son2.setParent(btn)
+        # 打印父按钮的属性
+        print(btn_son1.parent().property("name"))  # 输出 属性值2
+        # 打印子元素列表
+        print(btn.children())  # 输出 2个子按钮的列表
+        # 打印子元素对象
+        print(btn.findChild(QObject).text())  # 输出 子按钮1
+        # 打印子元素列表
+        print(btn.findChildren(QObject))  # 输出2个子按钮的列表
+        # 判断控件类型
+        print(btn.inherits("QPushButton"))  # 输出True
+        # 删除一个按钮
+        # btn_son2.deleteLater()
+
+    def addBtn(
+        self,
+        text="",
+        width=0,
+        height=0,
+        x=0,
+        y=0,
+        style="width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置按钮宽高
+        btn.resize(width, height)
+        # 移动按钮
+        btn.move(x, y)
+        # 设置样式
+        btn.setStyleSheet(style)
+        return btn
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 事件处理机制
+```py
+""" 
+事件处理机制
+"""
+from PyQt5.QtCore import QObject
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = self.addBtn("按钮", 300, 100, 100, 200)
+
+        def handleClickBtn():
+            """
+            @description 点击事件
+            @param
+            @return
+            """
+            print("点击了")
+
+        fn = lambda: print("按下了")
+        # 绑定事件
+        btn.clicked.connect(handleClickBtn)
+        btn.pressed.connect(fn)
+        # 最终先输出按下，松开鼠标后在输出点击
+
+    def addBtn(
+        self,
+        text="",
+        width=0,
+        height=0,
+        x=0,
+        y=0,
+        style="width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置按钮宽高
+        btn.resize(width, height)
+        # 移动按钮
+        btn.move(x, y)
+        # 设置样式
+        btn.setStyleSheet(style)
+        return btn
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 类封装进阶和gui里的定时器
+```py
+""" 
+类封装和定时器
+"""
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+from threading import Timer
+
+
+class Window(QWidget):
+    def __init__(self, *args, **kwargs):
+        # 调用父类的方法
+        super().__init__(*args, **kwargs)
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = Btn("10", 300, 100, 100, 200, "", self)
+        # 调用按钮定时器方法
+        btn.setInterval2(1)
+
+
+class Btn(QPushButton):
+    def __init__(self, text="", width=0, height=0, x=0, y=0, style="", *args, **kwargs):
+        # 调用父类的方法
+        super().__init__(*args, **kwargs)
+        # 设置按钮文字
+        self.setText(text)
+        # 设置按钮宽高
+        self.resize(width, height)
+        # 移动按钮
+        self.move(x, y)
+        # 设置样式
+        self.setStyleSheet("background:blue;color:#ffffff;font-size:16px;border-radius:3px;" if not style else style)
+
+    def setInterval(self, ms=1000):
+        """
+        @description 用内置的定时器
+        @param ms 毫秒
+        @return
+        """
+        self.interval = self.startTimer(ms)
+
+    def timerEvent(self, *args, **kwargs):
+        # 获取text中的数据
+        sec = int(self.text())
+        # 倒计时
+        sec -= 1
+        self.setText(str(sec))
+        # 停止计时
+        if sec == 0:
+            self.killTimer(self.interval)
+
+    def setInterval2(self, s=1):
+        """
+        @description 用其他的定时器
+        @param s秒
+        @return
+        """
+        self.t = Timer(s, self.setInterval2, (s,))
+        self.t.start()
+        self.fn()
+
+    def fn(self):
+        # 获取text中的数据
+        sec = int(self.text())
+        # 倒计时
+        sec -= 1
+        self.setText(str(sec))
+        # 停止计时
+        if sec == 0:
+            self.t.cancel()
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 自定义按钮事件含传参
+```py
+""" 
+自定义按钮事件含传参
+"""
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtCore import QObject, Qt, pyqtSignal
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = self.addBtn("按钮", 300, 100, 100, 200)
+
+        def handleClickBtn():
+            """
+            @description 点击事件
+            @param
+            @return
+            """
+            print("点击了")
+
+        fn = lambda: print("按下了")
+        # 绑定事件
+        btn.clicked.connect(handleClickBtn)
+        btn.pressed.connect(fn)
+        # 最终先输出按下，松开鼠标后在输出点击
+        # 绑定自定义事件 并传参，我感觉这个传参没什么鸟用
+        btn.rightClicked[str, int].connect(lambda x, y: print("右键按下" + x + "，宽度是：" + str(y)))  # 输出右键按下按钮300
+
+    def addBtn(
+        self,
+        text="",
+        width=0,
+        height=0,
+        x=0,
+        y=0,
+        style="width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = Btn(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置按钮宽高
+        btn.resize(width, height)
+        # 移动按钮
+        btn.move(x, y)
+        # 设置样式
+        btn.setStyleSheet(style)
+        return btn
+
+
+class Btn(QPushButton):
+    """
+    @description 按钮类继承自QPushButton
+    @param
+    @return
+    """
+
+    # 定义类属性
+    # 定义了一个信号 且传递按钮的参数出去
+    rightClicked = pyqtSignal([str, int])
+
+    def mousePressEvent(self, e: QtGui.QMouseEvent) -> None:
+        """
+        @description 自定义鼠标按下事件
+        @param
+        @return
+        """
+        if e.button() == Qt.RightButton:
+            # e.button()的值为 1左键 2右键 比较用枚举值或1,2来比较
+            # emit 触发绑定的事件
+            self.rightClicked[str, int].emit(self.text(), self.width())
+        return super().mousePressEvent(e)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 使用装饰器自动连接绑定的事件
+```py
+""" 
+使用装饰器自动连接绑定的事件
+"""
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtCore import QMetaObject, QObject, Qt, pyqtSignal, pyqtSlot
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = self.addBtn("按钮", 300, 100, 100, 200)
+        # 设置按钮的唯一Name值
+        btn.setObjectName("btn")
+        # 使用自动绑定事件通过唯一Name值
+        QMetaObject.connectSlotsByName(self)
+
+    # 加装饰器 避免打印一次
+    @pyqtSlot()
+    def on_btn_clicked(self):
+        """
+        @description 自动绑定的点击事件 必须这样写
+        @param
+        @return
+        """
+        print("点击了")
+
+    def addBtn(
+        self,
+        text="",
+        width=0,
+        height=0,
+        x=0,
+        y=0,
+        style="width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置按钮宽高
+        btn.resize(width, height)
+        # 移动按钮
+        btn.move(x, y)
+        # 设置样式
+        btn.setStyleSheet(style)
+        return btn
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+### 类之间信号和槽的用法
+解释一下：信号就是去触发事件的方法，槽就是要触发的事件
+```py
+from PyQt5.QtCore import QObject, pyqtSignal
+
+
+class Signal(QObject):
+    """
+    @description 创建一个信号类
+    @param
+    @return
+    """
+
+    # 定义一个信号
+    clicked = pyqtSignal(str)
+
+    def trigger(self):
+        """
+        @description 去触发事件的方法
+        @param
+        @return
+        """
+        self.clicked.emit("我是触发事件的参数")
+
+
+class Solt(QObject):
+    """
+    @description他们叫槽，其实就是上面信号触发的事件
+    @param
+    @return
+    """
+
+    def handleClicked(self, str):
+        print(str)
+
+
+def main():
+    # 创建信号
+    signal = Signal()
+    # 创建槽
+    solt = Solt()
+    # 绑定信号和槽  就是绑定事件
+    signal.clicked.connect(solt.handleClicked)
+    # 触发
+    signal.trigger()  # 输出我是触发事件的参数
+
+
+if __name__ == "__main__":
+    main()
 ```
 
