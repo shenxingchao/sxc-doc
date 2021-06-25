@@ -192,7 +192,7 @@
 
     - [桌面软件自动化](/md/Python#桌面软件自动化)
 
-- [python图形界面之pyqt5](/md/PythonGui#python图形界面之pyqt5)
+- [PythonGUI](/md/PythonGui#PythonGUI)
 
   - [安装](/md/PythonGui#安装)
 
