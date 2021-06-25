@@ -1113,3 +1113,170 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+## 自定义顶部工具条 窗口可拖动
+```py
+""" 
+自定义顶部工具条 窗口可拖动
+"""
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+        # 定义鼠标是否按下，鼠标按下才能拖动
+        self.is_pressed = False
+        # 记录按下时窗口坐标， 这个用于窗口移动
+        self.win_x = 0
+        self.win_y = 0
+        # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
+        self.mouse_x = 0
+        self.mouse_y = 0
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 设置窗口透明度
+        # self.setWindowOpacity(0.9)
+        # 设置没有工具条的无边框窗口
+        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
+        # 添加关闭按钮
+        self.close_btn = self.addBtn("×", self.width() - 40, 2, 40, 40)
+        # 添加最大化按钮
+        self.max_btn = self.addBtn("□", self.width() - 82, 2, 40, 40)
+        # 添加最小化按钮
+        self.min_btn = self.addBtn("-", self.width() - 124, 2, 40, 40)
+        # 关闭按钮点击绑定窗口关闭事件
+        self.close_btn.pressed.connect(self.close)
+        # 最大化按钮绑定窗口最大化事件和事件
+        def max_event():
+            if self.isMaximized():
+                self.showNormal()
+                self.max_btn.setText("□")
+            else:
+                self.showMaximized()
+                self.max_btn.setText("恢复")
+
+        self.max_btn.pressed.connect(max_event)
+        # 最小化按钮绑定窗口最小化事件
+        self.min_btn.pressed.connect(self.showMinimized)
+        # 放置一个工具条 这里这个工具条拖动还未实现，到时候看用什么控件比较合适，然后用 # 自定义按钮事件含传参的方法，去给这个控件加拖动事件监听
+        self.tool_bar = self.addBtn("", 0, 0, self.width(), 44, "background:#cccccc;")
+        # 置于底层
+        self.tool_bar.lower()
+
+    def addBtn(
+        self,
+        text="",
+        x=0,
+        y=0,
+        width=0,
+        height=0,
+        style="",
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # 设置宽高
+        btn.setGeometry(x, y, width, height)
+        # 设置样式
+        btn.setStyleSheet(DEfAULT_STYLE + style)
+        return btn
+
+    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
+        """
+        @description  窗口缩放事件
+        @param
+        @return
+        """
+        # 最大化最小化的时候，需要去改变按钮组位置
+        self.close_btn.move(self.width() - 40, 2)
+        self.max_btn.move(self.width() - 82, 2)
+        self.min_btn.move(self.width() - 124, 2)
+        self.tool_bar.resize(self.width(), 44)
+        return super().resizeEvent(a0)
+
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标按下事件
+        @param
+        @return
+        """
+        # 如果按下的是鼠标左键
+        if a0.button() == Qt.MouseButton.LeftButton:
+            # 设置为按下
+            self.is_pressed = True
+            # 记录按下时窗口坐标， 这个用于窗口移动
+            self.win_x = self.x()
+            self.win_y = self.y()
+            # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
+            self.mouse_x = a0.globalX()
+            self.mouse_y = a0.globalY()
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标移动事件
+        @param
+        @return
+        """
+        # 如果按下才能移动
+        if self.is_pressed:
+            # 获取移动后鼠标的位置
+            mouse_move_x = a0.globalX()
+            mouse_move_y = a0.globalY()
+            # 计算移动的距离
+            offset_x = mouse_move_x - self.mouse_x
+            offset_y = mouse_move_y - self.mouse_y
+            # 设置窗口移动的距离
+            self.move(self.win_x + offset_x, self.win_y + offset_y)
+        return super().mouseMoveEvent(a0)
+
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标松开事件
+        @param
+        @return
+        """
+        self.is_pressed = False
+        return super().mouseReleaseEvent(a0)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+

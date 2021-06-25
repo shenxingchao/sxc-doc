@@ -192,7 +192,7 @@
 
     - [桌面软件自动化](/md/Python#桌面软件自动化)
 
-- [PythonGUI](/md/PythonGui#PythonGUI)
+- [PythonGUI](/md/PythonGui#pythongui)
 
   - [安装](/md/PythonGui#安装)
 
@@ -215,6 +215,12 @@
   - [设置控件尺寸/边距/层级关系](/md/PythonGui#设置控件尺寸边距层级关系)
 
   - [设置鼠标状态和样式](/md/PythonGui#设置鼠标状态和样式)
+
+  - [鼠标事件](/md/PythonGui#鼠标事件)
+
+  - [窗口事件](/md/PythonGui#窗口事件)
+
+  - [自定义顶部工具条 窗口可拖动](/md/PythonGui#自定义顶部工具条-窗口可拖动)
 
 - [软件](/md/Software#软件)
   
