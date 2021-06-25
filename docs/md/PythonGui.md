@@ -1,4 +1,4 @@
-# python图形界面之pyqt5
+# PythonGui
 ## 安装
 1. 安装pyqt5
 ```shell
