@@ -39,7 +39,7 @@ def main():
     # 移动按钮
     btn.move(190, 230)
     # 设置样式
-    btn.setStyleSheet("width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;")
+    btn.setStyleSheet("background:blue;color:#ffffff;font-size:16px;border-radius:3px;")
 
     # 在窗口上放置一个bi标签
     label = QLabel(window)
@@ -105,7 +105,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -216,7 +216,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -305,7 +305,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -501,7 +501,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = Btn(self)
         # 设置按钮文字
@@ -616,7 +616,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -766,7 +766,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -795,7 +795,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 窗口上放置一个标签
         label = QLabel(self)
         # 设置文字
@@ -884,7 +884,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -915,3 +915,201 @@ if __name__ == "__main__":
     main()
 ```
 
+
+## 鼠标事件
+```py
+""" 
+鼠标事件
+"""
+from PyQt5 import QtGui
+from PyQt5 import QtCore
+from PyQt5.QtWidgets import QApplication, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 设置为True则mouseMoveEvent事件不需要按下也能触发,不然要按着鼠标左键或右键才能触发
+        self.setMouseTracking(True)
+
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标移动事件
+        @param
+        @return
+        """
+        print("鼠标移动 x:" + str(a0.x()) + ",y:" + str(a0.y()))
+        return super().mouseMoveEvent(a0)
+
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标按下事件
+        @param
+        @return
+        """
+        print("鼠标按下")
+        # 鼠标相对于系统桌面的位置
+        print(a0.globalPos())
+        # 鼠标相对于主界面的位置
+        print(a0.localPos())
+        return super().mousePressEvent(a0)
+
+    def mouseDoubleClickEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标双击事件
+        @param
+        @return
+        """
+        print("鼠标双击")
+        return super().mouseDoubleClickEvent(a0)
+
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标松开事件
+        @param
+        @return
+        """
+        print("鼠标松开")
+        return super().mouseReleaseEvent(a0)
+
+    def enterEvent(self, a0: QtCore.QEvent) -> None:
+        """
+        @description 鼠标进入事件
+        @param
+        @return
+        """
+        print("鼠标进入")
+        return super().enterEvent(a0)
+
+    def leaveEvent(self, a0: QtCore.QEvent) -> None:
+        """
+        @description 鼠标离开事件
+        @param
+        @return
+        """
+        print("鼠标离开")
+        return super().leaveEvent(a0)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 窗口事件
+```py
+""" 
+窗口事件
+"""
+from PyQt5 import QtGui
+from PyQt5.QtWidgets import QApplication, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+
+    def showEvent(self, a0: QtGui.QShowEvent) -> None:
+        """
+        @description  窗口显示事件
+        @param
+        @return
+        """
+        print("窗口显示")
+        return super().showEvent(a0)
+
+    def hideEvent(self, a0: QtGui.QHideEvent) -> None:
+        """
+        @description  窗口隐藏事件
+        @param
+        @return
+        """
+        print("窗口隐藏")
+        return super().hideEvent(a0)
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        """
+        @description  窗口关闭事件
+        @param
+        @return
+        """
+        print("窗口关闭")
+        return super().closeEvent(a0)
+
+    def moveEvent(self, a0: QtGui.QMoveEvent) -> None:
+        """
+        @description  窗口移动事件
+        @param
+        @return
+        """
+        print("窗口移动事件")
+        return super().moveEvent(a0)
+
+    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
+        """
+        @description  窗口缩放事件
+        @param
+        @return
+        """
+        print("窗口缩放事件")
+        return super().resizeEvent(a0)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
