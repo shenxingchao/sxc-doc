@@ -192,25 +192,29 @@
 
     - [桌面软件自动化](/md/Python#桌面软件自动化)
 
-  - [python图形界面之pyqt5](/md/Python#python图形界面之pyqt5)
+- [python图形界面之pyqt5](/md/PythonGui#python图形界面之pyqt5)
 
-    - [安装](/md/Python#安装-4)
+  - [安装](/md/PythonGui#安装)
 
-    - [基本案例](/md/Python#基本案例)
+  - [基本案例](/md/PythonGui#基本案例)
 
-    - [类模板](/md/Python#类模板)
+  - [类模板](/md/PythonGui#类模板)
 
-    - [父子元素操作，元素删除](/md/Python#父子元素操作元素删除)
+  - [父子元素操作元素删除](/md/PythonGui#父子元素操作元素删除)
 
-    - [事件处理机制](/md/Python#事件处理机制)
+  - [事件处理机制](/md/PythonGui#事件处理机制)
 
-    - [类封装进阶和gui里的定时器](/md/Python#类封装进阶和gui里的定时器)
+  - [类封装进阶和gui里的定时器](/md/PythonGui#类封装进阶和gui里的定时器)
 
-    - [自定义按钮事件含传参](/md/Python#自定义按钮事件含传参)
+  - [自定义按钮事件含传参](/md/PythonGui#自定义按钮事件含传参)
 
-    - [使用装饰器自动连接绑定的事件](/md/Python#使用装饰器自动连接绑定的事件)
+  - [使用装饰器自动连接绑定的事件](/md/PythonGui#使用装饰器自动连接绑定的事件)
 
-    - [类之间信号和槽的用法](/md/Python#类之间信号和槽的用法)
+  - [类之间信号和槽的用法](/md/PythonGui#类之间信号和槽的用法)
+
+  - [设置控件尺寸/边距/层级关系](/md/PythonGui#设置控件尺寸边距层级关系)
+
+  - [设置鼠标状态和样式](/md/PythonGui#设置鼠标状态和样式)
 
 - [软件](/md/Software#软件)
   
