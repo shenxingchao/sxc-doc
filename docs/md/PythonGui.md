@@ -1280,3 +1280,218 @@ if __name__ == "__main__":
     main()
 ```
 
+## 控件交互事件
+```py
+"""
+控件交互事件
+"""
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("[*]hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = self.addBtn("按钮", 190, 230, 120, 40)
+        # 设置是否可用
+        btn.setEnabled(True)
+        # 判断是否可用
+        print(btn.isEnabled())
+        # 设置是否显示
+        btn.setVisible(False)
+        # 判断是否显示
+        print(btn.isVisible())
+        # 设置是否隐藏
+        btn.setHidden(False)
+        # 判断是是否隐藏
+        print(btn.isHidden())
+        # 关闭按钮 效果和隐藏一样
+        btn.close()
+        # 直接隐藏
+        btn.hide()
+        # 直接显示
+        btn.show()
+        # 设置窗口是否编辑 需要在设置标题里setWindowTitle 加上[*]
+        self.setWindowModified(True)  # 设置完后处理编辑的窗口标题会显示*号
+        # 判断窗口是否处理编辑状态
+        print(self.isWindowModified())
+
+    def addBtn(
+        self,
+        text="",
+        x=0,
+        y=0,
+        width=0,
+        height=0,
+    ):
+        """
+        @description 添加按钮
+        @param
+        @return
+        """
+        # 在窗口上放置一个按钮
+        btn = QPushButton(self)
+        # 设置按钮文字
+        btn.setText(text)
+        # # 设置按钮宽高
+        btn.resize(width, height)
+        # # 移动按钮
+        btn.move(x, y)
+        return btn
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # 创建窗口2
+    window2 = Window()
+    # 显示窗口
+    window2.show()
+    # 判断当前窗口是否是激活的窗口
+    print(window.isActiveWindow())  # 输出False
+    print(window2.isActiveWindow())  # 输出True
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 键盘事件
+```py
+"""
+键盘事件
+"""
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+
+    def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
+        """
+        @description 键盘按下
+        @param
+        @return
+        """
+        if a0.key() == Qt.Key.Key_A:
+            print("按下了A键")
+        if a0.modifiers() == Qt.KeyboardModifier.ControlModifier and a0.key() == Qt.Key.Key_C:
+            print("按下了组合键Ctrl+C")
+        if (
+            a0.modifiers() == Qt.KeyboardModifier.ControlModifier | Qt.KeyboardModifier.ShiftModifier
+            and a0.key() == Qt.Key.Key_C
+        ):
+            print("按下了组合键Ctrl+Shift+C")
+        return super().keyPressEvent(a0)
+
+    def keyReleaseEvent(self, a0: QtGui.QKeyEvent) -> None:
+        """
+        @description 键盘松开
+        @param
+        @return
+        """
+        return super().keyReleaseEvent(a0)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 单行文本框焦点控制
+```py
+"""
+单行文本框焦点控制
+"""
+from PyQt5 import QtGui
+from PyQt5.QtCore import Qt
+from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("[*]hello pyqt5!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 创建单行文本框
+        text1 = QLineEdit(self)
+        text1.move(100, 100)
+        text2 = QLineEdit(self)
+        text2.move(100, 200)
+        text3 = QLineEdit(self)
+        text3.move(100, 300)
+        # 设置焦点
+        text2.setFocus()
+        # 清除焦点
+        text2.clearFocus()
+        # 切换焦点的方式 TabFocus tab切换  StrongFocus tab和click切换 NoFocus 不能切换 WheelFocus滚轮点击切换
+        text3.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
