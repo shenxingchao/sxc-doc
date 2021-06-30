@@ -1,21 +1,24 @@
 # PythonGUI
 ## 安装
-1. 安装pyqt5
+1. 安装PySide2
 ```shell
-pip install pyqt5
+pip install PySide2
 ```
+!> 这里不用pyqt5是因为比较旧，且收费，两者的接口大都相同，但是PySide2开发的软件可以闭源商用，果断选他
 
-2. 安装designer
-```shell
-pip install PyQt5Designer
+2. designer
+安装完PySide2 库里自带designer
+路径大概是
+```
+Lib\site-packages\PySide2
 ```
 
 ## 基本案例
 ```py
 import sys
 
-# 这里我们提供必要的引用。基本控件位于pyqt5.qtwidgets模块中。
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+# 这里我们提供必要的引用。基本控件位于PySide2.qtwidgets模块中。
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 
 
 def main():
@@ -24,7 +27,7 @@ def main():
     # 创建窗口对象
     window = QWidget()
     # 设置窗口标题
-    window.setWindowTitle("hello pyqt5!")
+    window.setWindowTitle("hello PySide2!")
     # 设置窗口大小
     window.resize(500, 500)
     # 设置窗口背景颜色
@@ -63,7 +66,7 @@ if __name__ == "__main__":
 """
 类模板
 """
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -81,7 +84,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -105,7 +108,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -138,8 +141,8 @@ if __name__ == "__main__":
 """ 
 父子元素操作
 """
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2.QtCore import QObject
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -157,7 +160,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -174,7 +177,7 @@ class Window(QWidget):
         # 打印属性
         print(btn.property("attr"))  # 输出 属性值1
         # 获取所有属性对象列表
-        print(btn.dynamicPropertyNames())  # 输出[PyQt5.QtCore.QByteArray(b'attr'), PyQt5.QtCore.QByteArray(b'name')]
+        print(btn.dynamicPropertyNames())  # 输出[PySide2.QtCore.QByteArray(b'attr'), PySide2.QtCore.QByteArray(b'name')]
         # 创建一个按钮 这里注意的是子元素是相对于父元素定位的
         btn_son1 = self.addBtn("子按钮1", 0, 0, 120, 40, "background:red;")
         # 设置为子按钮
@@ -200,7 +203,7 @@ class Window(QWidget):
         # 查看父控件
         print(btn_son1.parentWidget())  # 输出btn对象
         # 查看子控件的范围
-        print(btn.childrenRect())  # 输出PyQt5.QtCore.QRect(0, 0, 120, 90)
+        print(btn.childrenRect())  # 输出PySide2.QtCore.QRect(0, 0, 120, 90)
 
     def addBtn(
         self,
@@ -216,7 +219,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -250,8 +253,8 @@ if __name__ == "__main__":
 """ 
 事件处理机制
 """
-from PyQt5.QtCore import QObject
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2.QtCore import QObject
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -269,7 +272,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -305,7 +308,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -339,7 +342,7 @@ if __name__ == "__main__":
 """ 
 类封装和定时器
 """
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 from threading import Timer
 
@@ -358,7 +361,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -442,10 +445,9 @@ if __name__ == "__main__":
 """ 
 自定义按钮事件(右键事件)含传参
 """
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5.QtCore import QObject, Qt, pyqtSignal
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2 import QtGui
+from PySide2.QtCore import Qt, Signal
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -463,7 +465,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -501,7 +503,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = Btn(self)
         # 设置按钮文字
@@ -524,7 +526,7 @@ class Btn(QPushButton):
 
     # 定义类属性
     # 定义了一个信号 且传递按钮的参数出去
-    rightClicked = pyqtSignal([str, int])
+    rightClicked = Signal([str, int])
 
     def mousePressEvent(self, e: QtGui.QMouseEvent) -> None:
         """
@@ -559,10 +561,8 @@ if __name__ == "__main__":
 """ 
 使用装饰器自动连接绑定的事件
 """
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5.QtCore import QMetaObject, QObject, Qt, pyqtSignal, pyqtSlot
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2.QtCore import QMetaObject, Slot
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -580,7 +580,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -593,7 +593,7 @@ class Window(QWidget):
         QMetaObject.connectSlotsByName(self)
 
     # 加装饰器 避免打印一次
-    @pyqtSlot()
+    @Slot()
     def on_btn_clicked(self):
         """
         @description 自动绑定的点击事件 必须这样写
@@ -616,7 +616,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -648,7 +648,7 @@ if __name__ == "__main__":
 ## 类之间信号和槽的用法
 解释一下：信号就是去触发事件的方法，槽就是要触发的事件
 ```py
-from PyQt5.QtCore import QObject, pyqtSignal
+from PySide2.QtCore import QObject, Signal
 
 
 class Signal(QObject):
@@ -659,7 +659,7 @@ class Signal(QObject):
     """
 
     # 定义一个信号
-    clicked = pyqtSignal(str)
+    clicked = Signal(str)
 
     def trigger(self):
         """
@@ -701,7 +701,7 @@ if __name__ == "__main__":
 """
 设置控件尺寸,边距,层级关系
 """
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -719,7 +719,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -766,7 +766,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -795,7 +795,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 窗口上放置一个标签
         label = QLabel(self)
         # 设置文字
@@ -828,9 +828,9 @@ if __name__ == "__main__":
 设置鼠标状态和样式
 """
 
-from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QCursor, QPixmap
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QCursor, QPixmap
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -848,7 +848,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -858,7 +858,7 @@ class Window(QWidget):
         self.setMinimumSize(400, 400)
         # 放置一个按钮
         btn = self.addBtn("按钮", 190, 230, 120, 40, "cursor:pointer;")
-        # 设置鼠标移入状态为手型 https://www.riverbankcomputing.com/static/Docs/PyQt5/api/qtgui/qcursor.html
+        # 设置鼠标移入状态为手型 https://www.riverbankcomputing.com/static/Docs/PySide2/api/qtgui/qcursor.html
         btn.setCursor(Qt.CursorShape.PointingHandCursor)
         # 设置鼠标样式
         # 导入一张图片
@@ -884,7 +884,7 @@ class Window(QWidget):
         @param
         @return
         """
-        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        DEfAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
         # 在窗口上放置一个按钮
         btn = QPushButton(self)
         # 设置按钮文字
@@ -921,9 +921,9 @@ if __name__ == "__main__":
 """ 
 鼠标事件
 """
-from PyQt5 import QtGui
-from PyQt5 import QtCore
-from PyQt5.QtWidgets import QApplication, QWidget
+from PySide2 import QtGui
+from PySide2 import QtCore
+from PySide2.QtWidgets import QApplication, QWidget
 import sys
 
 
@@ -941,7 +941,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1028,8 +1028,8 @@ if __name__ == "__main__":
 """ 
 窗口事件
 """
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QWidget
+from PySide2 import QtGui
+from PySide2.QtWidgets import QApplication, QWidget
 import sys
 
 
@@ -1047,7 +1047,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1119,9 +1119,9 @@ if __name__ == "__main__":
 """ 
 自定义顶部工具条 窗口可拖动
 """
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QPushButton, QWidget
+from PySide2 import QtGui
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -1147,7 +1147,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1285,7 +1285,7 @@ if __name__ == "__main__":
 """
 控件交互事件
 """
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -1303,7 +1303,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("[*]hello pyqt5!")
+        self.setWindowTitle("[*]hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1384,9 +1384,9 @@ if __name__ == "__main__":
 """
 键盘事件
 """
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide2 import QtGui
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -1441,9 +1441,9 @@ if __name__ == "__main__":
 """
 单行文本框焦点控制
 """
-from PyQt5 import QtGui
-from PyQt5.QtCore import Qt
-from PyQt5.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QWidget
+from PySide2 import QtGui
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QWidget
 import sys
 
 
@@ -1461,7 +1461,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("[*]hello pyqt5!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1479,6 +1479,182 @@ class Window(QWidget):
         text2.clearFocus()
         # 切换焦点的方式 TabFocus tab切换  StrongFocus tab和click切换 NoFocus 不能切换 WheelFocus滚轮点击切换
         text3.setFocusPolicy(Qt.FocusPolicy.NoFocus)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 按钮类事件单选多选复选框
+```py
+"""
+按钮类事件单选多选复选框
+"""
+import PySide2
+from PySide2.QtCore import QPoint, QSize
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QApplication, QCheckBox, QPushButton, QRadioButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("[*]hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 放置一个按钮
+        btn = Btn("按钮", 100, 200, 300, 100, "", self)
+        # 设置按钮图标
+        qicon = QIcon("./1.png")
+        btn.setIcon(qicon)
+        # 设置图标大小
+        qsize = QSize(50, 50)
+        btn.setIconSize(qsize)
+        # 加一个按钮按下事件
+        btn.pressed.connect(lambda: print("快捷键按下了"))
+        # 设置快捷键
+        btn.setShortcut("Ctrl+Alt+S")
+        # 设置点击按钮时自动重复点击事件 相当于点一下连点的功能
+        btn.setAutoRepeat(True)
+        # 设置自动重复的时间间隔2s
+        btn.setAutoRepeatInterval(2000)
+        # 设置首次重复延迟4s
+        btn.setAutoRepeatDelay(5000)
+        # 设置按钮状态为按下
+        btn.setDown(True)
+        # 设置模拟点击
+        btn.click()
+        # 有动画效果的点击 点击按住10秒
+        btn.animateClick(10000)
+        # 添加一个单选按钮
+        radio1 = QRadioButton("单选按钮1", self)
+        radio2 = QRadioButton("单选按钮2", self)
+        radio2.move(0, 20)
+        # 设置排他性 就是设置后可以同时选中单选按钮1和单选按钮2 否则不能
+        # radio1.setAutoExclusive(False)
+        # radio2.setAutoExclusive(False)
+        # 设置选中
+        radio1.setChecked(True)
+        # 添加复选框按钮
+        checkbox1 = QCheckBox("浙江", self)
+        checkbox2 = QCheckBox("上海", self)
+        checkbox3 = QCheckBox("北京", self)
+        checkbox1.move(100, 0)
+        checkbox2.move(100, 20)
+        checkbox3.move(100, 40)
+        # 设置排他性 就是设置后变成单选啦
+        # checkbox1.setAutoExclusive(True)
+        # checkbox2.setAutoExclusive(True)
+        # checkbox3.setAutoExclusive(True)
+
+
+class Btn(QPushButton):
+    def __init__(self, text="", x=0, y=0, width=0, height=0, style="", *args, **kwargs):
+        DEFAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
+        # 调用父类的方法
+        super().__init__(*args, **kwargs)
+        # 设置按钮文字
+        self.setText(text)
+        # 设置按钮宽高
+        self.resize(width, height)
+        # 移动按钮
+        self.move(x, y)
+        # 设置样式
+        self.setStyleSheet(DEFAULT_STYLE if not style else style)
+
+    def hitButton(self, pos: PySide2.QtCore.QPoint) -> bool:
+        """
+        @description 获取按钮点击位置pos(x,y)
+        @param
+        @return
+        """
+        # 设置只能点右半边有效果
+        if pos.x() > self.width() / 2:
+            return super().hitButton(pos)
+        return False
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 单选按钮切换事件
+```py
+"""
+单选按钮切换事件
+"""
+from PySide2.QtWidgets import QApplication, QRadioButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("[*]hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 添加一个单选按钮
+        radio1 = QRadioButton("单选按钮1", self)
+        radio2 = QRadioButton("单选按钮2", self)
+        radio3 = QRadioButton("单选按钮2", self)
+        radio1.move(0, 0)
+        radio2.move(0, 20)
+        radio3.move(0, 40)
+        # 设置选中
+        radio1.setChecked(True)
+        # 要绑定所有的才行 因为是切换 所以切换前和切换后的单选按钮的切换事件都触发了
+        radio1.toggled.connect(lambda: print("切换了1"))
+        radio2.toggled.connect(lambda: print("切换了2"))
+        radio3.toggled.connect(lambda: print("切换了3"))
 
 
 def main():
