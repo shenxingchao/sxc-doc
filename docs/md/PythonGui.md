@@ -695,6 +695,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> 这里的solt.handleClicked可以换成任意函数 或者lambda str: print(str))
 
 ## 设置控件尺寸/边距/层级关系
 ```py
@@ -1496,6 +1497,208 @@ if __name__ == "__main__":
     main()
 ```
 
+## 单行文本框
+```py
+"""
+单行文本框
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QCompleter, QLineEdit, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 添加单行文本框
+        input = QLineEdit("", self)
+        # 设置对齐方式 如右对齐
+        input.setAlignment(Qt.AlignmentFlag.AlignRight)
+        # 设置默认值
+        input.setText("默认值")
+        # 在光标处插入值
+        input.insert("插入的值")
+        # 设置输出模式 Normal Password PasswordEchoOnEdit
+        input.setEchoMode(QLineEdit.Normal)
+        # 打印文本
+        print(input.text())
+        # 获取文本框显示的内容 例如Password模式 输出●●●●●●●
+        print(input.displayText())
+        # 设置提示字符
+        input.setPlaceholderText("请输入用户名")
+        # 设置清空按钮
+        input.setClearButtonEnabled(True)
+        # 创建自动补全对象绑定到输入框
+        auto_complete = QCompleter(["小明", "小红"], input)
+        # 给输入框设置自动补全对象
+        input.setCompleter(auto_complete)
+        # 设置字符长度限制
+        input.setMaxLength(10)
+        # 设置只读
+        input.setReadOnly(False)
+        # 选中指定位置内容 索引2 开始 选中3个字符
+        input.setSelection(2, 3)
+        # 清空内容
+        # input.clear()
+        # 是复制选中的内容，不是赋值全部内容
+        # input.copy()
+        # 粘贴拷贝的内容到光标处
+        # input.paste()
+
+        # 信号
+        # 文本编辑信号 输出改变的值 只有在手动输入的时候触发
+        input.textEdited.connect(lambda val: print(val))
+        # 文本改变信号 输出改变的值 不管是手动输入还是自己用setText设置都会触发
+        input.textChanged.connect(lambda val: print(val))
+        # 回车信号
+        input.returnPressed.connect(lambda: print("按下回车键"))
+
+        # 创建一个表单对象
+        action = QAction(input)
+        # 设置对象图标
+        action.setIcon(QIcon("./1.png"))
+        # 将表单对象放入input控件  LeadingPosition 首部 TrailingPosition 尾部
+        input.addAction(action, QLineEdit.LeadingPosition)
+        # 表单对象切换事件 这里点击时切换输出模式就可实现密码显示隐藏的功能
+        action.triggered.connect(lambda: print("点击了图标"))
+
+        # 创建IP输入框 不好用！
+        ip_input = QLineEdit("", self)
+        ip_input.move(0, 300)
+        # 设置掩码 0 可以输入0~9的数字  -是连接符  ;0是默认占位符
+        # ip_input.setInputMask("000-000-000-000;0")
+        ip_input.setInputMask("000-000-000-000")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+掩码表 下图问题解答
+```py
+input.setInputMask("(000)000-0000")
+```
+![calc](../images/mask.gif)  
+
+## 前端验证器
+```py
+"""
+前端验证器
+"""
+import PySide2
+from PySide2.QtGui import QValidator
+from PySide2.QtWidgets import QApplication, QLineEdit, QWidget
+import sys
+
+# 验证器类
+class Validator(QValidator):
+    def validate(self, text: str, pos: int) -> PySide2.QtGui.QValidator.State:
+        """
+        @description 自动验证方法 验证数字范围
+        @param text 输入的内容
+        @param pos 当前输入的位置
+        @return
+        """
+        # 如果输入的整个字符串转整形后大于大于10 小于100 才能验证通过
+        try:
+            # 转换成整形  可能会报异常
+            num = int(text)
+            # 输入的输大于10 小于100 才符合条件
+            if num > 10 and num < 100:
+                return (QValidator.Acceptable, text, pos)
+            # 如果输入数大于0 小于等于10 先不验证 可以继续输入 光标离开后验证(点击一下桌面看效果)
+            elif num > 0 and num <= 10:
+                return (QValidator.Intermediate, text, pos)
+            # 其他验证不通过
+            else:
+                return (QValidator.Invalid, text, pos)
+        except:
+            # 如果输入为空字符串 可以继续输入
+            if not text:
+                return (QValidator.Intermediate, text, pos)
+            # 否则直接验证不通过
+            return (QValidator.Invalid, text, pos)
+
+    def fixup(self, text: str) -> None:
+        """
+        @description 自动更正内容 验证不通过后走这里的方法
+        @param
+        @return
+        """
+        try:
+            num = int(text)
+            if num <= 10:
+                # 如果输入的值小于10 自动更正为11
+                return "11"
+        except:
+            # 如果全部删除变成空字符串执行
+            return "11"
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 添加单行文本框
+        input = QLineEdit("", self)
+        # 实例化
+        validator = Validator()
+        input.setValidator(validator)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## 按钮类事件单选多选复选框
 ```py
 """
@@ -1522,7 +1725,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("[*]hello PySide2!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1637,7 +1840,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("[*]hello PySide2!")
+        self.setWindowTitle("hello PySide2!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1671,3 +1874,538 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+## 复选框选择和切换事件
+```py
+"""
+复选框选择和切换事件
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QCheckBox, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 添加复选框按钮
+        checkbox1 = QCheckBox("浙江", self)
+        checkbox2 = QCheckBox("上海", self)
+        checkbox3 = QCheckBox("北京", self)
+        checkbox1.move(100, 0)
+        checkbox2.move(100, 20)
+        checkbox3.move(100, 40)
+        # 设置状态为三种状态
+        checkbox1.setTristate(True)
+        # 设置默认状态
+        # 未选择
+        checkbox2.setCheckState(Qt.CheckState.Unchecked)
+        # 半选状态
+        checkbox2.setCheckState(Qt.PartiallyChecked)
+        # 选中状态
+        checkbox2.setCheckState(Qt.Checked)
+        # 2种状态信号
+        checkbox3.toggled.connect(lambda is_checked: print(is_checked))
+        # 3中状态信号 0未选择 1半选中 2选中
+        checkbox1.stateChanged.connect(lambda state: print(state))
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 按钮组及其事件
+```py
+"""
+按钮组及其事件
+"""
+from PySide2.QtWidgets import QApplication, QButtonGroup, QRadioButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 添加一个单选按钮
+        radio1 = QRadioButton("单选按钮1", self)
+        radio2 = QRadioButton("单选按钮2", self)
+        radio3 = QRadioButton("单选按钮2", self)
+        radio1.move(0, 0)
+        radio2.move(0, 20)
+        radio3.move(0, 40)
+        # 创建一个按钮组 按钮组就不存在互斥了
+        radio_group = QButtonGroup(self)
+        # 单选按钮添加到组里面 1,2,3是按钮组中的Id
+        radio_group.addButton(radio1, 1)
+        radio_group.addButton(radio2, 2)
+        radio_group.addButton(radio3, 3)
+        # 从组中删除
+        # radio_group.removeButton(radio3)
+        # 获取组中的所以按钮
+        print(radio_group.buttons())
+        # 按Id获取组中的按钮
+        print(radio_group.button(1).text())
+        # 其他设置Id方法
+        # radio_group.setId(radio1,1)
+        # 获取Id
+        print(radio_group.id(radio1))  # 输出1
+        # 设置排他性 就是设置后变成单选啦 设置False为多选
+        radio_group.setExclusive(True)
+        # 按钮组里按钮切换事件
+        # radio_group.buttonToggled.connect(lambda val:print(val))
+        # 点击事件 获取点击选中的值
+        # radio_group.buttonClicked.connect(lambda val: print(val.text()))
+        # 点击事件 获取点击选中的按钮的Id
+        radio_group.buttonClicked[int].connect(lambda val: print(val))
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 菜单按钮
+```py
+"""
+菜单按钮
+"""
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 添加一个按钮 这里注意在上面添加无法显示，window需要是一个实例化对象
+    menu_bar = QPushButton(QIcon("./1.png"), "文件", window)
+    # 按钮扁平化处理
+    menu_bar.setFlat(True)
+    # 1.创建菜单对象
+    menu = QMenu()
+    # 2.创建菜单列表
+    menu1 = QAction(QIcon("./1.png"), "保存", window)
+    menu2 = QAction("退出", window)
+    # 3.将菜单列表添加到菜单对象
+    menu.addAction(menu1)
+    # 4.添加分隔线
+    menu.addSeparator()
+    menu.addAction(menu2)
+    # 1-1.创建子菜单对象
+    sub_menu = QMenu("子菜单")
+    sub_menu.setTitle("选项")
+    # 1-2.创建子菜单列表
+    sub_menu1 = QAction(QIcon("./1.png"), "最近", window)
+    sub_menu2 = QAction(QIcon("./1.png"), "新建", window)
+    # 1-3.给子菜单对象添加子菜单列表
+    sub_menu.addAction(sub_menu1)
+    # 1-4.添加分隔线
+    sub_menu.addSeparator()
+    sub_menu.addAction(sub_menu2)
+    # 1-5.将子菜单添加到主菜单上
+    menu.addMenu(sub_menu)
+    # 5.给按钮添加菜单
+    menu_bar.setMenu(menu)
+    # 6.给菜单添加事件
+    menu2.triggered.connect(lambda: print("退出菜单被点击"))
+    # 显示窗口
+    window.show()
+    # 立即显示菜单按钮 必须在窗口显示后面
+    # menu_bar.showMenu()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 菜单按钮必须在窗口实例化之后添加，否则不显示
+
+## 原生菜单栏
+```py
+"""
+原生菜单栏
+"""
+from PySide2.QtCore import Slot
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QMainWindow, QMenu
+import sys
+
+
+class Window(QMainWindow):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        # self.setStyleSheet("background:#cccccc;")
+        # 1.获取窗口菜单栏
+        menu_bar = self.menuBar()
+        # 2.设置菜单栏尺寸
+        menu_bar.resize(1000, 20)
+        # 3.给菜单栏添加菜单按钮 这里如果添加了图标，则不会显示文字了
+        # menu = menu_bar.addMenu(QIcon("./1.png"), "文件")
+        menu = menu_bar.addMenu("文件")
+        # 4.添加菜单选项
+        menu1 = menu.addAction(QIcon("./1.png"), "保存")
+        # 5.添加分割线
+        menu.addSeparator()
+        menu2 = menu.addAction(QIcon("./1.png"), "退出")
+        # 1-1.添加子菜单
+        sub_menu = menu.addMenu(QIcon("./1.png"), "选项")
+        # 1-2.添加子菜单选项
+        sub_menu1 = sub_menu.addAction(QIcon("./1.png"), "新建")
+        # 1-3.添加分割线
+        menu.addSeparator()
+        sub_menu2 = sub_menu.addAction(QIcon("./1.png"), "保存")
+        # 给菜单添加点击事件
+        # menu1.triggered.connect(lambda: print("menu1被点击"))
+        menu1.triggered.connect(self.handleSlotClickSave)
+
+    @Slot()
+    def handleSlotClickSave(self):
+        """
+        @description 触发点击事件
+        @param
+        @return
+        """
+        print("保存按钮被点击")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+!>窗口需要继承QMainwindow否则没有menuBar方法 ,设置了窗口背景颜色 会导致菜单鼠标移入的颜色变白色
+
+## 右键菜单
+1. 默认右键菜单
+
+```py
+"""
+默认右键菜单
+"""
+import PySide2
+from PySide2.QtCore import QPoint, Qt
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+
+    def contextMenuEvent(self, event: PySide2.QtGui.QContextMenuEvent) -> None:
+        """
+        @description 窗口右键菜单事件
+        @param
+        @return
+        """
+        # 1.创建菜单对象
+        menu = QMenu()
+        # 2.创建菜单列表
+        menu1 = QAction(QIcon("./1.png"), "保存", self)
+        menu2 = QAction("退出", self)
+        # 3.将菜单列表添加到菜单对象
+        menu.addAction(menu1)
+        # 4.添加分隔线
+        menu.addSeparator()
+        menu.addAction(menu2)
+        # 5.给菜单添加事件
+        menu2.triggered.connect(lambda: print("退出菜单被点击"))
+        # 6.显示菜单 event.globalPos()获取全局鼠标点击位置
+        menu.exec_(event.globalPos())
+
+        return super().contextMenuEvent(event)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 设置默认右键菜单 这个可以不要
+    # window.setContextMenuPolicy(Qt.DefaultContextMenu)
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+2. 自定义右键菜单
+
+```py
+"""
+自定义右键菜单
+"""
+import PySide2
+from PySide2.QtCore import QPoint, Qt
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 设置默认右键菜单
+        self.setContextMenuPolicy(Qt.CustomContextMenu)
+        # 绑定右键槽函数
+        self.customContextMenuRequested.connect(self.rightMenu)
+
+    # 右键响应自定义事件
+    def rightMenu(self, point):
+        # 1.创建菜单对象
+        menu = QMenu()
+        # 2.创建菜单列表
+        menu1 = QAction(QIcon("./1.png"), "保存", self)
+        menu2 = QAction("退出", self)
+        # 3.将菜单列表添加到菜单对象
+        menu.addAction(menu1)
+        # 4.添加分隔线
+        menu.addSeparator()
+        menu.addAction(menu2)
+        # 5.给菜单添加事件
+        menu2.triggered.connect(lambda: print("退出菜单被点击"))
+        # 6.显示菜单 window.mapToGlobal 将点击的点坐标 映射到 电脑屏幕的鼠标点击位置
+        menu.exec_(self.mapToGlobal(point))
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 工具按钮及其菜单和事件
+```py
+"""
+工具按钮及其菜单和事件
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QAction, QApplication, QMenu, QToolButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 添加工具按钮
+        btn = QToolButton(self)
+        # 设置文本 必须这么设置
+        btn.setText("工具按钮")
+        # 设置大小和位置
+        btn.resize(80, 40)
+        btn.move(100, 100)
+        # 设置图标 会把文字覆盖掉
+        btn.setIcon(QIcon("./1.png"))
+        # 设置按钮图标都显示  ToolButtonIconOnly ToolButtonTextOnly ToolButtonTextUnderIcon ToolButtonTextBesideIcon
+        btn.setToolButtonStyle(Qt.ToolButtonStyle.ToolButtonTextBesideIcon)
+        # 设置箭头 LeftArrow NoArrow UpArrow DownArrow RightArrow
+        btn.setArrowType(Qt.ArrowType.RightArrow)
+        # 设置扁平化
+        btn.setAutoRaise(True)
+        # 设置属性
+        self.btn = btn
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 1.创建菜单对象
+    menu = QMenu()
+    # 2.创建菜单列表
+    menu1 = QAction(QIcon("./1.png"), "保存", window)
+    menu2 = QAction("退出", window)
+    # 3.将菜单列表添加到菜单对象
+    menu.addAction(menu1)
+    # 4.添加分隔线
+    menu.addSeparator()
+    menu.addAction(menu2)
+    # 5.给菜单添加事件
+    menu2.triggered.connect(lambda: print("退出菜单被点击"))
+    # 菜单放入工具按钮
+    window.btn.setMenu(menu)
+    # MenuButtonPopup 点击箭头显示菜单 InstantPopup 单击显示菜单 DelayedPopup 长按显示菜单
+    window.btn.setPopupMode(QToolButton.MenuButtonPopup)
+    # 设置菜单点击的数据
+    menu1.setData("菜单1点击的数据")
+    menu2.setData("菜单2点击的数据")
+    # 点击信号 相当于下拉菜单所有点击的事件都会被捕捉 第5点只能捕捉一个菜单
+    window.btn.triggered.connect(lambda x: print(x.data()))
+
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 菜单按钮必须在窗口实例化之后添加，否则不显示
+
+
+
