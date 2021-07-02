@@ -193,36 +193,68 @@
     - [桌面软件自动化](/md/Python#桌面软件自动化)
 
 - [PythonGUI](/md/PythonGUI#pythongui)
+
   - [安装](/md/PythonGUI#安装)
+
   - [基本案例](/md/PythonGUI#基本案例)
+
   - [类模板](/md/PythonGUI#类模板)
+
   - [父子元素操作元素删除](/md/PythonGUI#父子元素操作元素删除)
+
   - [事件处理机制](/md/PythonGUI#事件处理机制)
+
   - [类封装进阶和gui里的定时器](/md/PythonGUI#类封装进阶和gui里的定时器)
+
   - [自定义按钮事件含传参](/md/PythonGUI#自定义按钮事件含传参)
+
   - [使用装饰器自动连接绑定的事件](/md/PythonGUI#使用装饰器自动连接绑定的事件)
+
   - [类之间信号和槽的用法](/md/PythonGUI#类之间信号和槽的用法)
+
   - [设置控件尺寸/边距/层级关系](/md/PythonGUI#设置控件尺寸边距层级关系)
+
   - [设置鼠标状态和样式](/md/PythonGUI#设置鼠标状态和样式)
+
   - [鼠标事件](/md/PythonGUI#鼠标事件)
+
   - [窗口事件](/md/PythonGUI#窗口事件)
+
   - [自定义顶部工具条 窗口可拖动](/md/PythonGUI#自定义顶部工具条-窗口可拖动)
+
   - [控件交互事件](/md/PythonGUI#控件交互事件)
+
   - [键盘事件](/md/PythonGUI#键盘事件)
+
   - [单行文本框焦点控制](/md/PythonGUI#单行文本框焦点控制)
+
   - [单行文本框](/md/PythonGUI#单行文本框)
+
   - [前端验证器](/md/PythonGUI#前端验证器)
+
   - [多行文本框](/md/PythonGUI#多行文本框)
+
   - [步长和日期输入框](/md/PythonGUI#步长和日期输入框)
+
   - [下拉选择框](/md/PythonGUI#下拉选择框)
+
   - [按钮类事件单选多选复选框](/md/PythonGUI#按钮类事件单选多选复选框)
+
   - [单选按钮切换事件](/md/PythonGUI#单选按钮切换事件)
+
   - [复选框选择和切换事件](/md/PythonGUI#复选框选择和切换事件)
+
   - [按钮组及其事件](/md/PythonGUI#按钮组及其事件)
+
   - [菜单按钮](/md/PythonGUI#菜单按钮)
+
   - [原生菜单栏](/md/PythonGUI#原生菜单栏)
+
   - [右键菜单](/md/PythonGUI#右键菜单)
+
   - [工具按钮及其菜单和事件](/md/PythonGUI#工具按钮及其菜单和事件)
+
+  - [滚动条](/md/PythonGUI#滚动条)
 
 - [软件](/md/Software#软件)
   
