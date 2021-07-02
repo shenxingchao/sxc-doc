@@ -429,3 +429,7 @@
     $ git update-index --no-assume-unchanged dir/filename.ext
     $ git status
     ```
+59. 提交不忽略大小写
+    ```git
+    $ git config core.ignorecase false
+    ```
