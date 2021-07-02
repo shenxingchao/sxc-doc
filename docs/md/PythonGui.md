@@ -1699,6 +1699,364 @@ if __name__ == "__main__":
     main()
 ```
 
+## 多行文本框
+```py
+"""
+多行文本框
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QColor, QFont, QTextCharFormat, QTextDocument
+from PySide2.QtWidgets import QApplication, QFrame, QPlainTextEdit, QPushButton, QTextBrowser, QTextEdit, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 700)
+        # 添加多行文本框
+        textarea = QTextEdit("多行文本框", self)
+        # 设置占位符
+        textarea.setPlaceholderText("描述")
+        # 设置滚动条ScrollBarAsNeeded ScrollBarAlwaysOn ScrollBarAlwaysOff
+        textarea.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        textarea.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAlwaysOn)
+        # 设置滚动条角落控件
+        btn = QPushButton("*", self)
+        textarea.setCornerWidget(btn)
+        # 设置边框
+        textarea.setFrameStyle(QFrame.Box | QFrame.Raised)
+        # 设置普通文本
+        textarea.setPlainText("普通文本")
+        # 获取内容
+        print(textarea.toPlainText())
+        # 设置富文本
+        textarea.setHtml("<h1>富文本</h1>")
+        # 获取内容
+        print(textarea.toHtml())
+        # 追加内容
+        textarea.append("追加内容")
+        # 清空内容
+        textarea.clear()
+
+        # 操作文本
+        # 1.设置输入按单词换行模式
+        # textarea.setWordWrapMode(QTextOption.WrapMode.WordWrap)
+        # 2.设置以控件宽度为标准换行
+        textarea.setLineWrapMode(QTextEdit.WidgetWidth)
+        # 3.设置覆盖输入模式 没啥用
+        textarea.setOverwriteMode(False)
+        # 4.设置光标宽度 没啥用
+        textarea.setCursorWidth(1)
+        # 5.设置段落对齐方式 AlignRight AlignLeft AlignCenter
+        textarea.setAlignment(Qt.AlignRight)
+        # 6.设置字体格式 字体 字体大小 字体粗细 是否斜体
+        textarea.setFont(QFont("Microsoft-yahei", 20, 30, True))
+        # 7.设置下划线
+        # textarea.setStyleSheet("text-decoration: underline;")
+        textarea.setFontUnderline(True)
+        # 8.复制文本
+        textarea.copy()
+        # 9.粘贴内容
+        textarea.paste()
+        # 10.重做
+        textarea.undo()
+        # 11.全选
+        textarea.selectAll()
+        # 12.向前查找
+        textarea.find("查找的字符串", QTextDocument.FindBackward)
+        # 13.设置只读
+        textarea.setReadOnly(False)
+
+        # 信号
+        textarea.textChanged.connect(lambda: print("文本内容改变"))
+        textarea.cursorPositionChanged.connect(lambda: print("光标位置改变改变"))
+
+        # 光标操作 不常用
+        # 1.创建光标对象
+        text_cursor = textarea.textCursor()
+        # 2.可以设置字体格式
+        tcf = QTextCharFormat()
+        tcf.setFontPointSize(20)
+        # 3.插入文本
+        text_cursor.insertText("通过光标对象插入的内容\n", tcf)
+        text_cursor.insertHtml("通过光标对象插入的html")
+
+        # 直接设置文本块的格式
+        text_cursor.setBlockCharFormat(tcf)
+        # 设置文本字符格式 是设置光标选中字符的格式
+        text_cursor.setCharFormat(tcf)
+
+        # 大文本编辑框
+        textarea_big = QPlainTextEdit(self)
+        textarea_big.move(0, 200)
+        # 设置文本
+        textarea_big.setPlainText("大文本编辑框")
+        # 获取文本
+        textarea_big.toPlainText()
+        # 追加内容
+        textarea_big.appendPlainText("追加内容")
+
+        # 文本浏览框 只读的大文本浏览框
+        textarea_browser = QTextBrowser(self)
+        textarea_browser.move(0, 400)
+        # 设置文本
+        textarea_browser.setPlainText("文本浏览框")
+        # 获取文本
+        textarea_browser.toPlainText()
+        # 追加内容
+        textarea_browser.append("追加内容")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 步长和日期输入框
+```py
+"""
+步长日期输入框
+"""
+from PySide2.QtCore import QDate, QDateTime, QTime, Qt
+from PySide2.QtWidgets import QApplication, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QWidget
+import sys
+import time
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 700)
+        # 创建整型步长输入框
+        int_step = QSpinBox(self)
+        int_step.resize(100, 30)
+        # 修改范围
+        int_step.setMaximum(10)
+        int_step.setMinimum(2)
+        int_step.setRange(2, 10)
+        # 设置循环
+        int_step.setWrapping(True)
+        # 设置步长
+        int_step.setSingleStep(2)
+        # 设置前缀后缀
+        int_step.setPrefix("￥")
+        int_step.setSuffix("元")
+        # 设置特殊值 追加上去的
+        # int_step.setSpecialValueText("￥100元")
+        # 设置显示进制 为10进制
+        int_step.setDisplayIntegerBase(10)
+        # 获取值 cleanText 不包括前后缀
+        print(int_step.text(), int_step.value(), int_step.lineEdit().text(), int_step.cleanText())
+        # 设置值
+        int_step.setValue(2)
+
+        # 整型步长输入框信号
+        int_step.valueChanged.connect(lambda: print("值改变"))
+        int_step.textChanged.connect(lambda: print("文本发生改变"))
+
+        # 浮点型步长输入框
+        float_step = QDoubleSpinBox(self)
+        float_step.resize(100, 30)
+        float_step.move(0, 50)
+        # 小数位数设置
+        float_step.setDecimals(4)
+
+        # 浮点型步长输入框信号 事件传递的参数直接为浮点型 都不用转化了
+        float_step.valueChanged[float].connect(lambda val: print(type(val)))
+        float_step.valueChanged[str].connect(lambda val: print(type(val)))
+
+        # 日期时间步长输入框
+        # datetime_step = QDateTimeEdit(QDateTime(2021, 7, 2, 10, 35), self)
+        datetime_step = QDateTimeEdit(QDateTime.currentDateTime(), self)
+        datetime_step.resize(150, 30)
+        datetime_step.move(0, 100)
+        # 设置显示样式
+        datetime_step.setDisplayFormat("yyyy-MM-dd HH:mm:ss")
+        # 设置可选择的时间范围
+        datetime_step.setMinimumDateTime(QDateTime(2020, 7, 2, 10, 35, 00))
+        datetime_step.setMaximumDateTime(QDateTime(2022, 7, 2, 10, 35, 00))
+        # datetime_step.setDateTimeRange(QDateTime(2020, 7, 2, 10, 35, 00), QDateTime(2022, 7, 2, 10, 35, 00))
+        # 设置前一个月和后一个月
+        datetime_step.setDateTimeRange(
+            QDateTime.currentDateTime().addMonths(-1), QDateTime.currentDateTime().addMonths(1)
+        )
+        # 设置为日历选择器
+        datetime_step.setCalendarPopup(True)
+        # 获取时间和日期
+        print(datetime_step.text(), datetime_step.dateTime().toString("yyyy-MM-dd HH:mm:ss"))
+        # datetime_step.date()
+        # datetime_step.time()
+        # 信号
+        datetime_step.dateTimeChanged.connect(lambda val: print(val.toString("yyyy-MM-dd HH:mm:ss")))
+        # datetime_step.dateChanged.connect(lambda val: print(val.toString("yyyy-MM-dd HH:mm:ss")))
+        # datetime_step.timeChanged.connect(lambda val: print(val.toString("yyyy-MM-dd HH:mm:ss")))
+
+        # 日期、时间步长输入框
+        date_step = QDateTimeEdit(QDate.currentDate(), self)
+        time_step = QDateTimeEdit(QTime.currentTime(), self)
+        date_step.move(150, 100)
+        time_step.move(300, 100)
+
+        # 计时器
+        time_interval = QTime.currentTime()
+        time_interval.start()
+        time.sleep(5)
+        print(time_interval.elapsed() / 1000)  # 输出5.0秒
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 下拉选择框
+```py
+"""
+下拉选择框
+"""
+from PySide2.QtCore import QSize
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import QApplication, QComboBox, QCompleter, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 创建下拉框
+        select = QComboBox(self)
+        select.resize(120, 40)
+        select.move(200, 200)
+        # 添加单个选项
+        select.addItem("选项1")
+        select.addItem(QIcon("./1.png"), "选项2", {"name": "选项2数据"})
+        # 添加多个选项
+        select.addItems(["选项3", "选项4"])
+        # 指定索引插入单个选项
+        select.insertItem(4, "选项7")
+        # 指定索引插入多个选项
+        select.insertItems(4, ["选项5", "选项6选项6选项6选项6选项6选项6选项6选项6"])
+        # 修改指定索引选项文本
+        # select.setItemText(0, "选项0")
+        # 修改指定索引选项数据
+        select.setItemData(2, {"name": "选项3数据"})
+        # 删除指定索引选项
+        select.removeItem(6)
+        # 指定索引插入分割线
+        select.insertSeparator(3)
+        # 设置指定索引默认值
+        select.setCurrentIndex(4)
+        select.setCurrentText("选项2")
+        # 设置可编辑
+        select.setEditable(True)
+        # 设置编辑的默认值
+        # select.setEditText("选项1000")
+        # 设置下拉自动匹配 注意不会出现在下拉选项中 只会出现在自动匹配的列表里
+        select.setCompleter(QCompleter(["选项7", "选项8"]))
+        # 获取指定索引数据
+        print(select.itemData(2))  # 输出{"name": "选项3数据"}
+        # 获取指定索引文本
+        print(select.itemText(2))  # 输出选项3
+        # 获取当前数据
+        print(select.currentIndex(), select.currentData(), select.currentText())  # 输出 1 {'name': '选项2数据'} 选项2
+        # 设置选项个数限制
+        select.setMaxCount(10)
+        # 设置按回车新添加的选项不能重复
+        select.setDuplicatesEnabled(False)
+        # 设置有无边框
+        select.setFrame(False)
+        # 设置图标尺寸
+        select.setIconSize(QSize(20, 20))
+        # 按内容调整下拉框宽度 AdjustToContents 内容自适应 AdjustToMinimumContentsLength 溢出中间部分变省略号
+        select.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)  # 调整下拉框宽度
+        # 清空 下拉框所有选项和内容
+        # select.clear()
+        # 弹出下拉框 弹出位置不正确不在窗口内部
+        # select.showPopup()
+
+        # 信号
+        # 切换选中选项事件 选中自己也会输出
+        select.activated.connect(lambda val: print(val))  # 输出选中的索引
+        # 当前索引改变时 点击的还是当前选中的时候不会输出，只有选和当前选项不一样的才会输出
+        select.currentIndexChanged.connect(lambda val: print(val))  # 输出选中的索引
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## 按钮类事件单选多选复选框
 ```py
 """
@@ -2407,5 +2765,65 @@ if __name__ == "__main__":
 ```
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
+滚动条
+```py
+"""
+滚动条
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QScrollBar, QWidget
+import sys
 
 
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 800)
+        # 设置垂直滚动条
+        v_scroll_bar = QScrollBar(self)
+        v_scroll_bar.resize(20, 700)
+        v_scroll_bar.move(480, 0)
+        # 设置水平滚动条
+        h_scroll_bar = QScrollBar(self)
+        h_scroll_bar.resize(500, 20)
+        h_scroll_bar.move(0, 700)
+        h_scroll_bar.setOrientation(Qt.Horizontal)
+        # 设置步长
+        h_scroll_bar.setPageStep(100)
+        # 设置最大值 设置为255 即可做一个rgb的数值调色滑块
+        v_scroll_bar.setMaximum(255)
+
+        # 信号
+        # 滚动条发送变化 这个不伦是拖动还是点击都会输出
+        v_scroll_bar.valueChanged.connect(lambda val: print(val))  # 输出scollTop的值
+        # 拖动滑块事件 只有拖动的时候会输出 基本无用
+        v_scroll_bar.sliderMoved.connect(lambda val: print(val))  # 输出scollTop的值
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
