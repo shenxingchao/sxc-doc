@@ -4,7 +4,7 @@
 ```shell
 pip install PySide2
 ```
-!> 这里不用pyqt5是因为比较旧，且收费，两者的接口大都相同，但是PySide2开发的软件可以闭源商用，果断选他
+!> 这里不用pyqt5是因为比较旧，且收费，两者的接口大都相同，但是PySide2开发的软件可以闭源商用，果断选他。
 
 2. designer
 安装完PySide2 库里自带designer
