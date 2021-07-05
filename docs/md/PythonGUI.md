@@ -3498,3 +3498,92 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+
+## Qss
+```py
+"""
+Qss加载方式
+"""
+from PySide2.QtWidgets import QApplication, QLabel, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        label = QLabel("hello PySide2！", self)
+        # 设置Id 通过#号调用
+        label.setObjectName("label")
+        # 设置属性 通过[属性名="属性值"]调用
+        label.setProperty("name", "label")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    with open("./qss/index.qss", "r", encoding="UTF-8") as f:
+        app.setStyleSheet(f.read())
+    # # 全局设置
+    # QssStyle = '''
+    #         QPushButton:hover{
+    #                 background-color: green;
+    #             }
+    #         QPushButton[name="btn"]:hover{
+    #                 background-color: red;
+    #             }
+    #         QPushButton#btn:hover{
+    #                 background-color: green;
+    #                 color:red;
+    #             }
+    #         '''
+    # window.setStyleSheet(QssStyle)  # 当前窗口全局有效
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+index.qss
+```css
+#label{
+    color:red;
+    font-size:25px;
+    background:#ffffff;
+}
+#label:hover{
+    background:#f60f60;
+    font-size:50px;
+    color:#ffffff;
+}
+/* QLabel[name="label"]{
+    color:red;
+    font-size:25px;
+    background:#ffffff;
+} 
+QLabel[name="label"]:hover{
+    background:#f60f60;
+    font-size:50px;
+    color:#ffffff;
+} */
+```
+!> 注意一点就行了，设置同一个控件样式要用一样的选择器，用不一样的第二种会失效
