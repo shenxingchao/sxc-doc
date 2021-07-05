@@ -256,6 +256,22 @@
 
   - [滚动条](/md/PythonGUI#滚动条)
 
+  - [输入对话框](/md/PythonGUI#输入对话框)
+
+  - [文件对话框](/md/PythonGUI#文件对话框)
+
+  - [日历](/md/PythonGUI#日历)
+
+  - [标签](/md/PythonGUI#标签)
+
+  - [进度条](/md/PythonGUI#进度条)
+
+  - [操作提示框](/md/PythonGUI#操作提示框)
+
+  - [盒子布局](/md/PythonGUI#盒子布局)
+
+  - [垂直或水平盒子布局](/md/PythonGUI#垂直或水平盒子布局)
+
 - [软件](/md/Software#软件)
   
   - [vscode](/md/Software#vscode)
