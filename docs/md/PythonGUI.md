@@ -13,6 +13,10 @@ pip install PySide2
 Lib\site-packages\PySide2
 ```
 
+3. 文档
+   [5.15.2](https://doc.qt.io/qtforpython-5/api.html)
+   [PySide6](https://doc.qt.io/qtforpython/api.html)
+
 ## 基本案例
 ```py
 import sys
@@ -3587,3 +3591,404 @@ QLabel[name="label"]:hover{
 } */
 ```
 !> 注意一点就行了，设置同一个控件样式要用一样的选择器，用不一样的第二种会失效
+
+## 表单布局
+```py
+"""
+表单布局
+"""
+from PySide2.QtCore import Qt
+from PySide2.QtWidgets import QApplication, QFormLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 输出框
+        label = QLabel("姓名：")
+        input = QLineEdit()
+
+        # 单选框
+        radio_man = QRadioButton("男")
+        radio_woman = QRadioButton("女")
+
+        sub_btn = QPushButton("提交")
+
+        # 1.创建表单布局
+        form = QFormLayout()
+        self.setLayout(form)
+        # 2.行操作
+        # 2.1添加行
+        # form.addWidget(input)
+        # form.addRow(label, input)
+        form.addRow("姓名：", input)  # 这种最方便
+        # 2.2添加子布局
+        # 创建子布局
+        form_sub = QFormLayout()
+        form_sub.addRow(radio_man, radio_woman)
+        form.addRow("性别：", form_sub)
+        # 2.2 插入到行
+        form.insertRow(2, sub_btn)  # 这种最方便
+        # 2.3移除
+        # form.removeRow(2)
+        # 3.设置标签样式
+        # QFormLayout.DontWrapRows  # 字段一直在标签旁边
+        # QFormLayout.WrapLongRows  # 标签文本过长，字段自动换行
+        # QFormLayout.WrapAllRows  # 字段一直位于标签下方
+        form.setRowWrapPolicy(QFormLayout.WrapLongRows)
+        # 4.设置对齐
+        form.setFormAlignment(Qt.AlignLeft | Qt.AlignTop)  # 表单对齐
+        form.setLabelAlignment(Qt.AlignRight)  # 标签对齐
+        # 5.设置间距
+        form.setHorizontalSpacing(100)  # 水平间距
+        form.setVerticalSpacing(50)  # 垂直间距
+        # 5.输入框宽度设置 默认宽度自适应变化
+        # 宽度不变
+        # form.setFieldGrowthPolicy(QFormLayout.FieldsStayAtSizeHint)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 长宽自适应设置
+```py
+"""
+长宽自适应设置
+"""
+from PySide2.QtWidgets import QApplication, QLabel, QSizePolicy, QVBoxLayout, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        label = QLabel("hello PySide2!", self)
+        label.resize(300, 300)
+        label.setStyleSheet("background:red;")
+        bl = QVBoxLayout()
+        self.setLayout(bl)
+        bl.addWidget(label)
+        # 初始化长宽变化QSizePolicy（长，宽）
+        # QSizePolicy.Fixed  # 按照控件本身尺寸取值
+        # QSizePolicy.Minimum  # 可以伸缩尺寸，sizeHide已确定最小控件尺寸
+        # QSizePolicy.Maximum  # 可以伸缩尺寸，sizeHide已确定最大控件尺寸
+        # QSizePolicy.Preferred  # 可以伸缩尺寸，没有限制
+        # QSizePolicy.Expanding  # 可以伸缩尺寸，相比上一个优先级更高
+        # QSizePolicy.MinimumExpanding  # 可以伸缩尺寸......
+        # QSizePolicy.Ignored  # 忽略sizeHide的作用，可以小到0
+        qsp = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        label.setSizePolicy(qsp)
+        # label.setFixedSize(300, 300)  # 设置固定尺寸
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 表格
+```py
+"""
+表格
+"""
+from PySide2.QtWidgets import (
+    QAbstractItemView,
+    QApplication,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QWidget,
+)
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+
+        # 1.创建表格
+        table = QTableWidget(self)
+        # 2.设置行列
+        table.setRowCount(2)
+        table.setColumnCount(2)
+        # 3.表头自适应
+        table.horizontalHeader().setStretchLastSection(True)
+        # 4.添加数据
+        list = [{"id": 1, "name": "赵四"}, {"id": 2, "name": "王五"}]
+        for i, row in enumerate(list):
+            for j, key in enumerate(row):
+                table.setItem(i, j, QTableWidgetItem(str(row[key])))
+        # 5.插入一行
+        table.insertRow(2)
+        # 6.删除一行
+        table.removeRow(2)
+        # 7.修改内容
+        table.item(0, 1).setText("")
+        # 8.添加控件
+        label = QLabel("hello PySide2")
+        table.setCellWidget(0, 1, label)
+        # 9.获取内容
+        print(table.item(1, 1).text())  # 输出王五
+        # 10.获取当前选中是第几行
+        print(table.currentRow())
+        # 11.清除表格内容
+        # table.clearContents()
+        # 12.删除表格 表头没删除
+        # table.setRowCount(0)
+        # 13.禁用编辑
+        # table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+
+        # 信号
+        # 1.单元格内容改动
+        table.cellChanged.connect(lambda row, column: print(row, column))
+        layout = QHBoxLayout()
+        layout.addWidget(table)
+        self.setLayout(layout)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+```py
+"""
+列表
+"""
+from PySide2.QtWidgets import QApplication, QListWidget, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+
+        # 列表控件
+        list = QListWidget(self)
+
+        # 1.添加
+        list.addItem("第一行")
+        list.addItems(["第二行", "第三行"])
+        # 2.删除
+        list.takeItem(2)
+        # 3.清空
+        # list.clear()
+        # 4.设置选中项
+        list.setCurrentRow(1)
+        # 5.获取
+        print(list.currentItem().text())
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## tab选项卡
+```py
+"""
+tab选项卡
+"""
+from PySide2.QtWidgets import QApplication, QLabel, QTabWidget, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+
+        # 1.创建选项卡
+        tab = QTabWidget(self)
+        tab.resize(480, 480)
+        # 2.创建每个选项卡窗口
+        tab1 = QWidget()
+        QLabel("TAB1内容", tab1)
+        tab2 = QWidget()
+        QLabel("TAB2内容", tab2)
+        tab3 = QWidget()
+        QLabel("TAB3内容", tab3)
+        # 3. 添加
+        tab.addTab(tab1, "1")
+        tab.addTab(tab2, "2")
+        tab.addTab(tab3, "3")
+        # 4.改变选项卡名称
+        tab.setTabText(0, "选项卡1")
+        tab.setTabText(1, "选项卡2")
+        tab.setTabText(2, "选项卡3")
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+## 使用ui文件
+```py
+"""
+使用ui文件
+"""
+from PySide2.QtWidgets import QApplication, QMessageBox
+from PySide2.QtUiTools import QUiLoader
+import sys
+
+
+class MainWindow:
+    def __init__(self):
+        # 初始化UI
+        self.window = QUiLoader().load("./pyqt5/1.ui")
+        # 绑定事件
+        self.window.submit_btn.clicked.connect(self.handleClickBtn)
+
+    def handleClickBtn(self):
+        """
+        @description
+        @param
+        @return
+        """
+        message_box = QMessageBox(QMessageBox.Information, "提示", "hello!", QMessageBox.Ok, self.window)
+        message_box.show()
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    main_window = MainWindow()
+    # 显示窗口
+    main_window.window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+<!-- ## 集成图表 echarts或者他
+## 集成mysql -->
+

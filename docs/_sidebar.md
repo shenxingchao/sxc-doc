@@ -272,6 +272,18 @@
 
   - [垂直或水平盒子布局](/md/PythonGUI#垂直或水平盒子布局)
 
+  - [Qss](/md/PythonGUI#qss)
+
+  - [表单布局](/md/PythonGUI#表单布局)
+
+  - [长宽自适应设置](/md/PythonGUI#长宽自适应设置)
+
+  - [表格](/md/PythonGUI#表格)
+
+  - [tab选项卡](/md/PythonGUI#tab选项卡)
+
+  - [使用ui文件](/md/PythonGUI#使用ui文件)
+
 - [软件](/md/Software#软件)
   
   - [vscode](/md/Software#vscode)
