@@ -4134,8 +4134,12 @@ if __name__ == "__main__":
     main()
 ```
 
+## 打包exe
+```py
+pyinstall -w -D ./index.py --distpath ./dist 
+```
+
+然后将输出的./dist/index 目录用 [enigmaprotector](https://enigmaprotector.com/cn/downloads.html) 打包 这样打包的体积虽然大，但是启动速度会和文件夹里的exe启动速度一样快
 
 <!--
 ## 集成mysql 无边框窗口 -->
-
-
