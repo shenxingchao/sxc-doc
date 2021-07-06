@@ -17,6 +17,8 @@ Lib\site-packages\PySide2
    [5.15.2](https://doc.qt.io/qtforpython-5/api.html)
    [PySide6](https://doc.qt.io/qtforpython/api.html)
 
+4. vscode文件格式支持，需要的扩展 Qt for Python
+
 ## 基本案例
 ```py
 import sys
@@ -3736,6 +3738,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> qtdesigner里面主窗口一定要右键 布局 垂直或水平布局，然后主窗口里面的布局才会自适应窗口
 
 ## 表格
 ```py
@@ -3979,7 +3982,7 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     main_window = MainWindow()
-    with open("./ui_main.qss", "r", encoding="UTF-8") as f:
+    with open("./main_window.qss", "r", encoding="UTF-8") as f:
         main_window.window.setStyleSheet(f.read())
     # 显示窗口
     main_window.window.show()
@@ -4041,6 +4044,8 @@ if __name__ == "__main__":
     main()
 ```
 !> 这种有智能提示，但是每次修改界面需要重新执行 pyside2-uic ./ui_main_window.ui > ./ui_main_window.py
+
+!> 推荐这种 vscode 直接下PySide2 - VSC 右键ui文件可以直接编译
 
 <!-- ## 集成图表 echarts或者他
 ## 集成mysql -->
