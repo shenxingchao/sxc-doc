@@ -3947,7 +3947,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 使用ui文件
+## 加载ui文件
 ```py
 """
 使用ui文件
@@ -3979,6 +3979,8 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     main_window = MainWindow()
+    with open("./pyqt5/1.qss", "r", encoding="UTF-8") as f:
+        main_window.window.setStyleSheet(f.read())
     # 显示窗口
     main_window.window.show()
     # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
@@ -3988,6 +3990,57 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> 使用ui加载方式，代码没有智能提示
+
+
+## 使用ui导出的py文件
+```py
+"""
+使用ui导出的py文件
+"""
+from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox
+from ui_main import Ui_main_window
+import sys
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化对象
+        self.ui = Ui_main_window()
+        # 初始化界面
+        self.ui.setupUi(self)
+        # 绑定事件
+        self.ui.submit_btn.clicked.connect(self.handleClickBtn)
+
+    def handleClickBtn(self):
+        """
+        @description 按钮点击事件
+        @param
+        @return
+        """
+        message_box = QMessageBox(QMessageBox.Information, "提示", "hello!", QMessageBox.Ok, self)
+        message_box.show()
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = MainWindow()
+    with open("./main_window.qss", "r", encoding="UTF-8") as f:
+        window.setStyleSheet(f.read())
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 这种有智能提示，但是每次修改界面需要重新执行 pyside2-uic ./ui_main_window.ui > ./ui_main_window.py
 
 <!-- ## 集成图表 echarts或者他
 ## 集成mysql -->
