@@ -1162,7 +1162,7 @@ class Window(QWidget):
         self.setStyleSheet("background:#fafafa;")
         # 设置窗口透明度
         # self.setWindowOpacity(0.9)
-        # 设置没有工具条的无边框窗口
+        # 设置没有工具条的无边框窗口 FramelessWindowHint 无边框 CustomizeWindowHint 有边框的可以拖动
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
         # 添加关闭按钮
         self.close_btn = self.addBtn("×", self.width() - 40, 2, 40, 40)
@@ -4136,6 +4136,6 @@ if __name__ == "__main__":
 
 
 <!--
-## 集成mysql -->
+## 集成mysql 无边框窗口 -->
 
 

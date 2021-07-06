@@ -285,6 +285,8 @@
   - [加载ui文件](/md/PythonGUI#加载ui文件)
 
   - [使用ui导出的py文件](/md/PythonGUI#使用ui导出的py文件)
+  - 
+  - [PySide2加载pyecharts](/md/PythonGUI#PySide2加载pyecharts)
 
 - [软件](/md/Software#软件)
   
