@@ -3960,7 +3960,7 @@ import sys
 class MainWindow:
     def __init__(self):
         # 初始化UI
-        self.window = QUiLoader().load("./pyqt5/1.ui")
+        self.window = QUiLoader().load("./ui_main.ui")
         # 绑定事件
         self.window.submit_btn.clicked.connect(self.handleClickBtn)
 
@@ -3979,7 +3979,7 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     main_window = MainWindow()
-    with open("./pyqt5/1.qss", "r", encoding="UTF-8") as f:
+    with open("./ui_main.qss", "r", encoding="UTF-8") as f:
         main_window.window.setStyleSheet(f.read())
     # 显示窗口
     main_window.window.show()
