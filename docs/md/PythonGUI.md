@@ -4047,6 +4047,95 @@ if __name__ == "__main__":
 
 !> 推荐这种 vscode 直接下PySide2 - VSC 右键ui文件可以直接编译
 
-<!-- ## 集成图表 echarts或者他
+
+## PySide2加载pyecharts
+```py
+"""
+PySide2加载echarts
+"""
+import PySide2
+from PySide2.QtCore import QSize, QUrl
+from PySide2.QtWidgets import QApplication, QMainWindow, QSizePolicy
+from Ui_main import Ui_main_window
+from PySide2.QtWebEngineWidgets import QWebEngineView
+from pyecharts.charts import Bar
+import sys
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化对象
+        self.ui = Ui_main_window()
+        # 初始化界面
+        self.ui.setupUi(self)
+        # 初始化webview
+        self.webview = QWebEngineView(self)
+        # 设置webview 宽度自适应 高度固定  这行可以不要
+        self.webview.setSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        # 设置最小高度
+        self.webview.setFixedHeight(500)
+        # 生成图表
+        self.renderEcharts()
+        # 渲染画布
+        self.renderCanvas("bar.html")
+        # 是否正在渲染
+        self.is_rendering = False
+
+    def renderEcharts(self):
+        """
+        @description 生成饼图
+        @param
+        @return
+        """
+        bar = Bar({"width": "100%", "height": "500px"})
+        # 自适应窗口大小 "width": str(self.width() - 100) + "px", "height": str(self.height() - 100) + "px"
+        bar.add_xaxis(["衬衫", "羊毛衫", "雪纺衫", "裤子", "高跟鞋", "袜子"])
+        bar.add_yaxis("商家A", [5, 20, 36, 10, 75, 90])
+        bar.render("bar.html")
+
+    def renderCanvas(self, url):
+        """
+        @description 初始化画布
+        @param url 图表路径
+        @return
+        """
+        # echarts生成的html文件
+        html_url = QUrl("file:///./" + url)
+        # 加载html
+        self.webview.load(html_url)
+        # 添加到ui里的垂直布局里
+        self.ui.v_layout.addWidget(self.webview)
+
+    def resizeEvent(self, event: PySide2.QtGui.QResizeEvent) -> None:
+        if not self.is_rendering:
+            self.is_rendering = True
+            # 生成图表
+            self.renderEcharts()
+            # 渲染画布
+            self.renderCanvas("bar.html")
+            self.is_rendering = False
+        return super().resizeEvent(event)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = MainWindow()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+<!--
 ## 集成mysql -->
+
 
