@@ -3428,9 +3428,19 @@ if __name__ == "__main__":
 pip -V
 ```
 
-####查看已经安装的第三方库
+#### 查看已经安装的第三方库
 ```
 pip list
+```
+
+#### 查看可以更新的库
+```
+pip list --outdated --trusted-host mirrors.aliyun.com
+```
+
+#### 更新库命令
+```
+pip install --upgrade 库名称
 ```
 
 #### 切换安装源

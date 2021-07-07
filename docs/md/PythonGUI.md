@@ -4095,6 +4095,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+!> 最新的pyside6还没有将移除的QtWebEngineWidgets模块加回来，等加回来就用了，或者直接切换回PySide2开发
 
 ## 打包exe
 ```py
