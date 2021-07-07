@@ -198,11 +198,9 @@
 
   - [基本案例](/md/PythonGUI#基本案例)
 
-  - [类模板](/md/PythonGUI#类模板)
-
   - [父子元素操作元素删除](/md/PythonGUI#父子元素操作元素删除)
 
-  - [事件处理机制](/md/PythonGUI#事件处理机制)
+  - [按钮事件处理机制](/md/PythonGUI#按钮事件处理机制)
 
   - [类封装进阶和gui里的定时器](/md/PythonGUI#类封装进阶和gui里的定时器)
 
@@ -220,11 +218,11 @@
 
   - [窗口事件](/md/PythonGUI#窗口事件)
 
-  - [自定义顶部工具条 窗口可拖动](/md/PythonGUI#自定义顶部工具条-窗口可拖动)
+  - [自定义顶部工具条窗口可拖动](/md/PythonGUI#自定义顶部工具条窗口可拖动)
 
-  - [控件交互事件](/md/PythonGUI#控件交互事件)
+  - [设置控件显示和启用](/md/PythonGUI#设置控件显示和启用)
 
-  - [键盘事件](/md/PythonGUI#键盘事件)
+  - [键盘交互事件](/md/PythonGUI#键盘交互事件)
 
   - [单行文本框焦点控制](/md/PythonGUI#单行文本框焦点控制)
 
@@ -238,7 +236,7 @@
 
   - [下拉选择框](/md/PythonGUI#下拉选择框)
 
-  - [按钮类事件单选多选复选框](/md/PythonGUI#按钮类事件单选多选复选框)
+  - [按钮方法单选多选复选框](/md/PythonGUI#按钮方法单选多选复选框)
 
   - [单选按钮切换事件](/md/PythonGUI#单选按钮切换事件)
 
@@ -272,7 +270,7 @@
 
   - [垂直或水平盒子布局](/md/PythonGUI#垂直或水平盒子布局)
 
-  - [Qss](/md/PythonGUI#qss)
+  - [Qss加载方式](/md/PythonGUI#qss加载方式)
 
   - [表单布局](/md/PythonGUI#表单布局)
 
@@ -285,8 +283,10 @@
   - [加载ui文件](/md/PythonGUI#加载ui文件)
 
   - [使用ui导出的py文件](/md/PythonGUI#使用ui导出的py文件)
-  - 
-  - [PySide2加载pyecharts](/md/PythonGUI#PySide2加载pyecharts)
+
+  - [PySide6加载pyecharts](/md/PythonGUI#pyside6加载pyecharts)
+
+  - [打包exe](/md/PythonGUI#打包exe)
 
 - [软件](/md/Software#软件)
   

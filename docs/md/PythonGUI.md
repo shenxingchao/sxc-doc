@@ -1216,6 +1216,7 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
+?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)要做的话参考这个，我觉得除非要好看，不然没必要，比较麻烦
 
 ## 设置控件显示和启用
 ```py
@@ -3965,6 +3966,7 @@ if __name__ == "__main__":
 """
 from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
 from lib.ui_main import Ui_MainWindow
+from lib.qss import qss
 import sys
 
 
@@ -3994,8 +3996,7 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     window = MainWindow()
-    with open("./qss/index.qss", "r", encoding="UTF-8") as f:
-        window.setStyleSheet(f.read())
+    window.setStyleSheet(qss)
     # 显示窗口
     window.show()
     # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
@@ -4005,10 +4006,57 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+lib\qss.py
+```py
+qss = """
+#submit_btn{
+    background:red;
+}
+"""
+```
+lib\ui_main.ui
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QMainWindow" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>800</width>
+    <height>600</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>MainWindow</string>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout_2">
+    <item>
+     <layout class="QVBoxLayout" name="v_layout">
+      <item>
+       <widget class="QPushButton" name="submit_btn">
+        <property name="text">
+         <string>按钮</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
+```
+
 !> 这种有智能提示，但是每次修改界面需要重新执行 PySide6-uic ./lib/ui_main.ui > ./lib/ui_main.py  这种完了之后还要改成utf8编码
 
 !> 推荐这种 vscode 直接下右键ui文件可以直接编译 用qt for python扩展
 
+?> 这里的qss样式也可以放在资源目录里，然后打包完后，再放到打包完成的文件夹中
 
 ## PySide6加载pyecharts
 ```py
@@ -4111,7 +4159,7 @@ pip install nuitka
 # 打包调试
 nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --output-dir=dist ./1.py
 # 打包安装
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --onefile --output-dir=dist ./1.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --output-dir=dist ./1.py
 
 
 --mingw64 #默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
@@ -4145,5 +4193,8 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 --include-qt-plugins=sensible,styles 打包后PyQt的样式就不会变了
 --include-qt-plugins=sensible,qml
 ```
+!> 打包文件夹的启动速度比较快，打包成文件夹再用 enigmaprotector 打包成单个文件比较好
 <!--
 ## 集成mysql 无边框窗口 -->
+
+
