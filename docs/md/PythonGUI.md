@@ -1,30 +1,28 @@
 # PythonGUI
 ## 安装
-1. 安装PySide2
+1. 安装PySide6
 ```shell
-pip install PySide2
+pip install PySide6
 ```
-!> 这里不用pyqt5是因为比较旧，且收费，两者的接口大都相同，但是PySide2开发的软件可以闭源商用，果断选他。
 
 2. designer
-安装完PySide2 库里自带designer
+安装完PySide6 库里自带designer
 路径大概是
 ```
-Lib\site-packages\PySide2
+Lib\site-packages\PySide6
 ```
 
-3. 文档
-   [5.15.2](https://doc.qt.io/qtforpython-5/api.html)
+1. 文档
    [PySide6](https://doc.qt.io/qtforpython/api.html)
 
-4. vscode文件格式支持，需要的扩展 Qt for Python
+2. vscode文件格式支持，编译ui文件，需要的扩展 Qt for Python
 
 ## 基本案例
 ```py
 import sys
 
-# 这里我们提供必要的引用。基本控件位于PySide2.qtwidgets模块中。
-from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+# 这里我们提供必要的引用。基本控件位于PySide6.qtwidgets模块中。
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 
 
 def main():
@@ -33,7 +31,7 @@ def main():
     # 创建窗口对象
     window = QWidget()
     # 设置窗口标题
-    window.setWindowTitle("hello PySide2!")
+    window.setWindowTitle("hello PySide6!")
     # 设置窗口大小
     window.resize(500, 500)
     # 设置窗口背景颜色
@@ -58,97 +56,22 @@ def main():
 
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
-
-## 类模板
-未完善，不确定
-```py
-"""
-类模板
-"""
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
-import sys
-
-
-class Window(QWidget):
-    def __init__(self):
-        # 调用父类的方法
-        super().__init__()
-        # 初始化UI
-        self.initUI()
-
-    def initUI(self):
-        """
-        @description  初始化UI
-        @param
-        @return
-        """
-        # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
-        # 设置窗口大小
-        self.resize(500, 500)
-        # 设置窗口背景颜色
-        self.setStyleSheet("background:#fafafa;")
-        # 放置一个按钮
-        self.addBtn("第一个按钮", 190, 230, 120, 40)
-        self.addBtn("第二个按钮", 0, 230, 120, 40)
-        self.addBtn("第三个按钮", 380, 230, 120, 40)
-
-    def addBtn(
-        self,
-        text="",
-        x=0,
-        y=0,
-        width=0,
-        height=0,
-        style="",
-    ):
-        """
-        @description 添加按钮
-        @param
-        @return
-        """
-        DEFAULT_STYLE = "width:120px;height:40px;background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
-        # 在窗口上放置一个按钮
-        btn = QPushButton(self)
-        # 设置按钮文字
-        btn.setText(text)
-        # 设置按钮宽高
-        btn.resize(width, height)
-        # 移动按钮
-        btn.move(x, y)
-        # 设置样式
-        btn.setStyleSheet(DEFAULT_STYLE + style)
-
-
-def main():
-    # 创建应用程序对象  argv是命令行输入参数列表
-    app = QApplication(sys.argv)
-    # 创建窗口对象
-    window = Window()
-    # 显示窗口
-    window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
-
-
-if __name__ == "__main__":
-    main()
-```
+![calc](../images/pyside6/基本案例.png)  
 
 ## 父子元素操作元素删除
 ```py
 """ 
 父子元素操作
 """
-from PySide2.QtCore import QObject
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -166,7 +89,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -183,7 +106,7 @@ class Window(QWidget):
         # 打印属性
         print(btn.property("attr"))  # 输出 属性值1
         # 获取所有属性对象列表
-        print(btn.dynamicPropertyNames())  # 输出[PySide2.QtCore.QByteArray(b'attr'), PySide2.QtCore.QByteArray(b'name')]
+        print(btn.dynamicPropertyNames())  # 输出[PySide6.QtCore.QByteArray(b'attr'), PySide6.QtCore.QByteArray(b'name')]
         # 创建一个按钮 这里注意的是子元素是相对于父元素定位的
         btn_son1 = self.addBtn("子按钮1", 0, 0, 120, 40, "background:red;")
         # 设置为子按钮
@@ -209,7 +132,7 @@ class Window(QWidget):
         # 查看父控件
         print(btn_son1.parentWidget())  # 输出btn对象
         # 查看子控件的范围
-        print(btn.childrenRect())  # 输出PySide2.QtCore.QRect(0, 0, 120, 90)
+        print(btn.childrenRect())  # 输出PySide6.QtCore.QRect(0, 0, 120, 90)
 
     def addBtn(
         self,
@@ -246,21 +169,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/父子元素操作元素删除.png)  
 
-## 事件处理机制
+## 按钮事件处理机制
 ```py
 """ 
-事件处理机制
+按钮事件处理机制
 """
-from PySide2.QtCore import QObject
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.QtCore import QObject
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -278,7 +202,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -335,20 +259,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/按钮事件处理机制.png)  
 
 ## 类封装进阶和gui里的定时器
 ```py
 """ 
 类封装和定时器
 """
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 from threading import Timer
 
@@ -367,7 +292,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -438,22 +363,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/类封装进阶和gui里的定时器.png)  
 
 ## 自定义按钮事件含传参
 ```py
 """ 
 自定义按钮事件(右键事件)含传参
 """
-from PySide2 import QtGui
-from PySide2.QtCore import Qt, Signal
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6 import QtGui
+from PySide6.QtCore import Qt, Signal
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -471,7 +397,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -554,8 +480,8 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -567,8 +493,8 @@ if __name__ == "__main__":
 """ 
 使用装饰器自动连接绑定的事件
 """
-from PySide2.QtCore import QMetaObject, Slot
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6.QtCore import QMetaObject, Slot
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -586,7 +512,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -643,8 +569,8 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -654,7 +580,7 @@ if __name__ == "__main__":
 ## 类之间信号和槽的用法
 解释一下：信号就是去触发事件的方法，槽就是要触发的事件
 ```py
-from PySide2.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal
 
 
 class Signal(QObject):
@@ -709,7 +635,7 @@ if __name__ == "__main__":
 """
 设置控件尺寸,边距,层级关系
 """
-from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -727,7 +653,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -746,7 +672,7 @@ class Window(QWidget):
         # 设置标签边距
         label.setContentsMargins(50, 0, 0, 0)
         # 打印边距
-        print(label.getContentsMargins())
+        print(label.contentsMargins())
         # 打印内容区域
         print(label.contentsRect())
         # 放置一个标签
@@ -822,13 +748,14 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/设置控件尺寸.png)  
 
 ## 设置鼠标状态和样式
 ```py
@@ -836,9 +763,9 @@ if __name__ == "__main__":
 设置鼠标状态和样式
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QCursor, QPixmap
-from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QCursor, QPixmap
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -856,7 +783,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -865,8 +792,8 @@ class Window(QWidget):
         self.setMaximumSize(800, 800)
         self.setMinimumSize(400, 400)
         # 放置一个按钮
-        btn = self.addBtn("按钮", 190, 230, 120, 40, "cursor:pointer;")
-        # 设置鼠标移入状态为手型 https://www.riverbankcomputing.com/static/Docs/PySide2/api/qtgui/qcursor.html
+        btn = self.addBtn("按钮", 190, 230, 120, 40)
+        # 设置鼠标移入状态为手型 https://www.riverbankcomputing.com/static/Docs/PySide6/api/qtgui/qcursor.html
         btn.setCursor(Qt.CursorShape.PointingHandCursor)
         # 设置鼠标样式
         # 导入一张图片
@@ -915,8 +842,8 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -929,9 +856,9 @@ if __name__ == "__main__":
 """ 
 鼠标事件
 """
-from PySide2 import QtGui
-from PySide2 import QtCore
-from PySide2.QtWidgets import QApplication, QWidget
+from PySide6 import QtGui
+from PySide6 import QtCore
+from PySide6.QtWidgets import QApplication, QWidget
 import sys
 
 
@@ -949,7 +876,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -963,7 +890,7 @@ class Window(QWidget):
         @param
         @return
         """
-        print("鼠标移动 x:" + str(a0.x()) + ",y:" + str(a0.y()))
+        print("鼠标移动 x:" + str(a0.position().x()) + ",y:" + str(a0.position().y()))
         return super().mouseMoveEvent(a0)
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
@@ -974,9 +901,9 @@ class Window(QWidget):
         """
         print("鼠标按下")
         # 鼠标相对于系统桌面的位置
-        print(a0.globalPos())
+        print(a0.globalPosition())
         # 鼠标相对于主界面的位置
-        print(a0.localPos())
+        print(a0.position())
         return super().mousePressEvent(a0)
 
     def mouseDoubleClickEvent(self, a0: QtGui.QMouseEvent) -> None:
@@ -1023,21 +950,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/鼠标事件.png)  
 
 ## 窗口事件
 ```py
 """ 
 窗口事件
 """
-from PySide2 import QtGui
-from PySide2.QtWidgets import QApplication, QWidget
+from PySide6 import QtGui
+from PySide6.QtWidgets import QApplication, QWidget
 import sys
 
 
@@ -1055,7 +983,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1114,22 +1042,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
 
-## 自定义顶部工具条 窗口可拖动
+## 自定义顶部工具条窗口可拖动
 ```py
 """ 
-自定义顶部工具条 窗口可拖动
+自定义顶部工具条窗口可拖动
 """
-from PySide2 import QtGui
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QPushButton, QWidget
+from PySide6 import QtGui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QPushButton, QWidget
 import sys
 
 
@@ -1155,7 +1083,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1241,8 +1169,8 @@ class Window(QWidget):
             self.win_x = self.x()
             self.win_y = self.y()
             # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
-            self.mouse_x = a0.globalX()
-            self.mouse_y = a0.globalY()
+            self.mouse_x = a0.globalPosition().x()
+            self.mouse_y = a0.globalPosition().y()
         return super().mousePressEvent(a0)
 
     def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
@@ -1254,8 +1182,8 @@ class Window(QWidget):
         # 如果按下才能移动
         if self.is_pressed:
             # 获取移动后鼠标的位置
-            mouse_move_x = a0.globalX()
-            mouse_move_y = a0.globalY()
+            mouse_move_x = a0.globalPosition().x()
+            mouse_move_y = a0.globalPosition().y()
             # 计算移动的距离
             offset_x = mouse_move_x - self.mouse_x
             offset_y = mouse_move_y - self.mouse_y
@@ -1280,20 +1208,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
 
-## 控件交互事件
+## 设置控件显示和启用
 ```py
 """
-控件交互事件
+设置控件显示和启用
 """
-from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -1311,7 +1240,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("[*]hello PySide2!")
+        self.setWindowTitle("[*]hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1379,22 +1308,22 @@ def main():
     # 判断当前窗口是否是激活的窗口
     print(window.isActiveWindow())  # 输出False
     print(window2.isActiveWindow())  # 输出True
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
 
-## 键盘事件
+## 键盘交互事件
 ```py
 """
-键盘事件
+键盘交互事件
 """
-from PySide2 import QtGui
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+from PySide6 import QtGui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel, QPushButton, QWidget
 import sys
 
 
@@ -1436,22 +1365,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/键盘交互事件.png)  
 
 ## 单行文本框焦点控制
 ```py
 """
 单行文本框焦点控制
 """
-from PySide2 import QtGui
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QWidget
+from PySide6 import QtGui
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QLabel, QLineEdit, QPushButton, QWidget
 import sys
 
 
@@ -1469,7 +1399,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -1496,22 +1426,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/单行文本框焦点控制.png)  
 
 ## 单行文本框
 ```py
 """
 单行文本框
 """
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QCompleter, QLineEdit, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QCompleter, QLineEdit, QWidget
 import sys
 
 
@@ -1529,7 +1460,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 添加单行文本框
@@ -1599,13 +1530,14 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/单行文本框.png)  
 掩码表 下图问题解答
 ```py
 input.setInputMask("(000)000-0000")
@@ -1617,14 +1549,14 @@ input.setInputMask("(000)000-0000")
 """
 前端验证器
 """
-import PySide2
-from PySide2.QtGui import QValidator
-from PySide2.QtWidgets import QApplication, QLineEdit, QWidget
+import PySide6
+from PySide6.QtGui import QValidator
+from PySide6.QtWidgets import QApplication, QLineEdit, QWidget
 import sys
 
 # 验证器类
 class Validator(QValidator):
-    def validate(self, text: str, pos: int) -> PySide2.QtGui.QValidator.State:
+    def validate(self, text: str, pos: int) -> PySide6.QtGui.QValidator.State:
         """
         @description 自动验证方法 验证数字范围
         @param text 输入的内容
@@ -1681,7 +1613,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 添加单行文本框
@@ -1698,8 +1630,8 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -1711,9 +1643,9 @@ if __name__ == "__main__":
 """
 多行文本框
 """
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QColor, QFont, QTextCharFormat, QTextDocument
-from PySide2.QtWidgets import QApplication, QFrame, QPlainTextEdit, QPushButton, QTextBrowser, QTextEdit, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QColor, QFont, QTextCharFormat, QTextDocument,QTextOption
+from PySide6.QtWidgets import QApplication, QFrame, QPlainTextEdit, QPushButton, QTextBrowser, QTextEdit, QWidget
 import sys
 
 
@@ -1731,7 +1663,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 700)
         # 添加多行文本框
@@ -1835,21 +1767,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/多行文本框-1.png)  
+![calc](../images/pyside6/多行文本框-2.png)  
 
 ## 步长和日期输入框
 ```py
 """
-步长日期输入框
+步长和日期输入框
 """
-from PySide2.QtCore import QDate, QDateTime, QTime, Qt
-from PySide2.QtWidgets import QApplication, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QWidget
+from PySide6.QtCore import QDate, QDateTime, QTime
+from PySide6.QtWidgets import QApplication, QDateTimeEdit, QDoubleSpinBox, QSpinBox, QWidget
 import sys
 import time
 
@@ -1868,7 +1802,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 700)
         # 创建整型步长输入框
@@ -1907,7 +1841,7 @@ class Window(QWidget):
 
         # 浮点型步长输入框信号 事件传递的参数直接为浮点型 都不用转化了
         float_step.valueChanged[float].connect(lambda val: print(type(val)))
-        float_step.valueChanged[str].connect(lambda val: print(type(val)))
+        float_step.textChanged[str].connect(lambda val: print(type(val)))
 
         # 日期时间步长输入框
         # datetime_step = QDateTimeEdit(QDateTime(2021, 7, 2, 10, 35), self)
@@ -1941,12 +1875,6 @@ class Window(QWidget):
         date_step.move(150, 100)
         time_step.move(300, 100)
 
-        # 计时器
-        time_interval = QTime.currentTime()
-        time_interval.start()
-        time.sleep(5)
-        print(time_interval.elapsed() / 1000)  # 输出5.0秒
-
 
 def main():
     # 创建应用程序对象  argv是命令行输入参数列表
@@ -1955,22 +1883,24 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/步长和日期输入框-1.png)  
+![calc](../images/pyside6/步长和日期输入框-2.png)  
 
 ## 下拉选择框
 ```py
 """
 下拉选择框
 """
-from PySide2.QtCore import QSize
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QApplication, QComboBox, QCompleter, QWidget
+from PySide6.QtCore import QSize
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QApplication, QComboBox, QCompleter, QWidget
 import sys
 
 
@@ -1988,7 +1918,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 创建下拉框
@@ -2035,8 +1965,8 @@ class Window(QWidget):
         select.setFrame(False)
         # 设置图标尺寸
         select.setIconSize(QSize(20, 20))
-        # 按内容调整下拉框宽度 AdjustToContents 内容自适应 AdjustToMinimumContentsLength 溢出中间部分变省略号
-        select.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLength)  # 调整下拉框宽度
+        # 按内容调整下拉框宽度 AdjustToContents 内容自适应 AdjustToMinimumContentsLengthWithIcon 溢出中间部分变省略号
+        select.setSizeAdjustPolicy(QComboBox.AdjustToMinimumContentsLengthWithIcon)  # 调整下拉框宽度
         # 清空 下拉框所有选项和内容
         # select.clear()
         # 弹出下拉框 弹出位置不正确不在窗口内部
@@ -2056,23 +1986,24 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/下拉选择框.png)  
 
-## 按钮类事件单选多选复选框
+## 按钮方法单选多选复选框
 ```py
 """
-按钮类事件单选多选复选框
+按钮方法单选多选复选框
 """
-import PySide2
-from PySide2.QtCore import QPoint, QSize
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QApplication, QCheckBox, QPushButton, QRadioButton, QWidget
+import PySide6
+from PySide6.QtCore import QPoint, QSize, Qt
+from PySide6.QtGui import QIcon, QKeySequence
+from PySide6.QtWidgets import QApplication, QCheckBox, QPushButton, QRadioButton, QWidget
 import sys
 
 
@@ -2090,7 +2021,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2105,20 +2036,21 @@ class Window(QWidget):
         btn.setIconSize(qsize)
         # 加一个按钮按下事件
         btn.pressed.connect(lambda: print("快捷键按下了"))
-        # 设置快捷键
-        btn.setShortcut("Ctrl+Alt+S")
+        # 设置快捷键 三个快捷键暂时还不知道
+        # btn.setShortcut(QKeySequence("Ctrl+ALT+S"))
+        btn.setShortcut(QKeySequence(Qt.CTRL + Qt.Key_S))
         # 设置点击按钮时自动重复点击事件 相当于点一下连点的功能
         btn.setAutoRepeat(True)
-        # 设置自动重复的时间间隔2s
-        btn.setAutoRepeatInterval(2000)
-        # 设置首次重复延迟4s
-        btn.setAutoRepeatDelay(5000)
+        # 设置自动重复的时间间隔.2s
+        btn.setAutoRepeatInterval(200)
+        # 设置首次重复延迟1s
+        btn.setAutoRepeatDelay(1000)
         # 设置按钮状态为按下
         btn.setDown(True)
         # 设置模拟点击
         btn.click()
-        # 有动画效果的点击 点击按住10秒
-        btn.animateClick(10000)
+        # 有动画效果的点击
+        btn.animateClick()
         # 添加一个单选按钮
         radio1 = QRadioButton("单选按钮1", self)
         radio2 = QRadioButton("单选按钮2", self)
@@ -2155,7 +2087,7 @@ class Btn(QPushButton):
         # 设置样式
         self.setStyleSheet(DEFAULT_STYLE if not style else style)
 
-    def hitButton(self, pos: PySide2.QtCore.QPoint) -> bool:
+    def hitButton(self, pos: PySide6.QtCore.QPoint) -> bool:
         """
         @description 获取按钮点击位置pos(x,y)
         @param
@@ -2174,20 +2106,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/按钮方法单选多选复选框.png)  
 
 ## 单选按钮切换事件
 ```py
 """
 单选按钮切换事件
 """
-from PySide2.QtWidgets import QApplication, QRadioButton, QWidget
+from PySide6.QtWidgets import QApplication, QRadioButton, QWidget
 import sys
 
 
@@ -2205,7 +2138,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2232,21 +2165,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/单选按钮切换事件.png)  
 
 ## 复选框选择和切换事件
 ```py
 """
 复选框选择和切换事件
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QCheckBox, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QCheckBox, QWidget
 import sys
 
 
@@ -2264,7 +2198,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2298,20 +2232,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/复选框选择和切换事件.png)  
 
 ## 按钮组及其事件
 ```py
 """
 按钮组及其事件
 """
-from PySide2.QtWidgets import QApplication, QButtonGroup, QRadioButton, QWidget
+from PySide6.QtWidgets import QApplication, QButtonGroup, QRadioButton, QWidget
 import sys
 
 
@@ -2329,7 +2264,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2360,11 +2295,11 @@ class Window(QWidget):
         # 设置排他性 就是设置后变成单选啦 设置False为多选
         radio_group.setExclusive(True)
         # 按钮组里按钮切换事件
-        # radio_group.buttonToggled.connect(lambda val:print(val))
+        # radio_group.buttonToggled.connect(lambda val: print(val))
         # 点击事件 获取点击选中的值
         # radio_group.buttonClicked.connect(lambda val: print(val.text()))
         # 点击事件 获取点击选中的按钮的Id
-        radio_group.buttonClicked[int].connect(lambda val: print(val))
+        radio_group.buttonClicked.connect(lambda val: print(radio_group.checkedId()))
 
 
 def main():
@@ -2374,8 +2309,8 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -2387,8 +2322,8 @@ if __name__ == "__main__":
 """
 菜单按钮
 """
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QMenu, QPushButton, QWidget
 import sys
 
 
@@ -2406,7 +2341,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2453,13 +2388,14 @@ def main():
     window.show()
     # 立即显示菜单按钮 必须在窗口显示后面
     # menu_bar.showMenu()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/菜单按钮.png)  
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
 ## 原生菜单栏
@@ -2467,9 +2403,9 @@ if __name__ == "__main__":
 """
 原生菜单栏
 """
-from PySide2.QtCore import Slot
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QMainWindow, QMenu
+from PySide6.QtCore import Slot
+from PySide6.QtGui import QIcon
+from PySide6.QtWidgets import QApplication, QMainWindow
 import sys
 
 
@@ -2487,7 +2423,7 @@ class Window(QMainWindow):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2532,13 +2468,14 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/原生菜单栏.png)  
 !>窗口需要继承QMainwindow否则没有menuBar方法 ,设置了窗口背景颜色 会导致菜单鼠标移入的颜色变白色
 
 ## 右键菜单
@@ -2548,10 +2485,10 @@ if __name__ == "__main__":
 """
 默认右键菜单
 """
-import PySide2
-from PySide2.QtCore import QPoint, Qt
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+import PySide6
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QMenu, QWidget
 import sys
 
 
@@ -2569,13 +2506,13 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
         self.setStyleSheet("background:#fafafa;")
 
-    def contextMenuEvent(self, event: PySide2.QtGui.QContextMenuEvent) -> None:
+    def contextMenuEvent(self, event: PySide6.QtGui.QContextMenuEvent) -> None:
         """
         @description 窗口右键菜单事件
         @param
@@ -2594,7 +2531,7 @@ class Window(QWidget):
         # 5.给菜单添加事件
         menu2.triggered.connect(lambda: print("退出菜单被点击"))
         # 6.显示菜单 event.globalPos()获取全局鼠标点击位置
-        menu.exec_(event.globalPos())
+        menu.exec(event.globalPos())
 
         return super().contextMenuEvent(event)
 
@@ -2608,23 +2545,24 @@ def main():
     # window.setContextMenuPolicy(Qt.DefaultContextMenu)
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/默认右键菜单.png)  
+
 2. 自定义右键菜单
 
 ```py
 """
 自定义右键菜单
 """
-import PySide2
-from PySide2.QtCore import QPoint, Qt
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QMenu, QPushButton, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QMenu, QWidget
 import sys
 
 
@@ -2642,7 +2580,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2667,7 +2605,7 @@ class Window(QWidget):
         # 5.给菜单添加事件
         menu2.triggered.connect(lambda: print("退出菜单被点击"))
         # 6.显示菜单 window.mapToGlobal 将点击的点坐标 映射到 电脑屏幕的鼠标点击位置
-        menu.exec_(self.mapToGlobal(point))
+        menu.exec(self.mapToGlobal(point))
 
 
 def main():
@@ -2677,22 +2615,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/自定义右键菜单.png)  
 
 ## 工具按钮及其菜单和事件
 ```py
 """
 工具按钮及其菜单和事件
 """
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import QAction, QApplication, QMenu, QToolButton, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QIcon, QAction
+from PySide6.QtWidgets import QApplication, QMenu, QToolButton, QWidget
 import sys
 
 
@@ -2710,7 +2649,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 设置窗口背景颜色
@@ -2763,13 +2702,14 @@ def main():
 
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/工具按钮及其菜单和事件.png)  
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
 ## 滚动条
@@ -2777,8 +2717,8 @@ if __name__ == "__main__":
 """
 滚动条
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QScrollBar, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QScrollBar, QWidget
 import sys
 
 
@@ -2796,7 +2736,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 800)
         # 设置垂直滚动条
@@ -2827,21 +2767,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/滚动条.png)  
 
 ## 输入对话框
 ```py
 """
 输入对话框
 """
-from PySide2.QtGui import Qt
-from PySide2.QtWidgets import QApplication, QInputDialog, QWidget
+from PySide6.QtGui import Qt
+from PySide6.QtWidgets import QApplication, QInputDialog, QWidget
 import sys
 
 
@@ -2859,7 +2800,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 1.创建输入对话框
@@ -2904,21 +2845,22 @@ def main():
     else:
         print(res, ok_pressed)
 
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/输入对话框.png)  
 
 ## 文件对话框
 ```py
 """
 文件对话框
 """
-from PySide2.QtCore import QUrl
-from PySide2.QtWidgets import QApplication, QFileDialog, QPushButton, QWidget
+from PySide6.QtCore import QUrl
+from PySide6.QtWidgets import QApplication, QFileDialog, QPushButton, QWidget
 import sys
 
 
@@ -2936,7 +2878,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 添加选中文件按钮1
@@ -3006,22 +2948,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/文件对话框.png)  
 
 ## 日历
 ```py
 """
 日历
 """
-from PySide2.QtCore import QDate, Qt
-from PySide2.QtGui import QFont
-from PySide2.QtWidgets import QApplication, QCalendarWidget, QWidget
+from PySide6.QtCore import QDate, Qt
+from PySide6.QtGui import QFont
+from PySide6.QtWidgets import QApplication, QCalendarWidget, QWidget
 import sys
 
 
@@ -3039,7 +2982,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 创建日历
@@ -3076,22 +3019,23 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/日历.png)  
 
 ## 标签
 ```py
 """
 标签控件
 """
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QPixmap
-from PySide2.QtWidgets import QApplication, QLabel, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
 import sys
 
 
@@ -3109,7 +3053,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 创建标签
@@ -3150,21 +3094,22 @@ def main():
     # 显示窗口
     window.show()
 
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/标签控件.png)  
 
 ## 进度条
 ```py
 """
-
+进度条
 """
-from PySide2.QtCore import QTimer, Qt
-from PySide2.QtWidgets import QApplication, QProgressBar, QWidget
+from PySide6.QtCore import QTimer, Qt
+from PySide6.QtWidgets import QApplication, QProgressBar, QWidget
 import sys
 
 
@@ -3182,7 +3127,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 进度条
@@ -3232,21 +3177,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/进度条.png)  
 
 ## 操作提示框
 ```py
 """
 操作提示框
 """
-from PySide2.QtGui import QPixmap
-from PySide2.QtWidgets import QApplication, QCheckBox, QErrorMessage, QMessageBox, QPushButton, QWidget
+from PySide6.QtGui import QPixmap
+from PySide6.QtWidgets import QApplication, QCheckBox, QErrorMessage, QMessageBox, QPushButton, QWidget
 import sys
 
 
@@ -3264,7 +3210,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 创建错误消息提示框
@@ -3336,21 +3282,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/提示框.png)  
 
 ## 盒子布局
 ```py
 """
 盒子布局
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QBoxLayout, QLabel, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QBoxLayout, QLabel, QWidget
 import sys
 
 
@@ -3368,7 +3315,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         label1 = QLabel("按钮1", self)
@@ -3410,7 +3357,7 @@ class Window(QWidget):
         label6.setStyleSheet("background-color:red")
         label7 = QLabel("按钮7", self)
         label7.setStyleSheet("background-color:green")
-        v_layout = QBoxLayout(QBoxLayout.TopToBottom, self)
+        v_layout = QBoxLayout(QBoxLayout.TopToBottom)
         # 9.添加子控件到布局
         v_layout.addWidget(label5)
         v_layout.addWidget(label6)
@@ -3425,21 +3372,22 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/盒子布局.png)  
 
 ## 垂直或水平盒子布局
 ```py
 """
 垂直或水平盒子布局
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QHBoxLayout, QLabel, QVBoxLayout, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QHBoxLayout, QLabel, QVBoxLayout, QWidget
 import sys
 
 
@@ -3457,7 +3405,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         label1 = QLabel("按钮1", self)
@@ -3497,21 +3445,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/垂直或水平盒子布局.png)  
 
-
-## Qss
+## Qss加载方式
 ```py
 """
 Qss加载方式
 """
-from PySide2.QtWidgets import QApplication, QLabel, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QWidget
 import sys
 
 
@@ -3529,10 +3477,10 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
-        label = QLabel("hello PySide2！", self)
+        label = QLabel("hello PySide6！", self)
         # 设置Id 通过#号调用
         label.setObjectName("label")
         # 设置属性 通过[属性名="属性值"]调用
@@ -3562,8 +3510,8 @@ def main():
     # window.setStyleSheet(QssStyle)  # 当前窗口全局有效
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -3592,6 +3540,7 @@ QLabel[name="label"]:hover{
     color:#ffffff;
 } */
 ```
+![calc](../images/pyside6/Qss加载方式.png)  
 !> 注意一点就行了，设置同一个控件样式要用一样的选择器，用不一样的第二种会失效
 
 ## 表单布局
@@ -3599,8 +3548,8 @@ QLabel[name="label"]:hover{
 """
 表单布局
 """
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QApplication, QFormLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QWidget
+from PySide6.QtCore import Qt
+from PySide6.QtWidgets import QApplication, QFormLayout, QLabel, QLineEdit, QPushButton, QRadioButton, QSpinBox, QWidget
 import sys
 
 
@@ -3618,7 +3567,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
         # 输出框
@@ -3671,20 +3620,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/表单布局.png)  
 
 ## 长宽自适应设置
 ```py
 """
 长宽自适应设置
 """
-from PySide2.QtWidgets import QApplication, QLabel, QSizePolicy, QVBoxLayout, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QSizePolicy, QVBoxLayout, QWidget
 import sys
 
 
@@ -3702,10 +3652,10 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
-        label = QLabel("hello PySide2!", self)
+        label = QLabel("hello PySide6!", self)
         label.resize(300, 300)
         label.setStyleSheet("background:red;")
         bl = QVBoxLayout()
@@ -3731,13 +3681,14 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/长宽自适应设置.png)  
 !> qtdesigner里面主窗口一定要右键 布局 垂直或水平布局，然后主窗口里面的布局才会自适应窗口
 
 ## 表格
@@ -3745,7 +3696,7 @@ if __name__ == "__main__":
 """
 表格
 """
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QAbstractItemView,
     QApplication,
     QHBoxLayout,
@@ -3772,7 +3723,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
 
@@ -3795,7 +3746,7 @@ class Window(QWidget):
         # 7.修改内容
         table.item(0, 1).setText("")
         # 8.添加控件
-        label = QLabel("hello PySide2")
+        label = QLabel("hello PySide6")
         table.setCellWidget(0, 1, label)
         # 9.获取内容
         print(table.item(1, 1).text())  # 输出王五
@@ -3823,19 +3774,20 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/表格.png)  
 
 ```py
 """
 列表
 """
-from PySide2.QtWidgets import QApplication, QListWidget, QWidget
+from PySide6.QtWidgets import QApplication, QListWidget, QWidget
 import sys
 
 
@@ -3853,7 +3805,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
 
@@ -3880,20 +3832,21 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
-```
+```![calc](../images/pyside6/列表.png)  
+
 
 ## tab选项卡
 ```py
 """
 tab选项卡
 """
-from PySide2.QtWidgets import QApplication, QLabel, QTabWidget, QWidget
+from PySide6.QtWidgets import QApplication, QLabel, QTabWidget, QWidget
 import sys
 
 
@@ -3911,7 +3864,7 @@ class Window(QWidget):
         @return
         """
         # 设置窗口标题
-        self.setWindowTitle("hello PySide2!")
+        self.setWindowTitle("hello PySide6!")
         # 设置窗口大小
         self.resize(500, 500)
 
@@ -3942,30 +3895,39 @@ def main():
     window = Window()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
+![calc](../images/pyside6/tab选项卡.png)  
 
 ## 加载ui文件
 ```py
 """
 使用ui文件
 """
-from PySide2.QtWidgets import QApplication, QMessageBox
-from PySide2.QtUiTools import QUiLoader
+from PySide6.QtWidgets import QApplication, QMessageBox
+from PySide6.QtUiTools import QUiLoader
+from PySide6.QtCore import QFile, QIODevice
 import sys
 
 
 class MainWindow:
     def __init__(self):
         # 初始化UI
-        self.window = QUiLoader().load("./ui_main.ui")
+        ui_file_name = "main.ui"
+        ui_file = QFile(ui_file_name)
+        if not ui_file.open(QIODevice.ReadOnly):
+            print(f"Cannot open {ui_file_name}: {ui_file.errorString()}")
+            sys.exit(-1)
+        self.ui = QUiLoader().load("./main.ui")
+        ui_file.close()
+
         # 绑定事件
-        self.window.submit_btn.clicked.connect(self.handleClickBtn)
+        self.ui.submit_btn.clicked.connect(self.handleClickBtn)
 
     def handleClickBtn(self):
         """
@@ -3973,7 +3935,7 @@ class MainWindow:
         @param
         @return
         """
-        message_box = QMessageBox(QMessageBox.Information, "提示", "hello!", QMessageBox.Ok, self.window)
+        message_box = QMessageBox(QMessageBox.Information, "提示", "hello!", QMessageBox.Ok, self.ui)
         message_box.show()
 
 
@@ -3981,13 +3943,13 @@ def main():
     # 创建应用程序对象  argv是命令行输入参数列表
     app = QApplication(sys.argv)
     # 创建窗口对象
-    main_window = MainWindow()
-    with open("./main_window.qss", "r", encoding="UTF-8") as f:
-        main_window.window.setStyleSheet(f.read())
+    window = MainWindow()
+    with open("./qss/index.qss", "r", encoding="UTF-8") as f:
+        window.ui.setStyleSheet(f.read())
     # 显示窗口
-    main_window.window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    window.ui.show()
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -4001,8 +3963,8 @@ if __name__ == "__main__":
 """
 使用ui导出的py文件
 """
-from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox
-from ui_main import Ui_main_window
+from PySide6.QtWidgets import QApplication, QMainWindow, QMessageBox
+from lib.ui_main import Ui_MainWindow
 import sys
 
 
@@ -4011,7 +3973,7 @@ class MainWindow(QMainWindow):
         # 调用父类的方法
         super().__init__()
         # 初始化对象
-        self.ui = Ui_main_window()
+        self.ui = Ui_MainWindow()
         # 初始化界面
         self.ui.setupUi(self)
         # 绑定事件
@@ -4032,32 +3994,32 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     window = MainWindow()
-    with open("./main_window.qss", "r", encoding="UTF-8") as f:
+    with open("./qss/index.qss", "r", encoding="UTF-8") as f:
         window.setStyleSheet(f.read())
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
     main()
 ```
-!> 这种有智能提示，但是每次修改界面需要重新执行 pyside2-uic ./ui_main_window.ui > ./ui_main_window.py
+!> 这种有智能提示，但是每次修改界面需要重新执行 PySide6-uic ./lib/ui_main.ui > ./lib/ui_main.py  这种完了之后还要改成utf8编码
 
-!> 推荐这种 vscode 直接下PySide2 - VSC 右键ui文件可以直接编译
+!> 推荐这种 vscode 直接下右键ui文件可以直接编译 用qt for python扩展
 
 
-## PySide2加载pyecharts
+## PySide6加载pyecharts
 ```py
 """
-PySide2加载echarts
+PySide6加载echarts
 """
-import PySide2
-from PySide2.QtCore import QSize, QUrl
-from PySide2.QtWidgets import QApplication, QMainWindow, QSizePolicy
-from Ui_main import Ui_main_window
-from PySide2.QtWebEngineWidgets import QWebEngineView
+import PySide6
+from PySide6.QtCore import QUrl
+from PySide6.QtWidgets import QApplication, QMainWindow, QSizePolicy
+from lib.ui_main import Ui_MainWindow
+from PySide6.QtWebEngineWidgets import QWebEngineView
 from pyecharts.charts import Bar
 import sys
 
@@ -4067,7 +4029,7 @@ class MainWindow(QMainWindow):
         # 调用父类的方法
         super().__init__()
         # 初始化对象
-        self.ui = Ui_main_window()
+        self.ui = Ui_MainWindow()
         # 初始化界面
         self.ui.setupUi(self)
         # 初始化webview
@@ -4108,7 +4070,7 @@ class MainWindow(QMainWindow):
         # 添加到ui里的垂直布局里
         self.ui.v_layout.addWidget(self.webview)
 
-    def resizeEvent(self, event: PySide2.QtGui.QResizeEvent) -> None:
+    def resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -> None:
         if not self.is_rendering:
             self.is_rendering = True
             # 生成图表
@@ -4126,8 +4088,8 @@ def main():
     window = MainWindow()
     # 显示窗口
     window.show()
-    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec_())
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
 
 
 if __name__ == "__main__":
@@ -4141,5 +4103,46 @@ pyinstall -w -D ./index.py --distpath ./dist
 
 然后将输出的./dist/index 目录用 [enigmaprotector](https://enigmaprotector.com/cn/downloads.html) 打包 这样打包的体积虽然大，但是启动速度会和文件夹里的exe启动速度一样快
 
+更好的打包方式
+```shell
+# 安装
+pip install nuitka
+# 打包调试
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --output-dir=dist ./1.py
+# 打包安装
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --onefile --output-dir=dist ./1.py
+
+
+--mingw64 #默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
+--standalone 独立环境，这是必须的(否则拷给别人无法使用)
+--show-memory 显示内存的占用
+--show-progress 显示编译的进度
+--plugin-enable=pyside6 启用pyside6插件
+--windows-disable-console 没有CMD控制窗口
+--nofollow-imports  # 所有的import不编译，交给python3x.dll执行
+--follow-import-to=lib  # 自己import的py类放在这里面
+--output-dir=dist 生成exe到dist文件夹
+--windows-icon-from-ico=你的.ico 软件的图标
+--onefile 像pyinstaller一样打包成单个exe文件
+
+--windows-company-name=Windows下软件公司信息
+--windows-product-name=Windows下软件名称
+--windows-file-version=Windows下软件的信息
+--windows-product-version=Windows下软件的产品信息
+--windows-file-description=Windows下软件的作用描述
+--windows-uac-admin=Windows下用户可以使用管理员权限来安装
+
+--plugin-enable=tk-inter 打包tkinter模块的刚需
+--plugin-enable=numpy 打包numpy,pandas,matplotlib模块的刚需
+--plugin-enable=torch 打包pytorch的刚需
+--plugin-enable=tensorflow 打包tensorflow的刚需
+--linux-onefile-icon=Linux下的图标位置
+--include-package=复制比如numpy,PyQt5 这些带文件夹的叫包或者轮子
+--include-module=复制比如when.py 这些以.py结尾的叫模块
+
+
+--include-qt-plugins=sensible,styles 打包后PyQt的样式就不会变了
+--include-qt-plugins=sensible,qml
+```
 <!--
 ## 集成mysql 无边框窗口 -->
