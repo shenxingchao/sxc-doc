@@ -280,6 +280,8 @@
 
   - [tab选项卡](/md/PythonGUI#tab选项卡)
 
+  - [动画](/md/PythonGUI#动画)
+
   - [加载ui文件](/md/PythonGUI#加载ui文件)
 
   - [使用ui导出的py文件](/md/PythonGUI#使用ui导出的py文件)

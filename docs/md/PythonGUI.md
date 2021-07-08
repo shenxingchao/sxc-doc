@@ -3905,6 +3905,146 @@ if __name__ == "__main__":
 ```
 ![calc](../images/pyside6/tab选项卡.png)  
 
+## 动画
+```py
+"""
+动画
+"""
+from PySide2.QtCore import (
+    Property,
+    QEasingCurve,
+    QParallelAnimationGroup,
+    QPoint,
+    QPropertyAnimation,
+    QSequentialAnimationGroup,
+)
+from PySide2.QtGui import QColor, QPalette
+from PySide2.QtWidgets import QApplication, QLabel, QPushButton, QWidget
+import sys
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide2!")
+        # 设置窗口大小
+        self.resize(500, 500)
+        # 添加2个按钮
+        btn1 = QPushButton("按钮1", self)
+        btn1.resize(120, 40)
+        btn1.move(100, 100)
+        btn2 = QPushButton("按钮2", self)
+        btn2.resize(120, 40)
+        btn2.move(100, 200)
+
+        ## 属性动画
+        # 1.创建动画
+        # animation = QPropertyAnimation(btn1, b"pos", self)
+        animation = QPropertyAnimation(self)
+        # 2.设置对象和属性 这里的pos为改变的属性名在 button的基类里面可以找到 QPushButton->QAbstractButton->QWidget->def pos(self) -> PySide2.QtCore.QPoint: ...
+        animation.setTargetObject(btn1)
+        animation.setPropertyName(b"pos")
+        # 3.设置属性动画开始值和结束值
+        animation.setStartValue(QPoint(100, 100))
+        animation.setEndValue(QPoint(200, 50))
+        # 4.设置动画持续时间
+        animation.setDuration(300)
+        # 5.设置动画曲线
+        animation.setEasingCurve(QEasingCurve.Linear)
+        # 6.开启动画 执行一次
+        animation.start()
+
+        ## 插值动画  和css from to里的百分比进度定义动画一个道理
+        # 1.创建动画
+        insert_animation = QPropertyAnimation(btn2, b"pos", self)
+        # 2.定义动画插值
+        insert_animation.setKeyValueAt(0, QPoint(100, 200))
+        insert_animation.setKeyValueAt(0.25, QPoint(200, 200))
+        insert_animation.setKeyValueAt(0.5, QPoint(200, 300))
+        insert_animation.setKeyValueAt(0.75, QPoint(100, 300))
+        insert_animation.setKeyValueAt(1, QPoint(100, 200))
+        # 3.设置动画持续时间
+        insert_animation.setDuration(1000)
+        # 4. 设置循环次数
+        insert_animation.setLoopCount(-1)
+        # 5.开启动画 执行一次
+        insert_animation.start()
+
+        ## 动画组 同时执行2个标签的颜色改变动画    # 注意：QPushButton的背景色涉及样式表，所以不能通过QPalette修改.所以这里用Qlabel代替演示
+        # 1.添加2个自定义标签
+        label1 = QSelfQLabel("自定义标签1", self)
+        label1.resize(80, 40)
+        label1.move(100, 400)
+        label2 = QSelfQLabel("自定义标签2", self)
+        label2.resize(80, 40)
+        label2.move(200, 400)
+
+        animation_1 = QPropertyAnimation(label1, b"backgournd_color", self)
+        animation_1.setStartValue(QColor(255, 255, 255))
+        animation_1.setEndValue(QColor(255, 0, 255))
+        animation_1.setDuration(2000)
+
+        animation_2 = QPropertyAnimation(label2, b"backgournd_color", self)
+        animation_2.setStartValue(QColor(255, 255, 255))
+        animation_2.setEndValue(QColor(100, 100, 100))
+        animation_2.setDuration(4000)
+
+        # 顺序动画组
+        # animation_group = QSequentialAnimationGroup(self)
+        # 并行动画组
+        animation_group = QParallelAnimationGroup(self)
+        animation_group.addAnimation(animation_1)
+        animation_group.addAnimation(animation_2)
+
+        animation_group.start()
+
+
+# 由于QLabel及其父类没有背景颜色属性，自己定义一个
+class QSelfQLabel(QLabel):
+    def __init__(self, text, *args, **kwargs):
+        super().__init__(text, *args, **kwargs)
+
+    def backgournd_color(self, backgournd_color: QColor):
+        """
+        @description 用画笔设置背景颜色
+        @param
+        @return
+        """
+        palette = self.palette()
+        palette.setColor(QPalette.Background, backgournd_color)
+        self.setPalette(palette)
+        self.setAutoFillBackground(True)
+
+    # 定义背景颜色属性必须要这么定义  self.xxx 会提示属性不存在
+    backgournd_color = Property(QColor, fset=backgournd_color)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec_()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec_())
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## 加载ui文件
 ```py
 """
