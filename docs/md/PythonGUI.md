@@ -3839,7 +3839,8 @@ def main():
 
 if __name__ == "__main__":
     main()
-```![calc](../images/pyside6/列表.png)  
+```
+![calc](../images/pyside6/列表.png)  
 
 
 ## tab选项卡
