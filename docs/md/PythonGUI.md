@@ -4045,6 +4045,11 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+常见属性值
+- geometry
+- pos
+- size
+- windowOpacity
 
 ## 加载ui文件
 ```py
