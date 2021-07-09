@@ -1052,95 +1052,114 @@ if __name__ == "__main__":
 
 ## 自定义顶部工具条窗口可拖动
 ```py
-""" 
-自定义顶部工具条窗口可拖动
 """
-from PySide6 import QtGui
-from PySide6.QtCore import Qt
-from PySide6.QtWidgets import QApplication, QPushButton, QWidget
+引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码
+"""
+from PySide6 import QtGui, QtWidgets
+from PySide6.QtCore import QSize, Qt
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
+from lib.ui_main import Ui_MainWindow
+from lib.qss import qss
 import sys
 
+""" copy start """
+DEFAULT_TITILE_BAR_HEIGHT = 50
 
-class Window(QWidget):
+
+class QCustomTitleBar:
+    def __init__(self, window: QtWidgets):
+        self.window = window
+        # 设置无边框
+        self.window.setWindowFlags(Qt.FramelessWindowHint)
+        # 1.添加自定义的标题栏到最顶部
+        self.title = QLabel("默认标题文字", self.window)
+        # 2.设置边距
+        # 3.设置标题栏样式
+        self.setStyle()
+        # 4.添加按钮
+        # 添加关闭按钮
+        self.close_btn = QPushButton("×", self.window)
+        self.close_btn.setGeometry(self.window.width() - 40, 2, 40, 40)
+        # 添加最大化按钮
+        self.max_btn = QPushButton("□", self.window)
+        self.max_btn.setGeometry(self.window.width() - 82, 2, 40, 40)
+        # 添加最小化按钮
+        self.min_btn = QPushButton("-", self.window)
+        self.min_btn.setGeometry(self.window.width() - 124, 2, 40, 40)
+        # 5.添加工具栏按钮事件
+        # 关闭按钮点击绑定窗口关闭事件
+        self.close_btn.pressed.connect(self.window.close)
+        # 最大化按钮绑定窗口最大化事件
+        self.max_btn.pressed.connect(self.setMaxEvent)
+        # 最小化按钮绑定窗口最小化事件
+        self.min_btn.pressed.connect(self.window.showMinimized)
+        # 6.记录恢复前的大小-ps非常有用
+        self.restore_window_size = None
+
+    def setMaxEvent(self, flag=False):
+        """
+        @description  最大化按钮绑定窗口最大化事件和事件 拿出来是因为拖动标题栏时需要恢复界面大小
+        @param flag 是否是拖动标题栏 bool
+        @return
+        """
+        if flag:
+            if self.window.isMaximized():
+                self.window.showNormal()
+                self.max_btn.setText("□")
+                return self.restore_window_size
+            return None
+        else:
+            if self.window.isMaximized():
+                self.window.showNormal()
+                self.max_btn.setText("□")
+            else:
+                self.window.showMaximized()
+                self.max_btn.setText("□□")
+                # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
+                self.restore_window_size = QSize(self.window.width(), self.window.height())
+
+    def setStyle(self, style: str = ""):
+        """
+        @description 设置自定义标题栏样式
+        @param
+        @return
+        """
+        DEFAULT_STYLE = "background:red;color:#fff;"
+        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        # 设置样式
+        self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
+        # 设置大小
+        self.title.setGeometry(0, 0, self.window.width(), DEFAULT_TITILE_BAR_HEIGHT)
+
+
+""" copy end"""
+
+
+class MainWindow(QMainWindow):
     def __init__(self):
         # 调用父类的方法
         super().__init__()
-        # 初始化UI
-        self.initUI()
-        # 定义鼠标是否按下，鼠标按下才能拖动
-        self.is_pressed = False
+
+        # 初始化对象
+        self.ui = Ui_MainWindow()
+        # 初始化界面
+        self.ui.setupUi(self)
+        """ copy start"""
+        # 初始化标题栏
+        self.titleBar = QCustomTitleBar(self)
+        # 设置ui文件里main_layout上边距，以免遮挡标题栏
+        self.ui.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
+        # 初始化鼠标拖动标题栏标志
+        self.drag_flag = False
         # 记录按下时窗口坐标， 这个用于窗口移动
         self.win_x = 0
         self.win_y = 0
         # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
         self.mouse_x = 0
         self.mouse_y = 0
+        """ copy end"""
 
-    def initUI(self):
-        """
-        @description  初始化UI
-        @param
-        @return
-        """
-        # 设置窗口标题
-        self.setWindowTitle("hello PySide6!")
-        # 设置窗口大小
-        self.resize(500, 500)
-        # 设置窗口背景颜色
-        self.setStyleSheet("background:#fafafa;")
-        # 设置窗口透明度
-        # self.setWindowOpacity(0.9)
-        # 设置没有工具条的无边框窗口 FramelessWindowHint 无边框 CustomizeWindowHint 有边框的可以拖动
-        self.setWindowFlags(Qt.WindowType.FramelessWindowHint)
-        # 添加关闭按钮
-        self.close_btn = self.addBtn("×", self.width() - 40, 2, 40, 40)
-        # 添加最大化按钮
-        self.max_btn = self.addBtn("□", self.width() - 82, 2, 40, 40)
-        # 添加最小化按钮
-        self.min_btn = self.addBtn("-", self.width() - 124, 2, 40, 40)
-        # 关闭按钮点击绑定窗口关闭事件
-        self.close_btn.pressed.connect(self.close)
-        # 最大化按钮绑定窗口最大化事件和事件
-        def max_event():
-            if self.isMaximized():
-                self.showNormal()
-                self.max_btn.setText("□")
-            else:
-                self.showMaximized()
-                self.max_btn.setText("恢复")
-
-        self.max_btn.pressed.connect(max_event)
-        # 最小化按钮绑定窗口最小化事件
-        self.min_btn.pressed.connect(self.showMinimized)
-        # 放置一个工具条 这里这个工具条拖动还未实现，到时候看用什么控件比较合适，然后用 # 自定义按钮事件含传参的方法，去给这个控件加拖动事件监听
-        self.tool_bar = self.addBtn("", 0, 0, self.width(), 44, "background:#cccccc;")
-        # 置于底层
-        self.tool_bar.lower()
-
-    def addBtn(
-        self,
-        text="",
-        x=0,
-        y=0,
-        width=0,
-        height=0,
-        style="",
-    ):
-        """
-        @description 添加按钮
-        @param
-        @return
-        """
-        DEfAULT_STYLE = "background:blue;color:#ffffff;font-size:16px;border-radius:3px;"
-        # 在窗口上放置一个按钮
-        btn = QPushButton(self)
-        # 设置按钮文字
-        btn.setText(text)
-        # 设置宽高
-        btn.setGeometry(x, y, width, height)
-        # 设置样式
-        btn.setStyleSheet(DEfAULT_STYLE + style)
-        return btn
+    """ copy start"""
 
     def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
         """
@@ -1149,10 +1168,10 @@ class Window(QWidget):
         @return
         """
         # 最大化最小化的时候，需要去改变按钮组位置
-        self.close_btn.move(self.width() - 40, 2)
-        self.max_btn.move(self.width() - 82, 2)
-        self.min_btn.move(self.width() - 124, 2)
-        self.tool_bar.resize(self.width(), 44)
+        self.titleBar.close_btn.move(self.width() - 40, 2)
+        self.titleBar.max_btn.move(self.width() - 82, 2)
+        self.titleBar.min_btn.move(self.width() - 124, 2)
+        self.titleBar.title.resize(self.width(), DEFAULT_TITILE_BAR_HEIGHT)
         return super().resizeEvent(a0)
 
     def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
@@ -1162,9 +1181,9 @@ class Window(QWidget):
         @return
         """
         # 如果按下的是鼠标左键
-        if a0.button() == Qt.MouseButton.LeftButton:
+        if a0.button() == Qt.MouseButton.LeftButton and a0.position().y() < self.titleBar.title.height():
             # 设置为按下
-            self.is_pressed = True
+            self.drag_flag = True
             # 记录按下时窗口坐标， 这个用于窗口移动
             self.win_x = self.x()
             self.win_y = self.y()
@@ -1180,7 +1199,14 @@ class Window(QWidget):
         @return
         """
         # 如果按下才能移动
-        if self.is_pressed:
+        if self.drag_flag:
+            # 窗口恢复
+            restore_window_size = self.titleBar.setMaxEvent(True)
+            # 如果有恢复窗口，则返回恢复时窗口坐标
+            if restore_window_size:
+                # 这里没有解决双屏BUG
+                # 移动到鼠标正确的比例位置 按下时的位置减去(比例 * 恢复前的宽度)
+                self.win_x = self.mouse_x - (self.mouse_x / self.width()) * restore_window_size.width()
             # 获取移动后鼠标的位置
             mouse_move_x = a0.globalPosition().x()
             mouse_move_y = a0.globalPosition().y()
@@ -1197,7 +1223,7 @@ class Window(QWidget):
         @param
         @return
         """
-        self.is_pressed = False
+        self.drag_flag = False
         return super().mouseReleaseEvent(a0)
 
 
@@ -1205,7 +1231,8 @@ def main():
     # 创建应用程序对象  argv是命令行输入参数列表
     app = QApplication(sys.argv)
     # 创建窗口对象
-    window = Window()
+    window = MainWindow()
+    window.setStyleSheet(qss)
     # 显示窗口
     window.show()
     # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
@@ -4198,7 +4225,7 @@ lib\ui_main.ui
 </ui>
 ```
 
-!> 这种有智能提示，但是每次修改界面需要重新执行 PySide6-uic ./lib/ui_main.ui > ./lib/ui_main.py  这种完了之后还要改成utf8编码
+!> 这种有智能提示，但是每次修改界面需要重新执行 PySide6-uic ./lib/ui_main.ui > ./lib/ui_main.py  这种完了之后还要改成utf8编码 也可以直接在qtdesigner里面转换，如果提示uic错误的，创建一个bin目录，把uic.exe放到bin目录下就行了
 
 !> 推荐这种 vscode 直接下右键ui文件可以直接编译 用qt for python扩展
 
