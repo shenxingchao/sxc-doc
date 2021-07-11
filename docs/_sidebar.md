@@ -218,8 +218,6 @@
 
   - [窗口事件](/md/PythonGUI#窗口事件)
 
-  - [自定义顶部工具条窗口可拖动](/md/PythonGUI#自定义顶部工具条窗口可拖动)
-
   - [设置控件显示和启用](/md/PythonGUI#设置控件显示和启用)
 
   - [键盘交互事件](/md/PythonGUI#键盘交互事件)
@@ -289,6 +287,8 @@
   - [PySide6加载pyecharts](/md/PythonGUI#pyside6加载pyecharts)
 
   - [打包exe](/md/PythonGUI#打包exe)
+
+  - [无边框窗口缩放和标题可拖动模板](/md/PythonGUI#无边框窗口缩放和标题可拖动模板)
 
 - [软件](/md/Software#软件)
   

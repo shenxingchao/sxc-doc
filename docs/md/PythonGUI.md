@@ -1050,201 +1050,6 @@ if __name__ == "__main__":
     main()
 ```
 
-## 自定义顶部工具条窗口可拖动
-```py
-"""
-引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码
-"""
-from PySide6 import QtGui, QtWidgets
-from PySide6.QtCore import QSize, Qt
-from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
-from lib.ui_main import Ui_MainWindow
-from lib.qss import qss
-import sys
-
-""" copy start """
-DEFAULT_TITILE_BAR_HEIGHT = 50
-
-
-class QCustomTitleBar:
-    def __init__(self, window: QtWidgets):
-        self.window = window
-        # 设置无边框
-        self.window.setWindowFlags(Qt.FramelessWindowHint)
-        # 1.添加自定义的标题栏到最顶部
-        self.title = QLabel("默认标题文字", self.window)
-        # 2.设置边距
-        # 3.设置标题栏样式
-        self.setStyle()
-        # 4.添加按钮
-        # 添加关闭按钮
-        self.close_btn = QPushButton("×", self.window)
-        self.close_btn.setGeometry(self.window.width() - 40, 2, 40, 40)
-        # 添加最大化按钮
-        self.max_btn = QPushButton("□", self.window)
-        self.max_btn.setGeometry(self.window.width() - 82, 2, 40, 40)
-        # 添加最小化按钮
-        self.min_btn = QPushButton("-", self.window)
-        self.min_btn.setGeometry(self.window.width() - 124, 2, 40, 40)
-        # 5.添加工具栏按钮事件
-        # 关闭按钮点击绑定窗口关闭事件
-        self.close_btn.pressed.connect(self.window.close)
-        # 最大化按钮绑定窗口最大化事件
-        self.max_btn.pressed.connect(self.setMaxEvent)
-        # 最小化按钮绑定窗口最小化事件
-        self.min_btn.pressed.connect(self.window.showMinimized)
-        # 6.记录恢复前的大小-ps非常有用
-        self.restore_window_size = None
-
-    def setMaxEvent(self, flag=False):
-        """
-        @description  最大化按钮绑定窗口最大化事件和事件 拿出来是因为拖动标题栏时需要恢复界面大小
-        @param flag 是否是拖动标题栏 bool
-        @return
-        """
-        if flag:
-            if self.window.isMaximized():
-                self.window.showNormal()
-                self.max_btn.setText("□")
-                return self.restore_window_size
-            return None
-        else:
-            if self.window.isMaximized():
-                self.window.showNormal()
-                self.max_btn.setText("□")
-            else:
-                self.window.showMaximized()
-                self.max_btn.setText("□□")
-                # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
-                self.restore_window_size = QSize(self.window.width(), self.window.height())
-
-    def setStyle(self, style: str = ""):
-        """
-        @description 设置自定义标题栏样式
-        @param
-        @return
-        """
-        DEFAULT_STYLE = "background:red;color:#fff;"
-        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
-        # 设置样式
-        self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
-        # 设置大小
-        self.title.setGeometry(0, 0, self.window.width(), DEFAULT_TITILE_BAR_HEIGHT)
-
-
-""" copy end"""
-
-
-class MainWindow(QMainWindow):
-    def __init__(self):
-        # 调用父类的方法
-        super().__init__()
-
-        # 初始化对象
-        self.ui = Ui_MainWindow()
-        # 初始化界面
-        self.ui.setupUi(self)
-        """ copy start"""
-        # 初始化标题栏
-        self.titleBar = QCustomTitleBar(self)
-        # 设置ui文件里main_layout上边距，以免遮挡标题栏
-        self.ui.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
-        # 初始化鼠标拖动标题栏标志
-        self.drag_flag = False
-        # 记录按下时窗口坐标， 这个用于窗口移动
-        self.win_x = 0
-        self.win_y = 0
-        # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
-        self.mouse_x = 0
-        self.mouse_y = 0
-        """ copy end"""
-
-    """ copy start"""
-
-    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
-        """
-        @description  窗口缩放事件
-        @param
-        @return
-        """
-        # 最大化最小化的时候，需要去改变按钮组位置
-        self.titleBar.close_btn.move(self.width() - 40, 2)
-        self.titleBar.max_btn.move(self.width() - 82, 2)
-        self.titleBar.min_btn.move(self.width() - 124, 2)
-        self.titleBar.title.resize(self.width(), DEFAULT_TITILE_BAR_HEIGHT)
-        return super().resizeEvent(a0)
-
-    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
-        """
-        @description 鼠标按下事件
-        @param
-        @return
-        """
-        # 如果按下的是鼠标左键
-        if a0.button() == Qt.MouseButton.LeftButton and a0.position().y() < self.titleBar.title.height():
-            # 设置为按下
-            self.drag_flag = True
-            # 记录按下时窗口坐标， 这个用于窗口移动
-            self.win_x = self.x()
-            self.win_y = self.y()
-            # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
-            self.mouse_x = a0.globalPosition().x()
-            self.mouse_y = a0.globalPosition().y()
-        return super().mousePressEvent(a0)
-
-    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
-        """
-        @description 鼠标移动事件
-        @param
-        @return
-        """
-        # 如果按下才能移动
-        if self.drag_flag:
-            # 窗口恢复
-            restore_window_size = self.titleBar.setMaxEvent(True)
-            # 如果有恢复窗口，则返回恢复时窗口坐标
-            if restore_window_size:
-                # 这里没有解决双屏BUG
-                # 移动到鼠标正确的比例位置 按下时的位置减去(比例 * 恢复前的宽度)
-                self.win_x = self.mouse_x - (self.mouse_x / self.width()) * restore_window_size.width()
-            # 获取移动后鼠标的位置
-            mouse_move_x = a0.globalPosition().x()
-            mouse_move_y = a0.globalPosition().y()
-            # 计算移动的距离
-            offset_x = mouse_move_x - self.mouse_x
-            offset_y = mouse_move_y - self.mouse_y
-            # 设置窗口移动的距离
-            self.move(self.win_x + offset_x, self.win_y + offset_y)
-        return super().mouseMoveEvent(a0)
-
-    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
-        """
-        @description 鼠标松开事件
-        @param
-        @return
-        """
-        self.drag_flag = False
-        return super().mouseReleaseEvent(a0)
-
-
-def main():
-    # 创建应用程序对象  argv是命令行输入参数列表
-    app = QApplication(sys.argv)
-    # 创建窗口对象
-    window = MainWindow()
-    window.setStyleSheet(qss)
-    # 显示窗口
-    window.show()
-    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
-    sys.exit(app.exec())
-
-
-if __name__ == "__main__":
-    main()
-```
-![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
-?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)要做的话参考这个，我觉得除非要好看，不然没必要，比较麻烦
-
 ## 设置控件显示和启用
 ```py
 """
@@ -4367,7 +4172,416 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 --include-qt-plugins=sensible,qml
 ```
 !> 打包文件夹的启动速度比较快，打包成文件夹再用 enigmaprotector 打包成单个文件比较好
+
+## 无边框窗口缩放和标题可拖动模板
+```py
+"""
+引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码 ps:没做缩放结束后超出界面最大化
+"""
+from PySide6 import QtGui, QtWidgets
+from PySide6.QtCore import QRect, QSize, Qt
+from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
+from lib.ui_main import Ui_MainWindow
+from lib.qss import qss
+import sys
+
+""" copy start """
+# 默认标题栏高度 必须设
+DEFAULT_TITILE_BAR_HEIGHT = 50
+# 鼠标缩放窗口最小宽度，必须设
+MIN_WINDOW_WIDTH = 500
+MIN_WINDOW_HEIGHT = 500
+
+
+class QCustomTitleBar:
+    def __init__(self, window: QtWidgets):
+        self.window = window
+        # 设置无边框
+        self.window.setWindowFlags(Qt.FramelessWindowHint)
+        # 1.添加自定义的标题栏到最顶部
+        self.title = QLabel("默认标题文字", self.window)
+        # 2.设置边距
+        # 3.设置标题栏样式
+        self.setStyle()
+        # 4.添加按钮
+        # 添加关闭按钮
+        self.close_btn = QPushButton("×", self.window)
+        self.close_btn.setGeometry(self.window.width() - 40, 2, 40, 40)
+        # 添加最大化按钮
+        self.max_btn = QPushButton("□", self.window)
+        self.max_btn.setGeometry(self.window.width() - 82, 2, 40, 40)
+        # 添加最小化按钮
+        self.min_btn = QPushButton("-", self.window)
+        self.min_btn.setGeometry(self.window.width() - 124, 2, 40, 40)
+        # 5.添加工具栏按钮事件
+        # 关闭按钮点击绑定窗口关闭事件
+        self.close_btn.pressed.connect(self.window.close)
+        # 最大化按钮绑定窗口最大化事件
+        self.max_btn.pressed.connect(self.setMaxEvent)
+        # 最小化按钮绑定窗口最小化事件
+        self.min_btn.pressed.connect(self.window.showMinimized)
+        # 6.记录恢复前的大小-ps非常有用
+        self.restore_window_size = None
+        # 7.设置标题栏鼠标跟踪 鼠标移入触发，不设置，移入标题栏不触发
+        self.title.setMouseTracking(True)
+
+    def setMaxEvent(self, flag=False):
+        """
+        @description  最大化按钮绑定窗口最大化事件和事件 拿出来是因为拖动标题栏时需要恢复界面大小
+        @param flag 是否是拖动标题栏 bool
+        @return
+        """
+        if flag:
+            if self.window.isMaximized():
+                self.window.showNormal()
+                self.max_btn.setText("□")
+                return self.restore_window_size
+            return None
+        else:
+            if self.window.isMaximized():
+                self.window.showNormal()
+                self.max_btn.setText("□")
+            else:
+                self.window.showMaximized()
+                self.max_btn.setText("□□")
+                # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
+                self.restore_window_size = QSize(self.window.width(), self.window.height())
+
+    def setStyle(self, style: str = ""):
+        """
+        @description 设置自定义标题栏样式
+        @param
+        @return
+        """
+        DEFAULT_STYLE = "background:red;color:#fff;"
+        self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
+        # 设置样式
+        self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
+        # 设置大小
+        self.title.setGeometry(0, 0, self.window.width(), DEFAULT_TITILE_BAR_HEIGHT)
+
+
+""" copy end"""
+
+
+class MainWindow(QMainWindow):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+
+        # 初始化对象
+        self.ui = Ui_MainWindow()
+        # 初始化界面
+        self.ui.setupUi(self)
+        """ copy start"""
+        # 初始化标题栏
+        self.titleBar = QCustomTitleBar(self)
+        # 设置ui文件里main_layout上边距，以免遮挡标题栏
+        self.ui.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
+        # 初始化鼠标拖动标题栏标志
+        self.drag_flag = False
+        # 记录按下时窗口坐标， 这个用于窗口移动
+        self.win_x = 0
+        self.win_y = 0
+        # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
+        self.mouse_x = 0
+        self.mouse_y = 0
+        # 记录鼠标移入的拖动区域，共8种区域 左上 左 左下 上 下 右上 右 右下
+        self.left_up = None
+        self.left = None
+        self.left_down = None
+        self.up = None
+        self.down = None
+        self.right_up = None
+        self.right = None
+        self.right_down = None
+        # 设置为True则mouseMoveEvent事件不需要按下也能触发,不然要按着鼠标左键或右键才能触发
+        self.setMouseTracking(True)
+        # 设置子类的mousetrack
+        self.ui.centralwidget.setMouseTracking(True)
+        # 记录按下时窗口的大小，用于计算鼠标相对于窗口移动的距离，用于缩放
+        self.win_w = 0
+        self.win_h = 0
+        # 初始化鼠标缩放标志
+        self.move_left_up_flag = False
+        self.move_left_flag = False
+        self.move_left_down_flag = False
+        self.move_up_flag = False
+        self.move_down_flag = False
+        self.move_right_up_flag = False
+        self.move_right_flag = False
+        self.move_right_down_flag = False
+        """ copy end"""
+
+    """ copy start"""
+
+    def resizeEvent(self, a0: QtGui.QResizeEvent) -> None:
+        """
+        @description  窗口缩放事件
+        @param
+        @return
+        """
+        # 最大化最小化的时候，需要去改变按钮组位置
+        self.titleBar.close_btn.move(self.width() - 40, 2)
+        self.titleBar.max_btn.move(self.width() - 82, 2)
+        self.titleBar.min_btn.move(self.width() - 124, 2)
+        self.titleBar.title.resize(self.width(), DEFAULT_TITILE_BAR_HEIGHT)
+
+        # 记录鼠标移入的拖动区域，共8种区域
+        self.left_up = QRect(0, 0, 10, 10)
+        self.left = QRect(0, 10, 10, self.height() - 20)
+        self.left_down = QRect(0, self.height() - 10, 10, 10)
+        self.up = QRect(10, 0, self.width() - 20, 10)
+        self.down = QRect(10, self.height() - 10, self.width() - 20, 10)
+        self.right_up = QRect(self.width() - 10, 0, 10, 10)
+        self.right = QRect(self.width() - 10, 10, 10, self.height() - 20)
+        self.right_down = QRect(self.width() - 10, self.height() - 10, 10, 10)
+
+        return super().resizeEvent(a0)
+
+    def mousePressEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标按下事件
+        @param
+        @return
+        """
+        # 记录按下时窗口坐标， 这个用于窗口移动
+        self.win_x = self.x()
+        self.win_y = self.y()
+        # 记录按下时鼠标坐标，这个用于计算鼠标移动的距离
+        self.mouse_x = a0.globalPosition().x()
+        self.mouse_y = a0.globalPosition().y()
+        # 记录按下时窗口的大小，用于计算鼠标相对于窗口移动的距离，用于缩放
+        self.win_w = self.width()
+        self.win_h = self.height()
+
+        # 如果按下的是鼠标左键
+        if a0.button() == Qt.MouseButton.LeftButton and self.left_up.contains(a0.position().x(), a0.position().y()):
+            self.move_left_up_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.left.contains(a0.position().x(), a0.position().y()):
+            self.move_left_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.left_down.contains(a0.position().x(), a0.position().y()):
+            self.move_left_down_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.up.contains(a0.position().x(), a0.position().y()):
+            self.move_up_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.down.contains(a0.position().x(), a0.position().y()):
+            self.move_down_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.right_up.contains(a0.position().x(), a0.position().y()):
+            self.move_right_up_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.right.contains(a0.position().x(), a0.position().y()):
+            self.move_right_flag = True
+        if a0.button() == Qt.MouseButton.LeftButton and self.right_down.contains(a0.position().x(), a0.position().y()):
+            self.move_right_down_flag = True
+        # 如果按下的是鼠标左键 且在标题栏范围内
+        elif a0.button() == Qt.MouseButton.LeftButton and a0.position().y() < self.titleBar.title.height():
+            # 设置为按下
+            self.drag_flag = True
+        return super().mousePressEvent(a0)
+
+    def mouseMoveEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标按下移动事件
+        @param
+        @return
+        """
+        # 获取移动后鼠标的位置
+        mouse_move_x = a0.globalPosition().x()
+        mouse_move_y = a0.globalPosition().y()
+        # 计算移动的距离
+        offset_x = mouse_move_x - self.mouse_x
+        offset_y = mouse_move_y - self.mouse_y
+        # 左上
+        if self.left_up.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeFDiagCursor)
+        # 左
+        elif self.left.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeHorCursor)
+        # 左下
+        elif self.left_down.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeBDiagCursor)
+        # 上
+        elif self.up.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeVerCursor)
+        # 下
+        elif self.down.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeVerCursor)
+        # 右上
+        elif self.right_up.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeBDiagCursor)
+        # 右
+        elif self.right.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeHorCursor)
+        # 右下
+        elif self.right_down.contains(a0.position().x(), a0.position().y()):
+            self.setCursor(Qt.SizeFDiagCursor)
+        else:
+            self.setCursor(Qt.ArrowCursor)
+        # 如果按下且在左上角范围内则缩放（其他代码参考左上）
+        if self.move_left_up_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeFDiagCursor)
+            resize_w = self.win_w - offset_x
+            resize_h = self.win_h - offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+            # 设置窗口移动,需要鼠标跟随
+            # x y 都要鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH and resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.win_x + offset_x, self.win_y + offset_y)
+            # 缩放宽度等于最小宽度，高度鼠标跟随
+            if resize_w == MIN_WINDOW_WIDTH and resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.x(), self.win_y + offset_y)
+            # 缩放高度等于最小高度，宽度鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH and resize_h == MIN_WINDOW_HEIGHT:
+                self.move(self.win_x + offset_x, self.y())
+        # 如果按下且在左边范围内则缩放
+        elif self.move_left_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeHorCursor)
+            resize_w = self.win_w - offset_x
+            resize_h = self.win_h
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+            # 设置窗口移动,需要鼠标跟随
+            # 只要宽度鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH:
+                self.move(self.win_x + offset_x, self.win_y)
+        # 如果按下且在左下角范围内则缩放
+        elif self.move_left_down_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeBDiagCursor)
+            resize_w = self.win_w - offset_x
+            resize_h = self.win_h + offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+            # 设置窗口移动,需要鼠标跟随
+            # x y 都要鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH and resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.win_x + offset_x, self.y())
+            # 缩放高度等于最小高度，宽度鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH and resize_h == MIN_WINDOW_HEIGHT:
+                self.move(self.win_x + offset_x, self.y())
+        # 如果按下且在上边范围内则缩放
+        elif self.move_up_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeVerCursor)
+            resize_w = self.win_w
+            resize_h = self.win_h - offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+            # 设置窗口移动,需要鼠标跟随
+            # 只要高度鼠标跟随
+            if resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.win_x, self.win_y + offset_y)
+        # 如果按下且在下边范围内则缩放
+        elif self.move_down_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeVerCursor)
+            resize_w = self.win_w
+            resize_h = self.win_h + offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+        # 如果按下且在右上角范围内则缩放
+        elif self.move_right_up_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeBDiagCursor)
+            resize_w = self.win_w + offset_x
+            resize_h = self.win_h - offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+            # 设置窗口移动,需要鼠标跟随
+            # x y 都要鼠标跟随
+            if resize_w != MIN_WINDOW_WIDTH and resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.win_x, self.win_y + offset_y)
+            # 缩放宽度等于最小宽度，高度鼠标跟随
+            if resize_w == MIN_WINDOW_WIDTH and resize_h != MIN_WINDOW_HEIGHT:
+                self.move(self.x(), self.win_y + offset_y)
+        # 如果按下且在右边范围内则缩放
+        elif self.move_right_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeHorCursor)
+            resize_w = self.win_w + offset_x
+            resize_h = self.win_h
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+        # 如果按下且在右下角范围内则缩放
+        elif self.move_right_down_flag:
+            # 拖动的时候也要设置一下形状
+            self.setCursor(Qt.SizeFDiagCursor)
+            resize_w = self.win_w + offset_x
+            resize_h = self.win_h + offset_y
+            # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
+            resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            # 设置窗口缩放尺寸
+            self.resize(resize_w, resize_h)
+        # 如果按下才能移动
+        elif self.drag_flag:
+            # 窗口恢复
+            restore_window_size = self.titleBar.setMaxEvent(True)
+            # 如果有恢复窗口，则返回恢复时窗口坐标
+            if restore_window_size:
+                # 这里没有解决双屏BUG
+                # 移动到鼠标正确的比例位置 按下时的位置减去(比例 * 恢复前的宽度)
+                self.win_x = self.mouse_x - (self.mouse_x / self.width()) * restore_window_size.width()
+            # 设置窗口移动的距离
+            self.move(self.win_x + offset_x, self.win_y + offset_y)
+        return super().mouseMoveEvent(a0)
+
+    def mouseReleaseEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标按下松开事件
+        @param
+        @return
+        """
+        self.drag_flag = False
+        self.move_left_up_flag = False
+        self.move_left_flag = False
+        self.move_left_down_flag = False
+        self.move_up_flag = False
+        self.move_down_flag = False
+        self.move_right_up_flag = False
+        self.move_right_flag = False
+        self.move_right_down_flag = False
+        return super().mouseReleaseEvent(a0)
+
+    """ copy end"""
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = MainWindow()
+    window.setStyleSheet(qss)
+    # 显示窗口
+    window.show()
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
+```
+![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
+?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
+
 <!--
 ## 集成mysql 无边框窗口 -->
-
 
