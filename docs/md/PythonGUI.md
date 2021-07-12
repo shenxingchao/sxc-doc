@@ -4205,14 +4205,19 @@ class QCustomTitleBar:
         self.setStyle()
         # 4.添加按钮
         # 添加关闭按钮
-        self.close_btn = QPushButton("×", self.window)
-        self.close_btn.setGeometry(self.window.width() - 40, 2, 40, 40)
+        self.close_btn = QPushButton("", self.window)
+        self.close_btn.setGeometry(self.window.width() - 33, 10, 30, 30)
         # 添加最大化按钮
-        self.max_btn = QPushButton("□", self.window)
-        self.max_btn.setGeometry(self.window.width() - 82, 2, 40, 40)
+        self.max_btn = QPushButton("", self.window)
+        self.max_btn.setGeometry(self.window.width() - 66, 10, 30, 30)
         # 添加最小化按钮
-        self.min_btn = QPushButton("-", self.window)
-        self.min_btn.setGeometry(self.window.width() - 124, 2, 40, 40)
+        self.min_btn = QPushButton("", self.window)
+        self.min_btn.setGeometry(self.window.width() - 99, 10, 30, 30)
+        # 设置三个按钮的样式
+        self.close_btn.setStyleSheet("border-image:url('./images/close.png');background:red;border-radius:15px;")
+        self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
+        self.min_btn.setStyleSheet("border-image:url('./images/min.png');background:green;border-radius:15px;")
+
         # 5.添加工具栏按钮事件
         # 关闭按钮点击绑定窗口关闭事件
         self.close_btn.pressed.connect(self.window.close)
@@ -4234,16 +4239,18 @@ class QCustomTitleBar:
         if flag:
             if self.window.isMaximized():
                 self.window.showNormal()
-                self.max_btn.setText("□")
+                self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
                 return self.restore_window_size
             return None
         else:
             if self.window.isMaximized():
                 self.window.showNormal()
-                self.max_btn.setText("□")
+                self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
             else:
                 self.window.showMaximized()
-                self.max_btn.setText("□□")
+                self.max_btn.setStyleSheet(
+                    "border-image:url('./images/restore.png');background:orange;border-radius:15px;"
+                )
                 # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
                 self.restore_window_size = QSize(self.window.width(), self.window.height())
 
@@ -4253,7 +4260,7 @@ class QCustomTitleBar:
         @param
         @return
         """
-        DEFAULT_STYLE = "background:red;color:#fff;"
+        DEFAULT_STYLE = "background:#E7EAED;color:#333333;"
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
         self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
@@ -4322,9 +4329,9 @@ class MainWindow(QMainWindow):
         @return
         """
         # 最大化最小化的时候，需要去改变按钮组位置
-        self.titleBar.close_btn.move(self.width() - 40, 2)
-        self.titleBar.max_btn.move(self.width() - 82, 2)
-        self.titleBar.min_btn.move(self.width() - 124, 2)
+        self.titleBar.close_btn.move(self.width() - 33, 10)
+        self.titleBar.max_btn.move(self.width() - 66, 10)
+        self.titleBar.min_btn.move(self.width() - 99, 10)
         self.titleBar.title.resize(self.width(), DEFAULT_TITILE_BAR_HEIGHT)
 
         # 记录鼠标移入的拖动区域，共8种区域
@@ -4592,6 +4599,10 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
+![calc](../images/pyside6/images/min.png)  
+![calc](../images/pyside6/images/max.png)  
+![calc](../images/pyside6/images/close.png)  
+![calc](../images/pyside6/images/restore.png)  
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
