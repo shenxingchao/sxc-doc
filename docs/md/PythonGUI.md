@@ -4176,7 +4176,7 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 ## 无边框窗口缩放和标题可拖动模板
 ```py
 """
-引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码 ps:没做缩放结束后超出界面最大化
+引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码 ps:全屏状态下 边界拖动问题 没解决 影响不大
 """
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QRect, QSize, Qt
@@ -4529,6 +4529,7 @@ class MainWindow(QMainWindow):
             resize_h = self.win_h + offset_y
             # 如果缩放后的尺寸小于最小尺寸则窗口不能缩放了
             resize_w = MIN_WINDOW_WIDTH if resize_w < MIN_WINDOW_WIDTH else resize_w
+            resize_h = MIN_WINDOW_HEIGHT if resize_h < MIN_WINDOW_HEIGHT else resize_h
             # 设置窗口缩放尺寸
             self.resize(resize_w, resize_h)
         # 如果按下才能移动
@@ -4560,6 +4561,17 @@ class MainWindow(QMainWindow):
         self.move_right_flag = False
         self.move_right_down_flag = False
         return super().mouseReleaseEvent(a0)
+
+    def mouseDoubleClickEvent(self, a0: QtGui.QMouseEvent) -> None:
+        """
+        @description 鼠标双击事件
+        @param
+        @return
+        """
+        # 如果双击的是鼠标左键 且在标题栏范围内 则放大缩小窗口
+        if a0.button() == Qt.MouseButton.LeftButton and a0.position().y() < self.titleBar.title.height():
+            self.titleBar.setMaxEvent()
+        return super().mouseDoubleClickEvent(a0)
 
     """ copy end"""
 
