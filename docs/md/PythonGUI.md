@@ -4196,11 +4196,10 @@ MIN_WINDOW_HEIGHT = 500
 class QCustomTitleBar:
     def __init__(self, window: QtWidgets):
         self.window = window
-        # 设置无边框
+        # 1.设置无边框
         self.window.setWindowFlags(Qt.FramelessWindowHint)
-        # 1.添加自定义的标题栏到最顶部
+        # 2.添加自定义的标题栏到最顶部
         self.title = QLabel("默认标题文字", self.window)
-        # 2.设置边距
         # 3.设置标题栏样式
         self.setStyle()
         # 4.添加按钮
@@ -4260,6 +4259,7 @@ class QCustomTitleBar:
         @param
         @return
         """
+        # 想要边框 加上border:1px solid #cccccc;
         DEFAULT_STYLE = "background:#E7EAED;color:#333333;padding:10px;"
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
@@ -4281,6 +4281,8 @@ class MainWindow(QMainWindow):
         # 初始化界面
         self.ui.setupUi(self)
         """ copy start"""
+        # 设置主内容窗口边框 想要边框加上
+        # self.ui.centralwidget.setStyleSheet("border:1px solid #cccccc;background:#ffffff;")
         # 初始化标题栏
         self.titleBar = QCustomTitleBar(self)
         # 设置ui文件里main_layout上边距，以免遮挡标题栏
