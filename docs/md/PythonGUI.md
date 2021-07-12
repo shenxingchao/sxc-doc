@@ -4599,10 +4599,10 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
-[min.png](../images/pyside6/images/min.png)  
-[max.png](../images/pyside6/images/max.png)  
-[close.png](../images/pyside6/images/close.png)  
-[restore.png](../images/pyside6/images/restore.png)  
+[min.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/min.png)  
+[max.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/max.png)  
+[close.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/close.png)  
+[restore.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/restore.png)  
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
