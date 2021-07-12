@@ -11,6 +11,29 @@
 2. 选择自定义安装 选择好安装路径 不能有中文
 3. 能安装的插件全部勾上，选中Add to Path添加到环境变量
 4. win+r 打开cmd 输入python -V  命令行输出Python 3.9.4 解释器安装成功
+5. vscode python 用户片段
+```json
+{	
+    "function": {        
+		"prefix": "function",        
+		"body": [            
+			"\"\"\"",            
+			"@description ",                    
+			"@param ",             
+			"@return ",          
+			"\"\"\"",                 
+		],	
+	},
+	"python": {        
+		"prefix": "python",        
+		"body": [            
+			"def main():",            
+			"if __name__ == \"__main__\":",
+			"    main()",           
+		],	
+	}
+}
+```
 
 ## python100天入门笔记
 
