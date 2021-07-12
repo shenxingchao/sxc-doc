@@ -4260,7 +4260,7 @@ class QCustomTitleBar:
         @param
         @return
         """
-        DEFAULT_STYLE = "background:#E7EAED;color:#333333;"
+        DEFAULT_STYLE = "background:#E7EAED;color:#333333;padding:10px;"
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
         self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
