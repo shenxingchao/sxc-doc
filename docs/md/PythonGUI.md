@@ -4173,17 +4173,18 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 ```py
 """
 引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码 ps:全屏状态下 边界拖动问题 没解决 影响不大
+打包后，需要把qss和images文件夹拖到应用根目录 
+其他问题 设置了centralwidget 背景色导致按钮背景色不见的问题，需要把centralwidget的背景色也放到qss里面去，反正全部写在css里面读取就可以了
 """
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QRect, QSize, Qt
 from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
 from lib.ui_main import Ui_MainWindow
-from lib.qss import qss
 import sys
 
 """ copy start """
 # 默认标题栏高度 必须设
-DEFAULT_TITILE_BAR_HEIGHT = 50
+DEFAULT_TITILE_BAR_HEIGHT = 40
 # 鼠标缩放窗口最小宽度，必须设
 MIN_WINDOW_WIDTH = 500
 MIN_WINDOW_HEIGHT = 500
@@ -4192,26 +4193,27 @@ MIN_WINDOW_HEIGHT = 500
 class QCustomTitleBar:
     def __init__(self, window: QtWidgets):
         self.window = window
-        # 1.设置无边框
+        # 1.设置无边框 和 透明背景
         self.window.setWindowFlags(Qt.FramelessWindowHint)
+        self.window.setAttribute(Qt.WA_TranslucentBackground)
         # 2.添加自定义的标题栏到最顶部
-        self.title = QLabel("默认标题文字", self.window)
+        self.title = QLabel("标题文字", self.window)
         # 3.设置标题栏样式
         self.setStyle()
         # 4.添加按钮
         # 添加关闭按钮
         self.close_btn = QPushButton("", self.window)
-        self.close_btn.setGeometry(self.window.width() - 33, 10, 30, 30)
+        self.close_btn.setGeometry(self.window.width() - 33, 10, 20, 20)
         # 添加最大化按钮
         self.max_btn = QPushButton("", self.window)
-        self.max_btn.setGeometry(self.window.width() - 66, 10, 30, 30)
+        self.max_btn.setGeometry(self.window.width() - 66, 10, 20, 20)
         # 添加最小化按钮
         self.min_btn = QPushButton("", self.window)
-        self.min_btn.setGeometry(self.window.width() - 99, 10, 30, 30)
+        self.min_btn.setGeometry(self.window.width() - 99, 10, 20, 20)
         # 设置三个按钮的样式
-        self.close_btn.setStyleSheet("border-image:url('./images/close.png');background:red;border-radius:15px;")
-        self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
-        self.min_btn.setStyleSheet("border-image:url('./images/min.png');background:green;border-radius:15px;")
+        self.close_btn.setStyleSheet("border-image:url('./images/close.png');background:#FF625F;border-radius:10px;")
+        self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;")
+        self.min_btn.setStyleSheet("border-image:url('./images/min.png');background:#29C941;border-radius:10px;")
 
         # 5.添加工具栏按钮事件
         # 关闭按钮点击绑定窗口关闭事件
@@ -4234,17 +4236,21 @@ class QCustomTitleBar:
         if flag:
             if self.window.isMaximized():
                 self.window.showNormal()
-                self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
+                self.max_btn.setStyleSheet(
+                    "border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;"
+                )
                 return self.restore_window_size
             return None
         else:
             if self.window.isMaximized():
                 self.window.showNormal()
-                self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:orange;border-radius:15px;")
+                self.max_btn.setStyleSheet(
+                    "border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;"
+                )
             else:
                 self.window.showMaximized()
                 self.max_btn.setStyleSheet(
-                    "border-image:url('./images/restore.png');background:orange;border-radius:15px;"
+                    "border-image:url('./images/restore.png');background:#FFBE2F;border-radius:10px;"
                 )
                 # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
                 self.restore_window_size = QSize(self.window.width(), self.window.height())
@@ -4256,7 +4262,12 @@ class QCustomTitleBar:
         @return
         """
         # 想要边框 加上border:1px solid #cccccc;
-        DEFAULT_STYLE = "background:#E7EAED;color:#333333;padding:10px;"
+        DEFAULT_STYLE = """
+                            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #fafafa,stop:1 #D1D1D0);
+                            color:#333333;padding:10px;border:1px solid #c6c6c6;
+                            border-top-left-radius: 10px;
+                            border-top-right-radius: 10px;
+                        """
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
         self.title.setStyleSheet(DEFAULT_STYLE if not style else DEFAULT_STYLE + style)
@@ -4274,8 +4285,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 初始化界面
         self.setupUi(self)
         """ copy start"""
-        # 设置主内容窗口边框 想要边框加上
-        # self.centralwidget.setStyleSheet("border:1px solid #cccccc;background:#ffffff;")
         # 初始化标题栏
         self.titleBar = QCustomTitleBar(self)
         # 设置ui文件里main_layout上边距，以免遮挡标题栏
@@ -4583,7 +4592,9 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     window = MainWindow()
-    window.setStyleSheet(qss)
+    # 设置全局css样式
+    with open("./qss/index.css", "r", encoding="UTF-8") as f:
+        app.setStyleSheet(f.read())
     # 显示窗口
     window.show()
     # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
@@ -4592,6 +4603,23 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+index.css
+```css
+#centralwidget {
+  border: 1px solid #c6c6c6;
+  background: #fafafa;
+  border-radius: 10px;
+}
+#centralwidget #btn {
+  background: green;
+  color: #ffffff;
+  font-size: 50px;
+  border: none;
+}
+#centralwidget #btn:hover {
+  background: lightgreen;
+}
 ```
 ![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
 [min.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/min.png)  
