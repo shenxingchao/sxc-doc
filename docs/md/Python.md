@@ -1070,6 +1070,50 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 多继承
+```py
+class D:
+    def printA(self):
+        print("D")
+
+
+class A:
+    def printA(self):
+        print("A")
+        x = super(A, self).printA()
+        print("A2")
+        return x
+
+
+class B(A, D):
+    def printB(self):
+        print("B")
+
+
+class C(B):
+    def printA(self):
+        print("C")
+        n = super(C, self).printA()
+        return n
+
+
+c = C()
+c.printA()
+
+# 多继承关系  C继承B  B继承A和D
+# super()方法调用父类的方法，所以父类的方法都可以调用
+# 重写 重写需要子类的函数名和父类的函数名一样 然后在子类的函数里重写后再加上调用super().函数名 就实现了重写
+# 这段代码的执行流程
+# 实例化C对象
+# ->调用C.printA() 打印C
+# ->由于C里的printA调用了super()方法，所以去B类里找pintA方法没找到
+# ->继续去A和D里找
+# ->先找A，找到了，调用A.printA() 打印A
+# ->由于A里的printA调用了super()方法，所以继续去D类里面找printA方法
+# ->找D，找到了，调用D.printA() 打印D
+# ->最后打印A2
+```
+
 #### 抽象类和抽象方法
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
