@@ -3948,16 +3948,14 @@ from lib.qss import qss
 import sys
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         # 调用父类的方法
-        super().__init__()
-        # 初始化对象
-        self.ui = Ui_MainWindow()
+        super(MainWindow, self).__init__()
         # 初始化界面
-        self.ui.setupUi(self)
+        self.setupUi(self)
         # 绑定事件
-        self.ui.submit_btn.clicked.connect(self.handleClickBtn)
+        self.submit_btn.clicked.connect(self.handleClickBtn)
 
     def handleClickBtn(self):
         """
@@ -4050,14 +4048,12 @@ from pyecharts.charts import Bar
 import sys
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         # 调用父类的方法
-        super().__init__()
-        # 初始化对象
-        self.ui = Ui_MainWindow()
+        super(MainWindow, self).__init__()
         # 初始化界面
-        self.ui.setupUi(self)
+        self.setupUi(self)
         # 初始化webview
         self.webview = QWebEngineView(self)
         # 设置webview 宽度自适应 高度固定  这行可以不要
@@ -4094,7 +4090,7 @@ class MainWindow(QMainWindow):
         # 加载html
         self.webview.load(html_url)
         # 添加到ui里的垂直布局里
-        self.ui.v_layout.addWidget(self.webview)
+        self.v_layout.addWidget(self.webview)
 
     def resizeEvent(self, event: PySide6.QtGui.QResizeEvent) -> None:
         if not self.is_rendering:
@@ -4271,22 +4267,19 @@ class QCustomTitleBar:
 """ copy end"""
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         # 调用父类的方法
-        super().__init__()
-
-        # 初始化对象
-        self.ui = Ui_MainWindow()
+        super(MainWindow, self).__init__()
         # 初始化界面
-        self.ui.setupUi(self)
+        self.setupUi(self)
         """ copy start"""
         # 设置主内容窗口边框 想要边框加上
-        # self.ui.centralwidget.setStyleSheet("border:1px solid #cccccc;background:#ffffff;")
+        # self.centralwidget.setStyleSheet("border:1px solid #cccccc;background:#ffffff;")
         # 初始化标题栏
         self.titleBar = QCustomTitleBar(self)
         # 设置ui文件里main_layout上边距，以免遮挡标题栏
-        self.ui.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
+        self.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
         # 初始化鼠标拖动标题栏标志
         self.drag_flag = False
         # 记录按下时窗口坐标， 这个用于窗口移动
@@ -4307,7 +4300,7 @@ class MainWindow(QMainWindow):
         # 设置为True则mouseMoveEvent事件不需要按下也能触发,不然要按着鼠标左键或右键才能触发
         self.setMouseTracking(True)
         # 设置子类的mousetrack
-        self.ui.centralwidget.setMouseTracking(True)
+        self.centralwidget.setMouseTracking(True)
         # 记录按下时窗口的大小，用于计算鼠标相对于窗口移动的距离，用于缩放
         self.win_w = 0
         self.win_h = 0
