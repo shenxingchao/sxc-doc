@@ -4304,7 +4304,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 初始化标题栏
         self.titleBar = QCustomTitleBar(self)
         # 设置ui文件里main_layout上边距，以免遮挡标题栏
-        self.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT + 20, 0, 0)
+        self.main_layout.setContentsMargins(0, DEFAULT_TITILE_BAR_HEIGHT, 0, 0)
         # 初始化鼠标拖动标题栏标志
         self.drag_flag = False
         # 记录按下时窗口坐标， 这个用于窗口移动
