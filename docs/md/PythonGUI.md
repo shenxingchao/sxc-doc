@@ -4174,7 +4174,7 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 """
 引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码 ps:全屏状态下 边界拖动问题 没解决 影响不大
 打包后，需要把qss和images文件夹拖到应用根目录 
-其他问题 设置了centralwidget 背景色导致按钮背景色不见的问题，需要把centralwidget的背景色也放到qss里面去，反正全部写在css里面读取就可以了
+其他问题 设置了centralwidget 背景色导致按钮背景色不见的问题，需要把centralwidget的背景色也放到qss里面去，反正全部写在qss里面读取就可以了
 """
 from PySide6 import QtGui, QtWidgets
 from PySide6.QtCore import QRect, QSize, Qt
@@ -4608,8 +4608,8 @@ def main():
     app = QApplication(sys.argv)
     # 创建窗口对象
     window = MainWindow()
-    # 设置全局css样式
-    with open("./qss/index.css", "r", encoding="UTF-8") as f:
+    # 设置全局qss样式
+    with open("./qss/index.qss", "r", encoding="UTF-8") as f:
         app.setStyleSheet(f.read())
     # 显示窗口
     window.show()
@@ -4620,7 +4620,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-index.less vscode用 Easy Less 转成css就行了
+index.less vscode用 Easy Less 转成qss就行了
 ```less
 #centralwidget {
   border: 1px solid #c6c6c6;
