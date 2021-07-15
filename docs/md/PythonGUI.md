@@ -4210,10 +4210,23 @@ class QCustomTitleBar:
         # 添加最小化按钮
         self.min_btn = QPushButton("", self.window)
         self.min_btn.setGeometry(self.window.width() - 99, 10, 20, 20)
+        # 设置三个按钮的鼠标样式
+        self.close_btn.setCursor(Qt.PointingHandCursor)
+        self.max_btn.setCursor(Qt.PointingHandCursor)
+        self.min_btn.setCursor(Qt.PointingHandCursor)
         # 设置三个按钮的样式
-        self.close_btn.setStyleSheet("border-image:url('./images/close.png');background:#FF625F;border-radius:10px;")
-        self.max_btn.setStyleSheet("border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;")
-        self.min_btn.setStyleSheet("border-image:url('./images/min.png');background:#29C941;border-radius:10px;")
+        self.close_btn.setStyleSheet(
+            "QPushButton{border-image:url('./images/close.png');background:#ff625f;border-radius:10px;}"
+            "QPushButton:hover{background:#eb4845;}"
+        )
+        self.max_btn.setStyleSheet(
+            "QPushButton{border-image:url('./images/max.png');background:#ffbe2f;border-radius:10px;}"
+            "QPushButton:hover{background:#ecae27;}"
+        )
+        self.min_btn.setStyleSheet(
+            "QPushButton{border-image:url('./images/min.png');background:#29c941;border-radius:10px;}"
+            "QPushButton:hover{background:#1ac033;}"
+        )
 
         # 5.添加工具栏按钮事件
         # 关闭按钮点击绑定窗口关闭事件
@@ -4237,7 +4250,8 @@ class QCustomTitleBar:
             if self.window.isMaximized():
                 self.window.showNormal()
                 self.max_btn.setStyleSheet(
-                    "border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;"
+                    "QPushButton{border-image:url('./images/max.png');background:#ffbe2f;border-radius:10px;}"
+                    "QPushButton:hover{background:#ecae27;}"
                 )
                 return self.restore_window_size
             return None
@@ -4245,12 +4259,14 @@ class QCustomTitleBar:
             if self.window.isMaximized():
                 self.window.showNormal()
                 self.max_btn.setStyleSheet(
-                    "border-image:url('./images/max.png');background:#FFBE2F;border-radius:10px;"
+                    "QPushButton{border-image:url('./images/max.png');background:#ffbe2f;border-radius:10px;}"
+                    "QPushButton:hover{background:#ecae27;}"
                 )
             else:
                 self.window.showMaximized()
                 self.max_btn.setStyleSheet(
-                    "border-image:url('./images/restore.png');background:#FFBE2F;border-radius:10px;"
+                    "QPushButton{border-image:url('./images/restore.png');background:#ffbe2f;border-radius:10px;}"
+                    "QPushButton:hover{background:#ecae27;}"
                 )
                 # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
                 self.restore_window_size = QSize(self.window.width(), self.window.height())
@@ -4263,10 +4279,10 @@ class QCustomTitleBar:
         """
         # 想要边框 加上border:1px solid #cccccc;
         DEFAULT_STYLE = """
-                            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #fafafa,stop:1 #D1D1D0);
+                            background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #fafafa,stop:1 #d1d1d1);
                             color:#333333;padding:10px;border:1px solid #c6c6c6;
-                            border-top-left-radius: 10px;
-                            border-top-right-radius: 10px;
+                            border-top-left-radius: 4px;
+                            border-top-right-radius: 4px;
                         """
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
@@ -4604,21 +4620,25 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-index.css
-```css
+index.less vscode用 Easy Less 转成css就行了
+```less
 #centralwidget {
   border: 1px solid #c6c6c6;
   background: #fafafa;
-  border-radius: 10px;
+  border-radius: 4px;
 }
-#centralwidget #btn {
-  background: green;
-  color: #ffffff;
-  font-size: 50px;
-  border: none;
-}
-#centralwidget #btn:hover {
-  background: lightgreen;
+#centralwidget {
+  QPushButton {
+    padding: 10px 0;
+    background: rgb(8, 158, 228);
+    color: #ffffff;
+    font-size: 16px;
+    border: none;
+    border-radius: 4px;
+    &:hover {
+      background: rgb(18, 144, 202);
+    }
+  }
 }
 ```
 ![calc](../images/pyside6/自定义顶部工具条窗口可拖动.png)  
