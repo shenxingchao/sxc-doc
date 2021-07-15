@@ -34,6 +34,21 @@
 	}
 }
 ```
+6. vscide python 设置
+```json
+{
+    "python.pythonPath": "D:\\sxc\\python3\\python.exe",//python.exe绝对路径
+    "python.formatting.provider": "black",//python格式化工具
+    "editor.formatOnSave": true, //保存时自动格式化
+    "python.formatting.blackArgs": ["--line-length", "120"],
+    "less.compile": {
+        "compress": true, // true => remove surplus whitespace
+        "sourceMap": false, // true => generate source maps (.css.map files)
+        "out": true, // false => DON'T output .css files (overridable per-file, see below)
+        "outExt": "qss"//less转qss样式 用于pyqt，pyside
+    }
+}
+``` 
 
 ## python100天入门笔记
 
