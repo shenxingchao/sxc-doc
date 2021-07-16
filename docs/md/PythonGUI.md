@@ -4131,12 +4131,12 @@ pyinstall -w -D ./index.py --distpath ./dist
 # 安装
 pip install nuitka
 # 打包调试
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --output-dir=dist ./1.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist ./index.py
 # 打包安装
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --output-dir=dist ./1.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico --windows-product-name=小工具 ./index.py
 
 
---mingw64 #默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
+--mingw64 # 默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
 --standalone 独立环境，这是必须的(否则拷给别人无法使用)
 --show-memory 显示内存的占用
 --show-progress 显示编译的进度
@@ -4148,24 +4148,11 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 --windows-icon-from-ico=你的.ico 软件的图标
 --onefile 像pyinstaller一样打包成单个exe文件
 
---windows-company-name=Windows下软件公司信息
---windows-product-name=Windows下软件名称
---windows-file-version=Windows下软件的信息
---windows-product-version=Windows下软件的产品信息
---windows-file-description=Windows下软件的作用描述
---windows-uac-admin=Windows下用户可以使用管理员权限来安装
 
---plugin-enable=tk-inter 打包tkinter模块的刚需
---plugin-enable=numpy 打包numpy,pandas,matplotlib模块的刚需
---plugin-enable=torch 打包pytorch的刚需
---plugin-enable=tensorflow 打包tensorflow的刚需
---linux-onefile-icon=Linux下的图标位置
---include-package=复制比如numpy,PyQt5 这些带文件夹的叫包或者轮子
---include-module=复制比如when.py 这些以.py结尾的叫模块
-
-
---include-qt-plugins=sensible,styles 打包后PyQt的样式就不会变了
---include-qt-plugins=sensible,qml
+--help 查看所有命令
+--include-package=pyautogui,pyperclip,keyboard,mouse # 打包要用到的包
+--windows-icon-from-ico=./favicon.ico # 添加图标
+--windows-product-name=WINDOWS_PRODUCT_NAME # 应用名称
 ```
 !> 打包文件夹的启动速度比较快，打包成文件夹再用 enigmaprotector 打包成单个文件比较好
 
