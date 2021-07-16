@@ -4133,7 +4133,7 @@ pip install nuitka
 # 打包调试
 nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist ./index.py
 # 打包安装
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico --windows-product-name=小工具 ./index.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico  --include-data-dir=./images=images,./qss=qss ./index.py
 
 
 --mingw64 # 默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
@@ -4152,7 +4152,7 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 --help 查看所有命令
 --include-package=pyautogui,pyperclip,keyboard,mouse # 打包要用到的包
 --windows-icon-from-ico=./favicon.ico # 添加图标
---windows-product-name=WINDOWS_PRODUCT_NAME # 应用名称
+--windows-product-name=WINDOWS_PRODUCT_NAME # 应用名称 这个中文名好像不行，英文的也还没试
 ```
 !> 打包文件夹的启动速度比较快，打包成文件夹再用 enigmaprotector 打包成单个文件比较好
 
