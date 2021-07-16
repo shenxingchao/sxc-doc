@@ -4131,9 +4131,9 @@ pyinstall -w -D ./index.py --distpath ./dist
 # 安装
 pip install nuitka
 # 打包调试
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist  --include-data-dir=./images=images,./qss=qss ./index.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist  --include-data-dir=./images=images --include-data-dir=./qss=qss ./index.py
 # 打包安装
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico  --include-data-dir=./images=images,./qss=qss ./index.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico  --include-data-dir=./images=images --include-data-dir=./qss=qss ./index.py
 
 
 --mingw64 # 默认为已经安装的vs2017去编译，否则就按指定的比如mingw(官方建议)
