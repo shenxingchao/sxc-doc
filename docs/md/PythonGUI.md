@@ -4131,7 +4131,7 @@ pyinstall -w -D ./index.py --distpath ./dist
 # 安装
 pip install nuitka
 # 打包调试
-nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist ./index.py
+nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist  --include-data-dir=./images=images,./qss=qss ./index.py
 # 打包安装
 nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pyside6 --windows-disable-console --nofollow-imports --follow-import-to=lib --include-package=pyautogui,pyperclip,keyboard,mouse --output-dir=dist --windows-icon-from-ico=./favicon.ico  --include-data-dir=./images=images,./qss=qss ./index.py
 
