@@ -4448,3 +4448,135 @@ Application(backend="win32").connect(process=21564)
 """
 ```
 
+### 键盘鼠标控制
+1. autohotkey
+```py
+"""
+https://www.autohotkey.com/
+py -m ahkpy .\hello.py
+"""
+import sys
+import ahkpy as ahk
+from ahkpy.flow import sleep
+
+
+@ahk.hotkey("F1")
+def bye():
+    """
+    @description  添加函数热键监听F1终止程序
+    @param
+    @return
+    """
+    ahk.message_box("Bye!")
+    sys.exit()
+
+
+sleep(2)
+while True:
+    # 发送按键 https://www.autohotkey.com/docs/commands/Send.htm#keynames 组合键 https://www.autohotkey.com/docs/commands/Send.htm#Parameters
+    ahk.send_event("{Backspace}")
+    sleep(1)
+```
+
+2. Virtualkey
+```py
+from re import T
+from bdtime import tt  # 新版由 bd_time 改为 bdtime
+from VirtualKey import keybd_event, scancode_down_up, scancodes, down_up, vk
+
+
+# keybd_event
+def f(ch):
+    ret = keybd_event(ch)
+    return ret
+
+
+tt.sleep(3)
+while True:
+    f(vk.a)
+    tt.sleep(0.02)
+```
+3. win32api
+```py
+import ctypes
+import win32con
+import time
+
+
+class GUIAuto:
+    def press(self, key_code):
+        """
+        @description 按下按键
+        @param key_code a=65
+        @return
+        """
+        ctypes.windll.user32.keybd_event(key_code, key_code, 0, 0)
+        time.sleep(0.2)
+        ctypes.windll.user32.keybd_event(key_code, key_code, win32con.KEYEVENTF_KEYUP, 0)
+
+    def pressLong(self, key_code, second, i=0):
+        """
+        @description 长按按键
+        @param key_code a=65
+        @return
+        """
+        i += 1
+        ctypes.windll.user32.keybd_event(key_code, key_code, 0, 0)
+        time.sleep(0.02)
+        if i * 0.02 == second:
+            ctypes.windll.user32.keybd_event(key_code, key_code, win32con.KEYEVENTF_KEYUP, 0)
+        else:
+            self.pressLong(key_code, second, i)
+
+    def move(self, x, y):
+        """
+        @description 鼠标移动到某一位置
+        @param x 坐标x
+        @param y 坐标y
+        @return
+        """
+        ctypes.windll.user32.SetCursorPos(x, y)
+
+    def click(self, x, y):
+        """
+        @description 鼠标单机某一位置
+        @param x 坐标x
+        @param y 坐标y
+        @return
+        """
+        ctypes.windll.user32.SetCursorPos(x, y)
+        # 枚举值 2是按下 4是抬起
+        ctypes.windll.user32.mouse_event(2, 0, 0, 0, 0)
+        ctypes.windll.user32.mouse_event(4, 0, 0, 0, 0)
+
+    def drag(self, x, y, x1, y1):
+        """
+        @description   鼠标拖拽
+        @param x 坐标x
+        @param y 坐标y
+        @param x1 拖动后坐标x
+        @param y1 拖动后坐标y
+        @return
+        """
+        ctypes.windll.user32.SetCursorPos(x, y)
+        ctypes.windll.user32.mouse_event(2, 0, 0, 0, 0)
+        time.sleep(1)
+        ctypes.windll.user32.SetCursorPos(x1, y1)
+        time.sleep(1)
+        ctypes.windll.user32.mouse_event(4, 0, 0, 0, 0)
+
+
+def main():
+    gui_auto = GUIAuto()
+    time.sleep(3)
+    while True:
+        gui_auto.pressLong(65, 0.5)
+        gui_auto.pressLong(68, 0.5)
+
+
+if __name__ == "__main__":
+    main()
+```
+4. [kmclass虚拟键鼠驱动](https://di1shuai.com/kmclass%E8%99%9A%E6%8B%9F%E9%94%AE%E9%BC%A0%E9%A9%B1%E5%8A%A8.html)
+    第二次启动会有报错，是因为第一次结束没有关闭服务 [证书配置](https://blog.csdn.net/weixin_45875105/article/details/117739777)
+    禁止驱动签名  开启测试模式 全部完成后再重启运行示例即可

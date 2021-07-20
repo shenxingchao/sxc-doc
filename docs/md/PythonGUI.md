@@ -628,6 +628,7 @@ if __name__ == "__main__":
     main()
 ```
 !> 这里的solt.handleClicked可以换成任意函数 或者lambda str: print(str))
+
 !> 信号和槽可以用在不同窗口之间传递数据
 
 ## 设置控件尺寸/边距/层级关系
@@ -2229,6 +2230,7 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/菜单按钮.png)  
+
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
 ## 原生菜单栏
@@ -2309,7 +2311,8 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/原生菜单栏.png)  
-!>窗口需要继承QMainwindow否则没有menuBar方法 ,设置了窗口背景颜色 会导致菜单鼠标移入的颜色变白色
+
+!> 窗口需要继承QMainwindow否则没有menuBar方法 ,设置了窗口背景颜色 会导致菜单鼠标移入的颜色变白色
 
 ## 右键菜单
 1. 默认右键菜单
@@ -2543,6 +2546,7 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/工具按钮及其菜单和事件.png)  
+
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
 ## 滚动条
@@ -3374,6 +3378,7 @@ QLabel[name="label"]:hover{
 } */
 ```
 ![calc](../images/pyside6/Qss加载方式.png)  
+
 !> 注意一点就行了，设置同一个控件样式要用一样的选择器，用不一样的第二种会失效
 
 ## 表单布局
@@ -3522,6 +3527,7 @@ if __name__ == "__main__":
     main()
 ```
 ![calc](../images/pyside6/长宽自适应设置.png)  
+
 !> qtdesigner里面主窗口一定要右键 布局 垂直或水平布局，然后主窗口里面的布局才会自适应窗口
 
 ## 表格
