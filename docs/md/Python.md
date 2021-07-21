@@ -2965,7 +2965,7 @@ if __name__ == "__main__":
 ```
 
 #### sqlite3
-测试的表格如下
+测试的表格如下  
 ![calc](../images/sqlite3_table_user.png)  
 
 ```py
