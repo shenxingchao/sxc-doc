@@ -2964,7 +2964,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### sqlite3w
+#### sqlite3
 测试的表格如下
 ![calc](../images/sqlite3_table_user.png)  
 
