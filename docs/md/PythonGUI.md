@@ -3744,6 +3744,10 @@ if __name__ == "__main__":
 ```
 ![calc](../images/pyside6/tab选项卡.png)  
 
+## 滚动区域ScrollArea
+滚动区域自适应高度，必须在内容scrollAreaWidgetContents里添加垂直布局
+![calc](../images/pyside6/scrollArea高度自适应方法.png)  
+
 ## 动画
 ```py
 """
@@ -4641,6 +4645,7 @@ index.less vscode用 Easy Less 转成qss就行了
 [restore.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/restore.png)  
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
+
 
 <!--
 ## 集成mysql 无边框窗口 -->
