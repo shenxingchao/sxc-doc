@@ -3597,6 +3597,16 @@ class Window(QWidget):
         # table.setRowCount(0)
         # 13.禁用编辑
         # table.setEditTriggers(QAbstractItemView.NoEditTriggers)
+        
+        # 14.删除选中的行
+        # select_row_index = []
+        # for item in table.selectedItems():
+        #     if item.row() not in select_row_index:
+        #         select_row_index.append(item.row())
+        # select_row_index.sort(reverse=True)
+        # # 多选删除的时候要从大到小删除不然删了前面的，后面选中的索引就不对了
+        # for item in select_row_index:
+        #     table.removeRow(item)
 
         # 信号
         # 1.单元格内容改动
@@ -4646,7 +4656,7 @@ index.less vscode用 Easy Less 转成qss就行了
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
-
+?> 鼠标移动发现的BUG，若里面放表格控件的时候，鼠标移入会变成缩放的指针，只要再qtdesiner里面把表格的指针设一下就行了
 <!--
 ## 集成mysql 无边框窗口 -->
 
