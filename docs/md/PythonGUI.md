@@ -4189,6 +4189,9 @@ from PySide6.QtWidgets import QApplication, QLabel, QMainWindow, QPushButton
 from lib.ui_main import Ui_MainWindow
 import sys
 
+# 调用windll显示任务栏图标 任务栏图标不要通过QTdesiner去引入，直接在代码里引入 这里在images里面放入图标 打包的时候会把images图标一起打包
+import ctypes
+
 """ copy start """
 # 默认标题栏高度 必须设
 DEFAULT_TITILE_BAR_HEIGHT = 40
@@ -4242,8 +4245,8 @@ class QCustomTitleBar:
         self.max_btn.pressed.connect(self.setMaxEvent)
         # 最小化按钮绑定窗口最小化事件
         self.min_btn.pressed.connect(self.window.showMinimized)
-        # 6.记录恢复前的大小-ps非常有用
-        self.restore_window_size = None
+        # 6.记录全屏窗口的大小-ps非常有用
+        self.window_max_size = None
         # 7.设置标题栏鼠标跟踪 鼠标移入触发，不设置，移入标题栏不触发
         self.title.setMouseTracking(True)
 
@@ -4260,7 +4263,7 @@ class QCustomTitleBar:
                     "QPushButton{border-image:url('./images/max.png');background:#ffbe2f;border-radius:10px;}"
                     "QPushButton:hover{background:#ecae27;}"
                 )
-                return self.restore_window_size
+                return self.window_max_size
             return None
         else:
             if self.window.isMaximized():
@@ -4275,8 +4278,8 @@ class QCustomTitleBar:
                     "QPushButton{border-image:url('./images/restore.png');background:#ffbe2f;border-radius:10px;}"
                     "QPushButton:hover{background:#ecae27;}"
                 )
-                # 最大化的时候记录最大化前窗口大小 用于返回最大化时拖动窗口恢复后的大小，不然恢复的时候窗口大小是最大化的，这个程序循环帧会取不到恢复后的宽度
-                self.restore_window_size = QSize(self.window.width(), self.window.height())
+                # 记录最大化窗口的大小  用于返回最大化时拖动窗口恢复前的大小 这个程序循环帧会取不到恢复前的宽度
+                self.window_max_size = QSize(self.window.width(), self.window.height())
 
     def setStyle(self, style: str = ""):
         """
@@ -4288,8 +4291,8 @@ class QCustomTitleBar:
         DEFAULT_STYLE = """
                             background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #fafafa,stop:1 #d1d1d1);
                             color:#333333;padding:10px;border:1px solid #c6c6c6;
-                            border-top-left-radius: 4px;
-                            border-top-right-radius: 4px;
+                            border-top-left-radius:4px;
+                            border-top-right-radius:4px;
                         """
         self.title.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         # 设置样式
@@ -4569,12 +4572,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # 如果按下才能移动
         elif self.drag_flag:
             # 窗口恢复
-            restore_window_size = self.titleBar.setMaxEvent(True)
+            window_max_size = self.titleBar.setMaxEvent(True)
             # 如果有恢复窗口，则返回恢复时窗口坐标
-            if restore_window_size:
+            if window_max_size:
                 # 这里没有解决双屏BUG
-                # 移动到鼠标正确的比例位置 按下时的位置减去(比例 * 恢复前的宽度)
-                self.win_x = self.mouse_x - (self.mouse_x / self.width()) * restore_window_size.width()
+                # 移动到鼠标正确的比例位置 按下时的位置 - (比例 * 恢复后的宽度)  比例等于 按下时的位置/ 全屏窗口的宽度
+                self.win_x = self.mouse_x - (self.mouse_x / window_max_size.width()) * self.width()
             # 设置窗口移动的距离
             self.move(self.win_x + offset_x, self.win_y + offset_y)
         return super().mouseMoveEvent(a0)
@@ -4618,6 +4621,12 @@ def main():
     # 设置全局qss样式
     with open("./qss/index.qss", "r", encoding="UTF-8") as f:
         app.setStyleSheet(f.read())
+    # 设置任务栏图标
+    icon = QtGui.QIcon()
+    icon.addFile(u"./images/favicon.ico", QSize(), QtGui.QIcon.Normal, QtGui.QIcon.Off)
+    window.setWindowIcon(icon)
+    # 显示任务栏图标必须
+    ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("app")
     # 显示窗口
     window.show()
     # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
@@ -4653,6 +4662,7 @@ index.less vscode用 Easy Less 转成qss就行了
 [max.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/max.png)  
 [close.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/close.png)  
 [restore.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/restore.png)  
+[favicon.icon](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/favicon.icon)  
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
