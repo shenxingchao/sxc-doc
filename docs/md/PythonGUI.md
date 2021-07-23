@@ -4662,7 +4662,7 @@ index.less vscode用 Easy Less 转成qss就行了
 [max.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/max.png)  
 [close.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/close.png)  
 [restore.png](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/restore.png)  
-[favicon.icon](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/favicon.icon)  
+[favicon.icon](https://shenxingchao.github.io/sxc-doc/images/pyside6/images/favicon.ico)  
 
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
