@@ -2509,12 +2509,19 @@ class Db:
         )
         # 创建游标，操作设置为字典类型
         self.cur = self.conn.cursor(cursor=pymysql.cursors.DictCursor)
+        # 执行操作的表名
+        self.table_name = ""
         # 分页字符串
-        self.limit = ""
+        self.limit_sql = ""
         # 保存的最后一次执行sql语句
         self.sql = ""
         # 保存查询的排序方式
-        self.order = ""
+        self.order_sql = ""
+        # 保存的where条件
+        self.where_sql = ""
+        self.values = []
+        # 保存的查询field字段
+        self.field_sql = "*"
         # 是否自动提交 否的时候用在执行事务流程上
         self.auto_commit = True
 
@@ -2597,68 +2604,72 @@ class Db:
             self.__setLastSql(sql)
             self.__clearSql()
 
-    def __getWhere(self, wheres=None):
+    def table(self, table_name):
+        self.table_name = table_name
+        return self
+
+    def where(self, *wheres):
         """
         @description 获取需要的查询条件 和 query等方法中，execute执行需要的传参values
         @param wheres 查询条件 tuple(dict | list)
         @return where_sql 拼接完成的查询条件 string
-        @return values execute所需参数 list
+        @return self db对象
         """
-        values = []
-        where_sql = ""
+        self.values = []
+        self.where_sql = ""
         if wheres:
-            where_sql = " WHERE "
+            self.where_sql = " WHERE "
             for where in wheres:
-                if len(values) != 0:
-                    where_sql += "or "
+                if len(self.values) != 0:
+                    self.where_sql += "or "
                 if where and isinstance(where, dict):
                     # 如果where不为空且是字典传参 等值查找条件
                     for key in where:
-                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
-                            where_sql += "and "
-                        where_sql += "`" + key + "`"
-                        where_sql += "="
-                        where_sql += "%s "
-                        values.append(where[key])
+                        if len(self.values) != 0 and self.where_sql[-3:-1:1] != "or":
+                            self.where_sql += "and "
+                        self.where_sql += "`" + key + "`"
+                        self.where_sql += "="
+                        self.where_sql += "%s "
+                        self.values.append(where[key])
                 elif where and isinstance(where, list):
                     # 如果where不为空且是嵌套列表传参 高级查询
                     for item in where:
-                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
-                            where_sql += "and "
-                        where_sql += "`" + item[0] + "`"
+                        if len(self.values) != 0 and self.where_sql[-3:-1:1] != "or":
+                            self.where_sql += "and "
+                        self.where_sql += "`" + item[0] + "`"
                         if item[1] == "between" or item[1] == "BETWEEN":
-                            where_sql += " BETWEEN %s AND %s "
-                            values.append(item[2])
-                            values.append(item[3])
+                            self.where_sql += " BETWEEN %s AND %s "
+                            self.values.append(item[2])
+                            self.values.append(item[3])
                         elif item[1] == "in" or item[1] == "IN":
                             sub_where_sql = ""
                             for item_value in item[2]:
                                 if sub_where_sql:
                                     sub_where_sql += ","
                                 sub_where_sql += "%s"
-                                values.append(item_value)
-                            where_sql += " IN (" + sub_where_sql + ")"
+                                self.values.append(item_value)
+                            self.where_sql += " IN (" + sub_where_sql + ")"
                         elif item[1] == "not in" or item[1] == "NOT IN":
                             sub_where_sql = ""
                             for item_value in item[2]:
                                 if sub_where_sql:
                                     sub_where_sql += ","
                                 sub_where_sql += "%s"
-                                values.append(item_value)
-                            where_sql += " NOT IN (" + sub_where_sql + ")"
+                                self.values.append(item_value)
+                            self.where_sql += " NOT IN (" + sub_where_sql + ")"
                         else:
-                            where_sql += " " + item[1] + " "
-                            where_sql += "%s "
-                            values.append(item[2])
+                            self.where_sql += " " + item[1] + " "
+                            self.where_sql += "%s "
+                            self.values.append(item[2])
                 else:
                     continue
-        return where_sql, values
+        return self
 
-    def __getSelectFeild(self, field):
+    def field(self, field):
         """
         @description  根据传入的field组装成带``的field
         @param field 逗号分隔的字段字符串 string
-        @return field 带``的field或者*  string
+        @return self db对象
         """
         if field != "*":
             # 按英文逗号拆分后，用引号包裹组装
@@ -2666,8 +2677,8 @@ class Db:
             field_list = []
             for item in list:
                 field_list.append("`" + item + "`")
-            field = ",".join(field_list)
-        return field
+            self.field_sql = ",".join(field_list)
+        return self
 
     def __getFieldValues(self, data=None):
         """
@@ -2729,69 +2740,70 @@ class Db:
                 values.append(data[key])
         return field, values
 
-    def find(self, table_name, field="*", *where):
+    def find(self):
         """
         @description 查询符合条件的一条记录
-        @param table_name 表名 string
-        @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.__getWhere(where)
-        field = self.__getSelectFeild(field)
-        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
-        return self.queryOne(sql, values)
+        sql = (
+            "SELECT "
+            + self.field_sql
+            + " FROM `"
+            + self.table_name
+            + "`"
+            + self.where_sql
+            + self.limit_sql
+            + self.order_sql
+        )
+        return self.queryOne(sql, self.values)
 
-    def select(self, table_name, field="*", *where):
+    def select(self):
         """
         @description 查询符合条件的所有记录
-        @param table_name 表名 string
-        @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.__getWhere(where)
-        field = self.__getSelectFeild(field)
-        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
-        return self.query(sql, values)
+        sql = (
+            "SELECT "
+            + self.field_sql
+            + " FROM `"
+            + self.table_name
+            + "`"
+            + self.where_sql
+            + self.limit_sql
+            + self.order_sql
+        )
+        return self.query(sql, self.values)
 
-    def insert(self, table_name, data, return_last_row_id=False):
+    def insert(self, data, return_last_row_id=False):
         """
         @description 插入一条记录
-        @param table_name 表名 string
         @param data 插入的数据 dict | list
         @param return_last_row_id 是否返回当前游标所在的行id boolean
         @return 影响行数或游标所在id int
         """
         value_sql, values = self.__getFieldValues(data)
-        sql = "INSERT INTO `" + table_name + "` " + value_sql
+        sql = "INSERT INTO `" + self.table_name + "` " + value_sql
         return self.__execute(sql, values, return_last_row_id)
 
-    def update(self, table_name, data, *where):
+    def update(self, data):
         """
         @description 更新符合条件的所有记录的多个字段
-        @param table_name 表名 string
         @param data 更新的数据 dict
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 影响行数 int
         """
-        where, where_values = self.__getWhere(where)
         field, field_values = self.__getSetField(data)
         # 注意field在前 where在后
-        values = field_values + where_values
-        sql = "UPDATE `" + table_name + "` SET " + field + where
+        values = field_values + self.values
+        sql = "UPDATE `" + self.table_name + "` SET " + field + self.where_sql
         return self.__execute(sql, values)
 
-    def delete(self, table_name, *where):
+    def delete(self):
         """
         @description 删除符合条件的所有记录
-        @param table_name 表名 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 影响行数 int
         """
-        where, values = self.__getWhere(where)
-        sql = "DELETE FROM `" + table_name + "`" + where
-        return self.__execute(sql, values)
+        sql = "DELETE FROM `" + self.table_name + "`" + self.where_sql
+        return self.__execute(sql, self.values)
 
     def getLastSql(self):
         """
@@ -2809,22 +2821,24 @@ class Db:
         """
         self.sql = sql
 
-    def setLimit(self, page=1, page_size=10):
+    def limit(self, page=1, page_size=10):
         """
         @description 设置实例对象的分页字符串
         @param page 当前页 int
         @param page_size 分页页数 int
         @return
         """
-        self.limit = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
+        self.limit_sql = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
+        return self
 
-    def setOrder(self, order=""):
+    def order(self, order=""):
         """
         @description  设置查询的排序方式
         @param order 排序字符串 格式 id desc,name asc
         @return
         """
-        self.order = " ORDER BY " + order
+        self.order_sql = " ORDER BY " + order
+        return self
 
     def beginTransaction(self):
         """
@@ -2859,8 +2873,12 @@ class Db:
         @param
         @return
         """
-        self.limit = ""  # 清除分页字符串
-        self.order = ""  # 清除排序字符串
+        self.table_name = ""  # 清除执行操作的表名
+        self.limit_sql = ""  # 清除分页字符串
+        self.order_sql = ""  # 清除排序字符串
+        self.where_sql = ""  # 清除查询条件字符串
+        self.values = []  # 清除查询条件对应的值
+        self.field_sql = "*"  # 清除查询field字段
 
 
 def main():
@@ -2895,30 +2913,28 @@ def main():
         原生语句 SELECT `field1`,`field2` FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
         # 查询一条记录
-        res = db.find("user", "id,name", {"id": 3, "name": "c"})
+        res = db.table("user").where({"id": 3, "name": "c"}).field("id,name").find()
         print(res)  # 输出{'id': 3, 'name': 'c'}
         # 简单查询
-        res = db.select("user", "id,name", {"id": 3, "name": "c"})
+        res = db.table("user").where({"id": 3, "name": "c"}).field("id,name").select()
         print(res)  # 输出[{'id': 3, 'name': 'c'}]
         # 高级查询
-        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]])
+        res = db.table("user").where([["id", ">", 2], ["name", "like", "%c%"]]).field("id,name").select()
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 5, 'name': 'hack'}]
         # 或查询
-        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"})
+        res = db.table("user").where([["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"}).field("id,name").select()
         print(res)  # 输出[{'id': 2, 'name': 'b'}, {'id': 3, 'name': 'c'}, {'id': 5, 'name': 'hack'}]
         # between
-        res = db.select("user", "id,name", [["id", "between", 3, 5]])
+        res = db.table("user").where([["id", "between", 3, 5]]).field("id,name").select()
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': 'hack'}]
         # in | not in
-        res = db.select("user", "id,name", [["id", "in", [3, 4, 5]]])
+        res = db.table("user").where([["id", "in", [3, 4, 5]]]).field("id,name").select()
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}, {'id': 5, 'name': 'hack'}]
         # 分页查询
-        db.setLimit(2, 2)
-        res = db.select("user")
+        res = db.table("user").limit(2, 2).select()
         print(res)  # 输出[{'id': 3, 'name': 'c'}, {'id': 4, 'name': 'd'}]
         # 排序查询
-        db.setOrder("id desc,name asc")
-        res = db.select("user")
+        res = db.table("user").order("id desc,name asc").select()
         print(res)
         # 输出 [{'id': 5, 'name': 'hack'}, {'id': 4, 'name': 'd'}, {'id': 3, 'name': 'c'}, {'id': 2, 'name': 'b'}, {'id': 1, 'name': 'a'}]
         # 原生查询
@@ -2929,31 +2945,31 @@ def main():
         原生语句  INSERT INTO `table_name` (`field1`,`field2`) VALUES (value1,value2),(value3,value4)
         """
         # 插入一条记录
-        res = db.insert("user", {"name": "e"})  # 返回影响行数
+        res = db.table("user").insert({"name": "e"})  # 返回影响行数
         print(res)  # 输出1
-        res = db.insert("user", {"name": "f"}, True)  # 返回插入的Id值
+        res = db.table("user").insert({"name": "f"}, True)  # 返回插入的Id值
         print(res)  # 输出7
         # 插入多条记录
-        res = db.insert("user", [{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
+        res = db.table("user").insert([{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
         print(res)  # 输出2
         """
         修改方法
         原生语句 UPDATE `table_name` SET `field1`=value1,`field2`=value2 WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.update("user", {"name": "hack"}, {"id": 5})  # 返回影响的行数
+        res = db.table("user").where({"id": 5}).update({"name": "hack"})  # 返回影响的行数
         print(res)  # 输出1 输出0 说明没更新，或更新失败
         """ 
         删除方法
         原生语句 DELETE FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.delete("user", [["id", ">", 5]])  # 返回影响的行数
+        res = db.table("user").where([["id", ">", 5]]).delete()  # 返回影响的行数
         print(res)  # 输出4
         """
         事务
         """
         db.beginTransaction()
         try:
-            db.update("不存在的表名", {"name": "事务更新"}, {"id": 1})  # 返回影响的行数
+            db.table("不存在的表名").where({"id": 1}).update({"name": "事务更新"})  # 返回影响的行数
             db.commit()
         except Exception as result:
             print(result)  # 输出(1146, "Table 'test.不存在的表名' doesn't exist")
@@ -2984,12 +3000,19 @@ class SqliteDb:
         self.conn = sqlite3.connect(db_name)
         # 创建游标，操作设置为字典类型
         self.cur = self.conn.cursor()
+        # 执行操作的表名
+        self.table_name = ""
         # 分页字符串
-        self.limit = ""
+        self.limit_sql = ""
         # 保存的最后一次执行sql语句
         self.sql = ""
         # 保存查询的排序方式
-        self.order = ""
+        self.order_sql = ""
+        # 保存的where条件
+        self.where_sql = ""
+        self.values = []
+        # 保存的查询field字段
+        self.field_sql = "*"
         # 是否自动提交 否的时候用在执行事务流程上
         self.auto_commit = True
 
@@ -3072,68 +3095,72 @@ class SqliteDb:
             self.__setLastSql(sql)
             self.__clearSql()
 
-    def __getWhere(self, wheres=None):
+    def table(self, table_name):
+        self.table_name = table_name
+        return self
+
+    def where(self, *wheres):
         """
         @description 获取需要的查询条件 和 query等方法中，execute执行需要的传参values
         @param wheres 查询条件 tuple(dict | list)
         @return where_sql 拼接完成的查询条件 string
-        @return values execute所需参数 list
+        @return self db对象
         """
-        values = []
-        where_sql = ""
+        self.values = []
+        self.where_sql = ""
         if wheres:
-            where_sql = " WHERE "
+            self.where_sql = " WHERE "
             for where in wheres:
-                if len(values) != 0:
-                    where_sql += "or "
+                if len(self.values) != 0:
+                    self.where_sql += "or "
                 if where and isinstance(where, dict):
                     # 如果where不为空且是字典传参 等值查找条件
                     for key in where:
-                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
-                            where_sql += "and "
-                        where_sql += "`" + key + "`"
-                        where_sql += "="
-                        where_sql += "? "
-                        values.append(where[key])
+                        if len(self.values) != 0 and self.where_sql[-3:-1:1] != "or":
+                            self.where_sql += "and "
+                        self.where_sql += "`" + key + "`"
+                        self.where_sql += "="
+                        self.where_sql += "? "
+                        self.values.append(where[key])
                 elif where and isinstance(where, list):
                     # 如果where不为空且是嵌套列表传参 高级查询
                     for item in where:
-                        if len(values) != 0 and where_sql[-3:-1:1] != "or":
-                            where_sql += "and "
-                        where_sql += "`" + item[0] + "`"
+                        if len(self.values) != 0 and self.where_sql[-3:-1:1] != "or":
+                            self.where_sql += "and "
+                        self.where_sql += "`" + item[0] + "`"
                         if item[1] == "between" or item[1] == "BETWEEN":
-                            where_sql += " BETWEEN ? AND ? "
-                            values.append(item[2])
-                            values.append(item[3])
+                            self.where_sql += " BETWEEN ? AND ? "
+                            self.values.append(item[2])
+                            self.values.append(item[3])
                         elif item[1] == "in" or item[1] == "IN":
                             sub_where_sql = ""
                             for item_value in item[2]:
                                 if sub_where_sql:
                                     sub_where_sql += ","
                                 sub_where_sql += "?"
-                                values.append(item_value)
-                            where_sql += " IN (" + sub_where_sql + ")"
+                                self.values.append(item_value)
+                            self.where_sql += " IN (" + sub_where_sql + ")"
                         elif item[1] == "not in" or item[1] == "NOT IN":
                             sub_where_sql = ""
                             for item_value in item[2]:
                                 if sub_where_sql:
                                     sub_where_sql += ","
                                 sub_where_sql += "?"
-                                values.append(item_value)
-                            where_sql += " NOT IN (" + sub_where_sql + ")"
+                                self.values.append(item_value)
+                            self.where_sql += " NOT IN (" + sub_where_sql + ")"
                         else:
-                            where_sql += " " + item[1] + " "
-                            where_sql += "? "
-                            values.append(item[2])
+                            self.where_sql += " " + item[1] + " "
+                            self.where_sql += "? "
+                            self.values.append(item[2])
                 else:
                     continue
-        return where_sql, values
+        return self
 
-    def __getSelectFeild(self, field):
+    def field(self, field):
         """
         @description  根据传入的field组装成带``的field
         @param field 逗号分隔的字段字符串 string
-        @return field 带``的field或者*  string
+        @return self db对象
         """
         if field != "*":
             # 按英文逗号拆分后，用引号包裹组装
@@ -3141,8 +3168,8 @@ class SqliteDb:
             field_list = []
             for item in list:
                 field_list.append("`" + item + "`")
-            field = ",".join(field_list)
-        return field
+            self.field_sql = ",".join(field_list)
+        return self
 
     def __getFieldValues(self, data=None):
         """
@@ -3204,69 +3231,70 @@ class SqliteDb:
                 values.append(data[key])
         return field, values
 
-    def find(self, table_name, field="*", *where):
+    def find(self):
         """
         @description 查询符合条件的一条记录
-        @param table_name 表名 string
-        @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.__getWhere(where)
-        field = self.__getSelectFeild(field)
-        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
-        return self.queryOne(sql, values)
+        sql = (
+            "SELECT "
+            + self.field_sql
+            + " FROM `"
+            + self.table_name
+            + "`"
+            + self.where_sql
+            + self.limit_sql
+            + self.order_sql
+        )
+        return self.queryOne(sql, self.values)
 
-    def select(self, table_name, field="*", *where):
+    def select(self):
         """
         @description 查询符合条件的所有记录
-        @param table_name 表名 string
-        @param field 查询字段 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 结果集 dict
         """
-        where, values = self.__getWhere(where)
-        field = self.__getSelectFeild(field)
-        sql = "SELECT " + field + " FROM `" + table_name + "`" + where + self.limit + self.order
-        return self.query(sql, values)
+        sql = (
+            "SELECT "
+            + self.field_sql
+            + " FROM `"
+            + self.table_name
+            + "`"
+            + self.where_sql
+            + self.limit_sql
+            + self.order_sql
+        )
+        return self.query(sql, self.values)
 
-    def insert(self, table_name, data, return_last_row_id=False):
+    def insert(self, data, return_last_row_id=False):
         """
         @description 插入一条记录
-        @param table_name 表名 string
         @param data 插入的数据 dict | list
         @param return_last_row_id 是否返回当前游标所在的行id boolean
         @return 影响行数或游标所在id int
         """
         value_sql, values = self.__getFieldValues(data)
-        sql = "INSERT INTO `" + table_name + "` " + value_sql
+        sql = "INSERT INTO `" + self.table_name + "` " + value_sql
         return self.__execute(sql, values, return_last_row_id)
 
-    def update(self, table_name, data, *where):
+    def update(self, data):
         """
         @description 更新符合条件的所有记录的多个字段
-        @param table_name 表名 string
         @param data 更新的数据 dict
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 影响行数 int
         """
-        where, where_values = self.__getWhere(where)
         field, field_values = self.__getSetField(data)
         # 注意field在前 where在后
-        values = field_values + where_values
-        sql = "UPDATE `" + table_name + "` SET " + field + where
+        values = field_values + self.values
+        sql = "UPDATE `" + self.table_name + "` SET " + field + self.where_sql
         return self.__execute(sql, values)
 
-    def delete(self, table_name, *where):
+    def delete(self):
         """
         @description 删除符合条件的所有记录
-        @param table_name 表名 string
-        @param *where 查询条件 可变参数 多个参数表示或  list | dict
         @return 影响行数 int
         """
-        where, values = self.__getWhere(where)
-        sql = "DELETE FROM `" + table_name + "`" + where
-        return self.__execute(sql, values)
+        sql = "DELETE FROM `" + self.table_name + "`" + self.where_sql
+        return self.__execute(sql, self.values)
 
     def getLastSql(self):
         """
@@ -3284,22 +3312,24 @@ class SqliteDb:
         """
         self.sql = sql
 
-    def setLimit(self, page=1, page_size=10):
+    def limit(self, page=1, page_size=10):
         """
         @description 设置实例对象的分页字符串
         @param page 当前页 int
         @param page_size 分页页数 int
         @return
         """
-        self.limit = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
+        self.limit_sql = " LIMIT " + str((page - 1) * page_size) + "," + str(page_size)
+        return self
 
-    def setOrder(self, order=""):
+    def order(self, order=""):
         """
         @description  设置查询的排序方式
         @param order 排序字符串 格式 id desc,name asc
         @return
         """
-        self.order = " ORDER BY " + order
+        self.order_sql = " ORDER BY " + order
+        return self
 
     def beginTransaction(self):
         """
@@ -3334,41 +3364,46 @@ class SqliteDb:
         @param
         @return
         """
-        self.limit = ""  # 清除分页字符串
-        self.order = ""  # 清除排序字符串
+        self.table_name = ""  # 清除执行操作的表名
+        self.limit_sql = ""  # 清除分页字符串
+        self.order_sql = ""  # 清除排序字符串
+        self.where_sql = ""  # 清除查询条件字符串
+        self.values = []  # 清除查询条件对应的值
+        self.field_sql = "*"  # 清除查询field字段
 
 
 def main():
+    """
+    用法  手动在当前路径下db文件夹创建database.db文件
+    """
     with SqliteDb("./db/database.db") as db:
         """
         查询方法
         原生语句 SELECT `field1`,`field2` FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
         # 查询一条记录
-        res = db.find("user", "id,name", {"id": 3, "name": "c"})
+        res = db.table("user").where({"id": 3, "name": "c"}).field("id,name").find()
         print(res)  # 输出(3, 'c')
         # 简单查询
-        res = db.select("user", "id,name", {"id": 3, "name": "c"})
+        res = db.table("user").where({"id": 3, "name": "c"}).field("id,name").select()
         print(res)  # 输出[(3, 'c')]
         # 高级查询
-        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]])
+        res = db.table("user").where([["id", ">", 2], ["name", "like", "%c%"]]).field("id,name").select()
         print(res)  # 输出[(3, 'c'), (5, 'hack')]
         # 或查询
-        res = db.select("user", "id,name", [["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"})
+        res = db.table("user").where([["id", ">", 2], ["name", "like", "%c%"]], {"name": "b"}).field("id,name").select()
         print(res)  # 输出[(2, 'b'), (3, 'c'), (5, 'hack')]
         # between
-        res = db.select("user", "id,name", [["id", "between", 3, 5]])
+        res = db.table("user").where([["id", "between", 3, 5]]).field("id,name").select()
         print(res)  # 输出[(3, 'c'), (4, 'd'), (5, 'hack')]
         # in | not in
-        res = db.select("user", "id,name", [["id", "in", [3, 4, 5]]])
+        res = db.table("user").where([["id", "in", [3, 4, 5]]]).field("id,name").select()
         print(res)  # 输出[(3, 'c'), (4, 'd'), (5, 'hack')]
         # 分页查询
-        db.setLimit(2, 2)
-        res = db.select("user")
+        res = db.table("user").limit(2, 2).select()
         print(res)  # 输出[(3, 'c'), (4, 'd')]
         # 排序查询
-        db.setOrder("id desc,name asc")
-        res = db.select("user")
+        res = db.table("user").order("id desc,name asc").select()
         print(res)
         # 输出 [(5, 'hack'), (4, 'd'), (3, 'c'), (2, 'b'), (1, 'a')]
         # 原生查询
@@ -3379,31 +3414,31 @@ def main():
         原生语句  INSERT INTO `table_name` (`field1`,`field2`) VALUES (value1,value2),(value3,value4)
         """
         # 插入一条记录   self.cur.execute返回Cursor对象 里面有好多属性的 例如 lastrowid row_factory  rowcount 其中rowcount就是影响的行数
-        res = db.insert("user", {"name": "e"})
+        res = db.table("user").insert({"name": "e"})
         print(res)  # 输出1
-        res = db.insert("user", {"name": "f"}, True)  # 返回插入的Id值
+        res = db.table("user").insert({"name": "f"}, True)  # 返回插入的Id值
         print(res)  # 输出7
         # 插入多条记录
-        res = db.insert("user", [{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
+        res = db.table("user").insert([{"name": "新增多条"}, {"name": "新增多条"}])  # 返回影响的行数
         print(res)  # 输出2
         """
         修改方法
         原生语句 UPDATE `table_name` SET `field1`=value1,`field2`=value2 WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.update("user", {"name": "hack"}, {"id": 5})  # 返回影响的行数
+        res = db.table("user").where({"id": 5}).update({"name": "hack"})  # 返回影响的行数
         print(res)  # 输出1 其他就是更新失败，这里不输出0  不更新也输出1
         """
         删除方法
         原生语句 DELETE FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
         """
-        res = db.delete("user", [["id", ">", 5]])  # 返回影响的行数
+        res = db.table("user").where([["id", ">", 5]]).delete()  # 返回影响的行数
         print(res)  # 输出4
         """
         事务
         """
         db.beginTransaction()
         try:
-            db.update("不存在的表名", {"name": "事务更新"}, {"id": 1})  # 返回影响的行数
+            db.table("不存在的表名").where({"id": 1}).update({"name": "事务更新"})  # 返回影响的行数
             db.commit()
         except Exception as result:
             print(result)  # 输出no such table: 不存在的表名
