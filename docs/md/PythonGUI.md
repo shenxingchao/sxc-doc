@@ -3755,7 +3755,7 @@ if __name__ == "__main__":
 ![calc](../images/pyside6/tab选项卡.png)  
 
 ## 滚动区域ScrollArea
-滚动区域自适应高度，必须在内容scrollAreaWidgetContents里添加垂直布局
+滚动区域自适应高度，必须在内容scrollAreaWidgetContents里添加垂直布局  
 ![calc](../images/pyside6/scrollArea高度自适应方法.png)  
 
 ## 动画
