@@ -4336,7 +4336,7 @@ if __name__ == "__main__":
 ```
 !>这里的base_url_list 需要自己去找或者利用各种ajax拦截获取,我这里破解不了97看片网的链接sign，所以是一个一个找的
 
-### numpy库
+### numpy
 ```py
 import numpy as np
 
@@ -4574,6 +4574,173 @@ plt.show()
 画折线图
 """
 series.plot()
+plt.show()
+```
+
+### matplotlib
+```py
+"""
+所有案例参考自https://matplotlib.org/stable/gallery/index.html
+"""
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+"""
+matplotlib 图表中文支持
+"""
+# 配置支持中文的非衬线字体（默认的字体无法显示中文）
+plt.rcParams["font.sans-serif"] = [
+    "SimHei",
+    "SimSun",
+]
+# 使用指定的中文字体时需要下面的配置来避免负号无法显示
+plt.rcParams["axes.unicode_minus"] = False
+
+
+data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [10, 20, 30, 40], "z": [20, 10, 60, 80]}
+"""
+基本折线图
+"""
+dataframe = pd.DataFrame(data)
+# 获取图表对象和轴对象
+figure, axes = plt.subplots()
+# 设置轴数据
+axes.plot(dataframe["x"], dataframe["y"], label="张三")
+axes.plot(dataframe["x"], dataframe["z"], label="李四")
+# 显示图例
+axes.legend()
+# 设置图表标题
+axes.set_title("年度业绩表")
+plt.show()
+
+"""
+基本柱形图
+"""
+dataframe = pd.DataFrame(data)
+# 获取图表对象和轴对象
+figure, axes = plt.subplots()
+# 设置轴数据
+axes.bar(dataframe["x"], dataframe["y"], width=0.2)
+# 设置图表标题
+axes.set_title("年度业绩表")
+plt.show()
+
+"""
+基本散点图
+"""
+dataframe = pd.DataFrame(data)
+# 获取图表对象和轴对象
+figure, axes = plt.subplots()
+# 设置轴数据
+axes.scatter(dataframe["x"], dataframe["y"], label="张三")
+axes.scatter(dataframe["x"], dataframe["z"], label="李四")
+# 显示图例
+axes.legend()
+# 设置图表标题
+axes.set_title("年度业绩表")
+plt.show()
+
+"""
+基本饼图
+"""
+data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [10, 20, 30, 40], "z": [20, 10, 60, 80]}
+# only "explode" the 2nd slice (i.e. 'Hogs')  意思就是第二个凸出0.1
+explode = (0, 0.1, 0, 0)
+# 获取图表对象和轴对象
+figure, axes = plt.subplots()
+# 画饼图
+axes.pie(
+    data["y"],
+    explode=explode,
+    labels=data["x"],
+    autopct="%1.1f%%",
+    shadow=False,
+    startangle=90,
+    textprops=dict(color="#ffffff"),
+)
+# 确保饼图被画成一个圆
+axes.axis("equal")
+# 设置图表标题
+axes.set_title("年度业绩表")
+plt.show()
+
+"""
+簇状柱形图
+"""
+data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [10, 20, 30, 40], "z": [20, 10, 60, 80]}
+dataframe = pd.DataFrame(data)
+# 获取图表对象和轴对象
+figure, axes = plt.subplots()
+# darray的长度
+df_range = list(range(1, len(dataframe) + 1))
+# 每个柱的宽度
+width = 0.2
+# 每个柱形图的偏移量
+x1 = [i - width for i in df_range]
+x2 = [i + width for i in df_range]
+
+# 分别画2个柱形
+rects1 = axes.bar(x1, dataframe["y"], width * 2, label="张三", color="#1EAFAE")
+rects2 = axes.bar(x2, dataframe["z"], width * 2, label="李四", color="#69FFFF")
+# 设置横坐标刻度
+axes.set_xticks(df_range)
+# 设置横坐标刻度标签
+axes.set_xticklabels(dataframe["x"])
+# 显示图例
+axes.legend()
+# 设置y轴刻度范围
+axes.set_ylim(0, 150)
+# 调粗坐标轴刻度 那根刻度线的粗细。。 colors刻度的颜色 gridOn 添加网格线
+axes.tick_params(axis="y", width=2, colors="#f60f60", gridOn=True, grid_color="#ccc", grid_alpha=1, grid_linewidth=0.5)
+# 设置y轴label
+axes.set_ylabel("业绩")
+# 设置x轴label
+axes.set_xlabel("季度")
+# 在坐标(x,y)处添加文字 text(x,y)
+for i in df_range:
+    axes.text(i - width, data["y"][i - 1] + 2, data["y"][i - 1], fontsize=14)
+    axes.text(i + width, data["z"][i - 1] + 2, data["z"][i - 1], fontsize=12)
+# 设置图表标题
+axes.set_title("年度业绩表")
+plt.show()
+
+"""
+带标签和值的饼图
+"""
+data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [375, 75, 250, 300], "z": [20, 10, 60, 80]}
+
+# 获取图表对象和轴对象 equal确保饼图被画成一个圆
+figure, axes = plt.subplots(subplot_kw=dict(aspect="equal"))
+
+
+def func(pct, data):
+    """
+    @description 自定义内部文字显示格式
+    @param pct 每项所占百分比值
+    @param value 每项的值
+    @return 显示格式
+    """
+    value = int(round(pct / 100 * np.sum(data)))
+    return f"{pct:.1f}%\n({value}元)"
+
+
+# 画饼图 textprops 文字颜色
+wedges, texts, autotexts = axes.pie(
+    data["y"],
+    labels=data["x"],
+    autopct=lambda pct: func(pct, data["y"]),
+    shadow=False,
+    startangle=90,
+    textprops=dict(color="#ffffff"),
+)
+
+# 设置图例
+axes.legend(wedges, data["x"], title="各季度", loc="center left", bbox_to_anchor=(1, 0, 0.5, 1))
+# 设置字体
+plt.setp(autotexts, size=12, weight="bold")
+# 设置图表标题
+axes.set_title("年度业绩表")
 plt.show()
 ```
 
@@ -5307,3 +5474,6 @@ if __name__ == "__main__":
 4. [kmclass虚拟键鼠驱动](https://di1shuai.com/kmclass%E8%99%9A%E6%8B%9F%E9%94%AE%E9%BC%A0%E9%A9%B1%E5%8A%A8.html)
     第二次启动会有报错，是因为第一次结束没有关闭服务 [证书配置](https://blog.csdn.net/weixin_45875105/article/details/117739777)
     禁止驱动签名  开启测试模式 全部完成后再重启运行示例即可
+
+
+
