@@ -4468,6 +4468,115 @@ if __name__ == "__main__":
     main()
 ```
 
+### pandas
+```py
+import matplotlib.pyplot as plt
+import pandas as pd
+import numpy as np
+
+"""
+matplotlib 图表中文支持
+"""
+# 配置支持中文的非衬线字体（默认的字体无法显示中文）
+plt.rcParams["font.sans-serif"] = [
+    "SimHei",
+    "SimSun",
+]
+# 使用指定的中文字体时需要下面的配置来避免负号无法显示
+plt.rcParams["axes.unicode_minus"] = False
+
+
+"""
+二维表格数据类型 类似于数据库表  有字段名和行号
+"""
+data = [{"年龄": 18, "分数": 90}, {"年龄": 16, "分数": 80}]
+# 下面是直接根据字典创建
+# dtfame = pd.DataFrame(data)
+# 下面是自定义行列索引 列索引可不填
+dtfame = pd.DataFrame(data, index=["小明", "小红"], columns=["年龄", "分数"])
+"""
+输出
+  name  age
+0   张三   18
+1   李四   16
+"""
+figure = dtfame.plot(kind="bar", color=["#f60f60", "g"])
+plt.xlabel("姓名")
+plt.ylabel("年龄/分数")
+# x轴的坐标旋转到0度（中文水平显示）
+plt.xticks(rotation=0)
+# 下面2个很重要  设置坐标刻度为索引
+figure.set_xticks(range(len(dtfame.index)))
+figure.set_xticklabels(dtfame.index)
+# 设置柱状图宽度
+x1, x2 = figure.get_xlim()
+figure.set_xlim(x1 - 0.5, x2 + 0.25)
+# 在柱状图的柱子上绘制数字
+for index, item in enumerate(data):
+    plt.text(index - 0.15, data[index]["年龄"] + 1, data[index]["年龄"])
+    plt.text(index + 0.1, data[index]["分数"] + 1, data[index]["分数"])
+plt.show()
+
+
+"""
+创建series数据对象
+"""
+series = pd.Series({"一季度": 400, "二季度": 540, "三季度": 180, "四季度": 380})
+series = pd.Series(
+    [400, 500, 180, 380],
+    index=[
+        "一季度",
+        "二季度",
+        "三季度",
+        "四季度",
+    ],
+)
+
+"""
+统计
+"""
+# 求和
+print(series.sum())  # 1500
+# 求均值
+print(series.mean())  # 375.0
+# 求最大
+print(series.max())  # 540
+# 求最小
+print(series.min())  # 180
+# 计数
+print(series.count())  # 4
+
+"""
+柱状图
+"""
+# 通过Series对象的plot方法绘图（kind='bar'表示绘制柱状图）
+series.plot(kind="bar", color=["#f60f60", "g", "b", "y"])
+# x轴的坐标旋转到0度（中文水平显示）
+plt.xticks(rotation=0)
+# 在柱状图的柱子上绘制数字
+for i in range(4):
+    plt.text(i, series[i] + 5, series[i], ha="center")
+# 显示图像
+plt.show()
+
+
+"""
+画饼图
+"""
+# autopct参数可以配置在饼图上显示每块饼的占比
+series.plot(kind="pie", autopct="%.1f%%")
+# 设置y轴的标签（显示在饼图左侧的文字）
+plt.ylabel("各季度占比")
+plt.show()
+
+
+"""
+画折线图
+"""
+series.plot()
+plt.show()
+```
+
 ### 自动化测试工具selenium
 #### 安装
 ```shell
