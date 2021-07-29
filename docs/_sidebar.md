@@ -182,6 +182,12 @@
 
     - [爬虫](/md/Python#爬虫)
 
+    - [numpy](/md/Python#numpy)
+
+    - [pandas](/md/Python#pandas)
+
+    - [matplotlib](/md/Python#matplotlib)
+
     - [自动化测试工具selenium](/md/Python#自动化测试工具selenium)
 
     - [自动化测试工具playwright](/md/Python#自动化测试工具playwright)
@@ -191,6 +197,8 @@
     - [python图表pyecharts](/md/Python#python图表pyecharts)
 
     - [桌面软件自动化](/md/Python#桌面软件自动化)
+
+    - [键盘鼠标控制](/md/Python#键盘鼠标控制)
 
 - [PythonGUI](/md/PythonGUI#pythongui)
 
@@ -277,6 +285,8 @@
   - [表格](/md/PythonGUI#表格)
 
   - [tab选项卡](/md/PythonGUI#tab选项卡)
+
+  - [滚动区域ScrollArea](/md/PythonGUI#滚动区域scrollarea)
 
   - [动画](/md/PythonGUI#动画)
 
