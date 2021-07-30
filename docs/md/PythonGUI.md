@@ -4139,6 +4139,85 @@ if __name__ == "__main__":
 ```
 !> 最新的pyside6还没有将移除的QtWebEngineWidgets模块加回来，等加回来就用了，或者直接切换回PySide2开发
 
+## PySide6加载matplotlib
+```py
+"""
+PySide6加载matplotlib
+"""
+from PySide6.QtWidgets import QApplication, QMainWindow
+from lib.ui_main import Ui_MainWindow
+import sys
+import pandas as pd
+
+"""
+导入matplotlib相关start
+"""
+import matplotlib
+
+matplotlib.use("Agg")
+from matplotlib.backends.backend_agg import FigureCanvas  # backend_agg到时候改成qt6就行了
+import matplotlib.pyplot as plt
+
+"""
+导入matplotlib相关end
+"""
+
+
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        # 调用父类的方法
+        super(MainWindow, self).__init__()
+        # 初始化界面
+        self.setupUi(self)
+        # 初始化图标
+        self.renderChart()
+
+    def renderChart(self):
+        """
+        matplotlib 图表中文支持
+        """
+        # 配置支持中文的非衬线字体（默认的字体无法显示中文）
+        plt.rcParams["font.sans-serif"] = [
+            "SimHei",
+            "SimSun",
+        ]
+        # 使用指定的中文字体时需要下面的配置来避免负号无法显示
+        plt.rcParams["axes.unicode_minus"] = False
+        # 数据
+        data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [10, 20, 30, 40], "z": [20, 10, 60, 80]}
+        dataframe = pd.DataFrame(data)
+        # 获取图表对象和轴对象
+        figure, axes = plt.subplots()
+        # 设置轴数据
+        axes.bar(dataframe["x"], dataframe["y"], width=0.2)
+        # 设置图表标题
+        axes.set_title("年度业绩表")
+        # 绑定figure到canvas上
+        canvas = FigureCanvas(figure)
+        # 更新canvas画布
+        # canvas.draw()
+        # 显示至pyqt主界面 canvass怎么转qwidget类型
+        # canvas.print_png("./2.png")
+        # 下面的无效，提示canvas不是一个控件
+        self.main_layout.addWidget(canvas)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = MainWindow()
+    # 显示窗口
+    window.show()
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
+```
+!> 最新的matplotlib还没有适配PySide6,使用PySide2时是正确的
+
 ## 打包exe
 ```py
 pyinstall -w -D ./index.py --distpath ./dist 

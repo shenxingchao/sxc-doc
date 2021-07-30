@@ -294,7 +294,9 @@
 
   - [使用ui导出的py文件](/md/PythonGUI#使用ui导出的py文件)
 
-  - [PySide6加载pyecharts](/md/PythonGUI#pyside6加载pyecharts)
+  - [PySide6加载pyecharts](/md/PythonGUI#PySide6加载pyecharts)
+  - 
+  - [PySide6加载matplotlib](/md/PythonGUI#PySide6加载matplotlib)
 
   - [打包exe](/md/PythonGUI#打包exe)
 
