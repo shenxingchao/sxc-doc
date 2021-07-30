@@ -4469,6 +4469,7 @@ if __name__ == "__main__":
 ```
 
 ### pandas
+#### pandas两种对象及图表结合
 ```py
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -4575,6 +4576,53 @@ plt.show()
 """
 series.plot()
 plt.show()
+```
+
+#### pandas和excel交互
+```py
+import matplotlib.pyplot as plt
+import pandas as pd
+
+"""
+matplotlib 图表中文支持
+"""
+# 配置支持中文的非衬线字体（默认的字体无法显示中文）
+plt.rcParams["font.sans-serif"] = [
+    "SimHei",
+    "SimSun",
+]
+# 使用指定的中文字体时需要下面的配置来避免负号无法显示
+plt.rcParams["axes.unicode_minus"] = False
+
+
+"""
+二维表格数据类型 类似于数据库表  有字段名和行号
+"""
+data = pd.read_excel("./1.xlsx")
+"""
+excel数据如下
+姓名	第一季度	第二季度	第三季度	第四季度
+张三	1	           2	       3	    4
+李四	4	           5	       6	    7
+王五	8	           9	       10	    11
+"""
+dtfame = pd.DataFrame(data, index=data.index, columns=data.columns)
+figure = dtfame.plot(kind="bar", color=["red", "blue", "green", "black"])
+plt.xlabel("姓名")
+plt.ylabel("分数")
+# x轴的坐标旋转到0度（中文水平显示）
+plt.xticks(rotation=0)
+# 下面2个很重要  设置坐标刻度为索引
+figure.set_xticks(range(len(dtfame.index)))
+figure.set_xticklabels(dtfame["姓名"])
+# # 在柱状图的柱子上绘制数字
+for index, item in enumerate(data):
+    for i, value in enumerate(data[item]):
+        if index != 0:
+            plt.text((i - 0.36) + 0.13 * index, int(value) + 0.1, value)
+plt.show()
+# 要将dtfame输出excel用下面的方式 csv等其他格式类似
+dtfame.to_excel("./2.xlsx")
 ```
 
 ### matplotlib
