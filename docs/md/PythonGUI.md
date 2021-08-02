@@ -2940,6 +2940,104 @@ if __name__ == "__main__":
 ```
 ![calc](../images/pyside6/标签控件.png)  
 
+### 实际案例-图片控件类
+```py
+"""
+显示网络图片
+"""
+from PySide6.QtGui import QImage, QPixmap
+from PySide6.QtWidgets import QApplication, QLabel, QSizePolicy, QVBoxLayout, QWidget
+import sys
+
+# 导入网络请求库
+import requests
+
+
+class ImageWidget(QLabel):
+    """
+    图片控件类
+    """
+
+    def __init__(self, parent=None, url=None, local=True):
+        """
+        @description 构造方法
+        @param  parent 父级 Widget
+        @param  url 本地路径或网络路径 string
+        @param  local 是否是本地图片
+        @return
+        """
+        if local:
+            pixmap = QPixmap(url)
+            super().__init__(parent, pixmap=pixmap)
+            self.resize(pixmap.width(), pixmap.height())
+        else:
+            super().__init__(parent=parent)
+            res = requests.get(url)
+            img = QImage.fromData(res.content)
+            self.resize(img.width(), img.height())
+            self.setPixmap(QPixmap.fromImage(img))
+
+    def setAdjuest(self):
+        """
+        @description  设置内容自适应标签长宽,及设置标签自适应外面的布局或容器
+        @param
+        @return
+        """
+        self.setScaledContents(True)
+        qsp = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Preferred)
+        self.setSizePolicy(qsp)
+
+
+class Window(QWidget):
+    def __init__(self):
+        # 调用父类的方法
+        super().__init__()
+        # 初始化UI
+        self.initUI()
+
+    def initUI(self):
+        """
+        @description  初始化UI
+        @param
+        @return
+        """
+        # 设置窗口标题
+        self.setWindowTitle("hello PySide6!")
+        # 设置窗口大小
+        self.resize(500, 400)
+        # 设置窗口背景颜色
+        self.setStyleSheet("background:#fafafa;")
+        # 1.显示网络图片
+        url = "https://img0.baidu.com/it/u=103721101,4076571305&fm=26&fmt=auto&gp=0.jpg"
+        image = ImageWidget(self, url, False)
+        image.move(0, 0)
+        # 2.显示本地图片
+        url = "./1.png"
+        local_image = ImageWidget(self, url)
+        local_image.move(100, 100)
+        # 3.自适应
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        image.setAdjuest()
+        layout.addWidget(image)
+
+
+def main():
+    # 创建应用程序对象  argv是命令行输入参数列表
+    app = QApplication(sys.argv)
+    # 创建窗口对象
+    window = Window()
+    # 显示窗口
+    window.show()
+    # app.exec()程序一直循环运行直到主窗口被关闭终止进程  sys.exit返回退出时的状态码
+    sys.exit(app.exec())
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ## 进度条
 ```py
 """
