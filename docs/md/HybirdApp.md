@@ -740,3 +740,229 @@ const SScrollView = HPageViewHoc(ScrollView, { slideAnimated: true })
 renderTabBar={() => <ScrollableTabBar />}
 ```
 标签页的HScrollView 也不能用了  要用SScrollView
+
+
+## flutter
+### 安装
+参考地址 https://flutter.cn/docs/get-started/install/windows
+
+### vscode配置
+
+1.安装flutter扩展
+2.检查安装是否完成
+```
+Run Flutter Doctor
+```
+
+### 示例程序
+```dart
+// 导入material扁平化主题
+import 'package:flutter/material.dart';
+
+//主方法
+void main() {
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  //应用程序的根节点
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'Flutter Demo',
+      theme: ThemeData(
+        // 应用的主题
+        // 运行状态下按r重新加载
+        // 主题色
+        primarySwatch: Colors.green,
+      ),
+      home: MyHomePage(title: '头部标题'),
+    );
+  }
+}
+
+class MyHomePage extends StatefulWidget {
+  MyHomePage({Key? key, required this.title}) : super(key: key);
+  // 主页类 他有一个_MyHomePageState 对象
+  // 状态的配置在_MyHomePageState build方法中
+  // 子类的变量标记为常量 只能分配一次值 必须初始化
+  final String title;
+
+  @override
+  _MyHomePageState createState() => _MyHomePageState();
+}
+
+class _MyHomePageState extends State<MyHomePage> {
+  // 定义一个计数器
+  int _counter = 0;
+
+  // 定义一个计数器增加方法
+  void _incrementCounter() {
+    setState(() {
+      //设置计时器状态,实时更新显示的值
+      _counter++;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    // 每次调用setState时都会重新运行这个方法
+    return Scaffold(
+      appBar: AppBar(
+        // 从MyHomePage对象中获取值 并使用它来设置appbar标题
+        title: Text(widget.title),
+      ),
+      body: Center(
+        // 居中布局控件, 只有一个子节点
+        child: Column(
+          //列布局控件 shift+ctrl+p  ->Toggle Debug Paint 查看控件边界
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Text(
+              '按钮点击次数5',
+            ),
+            Text(
+              '$_counter',
+              style: Theme.of(context).textTheme.headline4,
+            ),
+          ],
+        ),
+      ),
+      // 右下角浮动按钮
+      floatingActionButton: FloatingActionButton(
+        onPressed: _incrementCounter,
+        tooltip: 'Increment',
+        child: Icon(Icons.add),
+      ), 
+    );
+  }
+}
+
+```
+
+### adb连接到夜神模拟器
+```
+adb connect 127.0.0.1:62001
+```
+
+### 运行
+打开模拟器，在项目根目录按F5运行
+
+?> [解决Flutter编译一直显示Running Gradle task 'assembleDebug'](http://www.zyiz.net/tech/detail-141792.html) 
+
+
+### 官网无限列表程序
+```dart
+import 'package:flutter/material.dart';
+
+// 主函数（main）使用了 (=>) 符号，这是 Dart 中单行函数或方法的简写。
+void main() => runApp(MyApp());
+
+// 该应用程序继承了 StatelessWidget，这将会使应用本身也成为一个 widget。在 Flutter 中，几乎所有都是 widget，包括对齐 (alignment)、填充 (padding) 和布局 (layout)
+class MyApp extends StatelessWidget {
+  // 一个 widget 的主要工作是提供一个 build() 方法来描述如何根据其他较低级别的 widgets 来显示自己。
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      title: 'APP标题',
+      theme: new ThemeData(
+          primaryColor: Colors.red,
+          textTheme: TextTheme(
+              bodyText1: TextStyle(color: Colors.green),
+              bodyText2: TextStyle(color: Colors.blue)),
+          dividerTheme: DividerThemeData(color: Colors.grey),
+          ),
+      home: ListWidget(),
+    );
+  }
+}
+
+//输入stful 生成下面的代码  一个widget类和state类
+//widget类
+class ListWidget extends StatefulWidget {
+  const ListWidget({Key? key}) : super(key: key);
+
+  @override
+  _ListWidgetState createState() => _ListWidgetState();
+}
+
+//state类
+class _ListWidgetState extends State<ListWidget> {
+  //列表字体样式
+  final TextStyle style = const TextStyle(fontSize: 18.0,color: Colors.blue);
+  //保存数字的列表
+  final Set<String> saveList = Set<String>();
+
+  //生成一行
+  Widget _buildRow(String text) {
+    //是否已经添加到保存列表
+    final bool alreadySaved = saveList.contains(text);
+    return ListTile(
+      title: Text(
+        text,
+        style: style,
+      ),
+      //添加Icon
+      trailing: Icon(
+        alreadySaved ? Icons.favorite : Icons.favorite_border,
+        color: alreadySaved ? Colors.green : null,
+      ),
+      onTap: () {
+        //点击事件
+        setState(() {
+          if (alreadySaved) {
+            saveList.remove(text);
+          } else {
+            saveList.add(text);
+          }
+        });
+      },
+    );
+  }
+
+  //生成列表
+  Widget _buildList() {
+    return ListView.builder(
+        padding: const EdgeInsets.all(16.0),
+        itemBuilder: (context, i) {
+          // i是 0， 2， 4 ， 6， 8 ···
+          //如果是奇数 则添加分割线
+          if (i.isOdd) return const Divider();
+          //行号
+          final index = i ~/ 2;
+          return _buildRow(index.toString());
+        });
+  }
+
+  //每次设置状态都会调用下面这个build
+  @override
+  Widget build(BuildContext context) {
+    //Scaffold 是 Material 库中提供的一个 widget，它提供了默认的导航栏、标题和包含主屏幕 widget 树的 body 属性。 widget 树可以很复杂。
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('appbar标题'),
+        actions: [IconButton(onPressed: _routeTo, icon: Icon(Icons.list))],
+      ),
+      body: Center(
+        child: _buildList(),
+      ),
+    );
+  }
+
+  void _routeTo() {
+    //直接push(content,route)也是可以的
+    Navigator.of(context).push(
+      MaterialPageRoute<void>(
+        builder: (BuildContext context) {
+          return Scaffold(
+            appBar: AppBar(
+              title: const Text('新页面'),
+            ),
+            body: Center(child: Text("新页面文字 ")),
+          );
+        },
+      ),
+    );
+  }
+}
+```
