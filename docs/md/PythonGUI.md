@@ -4869,6 +4869,16 @@ index.less vscode用 Easy Less 转成qss就行了
 ?> [无边框拖动案例](https://blog.csdn.net/qq_38528972/article/details/78573591)参考自这个，他的不完善，我的基本完善
 
 ?> 鼠标移动发现的BUG，若里面放表格控件的时候，鼠标移入会变成缩放的指针，只要再qtdesiner里面把表格的指针设一下就行了
-<!--
-## 集成mysql 无边框窗口 -->
 
+## 遇到的BUG
+### 主窗口监控鼠标事件，调试时不进入MouseMoveEvent
+需要将鼠标移入的元素勾上mouseTracking
+或者设置类似下面的
+```py
+self.scrollArea.setMouseTracking(true);
+```
+
+### 解决鼠标右侧移入scrollArea bug
+```py
+self.scrollArea.setCursor(Qt.ArrowCursor)
+```

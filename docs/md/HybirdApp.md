@@ -741,6 +741,111 @@ renderTabBar={() => <ScrollableTabBar />}
 ```
 标签页的HScrollView 也不能用了  要用SScrollView
 
+## dart
+
+!> dart是flutter应用的编写语言
+
+### 变量类型
+```dart
+  var varStr = 'hello wolrd!';
+  String str = '字符串';
+  int num = 12306;
+  double floatNum = 0.998;
+  bool flag = true;
+  //打印多个变量
+  print("$varStr\n$str\n$num\n$floatNum\n$flag\n");
+```
+
+### 常量的两种写法
+```dart
+  const double PI = 3.1415926;
+  final double pi;
+  pi = 3.1415926;
+  //final是运行时常量 const定义下面这个会报错 const只能直接赋值 final就可以定义为一个函数生成的值
+  //final可以先定义再赋值 const只能直接赋值
+  final DateTime curTime = new DateTime.now();
+  print("$PI\n$pi\n$curTime\n");
+```
+
+### 数组
+```dart
+  //1创建方式1
+  var list = ['张三', '李四'];
+  print(list[0]);
+  print(list[0].length);
+  //2创建方式2
+  var lists = <int>[1, 2];
+  print(lists);
+  //3添加数据
+  lists.add(4);
+  //4删除数据
+  lists.remove(1);
+  lists.removeAt(0);
+  print(lists);
+  //5 创建方式3
+  List<int> listss = <int>[1, 2];
+  print(listss);
+  //6创建方式4 创建固定长度的数组 length 不可变 被的创建方式长度都可以变
+  var listsss = List<String>.filled(2, "");
+  print(listsss);
+```
+
+### 字典
+```dart
+  //创建方式1
+  var set = {'id': 1, "name": '张三'};
+  print(set);
+  //创建方式2
+  var sett = new Map();
+  sett['id'] = 1;
+  sett['name'] = '张三';
+  print(set);
+```
+
+### 判断变量类型
+```dart
+  bool flag = true;
+  print(flag is bool);
+```
+
+### 类型转换
+```dart
+  int num = 123456;
+  //parse(String类型)
+  print(num.toString());
+  print(int.parse(num.toString()));
+  print(double.parse(num.toString()));
+```
+
+### if判断
+```dart
+  bool flag = true;
+  //这里的==两边的必须类型一致
+  if (flag == true) {
+    print('真');
+  } else {
+    print('假');
+  }
+```
+
+### 运算符
+```dart
+  //没列举的都和js一样
+  bool flag = true;
+  //1取整
+  print(9 ~/ 2);
+  //2判空赋值运算符
+  var x; //注意这里的x不能设为int,int的话必须初始化值,var可以只声明变量而不初始化
+  x ??= 3;
+  print(x);
+  //3三元运算符
+  x = flag == true ? 4 : 5;
+  print(x);
+```
+
+?> 什么swith for while do...while... try catch都和js一样就不列了
+
+
 
 ## flutter
 ### 安装
