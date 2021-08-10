@@ -22,4 +22,6 @@
 | [js项目库git排行](https://bestofjs.org/)                                                                                                      |    js rank    | 2021年3月23日 |
 | [deno-nodejs的替代品，下一代前端开发运行环境](https://deno.land/)                                                                             | js ts runtime | 2021年3月23日 |
 | [windows nodejs版本管理工具](https://github.com/coreybutler/nvm-windows/releases)                                                             |    nodejs     | 2021年3月23日 |
+| [PySide6 python GUI框架](https://doc.qt.io/qtforpython/PySide6/QtGui/index.html)                                                             |    python pyside6     | 2021年3月23日 |
+| [python 高性能图表库](https://matplotlib.org/)                                                             |    python 图表     | 2021年3月23日 |
 

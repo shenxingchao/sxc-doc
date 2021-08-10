@@ -1,7 +1,6 @@
 # MyProject
 | 项目名称                                                                                                                                                                                           |                     类型                     |      更新日期 |
 | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------: | ------------: |
-| [Helpdeco网上商城](https://www.helpdeco.com/mobile/#/)-[扫码查看](http://demo.o8o8o8.com/vue/shop/qrcode.png)                                                                                      |                  vue 公众号                  |     2018年7月 |
 | [医药类H5基于vue+vantui+mockjs](http://demo.o8o8o8.com/fastmedicine/#/)                                                                                                                            |                    vue h5                    |     2020年1月 |
 | [多商家微信小程序](https://shenxingchao.github.io/project/image/lyqq_qrcode.jpg)                                                                                                                   |             wechat mini program              |     2019年7月 |
 | [工作台基于vue+electron+thinkphp5.0+elementui+workerman+redis](https://shenxingchao.github.io/project/video/workbench.mp4)                                                                         |                 vue electron                 |    2019年10月 |
@@ -11,3 +10,5 @@
 | [vue-admin-thinkphp6前后端分离项目模板 ——登录 增删改查 权限管理 composer](http://demo.o8o8o8.com/vue-admin-thinkphp6/#/) 演示账号 admin admin                                                      | vue thinkphp6.0.* vue-admin-elementui php8.0 | 2021年1月16日 |
 | [基于vue3+electron12 精简的代码生成工具](https://github.com/shenxingchao/code-auto-tool)                                                                                                           | vue3 vue-cli4.5 element-plus electron12.0.1  | 2021年3月23日 |
 | [基于python3.6+PySide6 按键录制\自动发送消息\自动滚轮工具](https://github.com/shenxingchao/python_pyside6_tool)                                                                                                           | python GUI PySide6 | 2021年7月20日 |
+| [vue3+electron13模板](https://github.com/shenxingchao/vue3-electron13-template)                                                                                                           | vue3 electron13 elementui | 2021年8月10日 |
+| [pyqt5,pyside2,pyside6 qss-framework](https://github.com/shenxingchao/qt-for-python-qss)                                                                                                           | python GUI PySide6 Qss | 2021年8月10日 |
