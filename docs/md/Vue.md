@@ -208,21 +208,48 @@ export default {
 ### vue3-vue-cli-electron 
 <p align="left" style="color:#777777;">发布日期：2021-03-04 更新日期：2021-03-22</p>
 
-有成熟工具
+有成熟工具 [我的模板](https://github.com/shenxingchao/vue3-electron13-template)
 
 - 创建
-  ```
+  ```shell
   vue create project-name
   ```
-- 添加electron builder
+  ```shell
+  1.手动选择需要添加的包Manually select features
+    Choose Vue version # 选择Vue版本
+    TypeScript # 使用TypeScript
+    Router # 路由
+    Vuex # 状态管理
+    CSS Pre-processors # 使用css预处理Sass
+  2.选择Vue版本（Choose a version of Vue.js）
+    3.x(Preview)
+  3.使用class风格组件（Use class-style component syntax）
+    No
+  4.使用（Jsx Use Babel alongside TypeScript）
+    No
+  5.使用history路由（Use history mode for router）
+    Yes
+  6.选择css预处理（Pick a CSS pre-processor）
+    Sass/SCSS (with dart-sass)
+  7.配置文件放置位置（Where do you prefer placing config）
+    In dedicated config files
   ```
+- 添加electron builder
+  ```shell
   cd project-name
   vue add electron-builder
   ```
+  ```shell
+  选择Electron版本 Choose Electron Version
+    ^13.0.0 √
+  ```
 - 启动
   ```
-  yarn electron:dev
+  yarn electron:serve
   ```
+
+  !> 这时候运行会出问题 运行超时 vue devtool  vue electron Failed to fetch extension, trying 4 more times 解决方法：注释VUEJS_DEVTOOLS相关内容
+
 - 打包
   ```
   yarn electron:build
@@ -311,8 +338,7 @@ export default {
   }
   ```
 - [解决第一次显示画面闪烁问题](https://www.electronjs.org/docs/api/browser-window#%E4%BD%BF%E7%94%A8ready-to-show%E4%BA%8B%E4%BB%B6)
-- 解决运行超时 vue devtool  vue electron Failed to fetch extension, trying 4 more times
-  注释VUEJS_DEVTOOLS相关内容
+  electron13+ ready to show 方法无效 去掉这个方法直接在loadUrl后面显示就行了
 
 - 使用预加载 preload.js 解决nodeapi使用问题,官方推荐
   主进程main.ts
