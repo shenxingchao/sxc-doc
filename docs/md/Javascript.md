@@ -49,11 +49,30 @@ num = num.toFixed(1); //输出0.3 并没有进位
 ```
 !>千万不要直接使用toFixed 保留小数
 正确写法使用Math.round()四舍五入取整后，使用toFixed()保留
+错误示例 测试数据2.445 保留2位
 ```javascript
-let num = 0.35;
-num = (Math.round(num * 10) / 10).toFixed(1); //输出0.4
+let num = 2.445;
+num = (Math.round(num * 100) / 100).toFixed(1); //输出2.44
 ```
-!>精髓就是先四舍五入，再保留。保留几位小数就*多少
+正确示例
+```javascript
+function GetRound(num, len) {
+     var x = num.toString().indexOf(".") !== -1?num.toString().length -num.toString().indexOf(".")-1:0
+     return Number((Math.round(num * Math.pow(10, x)/Math.pow(10, x-len)) / Math.pow(10, len).toFixed(len)));
+}
+GetRound(2.445,2) //2.45
+```
+!>精髓就是先四舍五入，再保留。保留几位小数就*多少  但是这里的乘法会出问题原因是2.445*100 = 244.49999999999997
+
+改写底层函数 [来源](https://zhuanlan.zhihu.com/p/31202697)
+```javascript
+if (!Number.prototype._toFixed) {
+    Number.prototype._toFixed = Number.prototype.toFixed;
+}
+Number.prototype.toFixed = function(n) {
+    return (this + 3e-16)._toFixed(n);
+};
+```
 
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
 ### 数组按某个值排序
