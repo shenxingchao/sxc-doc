@@ -228,7 +228,7 @@ export default {
   4.使用（Jsx Use Babel alongside TypeScript）
     No
   5.使用history路由（Use history mode for router）
-    Yes
+    No
   6.选择css预处理（Pick a CSS pre-processor）
     Sass/SCSS (with dart-sass)
   7.配置文件放置位置（Where do you prefer placing config）
