@@ -409,3 +409,14 @@ for (const name of Object.keys(defines)) {
 ```
 
 - [asar解压工具](https://www.npmjs.com/package/asar)
+
+## vite
+### 创建
+```shell
+yarn create vite
+?Project name: app
+?Select a framework:vue
+?Select a variant:vue (js)
+yarn
+yarn dev
+```
