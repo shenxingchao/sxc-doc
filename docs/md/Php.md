@@ -105,7 +105,7 @@
     执行mysqld --install（需管理员权限的cmd）
 5. 编写wnmp启动脚本bat
     - 编写server_start.bat
-        ```shell
+        ```powershell
         @echo off
 
         F:
@@ -121,7 +121,7 @@
         echo Start php-cgi success
         ```
     - 编写server_stop.bat
-        ```shell
+        ```powershell
         @echo off
         taskkill /F /IM nginx.exe > nul
         echo Stop nginx success
@@ -137,7 +137,7 @@
 !>以上脚本需管理员权限启动
 
 6. 查看进程
-    ```shell
+    ```powershell
     tasklist /fi "imagename eq nginx.exe"
     tasklist /fi "imagename eq php-cgi.exe"
     netstat -ano | findstr "3306"

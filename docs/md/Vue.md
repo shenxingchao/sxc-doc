@@ -211,10 +211,10 @@ export default {
 有成熟工具 [我的模板](https://github.com/shenxingchao/vue3-electron13-template)
 
 - 创建
-  ```shell
+  ```powershell
   vue create project-name
   ```
-  ```shell
+  ```powershell
   1.手动选择需要添加的包Manually select features
     Choose Vue version # 选择Vue版本
     TypeScript # 使用TypeScript
@@ -235,11 +235,11 @@ export default {
     In dedicated config files
   ```
 - 添加electron builder
-  ```shell
+  ```powershell
   cd project-name
   vue add electron-builder
   ```
-  ```shell
+  ```powershell
   选择Electron版本 Choose Electron Version
     ^13.0.0 √
   ```
@@ -412,7 +412,7 @@ for (const name of Object.keys(defines)) {
 
 ## vite
 ### 创建
-```shell
+```powershell
 yarn create vite
 ?Project name: app
 ?Select a framework:vue

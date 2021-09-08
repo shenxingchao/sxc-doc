@@ -60,11 +60,11 @@
 print("hello,world!")
 ```
 命令行运行 
-```shell
+```powershell
 python hello.py
 ```
 或 
-```shell
+```powershell
 py hello.py
 ```
 输出 hello,world！
@@ -3871,7 +3871,7 @@ print(
 ```
 上面的例子包含了input和print的用法，还有占位符%,输出字符f的用法,推荐f用法，简单高效
 输出
-```shell
+```powershell
 您输入了：a=1,b=2,c=3,d=4.000000,a+b=3
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
@@ -4023,18 +4023,18 @@ trusted-host=mirrors.aliyun.com
 ```
 
 #### pip升级
-```shell
+```powershell
 pip install --upgrade pip
 ```
 !> 如果升级出现错误ModuleNotFoundError: No module named 'pip'
-```shell
+```powershell
 python -m ensurepip
 python -m pip install --upgrade pip
 ```
 [找到其来源](https://docs.python.org/3/library/ensurepip.html#command-line-interface)
 
 #### 代码格式化库black
-```shell
+```powershell
 pip install black
 ```
 vscode格式化配置
@@ -4091,7 +4091,7 @@ if __name__ == "__main__":
 
 #### beautifulsoup4
 - 安装
-    ```shell
+    ```powershell
     pip install beautifulsoup4
     pip install lxml
     ```
@@ -4794,7 +4794,7 @@ plt.show()
 
 ### 自动化测试工具selenium
 #### 安装
-```shell
+```powershell
 pip install selenium
 ```
 
@@ -5222,19 +5222,19 @@ if __name__ == "__main__":
     main()
 ```
 !>  安装AES解密模块 [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
-```shell
+```powershell
 pip install pycryptodome --no-binary :all: 
 ```
 
 ### 自动化测试工具playwright
 
 1. 安装
-   ```shell
+   ```powershell
     pip install playwright
     playwright install
    ```
 2. 打开谷歌浏览器，并开启录制
-   ```shell
+   ```powershell
    playwright codegen -b chromium http://rc.aiyunc.cn
    ```
 3. 文档地址
@@ -5249,7 +5249,7 @@ pip install pyinstaller
 ```
 
 #### 使用
-```shell
+```powershell
 pyinstaller -F filename.py
 ```
 
