@@ -76,6 +76,8 @@
   
   - [vim命令](/md/Linux#vim命令)
 
+- [Mysql](/md/Mysql#Mysql)
+
 - [NodeJs](/md/NodeJs#nodejs)
   
   - [node](/md/NodeJs#node)
@@ -341,6 +343,8 @@
     - [vue3-vite-electron](/md/Vue#vue3-vite-electron)
     
     - [vue3-vue-cli-electron](/md/Vue#vue3-vue-cli-electron)
+    - 
+    - [vite](/md/Vue#vite)
 
 - [Web服务器](/md/WebServer#web服务器)
   
