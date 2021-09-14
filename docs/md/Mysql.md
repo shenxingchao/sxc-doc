@@ -2,6 +2,7 @@
 ## 准备工作
 ### 安装mysql
 参考[wnmp安装](/md/Php?id=wnmp搭建)中的mysql下载服务安装和服务启动 windows可设置成开机自启动
+[多个版本安装](https://blog.csdn.net/wudinaniya/article/details/82455431)
 
 ### 设置环境变量
 环境变量-用户变量-Path 添加  D:\mysql-5.6.43\bin
@@ -9,7 +10,7 @@
 ### 连接到Mysql
 打开cmd
 ```powershell
-mysql -u root -p ;
+mysql -h localhost -P 3306 -u root -p ;
 ```
 > 初始密码为空
 ###  退出连接
@@ -103,6 +104,53 @@ SHOW STATUS LIKE 'Uptime';
 +---------------+-------+
 1 row in set (0.00 sec)
 ```
+
+## 初始化数据
+创建数据库
+```sql
+CREATE DATABASE dbname;
+USE dbname;
+```
+创建用户表
+```sql
+CREATE TABLE `user` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
+  `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
+  PRIMARY KEY (`id`),
+  KEY `age_index` (`age`) USING HASH
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (1, '张三', 1);
+INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (2, '李四', 1);
+INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (3, '李四', 2);
+```
+创建英文用户表
+```sql
+CREATE TABLE `en_user` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
+  `age` int(255) unsigned NOT NULL DEFAULT '0' COMMENT 'age',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+INSERT INTO `dbname`.`en_user` (`id`, `name`, `age`) VALUES (1, 'zhangsan', 1);
+INSERT INTO `dbname`.`en_user` (`id`, `name`, `age`) VALUES (2, 'lisi', 1);
+INSERT INTO `dbname`.`en_user` (`id`, `name`, `age`) VALUES (3, 'ZHANGSAN', 2);
+```
+创建地址表
+```sql
+CREATE TABLE `user_address` (
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `user_id` int(11) unsigned NOT NULL DEFAULT '0' COMMENT 'user id外键',
+  `address` varchar(255) NOT NULL DEFAULT '' COMMENT '地址',
+  PRIMARY KEY (`id`),
+  KEY `user_id` (`user_id`),
+  FULLTEXT KEY `address` (`address`) WITH PARSER `ngram`,
+  CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8;
+INSERT INTO `dbname`.`user_address` (`id`, `user_id`, `address`) VALUES (1, 1, '上海浦东');
+INSERT INTO `dbname`.`user_address` (`id`, `user_id`, `address`) VALUES (2, 3, '浙江杭州');
+```
+
 
 ## 查询
 
@@ -385,7 +433,7 @@ SELECT * FROM `user` WHERE name REGEXP '李';
 ### AS
 别名
 ```sql
-SELECT name AS username FROM `user`;
+SELECT name AS username FROM `user` AS u;
 ```
 输出
 ```sql
@@ -707,8 +755,134 @@ SELECT COUNT(age) AS has_age_count FROM `user`;
 1 row in set (0.00 sec)
 ```
 
-## 存储过程
+### 子查询
+利用子查询的结果集作为父查询的条件
+```sql
+SELECT*FROM `user` WHERE id IN (
+SELECT id FROM `user` WHERE id BETWEEN 1 AND 2);
+```
+输出
+```sql
++----+------+------+
+| id | name | age  |
++----+------+------+
+|  1 | 张三 |    1 |
+|  2 | 李四 |    1 |
++----+------+------+
+2 rows in set (0.02 sec)
+```
 
+### INNER JOIN
+内联查询，查询2个表都有的部分
+查询user表有地址的用户
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	INNER JOIN `user_address` AS ua ON u.id = ua.user_id;
+```
+输出
+```sql
++----+------+------+----------+
+| id | name | age  | address  |
++----+------+------+----------+
+|  1 | 张三 |    1 | 上海浦东 |
+|  3 | 李四 |    2 | 浙江杭州 |
++----+------+------+----------+
+2 rows in set (0.00 sec)
+```
+
+### LEFT JOIN
+左外连接查询 全称 LEFT OUTER JOIN
+查询主表全部数据 连接表没有的数据填充NULL
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
+WHERE
+	u.id < 4 
+ORDER BY
+	u.id;
+```
+输出
+```sql
++----+------+------+----------+
+| id | name | age  | address  |
++----+------+------+----------+
+|  1 | 张三 |    1 | 上海浦东 |
+|  2 | 李四 |    1 | NULL     |
+|  3 | 李四 |    2 | 浙江杭州 |
++----+------+------+----------+
+3 rows in set (0.00 sec)
+```
+
+### RIGHT JOIN
+右外连接查询 全称 RIGHT OUTER JOIN
+查询连接表全部数据
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	RIGHT JOIN `user_address` AS ua ON u.id = ua.user_id 
+WHERE
+	u.id < 4 
+ORDER BY
+	u.id;
+```
+输出
+```sql
++------+------+------+----------+
+| id   | name | age  | address  |
++------+------+------+----------+
+|    1 | 张三 |    1 | 上海浦东 |
+|    3 | 李四 |    2 | 浙江杭州 |
++------+------+------+----------+
+2 rows in set (0.00 sec)
+```
+
+### UNION
+联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
+```sql
+SELECT * FROM `user` WHERE NAME='李四' AND age=2 UNION
+SELECT * FROM `user` WHERE NAME="张三" ORDER BY id;
+```
+默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
+
+### FULLTEXT
+全文索引
+mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html)
+新增索引 或者在navicat 新增索引下面的解析器里填 ngram
+```sql
+ALTER TABLE `user_address` ADD FULLTEXT INDEX address ( `address` ) WITH PARSER ngram;
+```
+搜索
+```sql
+SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
+```
+输出
+```sql
++----+---------+----------+
+| id | user_id | address  |
++----+---------+----------+
+|  2 |       3 | 浙江杭州 |
++----+---------+----------+
+1 row in set (0.00 sec)
+```
+
+## 名词
+### 主键
+确定一条记录的唯一标识，一个表只能有一个主键
+### 外键
+外键是某个表中的一列 它对应主表的主键值
+
+## 存储过程
 ### 百万条数据插入方法
 利用MYSQL执行常量AUTOCOMMIT设置为0，阻止他每次执行sql都提交
 ```sql
@@ -748,25 +922,80 @@ END
 
 ## 性能优化
 ### 查询优化
-1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能 
-2. LIKE '%xxx%' LIKE 相对于其他查询更慢 %放在搜索模式 'xxx' 最前面查询最慢
+1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
+2. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
 3. 查询使用ORDER BY变慢
     查询慢的语句
     ```sql
-    SELECT * FROM user ORDER BY id LIMIT 1,2;
+    SELECT * FROM `user` ORDER BY age LIMIT 10000,2;
     ```
     输出
     ```sql
-    +----+------+------+
-    | id | name | age  |
-    +----+------+------+
-    |  2 | 李四 |    1 |
-    |  3 | 李四 |    2 |
-    +----+------+------+
-    2 rows in set (0.01 sec)
+    > 时间: 15.53s
     ```
-    优化上面的语句
+    优化上面的语句(推荐)
     ```sql
-    SELECT * FROM user INNER JOIN (SELECT id FROM user ORDER BY id LIMIT 1,2 ) AS u USING(id);
+    SELECT
+        *
+    FROM
+        `user` INNER JOIN ( SELECT id FROM `user` ORDER BY age LIMIT 10000, 2 ) AS u USING ( id );
     ```
+    输出
+    ```sql
+    > 时间: 0.002s
+    ```
+    上面的写法还能用自连接代替
+    ```sql
+    SELECT
+        u1.name,
+        u1.age,
+        u2.id 
+    FROM
+        `user` AS u1,
+        `user` AS u2 
+    WHERE
+        u1.id = u2.id 
+    ORDER BY
+        u2.age 
+        LIMIT 10000,
+        2;
+    ```
+    输出
+    ```
+    > 时间: 0.055s
+    ```
+
+    另外一个例子
+    优化前
+    ```sql
+    SELECT
+        u.*,
+        ua.address 
+    FROM
+        `user` AS u
+        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
+    ORDER BY
+        u.id
+    LIMIT 100000,20;
+    ```
+    输出
+    ```sql
+    > 时间: 1.954s
+    ```
+    优化后
+    ```sql
+    SELECT
+        u.*,
+        ua.address 
+    FROM
+        ( SELECT * FROM `user` ORDER BY id LIMIT 100000, 20 ) AS u
+        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id
+    ```
+    输出
+    ```sql
+    > 时间: 0.02s
+    ```
+    可以看到优化速度提升了一倍
 4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
+5. 连表查询连接的表越多，性能下降越厉害
+
