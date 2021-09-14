@@ -130,7 +130,7 @@ SELECT * FROM `user`;
 
 ### DISTINCT关键字
 
-作用于所有列，聚合所有指定列相同的数据，不能作用于单列
+作用于所有列，聚合结果中所有指定列相同的数据，不能作用于单列
 假如user表如下
 ```
 +----+------+-----+
@@ -355,13 +355,418 @@ SELECT * FROM `user` WHERE name LIKE '%李%';
 
 !> 百分号可以匹配任意东西，除了NULL值，还有一个下划线通配符 _ ，只能匹配单个字符，不常用
 
+!> LIKE里的百分号都省略时即不使用通配符，例如下面这个例子将不会返回数据，但是LIKE '李四' 又能匹配全部,因为LIKE匹配的是整个串而不是一个字,所以不加百分号就要用完整的值
 
+```sql
+SELECT * FROM `user` WHERE name LIKE '李';
+```
+输出
+```sql
+Empty set (0.00 sec)
+```
 
+### REGEXP
+语法 REGEXP '正则表达式'
+```sql
+SELECT * FROM `user` WHERE name REGEXP '李';
+```
+输出
+```sql
++----+------+------+
+| id | name | age  |
++----+------+------+
+|  2 | 李四 |    1 |
+|  3 | 李四 |    2 |
++----+------+------+
+2 rows in set (0.06 sec)
+```
+!> 正则可以匹配任意数据，但是使用正则会影响性能，需要注意的是mysql正则表达式的转义字符是双斜杠\\\\而不是\，一个由MYSQL解释 一个由正则表达式库解释
 
+### AS
+别名
+```sql
+SELECT name AS username FROM `user`;
+```
+输出
+```sql
++----------+
+| username |
++----------+
+| 张三     |
+| 李四     |
+| 李四     |
++----------+
+3 rows in set (0.03 sec)
+```
 
+### GROUP BY
+聚合指定字段的记录即数据分组
+如按年龄分组查询  年龄为1的有两条 年龄为2的有一条
+```sql
+SELECT name,age,COUNT(*) AS row_count FROM `user` GROUP BY age;
+```
+输出
+```sql
++------+------+-----------+
+| name | age  | row_count |
++------+------+-----------+
+| 张三 |    1 |         2 |
+| 李四 |    2 |         1 |
++------+------+-----------+
+2 rows in set (0.00 sec)
+2 rows in set (0.00 sec)
+```
 
+!> 同样是聚合,区别 DISTINCT 是作用于所有列，而 GROUP BY 作用于一个字段
+!> NULL值也会作为一个分组出现
+!> GROUP BY 必须在ORDER BY之前
+
+### HAVING
+过滤 GROUP BY分组后的数据,支持所有WHERE操作符
+如按年龄分组查询 筛选每组个数大于1的数据
+```sql
+SELECT name,age,COUNT(*) AS row_count FROM `user` GROUP BY age HAVING(row_count > 1);
+```
+输出
+```sql
++------+------+-----------+
+| name | age  | row_count |
++------+------+-----------+
+| 张三 |    1 |         2 |
++------+------+-----------+
+1 row in set (0.00 sec)
+```
+
+!> WHERE是过滤没分组的数据
+
+### USING
+用于简化联合查询
+```sql
+SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u ON user.id = u.id;
+```
+上面的语句可以用下面的代替
+```sql
+SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u USING(id);
+```
+
+## 运算
+支持+ - * /
+```sql
+SELECT name,age * 2  FROM `user`;
+```
+输出
+```sql
++------+---------+
+| name | age * 2 |
++------+---------+
+| 张三 |       2 |
+| 李四 |       2 |
+| 李四 |       4 |
++------+---------+
+3 rows in set (0.02 sec)
+```
+
+## 函数
+### CONCAT
+拼接字段符
+语法 CONCAT (filed1,filed2,...)
+查询输出拼接好的字符串
+```sql
+SELECT CONCAT(name,'今年',age,'岁') AS name FROM `user`;
+```
+输出
+```sql
++-------------+
+| name        |
++-------------+
+| 张三今年1岁 |
+| 李四今年1岁 |
+| 李四今年2岁 |
++-------------+
+3 rows in set (0.02 sec)
+```
+
+### TRIM\LTRIM\RTRIM
+去除 左右两边空格 \ 左空格 \ 右空格
+```sql
+SELECT TRIM(name) FROM `user`;
+```
+输出
+```sql
++------------+
+| TRIM(name) |
++------------+
+| 张三       |
+| 李四       |
+| 李四       |
++------------+
+3 rows in set (0.01 sec)
+```
+
+### UPPER\LOWER
+全部字母转大写 \ 转小写
+```sql
+SELECT UPPER(name) AS name FROM `en_user`;
+```
+输出
+```sql
++----------+
+| name     |
++----------+
+| ZHANGSAN |
+| LISI     |
+| ZHANGSAN |
++----------+
+3 rows in set (0.00 sec)
+```
+
+### LENGTH
+计算字符串长度
+```sql
+SELECT LENGTH(name) AS name_length FROM `user`;
+```
+输出
+```sql
++-------------+
+| name_length |
++-------------+
+|           6 |
+|           6 |
+|           6 |
++-------------+
+3 rows in set (0.01 sec)
+```
+
+### LEFT\RIGHT
+返回索引为1左边的字符
+下面取名字的姓
+```sql
+SELECT LEFT(name,1) AS xing FROM `user`;
+```
+输出
+```sql
++------+
+| xing |
++------+
+| 张   |
+| 李   |
+| 李   |
++------+
+3 rows in set (0.00 sec)
+```
+
+### SUBSTRING
+语法 SUBSTRING(str,n,m)
+截取字符串str 从索引n开始后的m个字符
+```sql
+SELECT SUBSTRING(name,2,1) AS ming FROM `user`;
+```
+输出
+```sql
++------+
+| ming |
++------+
+| 三   |
+| 四   |
+| 四   |
++------+
+3 rows in set (0.00 sec)
+```
+!>  n是从1开始的注意一点
+
+### SUBSTRING_INDEX
+语法 SUBSTRING_INDEX(str,find_str,count)
+截取指定字符串str中find_str出现次数之前或之后的字符串，不包括他自己
+```sql
+SELECT SUBSTRING_INDEX(name,'n',1) AS ming FROM `en_user`;
+```
+输出
+```sql
++----------+
+| ming     |
++----------+
+| zha      |
+| lisi     |
+| ZHANGSAN |
++----------+
+```
+
+### 日期函数
+| 函数名        | 描述                           |
+| ------------- | ------------------------------ |
+| ADDDATE()     | 增加一个日期（天、周等）       |
+| ADDTIME()     | 增加一个时间（时、分等）       |
+| CURTIME()     | 返回当前时间                   |
+| DATE()        | 返回日期时间的日期部分         |
+| DATEDIFF()    | 计算两个日期之差               |
+| DATE_ADD()    | 高度灵活的日期运算函数         |
+| DATE_FORMAT() | 返回一个格式化的日期或时间串   |
+| DAY()         | 返回一个日期的天数部分         |
+| DAYOFWEEK()   | 对于一个日期，返回对应的星期几 |
+| HOUR()        | 返回一个时间的小时部分         |
+| MINUTE()      | 返回一个时间的分钟部分         |
+| MONTH()       | 返回一个日期的月份部分         |
+| NOW()         | 返回当前日期和时间             |
+| SECOND()      | 返回一个时间的秒部分           |
+| TIME()        | 返回一个日期时间的时间部分     |
+| YEAR()        | 返回一个日期的年份部分         |
+如当前时间格式化输出
+```sql
+SELECT DATE_FORMAT(CURTIME(),'%y年%m月%d日 %H:%i:%s') AS create_date FROM `en_user`;
+```
+输出
+```sql
++-----------------------+
+| create_date           |
++-----------------------+
+| 21年09月13日 15:36:58 |
+| 21年09月13日 15:36:58 |
+| 21年09月13日 15:36:58 |
++-----------------------+
+3 rows in set (0.00 sec)
+```
+
+### 数学方法
+| 函数名  | 描述                |
+| ------- | ------------------- |
+| ABS()   | 返回一个数的绝对值  |
+| COS()   | 返回一个角度的余弦  |
+| EXP()   | 返回一个数的指数值  |
+| MOD()   | 返回除操作的余数    |
+| FLOOR() | 向下取整 即舍弃小数 |
+| ROUND() | 向上取整 即四舍五入 |
+| PI()    | 返回圆周率          |
+| RAND()  | 返回一个 0~1 随机数 |
+| SIN()   | 返回一个角度的正弦  |
+| SQRT()  | 返回一个数的平方根  |
+| TAN()   | 返回一个角度的正切  |
+如年龄随机一下
+```sql
+SELECT name,ROUND(RAND() * 100) AS age FROM `user`;
+```
+输出
+```sql
++------+-----+
+| name | age |
++------+-----+
+| 张三 |  26 |
+| 李四 |  61 |
+| 李四 |  29 |
++------+-----+
+3 rows in set (0.00 sec)
+```
+
+### 统计函数
+| 函数名  | 描述             |
+| ------- | ---------------- |
+| AVG()   | 返回某列的平均值 |
+| COUNT() | 返回某列的行数   |
+| MAX()   | 返回某列的最大值 |
+| MIN()   | 返回某列的最小值 |
+| SUM()   | 返回某列值之和   |
+如取平均年龄
+```sql
+SELECT AVG(age) AS age_avg FROM `user`;
+```
+输出
+```sql
++---------+
+| age_avg |
++---------+
+|  1.3333 |
++---------+
+1 row in set (0.00 sec)
+```
+
+!> 这里COUNT 有2种用法 一种是统计所有行的数量（有没有NULL都被统计） 另一种是统计一个字段不为NULL值数量
+
+统计所有行数量
+```sql
+SELECT COUNT(*) AS row_count FROM `user`;
+```
+输出
+```sql
++-----------+
+| row_count |
++-----------+
+|         3 |
++-----------+
+1 row in set (0.00 sec)
+```
+统计有年龄的行数量
+```sql
+SELECT COUNT(age) AS has_age_count FROM `user`;
+```
+输出
+```sql
++---------------+
+| has_age_count |
++---------------+
+|             3 |
++---------------+
+1 row in set (0.00 sec)
+```
+
+## 存储过程
+
+### 百万条数据插入方法
+利用MYSQL执行常量AUTOCOMMIT设置为0，阻止他每次执行sql都提交
+```sql
+CREATE PROCEDURE `addData`(n int)
+BEGIN
+	DECLARE i INT DEFAULT 0;
+	SET AUTOCOMMIT=0;
+	WHILE i<n DO
+		INSERT INTO user(`name`,`age`) VALUES ('随机数据',ROUND(RAND()*100));
+		SET i = i+1;
+	END WHILE;
+	SET AUTOCOMMIT=1;  
+END
+```
+使用事务
+```sql
+CREATE PROCEDURE `addData`(n INT)
+BEGIN
+	#Routine body goes here...
+	DECLARE error INT DEFAULT 0;
+	DECLARE i INT DEFAULT 0;
+	DECLARE CONTINUE HANDLER FOR SQLEXCEPTION SET error = 1;
+		START TRANSACTION;
+			WHILE i<n DO
+				INSERT INTO user(`name`,`age`) VALUES ('随机数据',ROUND(RAND()*100));
+				SET i = i+1;
+			END WHILE;
+			IF error = 1 THEN
+				ROLLBACK;
+			ELSE
+				COMMIT;
+			END If;
+-- 			返回结果集
+	SELECT error;
+END
+```
 
 ## 性能优化
 ### 查询优化
 1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能 
 2. LIKE '%xxx%' LIKE 相对于其他查询更慢 %放在搜索模式 'xxx' 最前面查询最慢
+3. 查询使用ORDER BY变慢
+    查询慢的语句
+    ```sql
+    SELECT * FROM user ORDER BY id LIMIT 1,2;
+    ```
+    输出
+    ```sql
+    +----+------+------+
+    | id | name | age  |
+    +----+------+------+
+    |  2 | 李四 |    1 |
+    |  3 | 李四 |    2 |
+    +----+------+------+
+    2 rows in set (0.01 sec)
+    ```
+    优化上面的语句
+    ```sql
+    SELECT * FROM user INNER JOIN (SELECT id FROM user ORDER BY id LIMIT 1,2 ) AS u USING(id);
+    ```
+4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
