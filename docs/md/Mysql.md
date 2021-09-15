@@ -1094,6 +1094,15 @@ UPDATE `user_address` SET address = "上海郊区" WHERE id=1;
 DROP TRIGGER update_trigger;
 ```
 
+## 维护
+### 备份
+暂无
+### 检查
+检查表是否有错误
+```sql
+CHECK TABLE table_name;
+```
+
 ## 性能优化
 ### 查询优化
 1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
@@ -1172,6 +1181,7 @@ DROP TRIGGER update_trigger;
     可以看到优化速度提升了一倍
 4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
 5. 连表查询连接的表越多，性能下降越厉害
+
 
 ## 名词
 ### 主键
