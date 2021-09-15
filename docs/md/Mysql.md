@@ -2,10 +2,13 @@
 ## 准备工作
 ### 安装mysql
 参考[wnmp安装](/md/Php?id=wnmp搭建)中的mysql下载服务安装和服务启动 windows可设置成开机自启动
+
 [多个版本安装](https://blog.csdn.net/wudinaniya/article/details/82455431)
 
+!> 最好安装mysql-5.7.34  因为他支持中文全文索引
+
 ### 设置环境变量
-环境变量-用户变量-Path 添加  D:\mysql-5.6.43\bin
+环境变量-用户变量-Path 添加  D:\mysql-5.7.34\bin
 
 ### 连接到Mysql
 打开cmd
@@ -850,13 +853,14 @@ ORDER BY
 ### UNION
 联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
 ```sql
-SELECT * FROM `user` WHERE NAME='李四' AND age=2 UNION
-SELECT * FROM `user` WHERE NAME="张三" ORDER BY id;
+SELECT * FROM `user` WHERE name='李四' AND age=2 UNION
+SELECT * FROM `user` WHERE name="张三" ORDER BY id;
 ```
 默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
 
 ### FULLTEXT
 全文索引
+语法 MATCH(列1,列2) AGAINST(搜索表达式1,搜索表达式2)
 mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html)
 新增索引 或者在navicat 新增索引下面的解析器里填 ngram
 ```sql
@@ -875,14 +879,172 @@ SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
 +----+---------+----------+
 1 row in set (0.00 sec)
 ```
+!> mysql 全文索引以词为基础 就是分词的不是分字的 例如搜 AGAINST("杭") 就搜不到了
 
-## 名词
-### 主键
-确定一条记录的唯一标识，一个表只能有一个主键
-### 外键
-外键是某个表中的一列 它对应主表的主键值
+## 新增
+### INSERT
+语法 INSERT INTO table_name (字段1,字段2) VALUES ("值1","值2")
+返回影响行数
+```sql
+INSERT INTO `user` (name,age) VALUES ("张三",4);
+```
+输出
+```sql
+Query OK, 1 row affected (0.06 sec)
+```
+
+### LOW_PRIORITY
+优先级  
+降低INSERT INTO 语句的优先级，也适用于UPDATE和DELETE语句，可提高SELECT语句的效率
+```sql
+INSERT LOW_PRIORITY INTO `user` (name,age) VALUES ("张三",4);
+```
+
+### 插入多行
+语法 INSERT INTO table_name (字段1,字段2) VALUES ("值1","值2"),("值3","值4")
+```sql
+INSERT INTO `user` (name,age) VALUES ("张三",5),("张三",6);
+```
+输出
+```sql
+Query OK, 2 rows affected (0.04 sec)
+Records: 2  Duplicates: 0  Warnings: 0
+```
+
+### INSERT SELECT
+将查询的结果集作为数据插入到表格
+```sql
+INSERT INTO `user` (name,age) SELECT name,age FROM user;
+```
+输出
+```sql
+Query OK, 8 rows affected (0.03 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+```
+!> SELETE 选择的列名不一定要和插入的列名一致，只要顺序对应即可
+
+## 更新
+### UPDATE
+语法 UPDATE table_name SET 字段1="值1",字段2="值2" WHERE 条件
+返回影响行数
+```sql
+UPDATE `user` SET name="李五",age=4 WHERE name="李四" AND age=2;
+```
+输出
+```sql
+Query OK, 2 rows affected (0.05 sec)
+Rows matched: 2  Changed: 2  Warnings: 0
+```
+
+## 删除
+### DELETE
+语法 DELETE FROM table_name WHERE 条件
+```sql
+DELETE FROM `user` WHERE id>3;
+```
+输出
+```sql
+Query OK, 13 rows affected (0.15 sec)
+```
+
+## 表操作
+### CREATE
+```sql
+CREATE TABLE IF NOT EXISTS `user`(
+  `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
+  `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
+  PRIMARY KEY (`id`),
+  KEY `age_index` (`age`) USING HASH
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+```
+
+### ALTER
+语法 ALTER TABLE table_name 操作
+新增列
+```sql
+ALTER TABLE `user` ADD tel VARCHAR(13) NOT NULL DEFAULT '' COMMENT '电话';
+```
+删除列
+```sql
+ALTER TABLE `user` DROP tel;
+```
+定义外键
+```sql
+ALTER TABLE `user_address` ADD CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
+```
+### DROP
+删除表  
+语法 DROP TABLE table_name
+
+### RENAME
+重命名表  
+语法 RENAME TABLE table_name To new_table_name
+
+### TRUNCATE
+清空表格并重写创建
+```sql
+TRUNCATE `user_address`;
+```
+!> 有关联表的主表不能够被清空提示：Cannot truncate a table referenced in a foreign key constraint 
+
+## 视图
+### 创建视图
+视图就是虚拟表 只包含查询语句，用来简化复杂SQL语句
+
+```sql
+CREATE VIEW user_view AS
+SELECT u.*,ua.address FROM `user` AS u LEFT JOIN user_address AS ua ON u.id=ua.user_id;
+```
+!> 在navicat 中 创建视图按钮可省略 CREATE VIEW user_view AS
+
+### 使用视图构建的虚拟表查询
+```sql
+SELECT * FROM user_view;
+```
+输出
+```sql
++----+--------+------+--------------+
+| id | name   | age  | address      |
++----+--------+------+--------------+
+|  1 | 张三   |    1 | 上海浦东     |
+|  3 | 李四   |    2 | 浙江杭州     |
+|  2 | 李四   |    1 | NULL         |
++----+--------+------+--------------+
+3 rows in set (0.02 sec)
+```
 
 ## 存储过程
+### 什么是存储过程
+就是保存SQL语句的集合
+
+### 使用
+navicat里使用 函数菜单——新建函数——过程 来创建存储过程
+```sql
+CREATE PROCEDURE `test`(n INT)
+BEGIN
+	SELECT * FROM `user` WHERE id<n;
+	SELECT * FROM `user_address` WHERE id<n;
+END
+```
+需要返回变量可以用 下面2种
+IN 和 OUT 分别表示传入参数和返回参数
+```sql
+CREATE PROCEDURE `test`(IN n INT,OUT total INT)
+BEGIN
+	SELECT COUNT(*) INTO total FROM `user` WHERE id<n;
+END
+```
+或
+```sql
+CREATE PROCEDURE `test`(IN n INT)
+BEGIN
+	SELECT COUNT(*) INTO @total FROM `user` WHERE id<n;
+  SELECT @total;
+END
+```
+
+
 ### 百万条数据插入方法
 利用MYSQL执行常量AUTOCOMMIT设置为0，阻止他每次执行sql都提交
 ```sql
@@ -918,6 +1080,18 @@ BEGIN
 -- 			返回结果集
 	SELECT error;
 END
+```
+
+## 触发器
+### 创建
+```sql
+CREATE TRIGGER update_trigger AFTER INSERT ON `user` FOR EACH ROW
+UPDATE `user_address` SET address = "上海郊区" WHERE id=1;
+```
+
+### 删除
+```sql
+DROP TRIGGER update_trigger;
 ```
 
 ## 性能优化
@@ -999,3 +1173,8 @@ END
 4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
 5. 连表查询连接的表越多，性能下降越厉害
 
+## 名词
+### 主键
+确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成
+### 外键
+外键是某个表中的一列，它对应主表的主键值
