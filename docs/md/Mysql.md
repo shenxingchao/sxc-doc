@@ -875,8 +875,8 @@ ORDER BY
 ### UNION
 联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
 ```sql
-SELECT * FROM `user` WHERE name='李四' AND age=2 UNION
-SELECT * FROM `user` WHERE name="张三" ORDER BY id;
+SELECT * FROM `user` WHERE name = '李四' AND age = 2 UNION
+SELECT * FROM `user` WHERE name = "张三" ORDER BY id;
 ```
 默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
 
@@ -902,6 +902,17 @@ SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
 1 row in set (0.00 sec)
 ```
 !> mysql 全文索引以词为基础 就是分词的不是分字的 例如搜 AGAINST("杭") 就搜不到了
+
+### 联合索引
+有多个WHERE AND 条件的，即可用联合索引
+例如
+```sql
+SELECT * FROM `user` WHERE name = "张三" AND age > 1;
+```
+即可添加联合索引
+```sql
+ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING HASH;
+```
 
 ## 新增
 ### INSERT
@@ -947,10 +958,10 @@ Records: 8  Duplicates: 0  Warnings: 0
 
 ## 更新
 ### UPDATE
-语法 UPDATE table_name SET 字段1="值1",字段2="值2" WHERE 条件
+语法 UPDATE table_name SET 字段1 = "值1",字段2 = "值2" WHERE 条件
 返回影响行数
 ```sql
-UPDATE `user` SET name="李五",age=4 WHERE name="李四" AND age=2;
+UPDATE `user` SET name="李五",age = 4 WHERE name = "李四" AND age = 2;
 ```
 输出
 ```sql
@@ -1016,7 +1027,7 @@ TRUNCATE `user_address`;
 
 ```sql
 CREATE VIEW user_view AS
-SELECT u.*,ua.address FROM `user` AS u LEFT JOIN user_address AS ua ON u.id=ua.user_id;
+SELECT u.*,ua.address FROM `user` AS u LEFT JOIN user_address AS ua ON u.id = ua.user_id;
 ```
 !> 在navicat 中 创建视图按钮可省略 CREATE VIEW user_view AS
 
@@ -1073,12 +1084,12 @@ END
 CREATE PROCEDURE `addData`(n int)
 BEGIN
 	DECLARE i INT DEFAULT 0;
-	SET AUTOCOMMIT=0;
+	SET AUTOCOMMIT = 0;
 	WHILE i<n DO
 		INSERT INTO user(`name`,`age`) VALUES ('随机数据',ROUND(RAND()*100));
 		SET i = i+1;
 	END WHILE;
-	SET AUTOCOMMIT=1;  
+	SET AUTOCOMMIT = 1;  
 END
 ```
 使用事务
@@ -1108,7 +1119,7 @@ END
 ### 创建
 ```sql
 CREATE TRIGGER update_trigger AFTER INSERT ON `user` FOR EACH ROW
-UPDATE `user_address` SET address = "上海郊区" WHERE id=1;
+UPDATE `user_address` SET address = "上海郊区" WHERE id = 1;
 ```
 
 ### 删除
@@ -1141,9 +1152,11 @@ EXIT;
 
 ## 性能优化
 ### 查询优化
-1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
-2. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
-3. 查询使用ORDER BY变慢
+1. 使用EXPLAIN
+   ![calc](../images/explain.png)  
+2. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
+3. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
+4. 查询使用ORDER BY变慢
     查询慢的语句
     ```sql
     SELECT * FROM `user` ORDER BY age LIMIT 10000,2;
@@ -1215,8 +1228,8 @@ EXIT;
     > 时间: 0.02s
     ```
     可以看到优化速度提升了一倍
-4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
-5. 连表查询连接的表越多，性能下降越厉害
+5. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
+6. 连表查询连接的表越多，性能下降越厉害
 
 
 ## 名词
