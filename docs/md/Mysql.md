@@ -121,7 +121,7 @@ CREATE TABLE `user` (
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
   `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
   PRIMARY KEY (`id`),
-  KEY `age_index` (`age`) USING HASH
+  KEY `age_index` (`age`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (1, '张三', 1);
 INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (2, '李四', 1);
@@ -911,7 +911,7 @@ SELECT * FROM `user` WHERE name = "张三" AND age > 1;
 ```
 即可添加联合索引
 ```sql
-ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING HASH;
+ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING BTREE;
 ```
 
 ## 新增
@@ -988,7 +988,7 @@ CREATE TABLE IF NOT EXISTS `user`(
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
   `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
   PRIMARY KEY (`id`),
-  KEY `age_index` (`age`) USING HASH
+  KEY `age_index` (`age`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
@@ -1131,10 +1131,13 @@ DROP TRIGGER update_trigger;
 ### 备份
 暂无
 ### 检查
-检查表是否有错误
+检查表是否有错误 操作不可在表高频繁状态下执行
 ```sql
 CHECK TABLE table_name;
 ```
+### 分析
+操作不可在表高频繁状态下执行
+ANALYZE TABLE user;
 
 ## 访问控制
 ### 查看权限
@@ -1156,27 +1159,27 @@ EXIT;
    ![calc](../images/explain.png)  
 2. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
 3. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
-4. 查询使用ORDER BY变慢
+4. 查询使用 ORDER BY 变慢
     查询慢的语句
     ```sql
-    SELECT * FROM `user` ORDER BY age LIMIT 10000,2;
+    SELECT * FROM `user` ORDER BY age,id LIMIT 1000000,2;
     ```
     输出
     ```sql
-    > 时间: 15.53s
+    > 时间: 1.176s
     ```
     优化上面的语句(推荐)
     ```sql
     SELECT
         *
     FROM
-        `user` INNER JOIN ( SELECT id FROM `user` ORDER BY age LIMIT 10000, 2 ) AS u USING ( id );
+        `user` INNER JOIN ( SELECT id FROM `user` ORDER BY age,id LIMIT 1000000,2 ) AS u USING ( id );
     ```
     输出
     ```sql
-    > 时间: 0.002s
+    > 时间: 0.171s
     ```
-    上面的写法还能用自连接代替
+    上面的写法还能用自连接代替（非常慢）
     ```sql
     SELECT
         u1.name,
@@ -1188,13 +1191,14 @@ EXIT;
     WHERE
         u1.id = u2.id 
     ORDER BY
-        u2.age 
-        LIMIT 10000,
+        u1.age,
+        u1.id 
+        LIMIT 1000000,
         2;
     ```
     输出
     ```
-    > 时间: 0.055s
+    > 时间: 13.634s
     ```
 
     另外一个例子
@@ -1221,7 +1225,7 @@ EXIT;
         ua.address 
     FROM
         ( SELECT * FROM `user` ORDER BY id LIMIT 100000, 20 ) AS u
-        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id
+        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id;
     ```
     输出
     ```sql
@@ -1230,10 +1234,51 @@ EXIT;
     可以看到优化速度提升了一倍
 5. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
 6. 连表查询连接的表越多，性能下降越厉害
-
-
+7. 优化LIMIT语句
+    使用索引覆盖
+    ```sql
+    SELECT * FROM `user` ORDER BY id LIMIT 1000000,2;
+    ```
+    输出
+    ```sql
+    +---------+--------------+------+
+    | id      | name         | age  |
+    +---------+--------------+------+
+    | 1000001 | 随机数据     |   33 |
+    | 1000002 | 随机数据     |   98 |
+    +---------+--------------+------+
+    2 rows in set (0.20 sec)
+    ```
+    优化后
+    ```sql
+    SELECT * FROM `user` WHERE id >= (
+        SELECT id FROM `user` ORDER BY id LIMIT 1000000,1) ORDER BY id LIMIT 2;
+    ```
+    输出
+    ```sql
+    +---------+--------------+------+
+    | id      | name         | age  |
+    +---------+--------------+------+
+    | 1000001 | 随机数据     |   33 |
+    | 1000002 | 随机数据     |   98 |
+    +---------+--------------+------+
+    2 rows in set (0.16 sec)
+    ```
+8. 排序结果不一样
+    ```sql
+    SELECT * FROM `user` WHERE age > 10 ORDER BY age LIMIT 1000000,2;
+    ```
+    ```sql
+    SELECT id FROM `user` WHERE age > 10 ORDER BY age LIMIT 1000000,2;
+    ```
+    如果age有多个重复值，那么结果将不一样，解决办法是再加上id字段
+    ```sql
+    SELECT * FROM `user` WHERE age > 10 ORDER BY age,id LIMIT 1000000,2;
+    ```
 ## 名词
 ### 主键
 确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成
 ### 外键
 外键是某个表中的一列，它对应主表的主键值
+### BTREE
+索引方法 B树索引 平衡多路查找树
