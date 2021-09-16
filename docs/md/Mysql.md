@@ -775,6 +775,28 @@ SELECT id FROM `user` WHERE id BETWEEN 1 AND 2);
 2 rows in set (0.02 sec)
 ```
 
+### EXISTS
+查询判断条件 不返回数据 只返回布尔类型
+如找出有地址的用户
+```sql
+SELECT
+	* 
+FROM
+	`user` u 
+WHERE
+	EXISTS ( SELECT * FROM `user_address` ua WHERE u.id = ua.user_id );
+```
+输出
+```sql
++----+--------+------+
+| id | name   | age  |
++----+--------+------+
+|  1 | 张三   |    1 |
+|  3 | 李五   |    2 |
++----+--------+------+
+2 rows in set (0.00 sec)
+```
+
 ### INNER JOIN
 内联查询，查询2个表都有的部分
 查询user表有地址的用户
@@ -1101,6 +1123,20 @@ DROP TRIGGER update_trigger;
 检查表是否有错误
 ```sql
 CHECK TABLE table_name;
+```
+
+## 访问控制
+### 查看权限
+```sql
+USE mysql;
+SHOW GRANTS FOR root;
+```
+### 修改密码
+```sql
+USE mysql;
+SET PASSWORD FOR root = Password("");
+FLUSH PRIVILEGES;
+EXIT;
 ```
 
 ## 性能优化
