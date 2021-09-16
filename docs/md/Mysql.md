@@ -15,7 +15,8 @@
 ```powershell
 mysql -h localhost -P 3306 -u root -p ;
 ```
-> 初始密码为空
+> 初始密码去 D:\mysql\data\xxx.err 文件里 搜索 temporary password 为临时密码 登录后修改密码,参考[这里](/md/Mysql?id=访问控制)
+
 ###  退出连接
 ```powershell
 quit or exit
