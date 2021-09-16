@@ -76,7 +76,189 @@
   
   - [vim命令](/md/Linux#vim命令)
 
-- [Mysql](/md/Mysql#Mysql)
+- [Mysql](/md/Mysql#mysql)
+
+  - [准备工作](/md/Mysql#准备工作)
+  
+    - [安装mysql](/md/Mysql#安装mysql)
+    
+    - [设置环境变量](/md/Mysql#设置环境变量)
+    
+    - [连接到Mysql](/md/Mysql#连接到mysql)
+    
+    - [退出连接](/md/Mysql#退出连接)
+    
+    - [下载工具](/md/Mysql#下载工具)
+    
+    - [书写规范](/md/Mysql#书写规范)
+    
+  - [使用](/md/Mysql#使用)
+  
+    - [选择数据库](/md/Mysql#选择数据库)
+    
+    - [显示所有数据库](/md/Mysql#显示所有数据库)
+    
+    - [显示当前数据库所有表格](/md/Mysql#显示当前数据库所有表格)
+    
+    - [显示指定表格的所有列](/md/Mysql#显示指定表格的所有列)
+    
+    - [查看数据库运行状态](/md/Mysql#查看数据库运行状态)
+    
+  - [初始化数据](/md/Mysql#初始化数据)
+  
+  - [查询](/md/Mysql#查询)
+  
+    - [SELECT](/md/Mysql#select)
+    
+    - [查询全部](/md/Mysql#查询全部)
+    
+    - [DISTINCT关键字](/md/Mysql#distinct关键字)
+    
+    - [LIMIT](/md/Mysql#limit)
+    
+    - [ORDER BY](/md/Mysql#order-by)
+    
+    - [WHERE](/md/Mysql#where)
+    
+    - [BETWEEN](/md/Mysql#between)
+    
+    - [IS NULL](/md/Mysql#is-null)
+    
+    - [AND](/md/Mysql#and)
+    
+    - [OR](/md/Mysql#or)
+    
+    - [IN](/md/Mysql#in)
+    
+    - [NOT](/md/Mysql#not)
+    
+    - [LIKE](/md/Mysql#like)
+    
+    - [REGEXP](/md/Mysql#regexp)
+    
+    - [AS](/md/Mysql#as)
+    
+    - [GROUP BY](/md/Mysql#group-by)
+    
+    - [HAVING](/md/Mysql#having)
+    
+    - [USING](/md/Mysql#using)
+    
+    - [子查询](/md/Mysql#子查询)
+    
+    - [EXISTS](/md/Mysql#exists)
+    
+    - [INNER JOIN](/md/Mysql#inner-join)
+    
+    - [LEFT JOIN](/md/Mysql#left-join)
+    
+    - [RIGHT JOIN](/md/Mysql#right-join)
+    
+    - [UNION](/md/Mysql#union)
+    
+    - [FULLTEXT](/md/Mysql#fulltext)
+    
+    - [联合索引](/md/Mysql#联合索引)
+    
+  - [运算](/md/Mysql#运算)
+  
+  - [函数](/md/Mysql#函数)
+  
+    - [CONCAT](/md/Mysql#concat)
+    
+    - [TRIM\LTRIM\RTRIM](/md/Mysql#trimltrimrtrim)
+    
+    - [UPPER\LOWER](/md/Mysql#upperlower)
+    
+    - [LENGTH](/md/Mysql#length)
+    
+    - [LEFT\RIGHT](/md/Mysql#leftright)
+    
+    - [SUBSTRING](/md/Mysql#substring)
+    
+    - [SUBSTRING_INDEX](/md/Mysql#substring_index)
+    
+    - [日期函数](/md/Mysql#日期函数)
+    
+    - [数学方法](/md/Mysql#数学方法)
+    
+    - [统计函数](/md/Mysql#统计函数)
+    
+  - [新增](/md/Mysql#新增)
+  
+    - [INSERT](/md/Mysql#insert)
+    
+    - [LOW_PRIORITY](/md/Mysql#low_priority)
+    
+    - [插入多行](/md/Mysql#插入多行)
+    
+    - [INSERT SELECT](/md/Mysql#insert-select)
+    
+  - [更新](/md/Mysql#更新)
+  
+    - [UPDATE](/md/Mysql#update)
+    
+  - [删除](/md/Mysql#删除)
+  
+    - [DELETE](/md/Mysql#delete)
+    
+  - [表操作](/md/Mysql#表操作)
+  
+    - [CREATE](/md/Mysql#create)
+    
+    - [ALTER](/md/Mysql#alter)
+    
+    - [DROP](/md/Mysql#drop)
+    
+    - [RENAME](/md/Mysql#rename)
+    
+    - [TRUNCATE](/md/Mysql#truncate)
+    
+  - [视图](/md/Mysql#视图)
+  
+    - [创建视图](/md/Mysql#创建视图)
+    
+    - [使用视图构建的虚拟表查询](/md/Mysql#使用视图构建的虚拟表查询)
+    
+  - [存储过程](/md/Mysql#存储过程)
+  
+    - [什么是存储过程](/md/Mysql#什么是存储过程)
+    
+    - [使用](/md/Mysql#使用-1)
+    
+    - [百万条数据插入方法](/md/Mysql#百万条数据插入方法)
+    
+  - [触发器](/md/Mysql#触发器)
+  
+    - [创建](/md/Mysql#创建)
+    
+    - [删除](/md/Mysql#删除-1)
+    
+  - [维护](/md/Mysql#维护)
+  
+    - [备份](/md/Mysql#备份)
+    
+    - [检查](/md/Mysql#检查)
+    
+    - [分析](/md/Mysql#分析)
+    
+  - [访问控制](/md/Mysql#访问控制)
+  
+    - [查看权限](/md/Mysql#查看权限)
+    
+    - [修改密码](/md/Mysql#修改密码)
+    
+  - [性能优化](/md/Mysql#性能优化)
+  
+    - [查询优化](/md/Mysql#查询优化)
+    
+  - [名词](/md/Mysql#名词)
+  
+    - [主键](/md/Mysql#主键)
+    
+    - [外键](/md/Mysql#外键)
+    
+    - [BTREE](/md/Mysql#btree)
 
 - [NodeJs](/md/NodeJs#nodejs)
   

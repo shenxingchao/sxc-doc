@@ -500,6 +500,162 @@ SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u ON user.id = u.id;
 SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u USING(id);
 ```
 
+### 子查询
+利用子查询的结果集作为父查询的条件
+```sql
+SELECT*FROM `user` WHERE id IN (
+SELECT id FROM `user` WHERE id BETWEEN 1 AND 2);
+```
+输出
+```sql
++----+------+------+
+| id | name | age  |
++----+------+------+
+|  1 | 张三 |    1 |
+|  2 | 李四 |    1 |
++----+------+------+
+2 rows in set (0.02 sec)
+```
+
+### EXISTS
+查询判断条件 不返回数据 只返回布尔类型
+如找出有地址的用户
+```sql
+SELECT
+	* 
+FROM
+	`user` u 
+WHERE
+	EXISTS ( SELECT * FROM `user_address` ua WHERE u.id = ua.user_id );
+```
+输出
+```sql
++----+--------+------+
+| id | name   | age  |
++----+--------+------+
+|  1 | 张三   |    1 |
+|  3 | 李五   |    2 |
++----+--------+------+
+2 rows in set (0.00 sec)
+```
+
+### INNER JOIN
+内联查询，查询2个表都有的部分
+查询user表有地址的用户
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	INNER JOIN `user_address` AS ua ON u.id = ua.user_id;
+```
+输出
+```sql
++----+------+------+----------+
+| id | name | age  | address  |
++----+------+------+----------+
+|  1 | 张三 |    1 | 上海浦东 |
+|  3 | 李四 |    2 | 浙江杭州 |
++----+------+------+----------+
+2 rows in set (0.00 sec)
+```
+
+### LEFT JOIN
+左外连接查询 全称 LEFT OUTER JOIN
+查询主表全部数据 连接表没有的数据填充NULL
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
+WHERE
+	u.id < 4 
+ORDER BY
+	u.id;
+```
+输出
+```sql
++----+------+------+----------+
+| id | name | age  | address  |
++----+------+------+----------+
+|  1 | 张三 |    1 | 上海浦东 |
+|  2 | 李四 |    1 | NULL     |
+|  3 | 李四 |    2 | 浙江杭州 |
++----+------+------+----------+
+3 rows in set (0.00 sec)
+```
+
+### RIGHT JOIN
+右外连接查询 全称 RIGHT OUTER JOIN
+查询连接表全部数据
+```sql
+SELECT
+	u.*,
+	ua.address 
+FROM
+	`user` AS u
+	RIGHT JOIN `user_address` AS ua ON u.id = ua.user_id 
+WHERE
+	u.id < 4 
+ORDER BY
+	u.id;
+```
+输出
+```sql
++------+------+------+----------+
+| id   | name | age  | address  |
++------+------+------+----------+
+|    1 | 张三 |    1 | 上海浦东 |
+|    3 | 李四 |    2 | 浙江杭州 |
++------+------+------+----------+
+2 rows in set (0.00 sec)
+```
+
+### UNION
+联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
+```sql
+SELECT * FROM `user` WHERE name = '李四' AND age = 2 UNION
+SELECT * FROM `user` WHERE name = "张三" ORDER BY id;
+```
+默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
+
+### FULLTEXT
+全文索引
+语法 MATCH(列1,列2) AGAINST(搜索表达式1,搜索表达式2)
+mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html)
+新增索引 或者在navicat 新增索引下面的解析器里填 ngram
+```sql
+ALTER TABLE `user_address` ADD FULLTEXT INDEX address ( `address` ) WITH PARSER ngram;
+```
+搜索
+```sql
+SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
+```
+输出
+```sql
++----+---------+----------+
+| id | user_id | address  |
++----+---------+----------+
+|  2 |       3 | 浙江杭州 |
++----+---------+----------+
+1 row in set (0.00 sec)
+```
+!> mysql 全文索引以词为基础 就是分词的不是分字的 例如搜 AGAINST("杭") 就搜不到了
+
+### 联合索引
+有多个WHERE AND 条件的，即可用联合索引
+例如
+```sql
+SELECT * FROM `user` WHERE name = "张三" AND age > 1;
+```
+即可添加联合索引
+```sql
+ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING BTREE;
+```
+
 ## 运算
 支持+ - * /
 ```sql
@@ -756,162 +912,6 @@ SELECT COUNT(age) AS has_age_count FROM `user`;
 |             3 |
 +---------------+
 1 row in set (0.00 sec)
-```
-
-### 子查询
-利用子查询的结果集作为父查询的条件
-```sql
-SELECT*FROM `user` WHERE id IN (
-SELECT id FROM `user` WHERE id BETWEEN 1 AND 2);
-```
-输出
-```sql
-+----+------+------+
-| id | name | age  |
-+----+------+------+
-|  1 | 张三 |    1 |
-|  2 | 李四 |    1 |
-+----+------+------+
-2 rows in set (0.02 sec)
-```
-
-### EXISTS
-查询判断条件 不返回数据 只返回布尔类型
-如找出有地址的用户
-```sql
-SELECT
-	* 
-FROM
-	`user` u 
-WHERE
-	EXISTS ( SELECT * FROM `user_address` ua WHERE u.id = ua.user_id );
-```
-输出
-```sql
-+----+--------+------+
-| id | name   | age  |
-+----+--------+------+
-|  1 | 张三   |    1 |
-|  3 | 李五   |    2 |
-+----+--------+------+
-2 rows in set (0.00 sec)
-```
-
-### INNER JOIN
-内联查询，查询2个表都有的部分
-查询user表有地址的用户
-```sql
-SELECT
-	u.*,
-	ua.address 
-FROM
-	`user` AS u
-	INNER JOIN `user_address` AS ua ON u.id = ua.user_id;
-```
-输出
-```sql
-+----+------+------+----------+
-| id | name | age  | address  |
-+----+------+------+----------+
-|  1 | 张三 |    1 | 上海浦东 |
-|  3 | 李四 |    2 | 浙江杭州 |
-+----+------+------+----------+
-2 rows in set (0.00 sec)
-```
-
-### LEFT JOIN
-左外连接查询 全称 LEFT OUTER JOIN
-查询主表全部数据 连接表没有的数据填充NULL
-```sql
-SELECT
-	u.*,
-	ua.address 
-FROM
-	`user` AS u
-	LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
-WHERE
-	u.id < 4 
-ORDER BY
-	u.id;
-```
-输出
-```sql
-+----+------+------+----------+
-| id | name | age  | address  |
-+----+------+------+----------+
-|  1 | 张三 |    1 | 上海浦东 |
-|  2 | 李四 |    1 | NULL     |
-|  3 | 李四 |    2 | 浙江杭州 |
-+----+------+------+----------+
-3 rows in set (0.00 sec)
-```
-
-### RIGHT JOIN
-右外连接查询 全称 RIGHT OUTER JOIN
-查询连接表全部数据
-```sql
-SELECT
-	u.*,
-	ua.address 
-FROM
-	`user` AS u
-	RIGHT JOIN `user_address` AS ua ON u.id = ua.user_id 
-WHERE
-	u.id < 4 
-ORDER BY
-	u.id;
-```
-输出
-```sql
-+------+------+------+----------+
-| id   | name | age  | address  |
-+------+------+------+----------+
-|    1 | 张三 |    1 | 上海浦东 |
-|    3 | 李四 |    2 | 浙江杭州 |
-+------+------+------+----------+
-2 rows in set (0.00 sec)
-```
-
-### UNION
-联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
-```sql
-SELECT * FROM `user` WHERE name = '李四' AND age = 2 UNION
-SELECT * FROM `user` WHERE name = "张三" ORDER BY id;
-```
-默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
-
-### FULLTEXT
-全文索引
-语法 MATCH(列1,列2) AGAINST(搜索表达式1,搜索表达式2)
-mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html)
-新增索引 或者在navicat 新增索引下面的解析器里填 ngram
-```sql
-ALTER TABLE `user_address` ADD FULLTEXT INDEX address ( `address` ) WITH PARSER ngram;
-```
-搜索
-```sql
-SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
-```
-输出
-```sql
-+----+---------+----------+
-| id | user_id | address  |
-+----+---------+----------+
-|  2 |       3 | 浙江杭州 |
-+----+---------+----------+
-1 row in set (0.00 sec)
-```
-!> mysql 全文索引以词为基础 就是分词的不是分字的 例如搜 AGAINST("杭") 就搜不到了
-
-### 联合索引
-有多个WHERE AND 条件的，即可用联合索引
-例如
-```sql
-SELECT * FROM `user` WHERE name = "张三" AND age > 1;
-```
-即可添加联合索引
-```sql
-ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING BTREE;
 ```
 
 ## 新增
@@ -1275,6 +1275,24 @@ EXIT;
     ```sql
     SELECT * FROM `user` WHERE age > 10 ORDER BY age,id LIMIT 1000000,2;
     ```
+9. 启用慢查询（版本mysql5.7）
+    my.ini文件里面设置，不同版本配置不同
+    ```ini
+    #开启慢查询日志
+    slow_query_log = on
+    #指定日志文件保存路径
+    slow_query_log_file = D:/mysql-5.7.34/slow_query.log
+    #指定达到多少秒才算慢查询
+    long_query_time = 1
+    #记录没有使用索引的查询语句
+    log_queries_not_using_indexes=on
+    ```
+10. 尽量避免使用 IN 和 NOT IN，会扫描全表，使用 EXISTS 或者 BETWEEN 代替
+11. 尽量避免使用 OR 用 UNION 代替
+12. 如果 GROUP BY 的结果不需要排序 那么显示的加上 GROUP BY NULL 会提高效率
+13. UNION 除非要消除重复行 不然用UNION ALL代替
+14. 尽量使用数字 如1，2 tinyintl类型 代表男女 字符串会降低查询和连接的性能
+
 ## 名词
 ### 主键
 确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成
@@ -1282,3 +1300,4 @@ EXIT;
 外键是某个表中的一列，它对应主表的主键值
 ### BTREE
 索引方法 B树索引 平衡多路查找树
+
