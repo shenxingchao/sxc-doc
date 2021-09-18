@@ -513,6 +513,8 @@
   - [一些技巧](/md/Vue#一些技巧)
     
     - [vue强制刷新子组件](/md/Vue#vue强制刷新子组件)
+
+    - [如何使用keepAlive组件](/md/Vue#如何使用keepAlive组件)
   
   - [组件](/md/Vue#组件)
     
