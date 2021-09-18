@@ -4,7 +4,7 @@
 ### vue强制刷新子组件
 [转](https://www.cnblogs.com/betty-niu/p/11199082.html)  
 父组件中利用v-if 强制刷新子组件
-```Html
+```html
 <template>
     <Son v-if="sonRefresh"></Son>
 </template>
@@ -29,6 +29,44 @@ export default {
     }
 }
 </script>
+```
+
+### 如何使用keepAlive组件
+```html
+vux 管理一个cachedViews 路由名称的缓存数组就可以了
+<keep-alive :include="cachedViews">
+   <router-view />
+</keep-alive>
+
+<script>
+  computed: {
+    cachedViews() {
+      let white_list: any = []
+      let that = this as any
+      that.$router.options.routes.forEach((element: any) => {
+        if (element.meta && element.meta.keepAlive) {
+          white_list.push(element.name)
+        }
+      })
+      let cached: any = []
+      white_list.forEach((element: any) => {
+        if (this.$store.state.cachedViews.includes(element)) {
+          cached.push(element)
+        }
+      })
+      return cached
+    }
+  }
+</script>
+```
+千万别用下面这种，误入歧途
+```html
+// 这种方式会引起异常情况
+// 和beforeRouteLeave方法配合动态改变keepAlive，第一次执行正常，第二次及之后组件会一直是keepAlive=false
+<keep-alive>
+  <router-view v-if="$route.meta.keepAlive"></router-view>
+</keep-alive>
+<router-view v-if="!$route.meta.keepAlive"></router-view>
 ```
 
 ## 组件
