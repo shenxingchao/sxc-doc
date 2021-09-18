@@ -32,12 +32,11 @@ export default {
 ```
 
 ### 如何使用keepAlive组件
-```html
 vux 管理一个cachedViews 路由名称的缓存数组就可以了
+```html
 <keep-alive :include="cachedViews">
    <router-view />
 </keep-alive>
-
 <script>
   computed: {
     cachedViews() {
@@ -59,10 +58,9 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
   }
 </script>
 ```
-千万别用下面这种，误入歧途
+千万别用下面这种，误入歧途  
+这种方式会引起异常情况和beforeRouteLeave方法配合动态改变keepAlive，第一次执行正常，第二次及之后组件会一直是keepAlive=false
 ```html
-// 这种方式会引起异常情况
-// 和beforeRouteLeave方法配合动态改变keepAlive，第一次执行正常，第二次及之后组件会一直是keepAlive=false
 <keep-alive>
   <router-view v-if="$route.meta.keepAlive"></router-view>
 </keep-alive>
