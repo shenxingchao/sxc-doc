@@ -4104,8 +4104,7 @@ if __name__ == "__main__":
 
     # 导入requests
     import requests
-
-
+    
     def main():
         request_url = "http://bang.dangdang.com/books/fivestars/01.00.00.00.00.00-recent30-0-0-1-1"
         res = requests.get(request_url)
@@ -4121,7 +4120,6 @@ if __name__ == "__main__":
         # 用属性获取内容
         for item in soup.select("div[class='list_num red']"):
             print(item.text)  # 输出了前三名的排行数字
-
 
     if __name__ == "__main__":
         main()
