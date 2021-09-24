@@ -1522,7 +1522,7 @@ def main():
     re.match(pattern, string, flags) 返回匹配的对象
     从字符串起始位置匹配，如果起始位置没匹配到，返回None
     r'' 匹配\的时候直接用\就行 不用\\去匹配了
-    re.I 大小写不敏感 re.M 多行匹配
+    re.I 大小写不敏感 re.M 多行匹配 re.S 空格也匹配
     """
     res = re.match(r"the\s\\.", str, re.I | re.M)  # \s匹配空白字符串 \匹配\   \.匹配.
     """
