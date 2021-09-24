@@ -4235,6 +4235,159 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 爬取人才网所有职位
+```py
+# 导入网络请求库
+import requests
+
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多线程
+from threading import Thread, Lock
+
+# 导入excel处理库
+from openpyxl import Workbook, load_workbook
+
+# 导入BeautifulSoup类库
+from bs4 import BeautifulSoup
+
+# 随机数
+import random
+
+lock = Lock()  # 初始化锁
+
+# 代理IP池
+proxies = [
+    "http://27.191.60.25:3256",
+    "http://182.84.145.191:3256",
+    "http://58.255.6.214:9999",
+    "http://60.168.80.91:1133",
+    "http://70.37.165.170:3218",
+]
+
+# 请求线程类
+class Request(Thread):
+    def __init__(self, url_list, response_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param response_list list 返回的数据列表
+        @param index 返回列表的的起始索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__response_list = response_list
+        self.__index = index
+
+    def run(self):
+        # 多线程同时请求url
+        print(f"线程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            print(f"请求{self.__index + 1}-{key}发出")
+            res = requests.get(value, proxies={"http": random.choice(proxies)})
+
+            # 创建BeautifulSoup对象 使用lxml解析器
+            soup = BeautifulSoup(res.text, "lxml")
+
+            # 会自动调用release是否锁
+            with lock:
+                # 将获取的内容存入list.
+                data = []
+                # 循环获取需要的内容
+                for item in soup.select(".search_job_list"):
+                    child_soup = BeautifulSoup(str(item), "lxml")
+                    address = ""
+                    experience = ""
+                    education = ""
+                    if len(child_soup.select(".com_search_job_em")) > 0:
+                        address = child_soup.select(".com_search_job_em")[0].get_text()
+                    if len(child_soup.select(".com_search_job_em")) > 1:
+                        if child_soup.select(".com_search_job_em")[1].get_text().find("经验") != -1:
+                            experience = child_soup.select(".com_search_job_em")[1].get_text()
+                        if child_soup.select(".com_search_job_em")[1].get_text().find("学历") != -1:
+                            education = child_soup.select(".com_search_job_em")[1].get_text()
+                    if len(child_soup.select(".com_search_job_em")) > 2:
+                        education = child_soup.select(".com_search_job_em")[2].get_text()
+                    data.append(
+                        {
+                            "title": child_soup.select_one(".yunjoblist_newname a")["title"],
+                            "money": re.sub(
+                                r"-\d+元", "", child_soup.select_one(".yunjoblist_newxz").text, 1, re.I | re.M
+                            ),
+                            "company": child_soup.select_one(".search_job_com_name")["title"],
+                            "address": address,
+                            "experience": experience,
+                            "education": education,
+                            "time": child_soup.select_one(".yunjoblist_new_time span").text
+                            if child_soup.select_one(".yunjoblist_new_time span")
+                            else "置顶",
+                        }
+                    )
+                self.__response_list[self.__index + key] = data
+            # 设置请求间隔
+            time.sleep(0.5)
+
+
+def main():
+    # 请求当前地址内容
+    base_url = "https://www.hnrcrs.com/job/index.php?city=830000&all=0_0_0_0_0_0_0_0&tp=0&page="
+    # 生成器生成url列表
+    base_url_list = [base_url + str(item) for item in range(1, 251)]
+    # url分组 10个为1组,分成 len/10 组  每组用一个线程去处理
+    request_url_list = []
+    for i in range(0, len(base_url_list), 10):
+        request_url_list.append(base_url_list[i : i + 10])
+
+    # 最终内容存入list，初始化一个len长度的list，用于后面赋值到指定位置
+    response_list = [i for i in range(1, 251)]
+    Threads = []
+    for key, value in enumerate(request_url_list):
+        t = Request(value, response_list, key * 10)
+        Threads.append(t)
+        t.start()
+    # 等待所有线程结束
+    for t in Threads:
+        t.join()
+    # 输出结果
+    # for items in response_list:
+    #     for item in items:
+    #         print(item["title"])
+    # # 写入excel
+    # # 初始化工作簿对象
+    wb = Workbook()
+    # 获取当前激活的worksheet
+    ws = wb.active
+    ws["A1"] = "职位"
+    ws["B1"] = "薪水"
+    ws["C1"] = "公司"
+    ws["D1"] = "地址"
+    ws["E1"] = "经验"
+    ws["F1"] = "学历"
+    ws["G1"] = "发布时间"
+    i = 2
+    for item in response_list:
+        for book in item:
+            ws.cell(i, 1, book["title"])
+            ws.cell(i, 2, book["money"])
+            ws.cell(i, 3, book["company"])
+            ws.cell(i, 4, book["address"])
+            ws.cell(i, 5, book["experience"])
+            ws.cell(i, 6, book["education"])
+            ws.cell(i, 7, book["time"])
+            i += 1
+    # excel覆盖保存文件到当前文件夹
+    wb.save("海宁人才网所有职位.xlsx")
+
+
+if __name__ == "__main__":
+    main()
+```
+
 #### 爬取m3u8视频，批量合并爬取的视频为mp4
 ```py
 # 导入网络请求库
