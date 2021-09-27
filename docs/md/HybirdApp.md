@@ -895,10 +895,12 @@ import 'package:flutter/material.dart';
 
 //主方法
 void main() {
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   //应用程序的根节点
   @override
   Widget build(BuildContext context) {
@@ -910,13 +912,13 @@ class MyApp extends StatelessWidget {
         // 主题色
         primarySwatch: Colors.green,
       ),
-      home: MyHomePage(title: '头部标题'),
+      home: const MyHomePage(title: '头部标题'),
     );
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, required this.title}) : super(key: key);
+  const MyHomePage({Key? key, required this.title}) : super(key: key);
   // 主页类 他有一个_MyHomePageState 对象
   // 状态的配置在_MyHomePageState build方法中
   // 子类的变量标记为常量 只能分配一次值 必须初始化
@@ -952,7 +954,7 @@ class _MyHomePageState extends State<MyHomePage> {
           //列布局控件 shift+ctrl+p  ->Toggle Debug Paint 查看控件边界
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
+            const Text(
               '按钮点击次数5',
             ),
             Text(
@@ -966,12 +968,11 @@ class _MyHomePageState extends State<MyHomePage> {
       floatingActionButton: FloatingActionButton(
         onPressed: _incrementCounter,
         tooltip: 'Increment',
-        child: Icon(Icons.add),
+        child: const Icon(Icons.add),
       ), 
     );
   }
 }
-
 ```
 
 ### adb连接到夜神模拟器
