@@ -745,6 +745,9 @@ renderTabBar={() => <ScrollableTabBar />}
 
 !> dart是flutter应用的编写语言
 
+### 安装
+不需要安装，安装下面的flutter SDK已经带了Dart SDK了
+
 ### 变量类型
 ```dart
   var varStr = 'hello wolrd!';
@@ -853,11 +856,37 @@ renderTabBar={() => <ScrollableTabBar />}
 
 ### vscode配置
 
-1.安装flutter扩展
-2.检查安装是否完成
+1. 安装flutter插件 安装过程会自动安装dart插件
+
+2. 检查安装是否完成
 ```
-Run Flutter Doctor
+flutter doctor
 ```
+
+1. 出现 
+```
+ Android toolchain - develop for Android devices (Android SDK version 30.0.3)
+    X cmdline-tools component is missing
+      Run `path/to/sdkmanager --install "cmdline-tools;latest"`
+      See https://developer.android.com/studio/command-line for more details.
+    X Android license status unknown.
+      Run `flutter doctor --android-licenses` to accept the SDK licenses.
+      See https://flutter.dev/docs/get-started/install/windows#android-setup for more details.
+```
+安装SDK cmdline-tools 即可
+
+2. 下图为安装正确
+  ```
+  Doctor summary (to see all details, run flutter doctor -v):
+  [√] Flutter (Channel stable, 2.5.1, on Microsoft Windows [Version 10.0.17763.1577], locale zh-CN)
+  [√] Android toolchain - develop for Android devices (Android SDK version 30.0.3)
+  [√] Chrome - develop for the web
+  [√] Android Studio (version 3.5)
+  [√] Connected device (2 available)
+
+  • No issues found!
+  ```
+
 
 ### 示例程序
 ```dart
@@ -1071,3 +1100,4 @@ class _ListWidgetState extends State<ListWidget> {
   }
 }
 ```
+
