@@ -1101,3 +1101,7 @@ class _ListWidgetState extends State<ListWidget> {
 }
 ```
 
+### 使用pub获取依赖
+```
+flutter pub get
+```
