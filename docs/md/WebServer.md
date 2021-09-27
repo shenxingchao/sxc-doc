@@ -134,7 +134,7 @@ https://buy.cloud.tencent.com/ssl
 
 !>这里需要stop之后重新start 也是需要注意的
 
-### nginx配置反向代理服务器
+### Nginx配置反向代理服务器
 爬虫的时候很有用  
 例如我想爬一个www.a.com的网站 那么我可以这么设置  
 nginx配置文件  
