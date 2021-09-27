@@ -134,4 +134,31 @@ https://buy.cloud.tencent.com/ssl
 
 !>这里需要stop之后重新start 也是需要注意的
 
+### nginx配置反向代理服务器
+爬虫的时候很有用  
+例如我想爬一个www.a.com的网站 那么我可以这么设置  
+nginx配置文件  
+```ini
+server{
+    listen       80;
 
+    server_name  www.b.com;
+
+    root   D:\wnmp\nginx-1.12.2\html; # 测试能否访问用的 实际可去掉
+    
+    location / {
+        proxy_pass https://www.a.com;
+        
+        # root html;# 测试能否访问用的 实际可去掉
+
+        # index  index.html index.htm;# 测试能否访问用的 实际可去掉
+
+    }
+}
+```
+host文件  
+```
+127.0.0.1 www.b.com
+```
+那么我通过请求 http://www.b.com:80 就能访问到https://www.b.com，而且对方服务器只能抓取到你的代理服务器ip 127.0.0.1 不能获取到你的真实ip。
+相当于你的nginx变成了代理服务器 这个时候请求的时候不用带上代理，直接请求你自己的代理服务器就完事了
