@@ -1130,7 +1130,31 @@ DROP TRIGGER update_trigger;
 
 ## 维护
 ### 备份
-暂无
+windows可以使用navicate自动备份
+### 导出
+1. 使用navicate导出  
+
+2. 使用命令
+    ```
+    # 首先查看服务器数据库数值 max_allowed_packet net_buffer_length
+    show variables like 'max_allowed_packet';
+    show variables like 'net_buffer_length';
+    # 然后根据这两个数值 导出本地数据库
+    mysqldump -u root -p -h localhost -P 3306 datebase_name -e --max_allowed_packet=4194304 --net_buffer_length=16384 > mysqldump.sql
+    ```
+### 导入
+1. 方式1
+   ```sql
+   mysql -u root -p -h 服务器数据库ip -P 3306 datebase_name < C:\mysqldump.sql
+   ```
+
+2. 方式2(推荐)
+    ```sql
+    mysql -u root -p -h 服务器数据库ip -P 3306;
+    use datebase_name;
+    set names utf8;
+    source sql文件路径
+    ```
 ### 检查
 检查表是否有错误 操作不可在表高频繁状态下执行
 ```sql
