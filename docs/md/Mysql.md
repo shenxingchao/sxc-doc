@@ -1132,15 +1132,16 @@ DROP TRIGGER update_trigger;
 ### 备份
 windows可以使用navicate自动备份
 ### 导出
-1. 使用navicate导出  
+1. 使用navicate导出（不推荐，导出的数据是一条一条插入的）  
 
-2. 使用命令
+2. 使用命令（推荐）
     ```
     # 首先查看服务器数据库数值 max_allowed_packet net_buffer_length
     show variables like 'max_allowed_packet';
     show variables like 'net_buffer_length';
-    # 然后根据这两个数值 导出本地数据库
-    mysqldump -u root -p -h localhost -P 3306 datebase_name -e --max_allowed_packet=4194304 --net_buffer_length=16384 > mysqldump.sql
+    # 然后根据这两个数值，导出本地数据库，末尾不需要引号；
+    # 虽然默认开启了extended-insert合并参数的，但是如果数据超过1M，也会生成多个insert。将net_buffer_length 的值调高，这样导出的insert合并的条数多。
+    mysqldump -u root -p -h localhost -P 3306 datebase_name -e --max_allowed_packet=4194304 --net_buffer_length=2046528 > mysqldump.sql
     ```
 ### 导入
 1. 方式1
@@ -1151,9 +1152,9 @@ windows可以使用navicate自动备份
 2. 方式2(推荐)
     ```sql
     mysql -u root -p -h 服务器数据库ip -P 3306;
-    use datebase_name;
-    set names utf8;
-    source sql文件路径
+    USE datebase_name;
+    SET names utf8;
+    SOURCE sql文件路径
     ```
 ### 检查
 检查表是否有错误 操作不可在表高频繁状态下执行
