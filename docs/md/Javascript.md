@@ -588,5 +588,90 @@ apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .
 6. 版本控制
 建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
 
+## 实战
+### 利用iframe跨域单点登录
+单点登录就是不同域名系统之间只需要登录一次 就可以访问多个系统了  
+如下图  
+ ![calc](../images/cors_write_cookie.gif)  
 
-
+页面a
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    页面a
+    <button onclick="login()">登录</button>
+    <script>
+      login = () => {
+        //获取 token
+        var token = "xxxxxxxxxxxxxxxxxxxxx";
+        //动态创建一个不可见的iframe，在iframe中加载一个跨域HTML
+        var iframe = document.createElement("iframe");
+        //隐藏
+        iframe.style.display = "none";
+        //设置iframe地址
+        iframe.src = "http://localhost:3002/";
+        //放入body
+        document.body.append(iframe);
+        //使用postMessage()方法将token传递给iframe 出错的话可增加延时时间
+        setTimeout(function () {
+          iframe.contentWindow.postMessage(token, "*");
+          console.log("发送成功");
+        }, 1000);
+        //删除iframe
+        setTimeout(function () {
+          iframe.remove();
+        }, 2000);
+        //监听b页面返回的操作状态
+        window.addEventListener(
+          "message",
+          function (event) {
+            console.log(event.data);
+          },
+          false
+        );
+      };
+    </script>
+  </body>
+</html>
+```
+页面b
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    页面b
+    <script>
+      function setCookie(name, value) {
+        var Days = 30;
+        var exp = new Date();
+        exp.setTime(exp.getTime() + Days * 24 * 60 * 60 * 1000);
+        document.cookie =
+          name + "=" + escape(value) + ";expires=" + exp.toGMTString();
+      }
+      // 在这个iframe所加载的HTML中绑定一个事件监听器，当事件被触发时，把接收到的token数据写入localStorage
+      window.addEventListener(
+        "message",
+        function (event) {
+          localStorage.setItem("localstorage_token", event.data);
+          setCookie("cookie_token", event.data);
+          top.postMessage("登录成功", "*");
+        },
+        false
+      );
+    </script>
+  </body>
+</html>
+```

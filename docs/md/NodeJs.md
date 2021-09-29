@@ -116,3 +116,36 @@
     ```
     npm run dev
     ```
+7. 访问html
+    安装ejs
+    ```powershell
+    yarn add ejs
+    ```
+    或者
+    ```powershell
+    npm instal ejs --save
+    ```
+    在项目根目录新建views 放入index.html  
+    然后修改index.js  
+    ```javascript
+    const express = require('express')
+    const app = express()
+    const port = 3001
+
+    //设置模板文件目录
+    app.set('views', __dirname + '/views');
+    //设置视图引擎
+    app.set( 'view engine', 'html' );
+    //设置视图后缀 ejs模板库
+    app.engine( '.html', require( 'ejs' ).__express );
+
+    //路由
+    app.get('/', (req, res) => {
+      res.render('index')
+    })
+
+    //监听
+    app.listen(port, () => {
+      console.log(`Example app listening at http://localhost:${port}`)
+    })
+    ```
