@@ -898,7 +898,9 @@ void main() {
   runApp(const MyApp());
 }
 
+//快速输入stl生成下面这个无状态组件类
 class MyApp extends StatelessWidget {
+  //构造方法 类似于python __init__方法 或者php里的 __constrct
   const MyApp({Key? key}) : super(key: key);
 
   //应用程序的根节点
@@ -976,7 +978,8 @@ class _MyHomePageState extends State<MyHomePage> {
 ```
 
 ### adb连接到夜神模拟器
-```
+```powershell
+adb disconnect 127.0.0.1:62001 # 断开连接
 adb connect 127.0.0.1:62001
 ```
 打开闪退就下载最新的夜神模拟器 重新复制一下nox_adb.exe
@@ -1040,23 +1043,25 @@ maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
 import 'package:flutter/material.dart';
 
 // 主函数（main）使用了 (=>) 符号，这是 Dart 中单行函数或方法的简写。
-void main() => runApp(MyApp());
+void main() => runApp(const MyApp());
 
 // 该应用程序继承了 StatelessWidget，这将会使应用本身也成为一个 widget。在 Flutter 中，几乎所有都是 widget，包括对齐 (alignment)、填充 (padding) 和布局 (layout)
 class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   // 一个 widget 的主要工作是提供一个 build() 方法来描述如何根据其他较低级别的 widgets 来显示自己。
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'APP标题',
-      theme: new ThemeData(
+      theme:  ThemeData(
           primaryColor: Colors.red,
-          textTheme: TextTheme(
+          textTheme: const TextTheme(
               bodyText1: TextStyle(color: Colors.green),
               bodyText2: TextStyle(color: Colors.blue)),
-          dividerTheme: DividerThemeData(color: Colors.grey),
+          dividerTheme: const DividerThemeData(color: Colors.grey),
           ),
-      home: ListWidget(),
+      home: const ListWidget(),
     );
   }
 }
@@ -1075,7 +1080,7 @@ class _ListWidgetState extends State<ListWidget> {
   //列表字体样式
   final TextStyle style = const TextStyle(fontSize: 18.0,color: Colors.blue);
   //保存数字的列表
-  final Set<String> saveList = Set<String>();
+  final Set<String> saveList = <String>{};
 
   //生成一行
   Widget _buildRow(String text) {
@@ -1125,7 +1130,7 @@ class _ListWidgetState extends State<ListWidget> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('appbar标题'),
-        actions: [IconButton(onPressed: _routeTo, icon: Icon(Icons.list))],
+        actions: [IconButton(onPressed: _routeTo, icon: const Icon(Icons.list))],
       ),
       body: Center(
         child: _buildList(),
@@ -1142,7 +1147,7 @@ class _ListWidgetState extends State<ListWidget> {
             appBar: AppBar(
               title: const Text('新页面'),
             ),
-            body: Center(child: Text("新页面文字 ")),
+            body: const Center(child: Text("新页面文字 ")),
           );
         },
       ),
@@ -1154,4 +1159,115 @@ class _ListWidgetState extends State<ListWidget> {
 ### 使用pub获取依赖
 ```
 flutter pub get
+```
+
+!> vscode中安装插件后每次保存配置文件 pubspec.yaml 会自动获取依赖
+
+
+### 使用MaterialApp和设置主题
+```dart
+// 导入material扁平化主题
+import 'package:flutter/material.dart';
+
+//主方法
+void main() => runApp(const MyApp());
+
+//快速输入stl生成下面这个无状态组件类
+class MyApp extends StatelessWidget {
+  //构造方法 类似于python __init__方法 或者php里的 __constrct
+  const MyApp({Key? key}) : super(key: key);
+
+  //实现抽象方法 build 返回一个组件
+  @override
+  Widget build(BuildContext context) {
+    //使用 主题组件
+    return  MaterialApp(
+      title: 'app标题',
+      theme: ThemeData(primarySwatch: Colors.green),
+      home: Scaffold(
+        appBar: AppBar(
+          title: const Text('状态栏标题'),
+        ),
+        body: const HomePage(),
+      )
+    );
+  }
+}
+
+//主页
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //Ceter组件
+    return const Center(
+      child: Text(
+        'hello',
+        //文字方向
+        textDirection: TextDirection.ltr,
+        style: TextStyle(
+          fontSize: 100.0,
+          color: Color.fromRGBO(255, 144, 255, 1.0), //Colors.red
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Container组件
+```dart
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('123'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //定义一个Container组件
+    return Container(
+      //宽度 默认是auto 去掉这个width那么container就会适应 内容的宽度，而内容的宽度是一个100%占比的框就实现了宽度自适应
+      width: 100,
+      //高度
+      height: 300.0,
+      //内边距
+      //定义样式
+      decoration: BoxDecoration(
+          //背景颜色
+          color: Colors.green,
+          //边框
+          border: Border.all(color: Colors.grey, width: 1.0)),
+      //子组件内容 100% 撑满
+      child: const FractionallySizedBox(
+        // 对齐方式
+        alignment: Alignment.center,
+        // 宽度因子 1为占满整行
+        widthFactor: 1,
+        // 高度因子
+        heightFactor: 1,
+        child: Text('hello Container'),
+      ),
+    );
+  }
+}
 ```
