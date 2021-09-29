@@ -979,12 +979,61 @@ class _MyHomePageState extends State<MyHomePage> {
 ```
 adb connect 127.0.0.1:62001
 ```
+打开闪退就下载最新的夜神模拟器 重新复制一下nox_adb.exe
 
 ### 运行
-打开模拟器，在项目根目录按F5运行
+打开模拟器，在项目根目录按F5运行 或运行 flutter run命令
 
-?> [解决Flutter编译一直显示Running Gradle task 'assembleDebug'](http://www.zyiz.net/tech/detail-141792.html) 
+?> 解决Flutter编译一直显示Running Gradle task 'assembleDebug'  
+D:\flutter\packages\flutter_tools\gradle\flutter.gradle  
+```java
+//第一处修改
+buildscript {
+    repositories {
+        // 注释
+        // google() 
+        // mavenCentral()
+        // 新增
+        maven { url 'https://maven.aliyun.com/repository/google' }
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+        maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+        
+    }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:4.1.0'
+    }
+}
 
+// 第二处修改
+// 注释
+// private static final String DEFAULT_MAVEN_HOST = "https://storage.googleapis.com";
+// 新增
+private static final String DEFAULT_MAVEN_HOST = "https://storage.flutter-io.cn";
+
+// 第三处修改
+rootProject.allprojects {
+      repositories {
+          maven {
+              url repository
+          }
+          //新增
+          maven { url 'https://maven.aliyun.com/repository/google' }
+          maven { url 'https://maven.aliyun.com/repository/jcenter' }
+          maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+      }
+  }
+```
+
+D:\项目根目录\android\build.gradle  
+```java
+// 注释两处
+// google()
+// mavenCentral()
+//新增两处
+maven { url 'https://maven.aliyun.com/repository/google' }
+maven { url 'https://maven.aliyun.com/repository/jcenter' }
+maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+```
 
 ### 官网无限列表程序
 ```dart
