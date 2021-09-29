@@ -69,3 +69,50 @@
   ```
 - yarn 超时
   删除yarn.lock文件 重新执行yarn
+
+## express
+### 使用express快速搭建本地测试服务器
+1. 创建应用文件夹
+2. 初始化
+    ```powershell
+    npm init
+    ```
+3. 安装express
+    ```powershell
+    yarn add express
+    ```
+    或者
+    ```
+    npm install express --save
+    ```
+4. 创建入口文件index.js
+    ```javascript
+    const express = require('express')
+    const app = express()
+    const port = 3000
+
+    app.get('/', (req, res) => {
+      res.send('Hello World!')
+    })
+
+    app.listen(port, () => {
+      console.log(`Example app listening at http://localhost:${port}`)
+    })
+    ```
+5. 配置运行命令
+    package.json
+    ```json
+    {
+      "scripts": {
+        "dev":"node index.js"
+      }
+    }
+    ```
+6. 运行
+    ```powershell
+    yarn dev
+    ```
+    或者
+    ```
+    npm run dev
+    ```
