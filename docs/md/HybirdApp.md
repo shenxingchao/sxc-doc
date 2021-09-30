@@ -887,6 +887,11 @@ flutter doctor
   • No issues found!
   ```
 
+### vscode包装组件代码
+ctrl+shift+r 或者右键重构 如 Wrap With Row
+
+### 关于嵌套
+同样可以用上面包装组件的方法  选择一段代码->右键重构->Extract Widget->生成组件代码块
 
 ### 示例程序
 ```dart
@@ -1163,6 +1168,29 @@ flutter pub get
 
 !> vscode中安装插件后每次保存配置文件 pubspec.yaml 会自动获取依赖
 
+### 公共头部
+```dart
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+```
 
 ### 使用MaterialApp和设置主题
 ```dart
@@ -1208,7 +1236,7 @@ class HomePage extends StatelessWidget {
         textDirection: TextDirection.ltr,
         style: TextStyle(
           fontSize: 100.0,
-          color: Color.fromRGBO(255, 144, 255, 1.0), //Colors.red
+          color: Color.fromARGB(255, 255, 144, 255), //Colors.red or Color.fromRGBO(255, 144, 255, 1.0)
         ),
       ),
     );
@@ -1216,29 +1244,8 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Container组件
+### Container容器组件
 ```dart
-import 'package:flutter/material.dart';
-
-void main() => runApp(const MyApp());
-
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-        title: 'app',
-        theme: ThemeData(primarySwatch: Colors.red),
-        home: Scaffold(
-          appBar: AppBar(
-            title: const Text('123'),
-          ),
-          body: const HomePage(),
-        ));
-  }
-}
-
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
 
@@ -1246,26 +1253,447 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     //定义一个Container组件
     return Container(
-      //宽度 默认是auto 去掉这个width那么container就会适应 内容的宽度，而内容的宽度是一个100%占比的框就实现了宽度自适应
-      width: 100,
+      //宽度 默认是auto 去掉这个width那么container就会适应 内容的宽度，而内容的宽度是一个100%占比的框就实现了宽度自适应 如果要div 用row组件比较好 因为row是100%的
+      width: 200,
       //高度
-      height: 300.0,
+      height: 200.0,
+      //外边距
+      margin: const EdgeInsets.fromLTRB(
+          20.0, 40.0, 20.0, 40.0), //const EdgeInsets.all(10.0),
       //内边距
+      padding: const EdgeInsets.fromLTRB(2.0, 4.0, 2.0,
+          4.0), //const EdgeInsets.only(left: 20.0,top: 40.0,right: 20.0,bottom: 40.0),//const EdgeInsets.all(10.0),
+      //变形 平移
+      transform: Matrix4.translationValues(10.0, 0.0, 0.0),
+      //内容对齐方式 这里无效是因为下面用了FractionallySizedBox 去掉就能看效果
+      alignment: Alignment.bottomCenter,
+      //背景颜色 如果decoration也定义了会覆盖掉外面的
+      color: Colors.green,
       //定义样式
       decoration: BoxDecoration(
           //背景颜色
           color: Colors.green,
           //边框
-          border: Border.all(color: Colors.grey, width: 1.0)),
+          border: Border.all(color: Colors.grey, width: 1.0),
+          //边框圆角 see from https://api.flutter-io.cn/flutter/painting/BoxDecoration-class.html
+          borderRadius: const BorderRadius.only(
+              topLeft: Radius.elliptical(20.0, 20.0),
+              topRight: Radius.elliptical(0.0, 0.0),
+              bottomLeft: Radius.elliptical(20.0, 20.0),
+              bottomRight: Radius.elliptical(20.0,
+                  20.0))), //BorderRadius.circular(20.0),  const BorderRadius.only(topLeft: Radius.elliptical(50.0, 50.0)))
       //子组件内容 100% 撑满
-      child: const FractionallySizedBox(
-        // 对齐方式
-        alignment: Alignment.center,
-        // 宽度因子 1为占满整行
-        widthFactor: 1,
-        // 高度因子
-        heightFactor: 1,
-        child: Text('hello Container'),
+      child: Row(
+        //对齐方式
+        mainAxisAlignment:MainAxisAlignment.end,
+        //子元素
+        children: const [Text('hello Container')],
+      ),
+    );
+  }
+}
+```
+
+### Text文本组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 300,
+        height: 300.0,
+        decoration: BoxDecoration(
+            color: Colors.green,
+            border: Border.all(color: Colors.grey, width: 1.0)),
+        //定义一个Text组件
+        child: const Text(
+          //定义标题
+          'hello world hello world hello world hello world hello world hello world',
+          //定义对齐
+          textAlign: TextAlign.left,
+          //溢出省略号
+          overflow: TextOverflow.ellipsis,
+          //最大行
+          maxLines: 2,
+          //缩放字体
+          textScaleFactor: 2.0,
+          //定义文字样式
+          style: TextStyle(
+            //定义字体大小
+            fontSize: 24.0,
+            //定义文字颜色
+            color: Color.fromRGBO(255, 255, 255, 1.0),//Colors.white,
+            //加粗
+            fontWeight: FontWeight.bold,
+            //倾斜
+            fontStyle: FontStyle.italic,
+            //下划线
+            decoration: TextDecoration.underline,
+            //下划线颜色
+            decorationColor: Colors.yellow,
+            //下划线风格虚线
+            decorationStyle: TextDecorationStyle.dashed,
+            //字间距
+            letterSpacing: 5.0
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Image图片组件
+#### 引入网络图片
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration: const BoxDecoration(
+          color: Colors.yellow,
+        ),
+        //引用网络图片
+        child: Image.network(
+          'https://v3.cn.vuejs.org/logo.png',
+          alignment: Alignment.topRight,
+          //图片适应父组件方式  cover:等比缩放水平垂直直到2者都填满父组件 其他的没啥用了
+          fit: BoxFit.cover,
+          //加滤镜
+          color: Colors.blue,
+          colorBlendMode: BlendMode.srcIn,
+        ),
+      ),
+    );
+  }
+}
+```
+#### 引入本地图片
+首先要设置图片文件夹和图片路径
+1. 项目根目录新建images/2.0x;images/3.0x;images/3.0x 文件夹 分别把图片放入三个文件夹以及images目录
+2. 配置文件pubspec.yaml
+    ```html
+    flutter:
+      assets:
+        - images/
+    ```
+    这样配置可以匹配所有图片了,不用一个一个加的
+3.引入本地图片
+    ```dart
+    class HomePage extends StatelessWidget {
+      const HomePage({Key? key}) : super(key: key);
+
+      @override
+      Widget build(BuildContext context) {
+        return Center(
+          child: Container(
+            width: 200,
+            height: 200,
+            decoration: const BoxDecoration(
+              color: Colors.yellow,
+            ),
+            //引用本地图片
+            child: Image.asset('images/logo.png',fit: BoxFit.cover,),
+          ),
+        );
+      }
+    }
+    ```
+
+#### 图片圆角
+第一种 采用设置背景图片方式（不推荐）
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Container(
+        width: 200,
+        height: 200,
+        decoration:  BoxDecoration(
+          color: Colors.yellow,
+          //使用圆形图片第一种
+          borderRadius: BorderRadius.circular(200),
+          image: const DecorationImage(
+              image: NetworkImage('https://v3.cn.vuejs.org/logo.png'),
+              fit: BoxFit.cover)
+        ),
+      ),
+    );
+  }
+}
+```
+第二种 采用裁剪组件（推荐）
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      // 使用圆形图片第二种 推荐这种 相当于一个Imgaeview组件
+      child: ClipOval(
+        child: Image.network(
+          'https://v3.cn.vuejs.org/logo.png',
+          alignment: Alignment.center,
+          //图片适应父组件方式  cover:等比缩放水平垂直直到2者都填满父组件 其他的没啥用了
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+        ),
+      ),
+    );
+  }
+}
+```
+
+### ListView列表组件
+
+#### ListTile 左侧图标中间标题右侧图标组件
+嵌套在ListView当中的列表项组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      //内边距
+      padding: const EdgeInsets.all(10),
+      //垂直列表 水平列表有滚动条哦
+      scrollDirection: Axis.vertical,
+      //children可以放任意的组件
+      children: [
+        ListTile(
+          //标题
+          title: const Text('列表标题列表标题列表标题列表标题列表标'),
+          //副标题
+          subtitle: const Text('副标题副标题副标题副标题副标'),
+          //右侧icon
+          trailing: const Icon(Icons.more_vert),
+          //左侧icon 网络图片
+          leading: Image.network('https://v3.cn.vuejs.org/logo.png'),
+          //左侧icon 图标
+          // leading: Icon(
+          //   Icons.badge,
+          //   color: Colors.blue,
+          //   size: 50,
+          // ),
+          onTap: () => {},
+        )
+      ],
+    );
+  }
+}
+```
+
+#### 使用map映射请求返回数据(推荐)
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //声明一个列表
+    List list = [
+      {'id': 1, "name": '张三'},
+      {'id': 2, "name": '李四'},
+      {'id': 3, "name": '王五'},
+      {'id': 4, "name": '小六'},
+      {'id': 5, "name": '老七'},
+    ];
+    //使用map映射一个widget List
+    return ListView(children: list.map((item) => Text(item['name'])).toList());
+  }
+}
+```
+
+#### 使用ListView.builders创建(推荐)
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //声明一个列表
+    List list = [
+      {'id': 1, "name": '张三'},
+      {'id': 2, "name": '李四'},
+      {'id': 3, "name": '王五'},
+      {'id': 4, "name": '小六'},
+      {'id': 5, "name": '老七'},
+    ];
+
+    //使用ListView.builder 创建listView
+    return ListView.builder(
+        //list长度必填
+        itemCount: list.length,
+        //创建回调函数
+        itemBuilder: (context, index) =>
+            ListTile(title: Text(list[index]['name'])));
+  }
+}
+```
+
+### GirdView网格布局
+#### GirdView.count 创建网格布局(推荐)
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //声明一个列表
+    List list = [
+      {'id': 1, "name": '张三'},
+      {'id': 2, "name": '李四'},
+      {'id': 3, "name": '王五'},
+      {'id': 4, "name": '小六'},
+      {'id': 5, "name": '小七'},
+    ];
+
+    //使用GirdView.count 创建网格布局
+    return GridView.count(
+      //2列
+      crossAxisCount: 2,
+      //水平间距
+      crossAxisSpacing: 10,
+      //垂直间距
+      mainAxisSpacing: 10,
+      //内边距
+      padding: const EdgeInsets.all(10),
+      //子元素宽高比
+      childAspectRatio: 0.8,
+      //子元素
+      children: list
+          .map((item) => Container(
+                decoration: const BoxDecoration(
+                  //背景颜色
+                  color: Colors.green,
+                ),
+                child: Text(item['name']),
+              ))
+          .toList(),
+    );
+  }
+}
+```
+
+#### 使用GirdView.builder 创建网格布局(不推荐，麻烦)
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //声明一个列表
+    List list = [
+      {'id': 1, "name": '张三'},
+      {'id': 2, "name": '李四'},
+      {'id': 3, "name": '王五'},
+      {'id': 4, "name": '小六'},
+      {'id': 5, "name": '小七'},
+    ];
+
+    //使用GirdView.builder 创建网格布局
+    return GridView.builder(
+      //数组长度 必须
+      itemCount: list.length,
+      //创建回调函数
+      itemBuilder: (context, index) => Container(
+        decoration: const BoxDecoration(
+          //背景颜色
+          color: Colors.green,
+        ),
+        child: Text(list[index]['name']),
+      ),
+      padding: const EdgeInsets.all(10),
+      //配置GridView参数 同上面的GirdView.count 参数一样
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        //2列
+        crossAxisCount: 2,
+        //水平间距
+        crossAxisSpacing: 10,
+        //垂直间距
+        mainAxisSpacing: 10,
+      ),
+    );
+  }
+}
+```
+
+### Padding边距组件
+用于没有padding属性设置的组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //使用Padding组件直接 加内边距
+    return Padding(
+        //设置padding值
+        padding: const EdgeInsets.all(100),
+        child: Container(
+          width: 100,
+          height: 100,
+          decoration: const BoxDecoration(color: Colors.pink),
+        ));
+  }
+}
+```
+
+### 组件封装
+封装一个StatelessWidget自定义组件示例，这里封装了Icon组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //使用封装的Icon组件
+    return const IoncComponent(
+      Icons.home,
+      //颜色可不传
+      color: Colors.red
+    );
+  }
+}
+
+//封装一个Icon组件
+class IoncComponent extends StatelessWidget {
+  //定义属性 要用final关键字 可以参数用?表示 
+  //如果可选参数不加问号，则必须在构造函数中初始化赋值
+  final IconData icon;//必选参数
+  final Color?color;//可选参数
+
+  //声明构造函数及里面的需要传入的属性 {}内的表示可选参数
+  const IoncComponent(
+    this.icon, {
+    this.color=Colors.white,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 50,
+      height: 50,
+      color: Colors.green,
+      alignment: Alignment.center,
+      child: Icon(
+        icon,
+        color: color,
       ),
     );
   }
