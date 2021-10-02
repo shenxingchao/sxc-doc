@@ -1083,7 +1083,7 @@ class ListWidget extends StatefulWidget {
 //state类
 class _ListWidgetState extends State<ListWidget> {
   //列表字体样式
-  final TextStyle style = const TextStyle(fontSize: 18.0,color: Colors.blue);
+  final TextStyle style = const TextStyle(fontSize: 18,color: Colors.blue);
   //保存数字的列表
   final Set<String> saveList = <String>{};
 
@@ -1117,7 +1117,7 @@ class _ListWidgetState extends State<ListWidget> {
   //生成列表
   Widget _buildList() {
     return ListView.builder(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(16),
         itemBuilder: (context, i) {
           // i是 0， 2， 4 ， 6， 8 ···
           //如果是奇数 则添加分割线
@@ -1235,8 +1235,8 @@ class HomePage extends StatelessWidget {
         //文字方向
         textDirection: TextDirection.ltr,
         style: TextStyle(
-          fontSize: 100.0,
-          color: Color.fromARGB(255, 255, 144, 255), //Colors.red or Color.fromRGBO(255, 144, 255, 1.0)
+          fontSize: 100,
+          color: Color.fromARGB(255, 255, 144, 255), //Colors.red or Color.fromRGBO(255, 144, 255, 1)
         ),
       ),
     );
@@ -1245,6 +1245,7 @@ class HomePage extends StatelessWidget {
 ```
 
 ### Container容器组件
+container默认就是全屏的容器
 ```dart
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -1253,39 +1254,38 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     //定义一个Container组件
     return Container(
-      //宽度 默认是auto 去掉这个width那么container就会适应 内容的宽度，而内容的宽度是一个100%占比的框就实现了宽度自适应 如果要div 用row组件比较好 因为row是100%的
+      //宽度
       width: 200,
       //高度
-      height: 200.0,
+      height: 200,
       //外边距
-      margin: const EdgeInsets.fromLTRB(
-          20.0, 40.0, 20.0, 40.0), //const EdgeInsets.all(10.0),
+      margin:
+          const EdgeInsets.fromLTRB(20, 40, 20, 40), //const EdgeInsets.all(10),
       //内边距
-      padding: const EdgeInsets.fromLTRB(2.0, 4.0, 2.0,
-          4.0), //const EdgeInsets.only(left: 20.0,top: 40.0,right: 20.0,bottom: 40.0),//const EdgeInsets.all(10.0),
+      padding: const EdgeInsets.fromLTRB(2, 4, 2,
+          4), //const EdgeInsets.only(left: 20,top: 40,right: 20,bottom: 40),//const EdgeInsets.all(10),
       //变形 平移
-      transform: Matrix4.translationValues(10.0, 0.0, 0.0),
+      transform: Matrix4.translationValues(10, 0, 0),
       //内容对齐方式 这里无效是因为下面用了FractionallySizedBox 去掉就能看效果
       alignment: Alignment.bottomCenter,
-      //背景颜色 如果decoration也定义了会覆盖掉外面的
-      color: Colors.green,
+      //背景颜色 和整个decoration 只能设置一个
+      // color: Colors.green,
       //定义样式
       decoration: BoxDecoration(
           //背景颜色
           color: Colors.green,
           //边框
-          border: Border.all(color: Colors.grey, width: 1.0),
+          border: Border.all(color: Colors.grey, width: 1),
           //边框圆角 see from https://api.flutter-io.cn/flutter/painting/BoxDecoration-class.html
-          borderRadius: const BorderRadius.only(
-              topLeft: Radius.elliptical(20.0, 20.0),
-              topRight: Radius.elliptical(0.0, 0.0),
-              bottomLeft: Radius.elliptical(20.0, 20.0),
-              bottomRight: Radius.elliptical(20.0,
-                  20.0))), //BorderRadius.circular(20.0),  const BorderRadius.only(topLeft: Radius.elliptical(50.0, 50.0)))
+          borderRadius: BorderRadius.circular(20)), //BorderRadius.circular(20),
+      // 下面这种单独设置黑屏
+      // borderRadius: BorderRadius.only(
+      //     bottomLeft: Radius.circular(10.0),
+      //     bottomRight: Radius.circular(10.0))
       //子组件内容 100% 撑满
       child: Row(
         //对齐方式
-        mainAxisAlignment:MainAxisAlignment.end,
+        mainAxisAlignment: MainAxisAlignment.end,
         //子元素
         children: const [Text('hello Container')],
       ),
@@ -1304,10 +1304,10 @@ class HomePage extends StatelessWidget {
     return Center(
       child: Container(
         width: 300,
-        height: 300.0,
+        height: 300,
         decoration: BoxDecoration(
             color: Colors.green,
-            border: Border.all(color: Colors.grey, width: 1.0)),
+            border: Border.all(color: Colors.grey, width: 1)),
         //定义一个Text组件
         child: const Text(
           //定义标题
@@ -1319,13 +1319,13 @@ class HomePage extends StatelessWidget {
           //最大行
           maxLines: 2,
           //缩放字体
-          textScaleFactor: 2.0,
+          textScaleFactor: 2,
           //定义文字样式
           style: TextStyle(
             //定义字体大小
-            fontSize: 24.0,
+            fontSize: 24,
             //定义文字颜色
-            color: Color.fromRGBO(255, 255, 255, 1.0),//Colors.white,
+            color: Color.fromRGBO(255, 255, 255, 1),//Colors.white,
             //加粗
             fontWeight: FontWeight.bold,
             //倾斜
@@ -1337,7 +1337,7 @@ class HomePage extends StatelessWidget {
             //下划线风格虚线
             decorationStyle: TextDecorationStyle.dashed,
             //字间距
-            letterSpacing: 5.0
+            letterSpacing: 5
           ),
         ),
       ),
@@ -1649,6 +1649,144 @@ class HomePage extends StatelessWidget {
           height: 100,
           decoration: const BoxDecoration(color: Colors.pink),
         ));
+  }
+}
+```
+
+### Row水平布局组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(10),
+      //行组件 里面的元素是一列一列横着排列的 对应CSS flex水平布局
+      child: Row(
+        //相当于css justifly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //相当于css align-item
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        //行里面的子节点
+        children: [
+          Container(width: 100, height: 400, color: Colors.red),
+          Container(width: 100, height: 400, color: Colors.blue),
+          //flex自适应
+          Expanded(
+              flex: 1,
+              child: Container(width: 100, height: 400, color: Colors.pink)),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Column垂直布局组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      color: Colors.white,
+      padding: const EdgeInsets.all(10),
+      //列组件 里面的元素是竖着一行一行排列的 对应CSS flex垂直布局
+      child: Column(
+        //相当于css justifly
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        //相当于css align-item
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        //列里面的子节点
+        children: [
+          Container(width: 400, height: 100, color: Colors.red),
+          Container(width: 400, height: 100, color: Colors.blue),
+          Container(width: 400, height: 100, color: Colors.pink),
+        ],
+      ),
+    );
+  }
+}
+```
+
+### Stack堆叠布局
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //堆叠布局
+    return Stack(
+      //堆叠内容对齐方式
+      alignment: Alignment.centerRight,
+      //子节点
+      children: [
+        Container(
+          height: 500,
+          color: Colors.red,
+          padding: const EdgeInsets.all(10),
+        ),
+        Container(
+          width: 40,
+          height: 40,
+          color: Colors.green,
+          padding: const EdgeInsets.all(10),
+        ),
+        Container(
+          width: 20,
+          height: 20,
+          color: Colors.blue,
+          padding: const EdgeInsets.all(10),
+        ),
+      ],
+    );
+  }
+}
+```
+
+### 定位方式
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Stack(
+      //子节点
+      children: [
+        Container(
+          height: 500,
+          color: Colors.red,
+        ),
+        //空盒子 用作相对定位父级
+        SizedBox(
+          height: 500,
+          child:
+              //Align组件 相对布局相当于position:relative 数值设置-1 ~ 1 以组件中心为0，0设置百分比
+              Align(
+            alignment: const Alignment(0.2, 0.2), //Alignment.bottomCenter,
+            child: Container(
+              width: 50,
+              height: 50,
+              color: Colors.green,
+            ),
+          ),
+        ),
+        //绝对定位
+        Positioned(
+            right: 10,
+            bottom: 10,
+            child: Container(
+              width: 50,
+              height: 50,
+              color: Colors.blue,
+            )),
+      ],
+    );
   }
 }
 ```
