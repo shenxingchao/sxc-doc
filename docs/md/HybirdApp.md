@@ -1278,10 +1278,10 @@ class HomePage extends StatelessWidget {
           border: Border.all(color: Colors.grey, width: 1),
           //边框圆角 see from https://api.flutter-io.cn/flutter/painting/BoxDecoration-class.html
           borderRadius: BorderRadius.circular(20)), //BorderRadius.circular(20),
-      // 下面这种单独设置黑屏
-      // borderRadius: BorderRadius.only(
+      // 下面这种单独设置每条边
+      // borderRadius: const BorderRadius.only(
       //     bottomLeft: Radius.circular(10.0),
-      //     bottomRight: Radius.circular(10.0))
+      //     bottomRight: Radius.circular(10.0))),
       //子组件内容 100% 撑满
       child: Row(
         //对齐方式
@@ -1787,6 +1787,78 @@ class HomePage extends StatelessWidget {
             )),
       ],
     );
+  }
+}
+```
+
+### AspectRatio宽高比组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //定义一个AspectRatio组件 设置子节点的宽高比组件 可用于海报图等
+    return AspectRatio(
+      aspectRatio: 3 / 1,
+      child: Image.network(
+        'https://placeholder.idcd.com/?w=900&h=300&bgcolor=%236c757d&fontcolor=%23d3d3d3&fontsize=20&fontfamily=1',
+        fit: BoxFit.cover,
+      ),
+    );
+  }
+}
+```
+
+### Card卡片组件
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //声明一个列表
+    List list = [
+      {'id': 1, "name": '张三', "address": "XXX省XXX市XXX区XXX街道XXX楼404"},
+      {'id': 2, "name": '李四', "address": "XXX省XXX市XXX区XXX街道XXX楼404"},
+      {'id': 3, "name": '王五', "address": "XXX省XXX市XXX区XXX街道XXX楼404"},
+      {'id': 4, "name": '小六', "address": "XXX省XXX市XXX区XXX街道XXX楼404"},
+      {'id': 5, "name": '老七', "address": "XXX省XXX市XXX区XXX街道XXX楼404"},
+    ];
+    //使用map映射一个widget List
+    return ListView(
+        children: list.map((item) {
+      //声明一个卡片组件
+      return Card(
+        //外边距
+        margin: const EdgeInsets.fromLTRB(10, 10, 10, 0),
+        //圆角 必须要定义下面2项才能控制4个圆角
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          children: [
+            AspectRatio(
+              aspectRatio: 3 / 1,
+              child: Image.network(
+                'https://placeholder.idcd.com/?w=900&h=300&bgcolor=%236c757d&fontcolor=%23d3d3d3&fontsize=20&fontfamily=1',
+                fit: BoxFit.cover,
+              ),
+            ),
+            ListTile(
+              //标题
+              title: Text(item['name']),
+              //副标题
+              subtitle: Text(item['address']),
+              //左侧icon 圆形头像还能用这种
+              leading: const CircleAvatar(
+                  backgroundImage:
+                      NetworkImage('https://v3.cn.vuejs.org/logo.png')),
+              onTap: () => {},
+            )
+          ],
+        ),
+      );
+    }).toList());
   }
 }
 ```
