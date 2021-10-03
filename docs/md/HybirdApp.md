@@ -1863,6 +1863,123 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### Wrap流式布局
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(10.0),
+      //flex流式布局
+      child: Wrap(
+        //从左到右排列
+        direction: Axis.horizontal,
+        //水平间距
+        spacing: 10,
+        //垂直间距 此值可以设置为负数 以减小上下之间的间距 不然默认的0有点大
+        runSpacing: -10,
+        //相当于水平方向上的 justifly-content
+        alignment: WrapAlignment.start,
+        //相当于垂直方向上的 align-item
+        runAlignment: WrapAlignment.start,
+        children: const [
+          TextButtonComponent('分类1'),
+          TextButtonComponent('分类22'),
+          TextButtonComponent('分类333'),
+          TextButtonComponent('分类4444'),
+          TextButtonComponent('分类55555'),
+          TextButtonComponent('分类666666'),
+          TextButtonComponent('分类7777777'),
+        ],
+      ),
+    );
+  }
+}
+
+//封装一个Button组件
+class TextButtonComponent extends StatelessWidget {
+  //定义属性 要用final关键字 可以参数用?表示
+  //如果可选参数不加问号，则必须在构造函数中初始化赋值
+  final String text; //必选参数
+
+  //声明构造函数及里面的需要传入的属性 {}内的表示可选参数
+  const TextButtonComponent(
+    this.text, {
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //文字按钮
+    return TextButton(
+      style: ButtonStyle(
+        //按钮大小
+        minimumSize: MaterialStateProperty.all(const Size(60, 30)),
+        //内边距
+        padding:
+            MaterialStateProperty.all(const EdgeInsets.fromLTRB(10, 4, 10, 4)),
+        //边框
+        side: MaterialStateProperty.all(
+            const BorderSide(color: Colors.red, width: 1)),
+        //圆角
+        shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+        //背景
+        backgroundColor: MaterialStateProperty.all(Colors.transparent),
+        //点击时背景
+        overlayColor: MaterialStateProperty.all(Colors.red[50]),
+      ),
+      onPressed: () {},
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.red, fontSize: 12),
+      ),
+    );
+  }
+}
+```
+
+### StatefulWidget状态组件
+基本用这种就行了
+```dart
+//基本计时器状态组件
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  //定义状态相当于vue data属性
+  int count = 0;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        //标签组件
+        Chip(
+          label: Text(count.toString()),
+        ),
+        //按钮组件
+        ElevatedButton(
+            onPressed: () {
+              //需要通知组件画面更新的要写在这里面
+              setState(() {
+                count++;
+              });
+            },
+            child: const Text('计数器+1'))
+      ],
+    );
+  }
+}
+```
+
+
 ### 组件封装
 封装一个StatelessWidget自定义组件示例，这里封装了Icon组件
 ```dart
@@ -1872,7 +1989,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     //使用封装的Icon组件
-    return const IoncComponent(
+    return const IconComponent(
       Icons.home,
       //颜色可不传
       color: Colors.red
@@ -1881,14 +1998,14 @@ class HomePage extends StatelessWidget {
 }
 
 //封装一个Icon组件
-class IoncComponent extends StatelessWidget {
+class IconComponent extends StatelessWidget {
   //定义属性 要用final关键字 可以参数用?表示 
   //如果可选参数不加问号，则必须在构造函数中初始化赋值
   final IconData icon;//必选参数
   final Color?color;//可选参数
 
   //声明构造函数及里面的需要传入的属性 {}内的表示可选参数
-  const IoncComponent(
+  const IconComponent(
     this.icon, {
     this.color=Colors.white,
     Key? key,
