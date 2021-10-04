@@ -1182,6 +1182,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'app',
         theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
         home: Scaffold(
           appBar: AppBar(
             title: const Text('状态栏标题'),
@@ -1212,6 +1213,7 @@ class MyApp extends StatelessWidget {
     return  MaterialApp(
       title: 'app标题',
       theme: ThemeData(primarySwatch: Colors.green),
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           title: const Text('状态栏标题'),
@@ -2086,6 +2088,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'app',
         theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
         //名为"/"的路由作为应用的home(首页)
         initialRoute: "/",
         //路由数组 设置在这里面就不能被拦截了 所以不要写这里，除非你不需要自定义动画
@@ -2261,6 +2264,196 @@ class NewPage extends StatelessWidget {
 }
 ```
 
+### 位于顶部的Tabbar组件
+主页设置顶部tabbar 设置后就没地方设置底部啦
+```dart
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List tabs = ["新闻", "历史", "图片", "美女", "军事", "母婴", "本地"];
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
+        home: DefaultTabController(
+          length: tabs.length,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text("App Name"),
+              //标题样式
+              titleTextStyle:
+                  const TextStyle(fontSize: 14, color: Colors.white),
+              //标题居中
+              centerTitle: true,
+              //状态栏高度
+              toolbarHeight: 36,
+              bottom: TabBar(
+                isScrollable: true,
+                tabs: tabs.map((e) => Tab(text: e)).toList(),
+                onTap: (index) {
+                  // ignore: avoid_print
+                  print(index);
+                },
+              ),
+            ),
+            body: TabBarView(
+              //构建
+              children: tabs.map((e) {
+                return Container(
+                  alignment: Alignment.center,
+                  child: Text(e, textScaleFactor: 5),
+                );
+              }).toList(),
+            ),
+          ),
+        ));
+  }
+}
+```
+
+顶部tabbar路由页面案例
+```dart
+//单独页面使用Tabbar组件案例 使用直接作为一个路由页面
+class TabbarScrollComponent extends StatelessWidget {
+  const TabbarScrollComponent({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    List tabs = ["新闻", "历史", "图片", "美女", "军事", "母婴", "本地"];
+    return DefaultTabController(
+      length: tabs.length,
+      child: Scaffold(
+        appBar: AppBar(
+          title: const Text("App Name"),
+          bottom: TabBar(
+            isScrollable: true,
+            tabs: tabs.map((e) => Tab(text: e)).toList(),
+          ),
+        ),
+        body: TabBarView(
+          //构建
+          children: tabs.map((e) {
+            return Container(
+              height: 1500,
+              alignment: Alignment.center,
+              child: Text(e, textScaleFactor: 5),
+            );
+          }).toList(),
+        ),
+      ),
+    );
+  }
+}
+```
+
+### Drawer抽屉
+```dart
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
+        routes: {
+          '/new_page': (context) => const NewPage(),
+        },
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('主状态栏标题'),
+          ),
+          body: HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatelessWidget {
+  //声明一个列表
+  final List list = [
+    {'id': 1, "name": '张三'},
+    {'id': 2, "name": '李四'},
+    {'id': 3, "name": '王五'},
+    {'id': 4, "name": '小六'},
+    {'id': 5, "name": '老七'},
+  ];
+
+  HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('状态栏标题'),
+      ),
+
+      //左侧抽屉
+      drawer: Drawer(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: ListView(
+              children: list
+                  .map((item) => ListTile(
+                        title: Text(item['name']),
+                        onTap: () {
+                          Navigator.pop(context);
+                          Navigator.pushNamed(context, '/new_page');
+                        },
+                      ))
+                  .toList()),
+        ),
+      ),
+      //右侧抽屉
+      endDrawer: Drawer(
+        child: Padding(
+          padding: const EdgeInsets.all(40),
+          child: Column(
+            children: const [Text('右侧抽屉'), Divider(), Text('右侧抽屉')],
+          ),
+        ),
+      ),
+      body: const Text('内页'),
+    );
+  }
+}
+
+class NewPage extends StatelessWidget {
+  const NewPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('新页面'),
+      ),
+      //浮动按钮返回 如果没有AppBar，可以加这个
+      floatingActionButton: FloatingActionButton(
+        child: const Text('返回'),
+        onPressed: () {
+          //返回传值方法 第二个参数是返回值 不适应用默认的返回按钮和手势返回
+          Navigator.pop(context, true);
+        },
+      ),
+      body: Column(children: const [Text("新页面文字 ")]),
+    );
+  }
+}
+```
+
+### Toast提示窗
+[官方文档](https://pub.flutter-io.cn/packages/fluttertoast)
+
 ### 基本app布局
 main.dart
 ```dart
@@ -2277,6 +2470,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
         title: 'app',
         theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
         home: const TabbarComponent());
   }
 }
@@ -2464,6 +2658,120 @@ class IconComponent extends StatelessWidget {
         color: color,
       ),
     );
+  }
+}
+```
+
+### http网络请求库DIO封装
+使用 dio 请求库  
+依赖文件pubspec.yaml
+```ini
+dependencies:
+  dio: ^4.0.0 
+  fluttertoast: ^8.0.8
+```
+
+main.dart
+```dart
+import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import './request.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  final res =
+      Request.http(url: '/User/getInfo', type: 'get', data: {}).then((res) {
+    if (res.data["code"] != 20000) {
+      Fluttertoast.showToast(
+        msg: res.data["message"],
+      );
+    }
+    // ignore: avoid_print
+    print(res);
+  }).catchError((error) {
+    Fluttertoast.showToast(
+      msg: "请求服务器错误",
+    );
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+```
+
+request.dart
+```dart
+import 'package:dio/dio.dart';
+
+class Request {
+  //初始化请求配置
+  static final BaseOptions _baseOptions = BaseOptions(
+      //基础url
+      baseUrl: "http://www.api.com",
+      //请求数据类型
+      contentType: "application/json; charset=utf-8",
+      //超时时间ms
+      connectTimeout: 5000);
+
+  static http({
+    url,
+    type,
+    data,
+  }) async {
+    Dio dio = Dio(_baseOptions);
+    //拦截器
+    dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
+      //请求拦截 token 附加方法暂时不需要 options.headers['X-Token'] = 'token string';
+      return handler.next(options);
+    }, onResponse: (response, handler) {
+      //响应拦截 这里创建不了DioError进不了reject 所以错误代码全部在then后面处理
+      return handler.resolve(response);
+    }, onError: (DioError e, handler) {
+      //出错拦截
+      return handler.reject(e);
+    }));
+
+    //返回结果
+    Response response;
+    //捕获异常
+    try {
+      response = await dio.request(url,
+          data: data ?? {}, options: Options(method: type));
+      return response;
+    } on DioError catch (e) {
+      if (e.response!.statusCode != null) {
+        return e.response!.statusCode;
+      } else {
+        return "其他未知错误";
+      }
+    }
   }
 }
 ```
