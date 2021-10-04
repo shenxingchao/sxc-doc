@@ -2083,64 +2083,69 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //没有传参的路由全部放这里
-    final routes = {
-      '/': Scaffold(
-        appBar: AppBar(
-          title: const Text('状态栏标题'),
-        ),
-        body: const HomePage(),
-      ),
-      '/auth': const Scaffold(
-          body: Center(
-        child: Text("登录后页面"),
-      ))
-    };
     return MaterialApp(
-      title: 'app',
-      theme: ThemeData(primarySwatch: Colors.red),
-      //名为"/"的路由作为应用的home(首页)
-      initialRoute: "/",
-      //路由数组 设置在这里面就不能被拦截了 所以不要写这里，除非你不需要自定义动画
-      // routes: {
-      //   '/new_page': (context) => const NewPage(''),
-      //   '/': (context) => Scaffold(
-      //         appBar: AppBar(
-      //           title: const Text('状态栏标题'),
-      //         ),
-      //         body: const HomePage(),
-      //       )
-      // },
-      //如果路由不在上面的routes里面，那么才会调用这个拦截
-      //使用这个拦截可以统一路由动画
-      onGenerateRoute: (settings) {
-        //前面可以根据settings.name 进行路由鉴权
-        // 如果访问的路由页需要登录，但当前未登录，则直接返回登录页路由，
-        // 引导用户登录；其它情况则正常打开路由。
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        //名为"/"的路由作为应用的home(首页)
+        initialRoute: "/",
+        //路由数组 设置在这里面就不能被拦截了 所以不要写这里，除非你不需要自定义动画
+        // routes: {
+        //   '/new_page': (context) => const NewPage(''),
+        //   '/': (context) => Scaffold(
+        //         appBar: AppBar(
+        //           title: const Text('状态栏标题'),
+        //         ),
+        //         body: const HomePage(),
+        //       )
+        // },
+        //如果路由不在上面的routes里面，那么才会调用这个拦截
+        //使用这个拦截可以统一路由动画
+        onGenerateRoute: (settings) => Router().generateRoute(settings));
+  }
+}
 
-        switch (settings.name) {
-          //没有传参的路由全部放这里
-          case '/':
-          case '/auth':
-            return CupertinoPageRoute(builder: (context) {
-              return routes[settings.name] as Widget;
-            });
-          //有传参的路由放这里
-          case '/new_page':
-            return CupertinoPageRoute(builder: (context) {
-              return NewPage(settings.arguments as String);
-            });
-          //定义没有匹配到的路由
-          default:
-            return CupertinoPageRoute(builder: (context) {
-              return const Scaffold(
+//抽离路由代码
+class Router {
+  //没有传参的路由全部放这里
+  final routes = {
+    '/': Scaffold(
+      appBar: AppBar(
+        title: const Text('状态栏标题'),
+      ),
+      body: const HomePage(),
+    ),
+    '/auth': const Scaffold(
+        body: Center(
+      child: Text("登录后页面"),
+    )),
+    '/new_page': (content, {arguments}) => NewPage(arguments)
+  };
+
+  generateRoute(settings) {
+    //前面可以根据settings.name 进行路由鉴权
+    // 如果访问的路由页需要登录，但当前未登录，则直接返回登录页路由，
+    // 引导用户登录；其它情况则正常打开路由。
+
+    //映射路由
+    var pageBuilder = routes[settings.name];
+    if (pageBuilder != null) {
+      if (settings.arguments != null) {
+        //如果有参数
+        return CupertinoPageRoute(
+            builder: (context) => (pageBuilder as Function)(context,
+                arguments: settings.arguments) as Widget);
+      } else {
+        //如果没参数
+        return CupertinoPageRoute(builder: (context) => pageBuilder as Widget);
+      }
+    } else {
+      //定义没有匹配到的路由
+      return CupertinoPageRoute(
+          builder: (context) => const Scaffold(
                   body: Center(
                 child: Text("Page not found"),
-              ));
-            });
-        }
-      },
-    );
+              )));
+    }
   }
 }
 
@@ -2169,6 +2174,12 @@ class _HomePageState extends State<HomePage> {
               _routeToName();
             },
           ),
+          ElevatedButton(
+            child: const Text('删除所有并替换'),
+            onPressed: () {
+              _routeToAndRemove();
+            },
+          ),
         ]);
   }
 
@@ -2194,6 +2205,14 @@ class _HomePageState extends State<HomePage> {
     //直接push(content,route)也是可以的
     Navigator.of(context).pushNamed('/new_page', arguments: '标题传值');
   }
+
+  //删除所有路由 返回指定路由 不会保存状态
+  void _routeToAndRemove() {
+    Navigator.pushAndRemoveUntil(
+        context,
+        CupertinoPageRoute(builder: (context) => const NewPage('标题传值')),
+        (route) => false);
+  }
 }
 
 //新页面组件
@@ -2208,6 +2227,14 @@ class NewPage extends StatelessWidget {
     // ignore: avoid_print
     // print(args);
 
+    //返回首页
+    void _routeToIndex() {
+      //这种会黑屏 因为首页用了pushAndRemoveUntil
+      // Navigator.popUntil(context, ModalRoute.withName('/'));
+      //推荐这种不会黑屏
+      Navigator.popUntil(context, (route) => route.isFirst);
+    }
+
     return Scaffold(
       appBar: AppBar(
         title: Text(title == '' ? args.toString() : title),
@@ -2220,7 +2247,15 @@ class NewPage extends StatelessWidget {
           Navigator.pop(context, true);
         },
       ),
-      body: const Center(child: Text("新页面文字 ")),
+      body: Column(children: [
+        const Text("新页面文字 "),
+        ElevatedButton(
+          child: const Text('返回主页'),
+          onPressed: () {
+            _routeToIndex();
+          },
+        ),
+      ]),
     );
   }
 }
