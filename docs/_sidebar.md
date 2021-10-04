@@ -124,6 +124,8 @@
 
     - [http网络请求库Dio封装](/md/HybirdApp#http网络请求库dio封装)
 
+    - [shared_preferences本地存储](/md/HybirdApp#shared_preferences本地存储)
+
 - [Javascript](/md/Javascript#javascript)
   
   - [效果](/md/Javascript#效果)

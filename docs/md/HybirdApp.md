@@ -2777,3 +2777,98 @@ class Request {
 ```
 
 
+### shared_preferences本地存储
+相当于Localstroage  
+依赖
+```ini
+dependencies:
+  shared_preferences: ^2.0.8
+```
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  //定义一个语言
+  String lang = 'cn';
+
+  //初始化状态 相当于mounted
+  @override
+  void initState() {
+    super.initState();
+    _getLocalStorage();
+  }
+
+  //获取本地缓存并设置当前语言
+  void _getLocalStorage() async {
+    //获取localstorage 实例
+    final prefs = await SharedPreferences.getInstance();
+    //设置状态
+    setState(() {
+      //读取本地缓存
+      lang = prefs.getString('lang') ?? 'cn';
+      // ignore: avoid_print
+      print(lang);
+    });
+  }
+
+  //设置本地缓存
+  void _setLocalStorage() async {
+    //获取localstorage 实例
+    final prefs = await SharedPreferences.getInstance();
+    //设置本地缓存
+    setState(() {
+      prefs.setString('lang', lang == 'cn' ? 'en' : 'cn');
+      lang = lang == 'cn' ? 'en' : 'cn';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          Text(lang),
+          ElevatedButton(
+              onPressed: () {
+                _setLocalStorage();
+              },
+              child: const Text("切换语言")),
+          ElevatedButton(
+              onPressed: () {
+                _getLocalStorage();
+              },
+              child: const Text("获取语言"))
+        ],
+      ),
+    );
+  }
+}
+```
