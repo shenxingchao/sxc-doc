@@ -1979,6 +1979,412 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
+### TextButton文字按钮组件
+```dart
+class TextButtonComponent extends StatelessWidget {
+  //定义属性 要用final关键字 可以参数用?表示
+  //如果可选参数不加问号，则必须在构造函数中初始化赋值
+  final String text; //必选参数
+  final VoidCallback onPressed;
+
+  //声明构造函数及里面的需要传入的属性 {}内的表示可选参数
+  const TextButtonComponent({
+    this.text = '',
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //文字按钮
+    return TextButton(
+      style: ButtonStyle(
+        //按钮大小
+        minimumSize: MaterialStateProperty.all(const Size(60, 30)),
+        //内边距
+        padding:
+            MaterialStateProperty.all(const EdgeInsets.fromLTRB(10, 4, 10, 4)),
+        //边框
+        side: MaterialStateProperty.all(
+            const BorderSide(color: Colors.red, width: 1)),
+        //圆角
+        shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+        //背景
+        backgroundColor: MaterialStateProperty.all(Colors.transparent),
+        //点击时背景
+        overlayColor: MaterialStateProperty.all(Colors.red[50]),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.red, fontSize: 12),
+      ),
+    );
+  }
+}
+```
+
+### ElevatedButton按钮组件
+```dart
+class ElevatedButtonComponent extends StatelessWidget {
+  //定义属性 要用final关键字 可以参数用?表示
+  //如果可选参数不加问号，则必须在构造函数中初始化赋值
+  final String text; //必选参数
+  final VoidCallback onPressed;
+
+  //声明构造函数及里面的需要传入的属性 {}内的表示可选参数
+  const ElevatedButtonComponent({
+    this.text = '',
+    required this.onPressed,
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //文字按钮
+    return ElevatedButton(
+      style: ButtonStyle(
+        //按钮大小
+        minimumSize: MaterialStateProperty.all(const Size(60, 30)),
+        //内边距
+        padding:
+            MaterialStateProperty.all(const EdgeInsets.fromLTRB(10, 4, 10, 4)),
+        //边框 实际使用去掉这个边框
+        //side: MaterialStateProperty.all(
+        //    const BorderSide(color: Colors.red, width: 1)),
+        //圆角
+        shape: MaterialStateProperty.all(
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(4))),
+        //背景
+        backgroundColor: MaterialStateProperty.all(Colors.red),
+        //点击时背景
+        overlayColor: MaterialStateProperty.all(Colors.red[300]),
+      ),
+      onPressed: onPressed,
+      child: Text(
+        text,
+        style: const TextStyle(color: Colors.white, fontSize: 12),
+      ),
+    );
+  }
+}
+```
+
+### Navigator路由
+```dart
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //没有传参的路由全部放这里
+    final routes = {
+      '/': Scaffold(
+        appBar: AppBar(
+          title: const Text('状态栏标题'),
+        ),
+        body: const HomePage(),
+      ),
+      '/auth': const Scaffold(
+          body: Center(
+        child: Text("登录后页面"),
+      ))
+    };
+    return MaterialApp(
+      title: 'app',
+      theme: ThemeData(primarySwatch: Colors.red),
+      //名为"/"的路由作为应用的home(首页)
+      initialRoute: "/",
+      //路由数组 设置在这里面就不能被拦截了 所以不要写这里，除非你不需要自定义动画
+      // routes: {
+      //   '/new_page': (context) => const NewPage(''),
+      //   '/': (context) => Scaffold(
+      //         appBar: AppBar(
+      //           title: const Text('状态栏标题'),
+      //         ),
+      //         body: const HomePage(),
+      //       )
+      // },
+      //如果路由不在上面的routes里面，那么才会调用这个拦截
+      //使用这个拦截可以统一路由动画
+      onGenerateRoute: (settings) {
+        //前面可以根据settings.name 进行路由鉴权
+        // 如果访问的路由页需要登录，但当前未登录，则直接返回登录页路由，
+        // 引导用户登录；其它情况则正常打开路由。
+
+        switch (settings.name) {
+          //没有传参的路由全部放这里
+          case '/':
+          case '/auth':
+            return CupertinoPageRoute(builder: (context) {
+              return routes[settings.name] as Widget;
+            });
+          //有传参的路由放这里
+          case '/new_page':
+            return CupertinoPageRoute(builder: (context) {
+              return NewPage(settings.arguments as String);
+            });
+          //定义没有匹配到的路由
+          default:
+            return CupertinoPageRoute(builder: (context) {
+              return const Scaffold(
+                  body: Center(
+                child: Text("Page not found"),
+              ));
+            });
+        }
+      },
+    );
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        //点击按钮跳转到新路由
+        children: [
+          ElevatedButton(
+            child: const Text('跳转组件传值'),
+            onPressed: () {
+              _routeTo();
+            },
+          ),
+          ElevatedButton(
+            child: const Text('命名路由跳转'),
+            onPressed: () {
+              _routeToName();
+            },
+          ),
+        ]);
+  }
+
+  //路由方法 除非要返回值 一般不用这种
+  void _routeTo() async {
+    //直接push(content,route)也是可以的
+    var res = await Navigator.of(context).push(
+      CupertinoPageRoute(
+        //设置为true 变为弹窗类型路由 返回按钮变为x关闭icon
+        fullscreenDialog: false,
+        builder: (context) {
+          return const NewPage('标题传值');
+        },
+      ),
+    );
+    //路由返回值
+    // ignore: avoid_print
+    print(res);
+  }
+
+  //命名路由跳转
+  void _routeToName() {
+    //直接push(content,route)也是可以的
+    Navigator.of(context).pushNamed('/new_page', arguments: '标题传值');
+  }
+}
+
+//新页面组件
+class NewPage extends StatelessWidget {
+  final String title;
+  const NewPage(this.title, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //获取路由参数
+    final args = ModalRoute.of(context)!.settings.arguments;
+    // ignore: avoid_print
+    // print(args);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(title == '' ? args.toString() : title),
+      ),
+      //浮动按钮返回 如果没有AppBar，可以加这个
+      floatingActionButton: FloatingActionButton(
+        child: const Text('返回'),
+        onPressed: () {
+          //返回传值方法 第二个参数是返回值 不适应用默认的返回按钮和手势返回
+          Navigator.pop(context, true);
+        },
+      ),
+      body: const Center(child: Text("新页面文字 ")),
+    );
+  }
+}
+```
+
+### 基本app布局
+main.dart
+```dart
+import 'package:flutter/material.dart';
+import './tabbar.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: const TabbarComponent());
+  }
+}
+```
+appbar.dart
+```dart
+//appbar组件 必须实现PreferredSizeWidget接口
+import 'package:flutter/material.dart';
+
+class AppBarComponent extends StatelessWidget implements PreferredSizeWidget {
+  final String title;
+  const AppBarComponent(this.title, {Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //appbar组件
+    return AppBar(
+        //标题
+        title: Text(title),
+        titleTextStyle: const TextStyle(fontSize: 14, color: Colors.white));
+  }
+
+  @override
+  // implement preferredSize 实现抽象类PreferredSizeWidget里的抽象方法
+  Size get preferredSize => const Size.fromHeight(36.0);
+}
+```
+tabbar.dart
+```dart
+import 'package:flutter/material.dart';
+
+import './appbar.dart';
+import './home.dart';
+import './category.dart';
+import './user.dart';
+
+class TabbarComponent extends StatefulWidget {
+  const TabbarComponent({Key? key}) : super(key: key);
+
+  @override
+  _TabbarComponentState createState() => _TabbarComponentState();
+}
+
+class _TabbarComponentState extends State<TabbarComponent> {
+  //当前激活路由索引
+  int currentIndex = 0;
+  //tabbar路由列表
+  final List router = [
+    const HomeComponent(),
+    const CategoryComponent(),
+    const UserComponent()
+  ];
+  //tabbar路由标题列表
+  final List appBarTitle = ['主页', '全部分类', '我的'];
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBarComponent(appBarTitle[currentIndex]),
+      body: router[currentIndex],
+      //tabbar
+      bottomNavigationBar: BottomNavigationBar(
+        //图标大小
+        iconSize: 26,
+        //当前激活项
+        currentIndex: currentIndex,
+        //布局类型
+        type: BottomNavigationBarType.fixed,
+        //选中字体 默认是14 这里不要放大
+        selectedFontSize: 12,
+        //子节点
+        items: const [
+          BottomNavigationBarItem(label: '主页', icon: Icon(Icons.home)),
+          BottomNavigationBarItem(label: '分类', icon: Icon(Icons.category)),
+          BottomNavigationBarItem(label: '我的', icon: Icon(Icons.person)),
+        ],
+        //切换事件
+        onTap: (int index) {
+          setState(() {
+            currentIndex = index;
+          });
+        },
+      ),
+    );
+  }
+}
+```
+home.dart
+```dart
+import 'package:flutter/material.dart';
+
+class HomeComponent extends StatefulWidget {
+  const HomeComponent({Key? key}) : super(key: key);
+
+  @override
+  _HomeComponentState createState() => _HomeComponentState();
+}
+
+class _HomeComponentState extends State<HomeComponent> {
+  @override
+  Widget build(BuildContext context) {
+    return const Text('home');
+  }
+}
+```
+category.dart
+```dart
+import 'package:flutter/material.dart';
+
+class CategoryComponent extends StatefulWidget {
+  const CategoryComponent({Key? key}) : super(key: key);
+
+  @override
+  _CategoryComponentState createState() => _CategoryComponentState();
+}
+
+class _CategoryComponentState extends State<CategoryComponent> {
+  @override
+  Widget build(BuildContext context) {
+    return const Text('category');
+  }
+}
+```
+user.dart
+```dart
+import 'package:flutter/material.dart';
+
+class UserComponent extends StatefulWidget {
+  const UserComponent({Key? key}) : super(key: key);
+
+  @override
+  _UserComponentState createState() => _UserComponentState();
+}
+
+class _UserComponentState extends State<UserComponent> {
+  @override
+  Widget build(BuildContext context) {
+    return const Text('user');
+  }
+}
+```
+
+
 
 ### 组件封装
 封装一个StatelessWidget自定义组件示例，这里封装了Icon组件
