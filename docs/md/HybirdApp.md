@@ -2662,8 +2662,8 @@ class IconComponent extends StatelessWidget {
 }
 ```
 
-### http网络请求库DIO封装
-使用 dio 请求库  
+### http网络请求库Dio封装
+使用 Dio 请求库  
 依赖文件pubspec.yaml
 ```ini
 dependencies:

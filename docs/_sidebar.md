@@ -122,7 +122,7 @@
 
     - [组件封装](/HybirdApp/flutter/#组件封装)
 
-    - [http网络请求库DIO封装](/HybirdApp/flutter/#http网络请求库dio封装)
+    - [http网络请求库Dio封装](/HybirdApp/flutter/#http网络请求库Dio封装)
 
 - [Javascript](/md/Javascript#javascript)
   
