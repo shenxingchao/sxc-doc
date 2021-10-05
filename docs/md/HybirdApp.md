@@ -2955,3 +2955,99 @@ class _HomePageState extends State<HomePage> {
   }
 }
 ```
+
+### 打包安装
+#### 添加启动图标
+[插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)
+```ini
+dev_dependencies:
+  flutter_launcher_icons: "^0.9.2"
+
+flutter_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/icon/icon.png"
+```
+然后在项目根目录新建assets/icon/icon.png  
+
+运行创建图标  
+```powershell
+flutter pub run flutter_launcher_icons:main 
+```
+
+#### 添加一下需要的权限
+这里添加基本的网络权限
+```
+<manifest>
+  <uses-permission
+      android:name="android.permission.INTERNET"/>
+</manifest
+```
+
+#### 创建签名文件
+keytool工具会在安装android stido一起安装的  
+创建命令如下
+```powershell
+#创建
+keytool -genkey -v -keystore demo.keystore -alias demo -keyalg RSA -keysize 2048 -validity 10000
+#格式转换
+keytool -importkeystore -srckeystore demo.keystore -destkeystore demo.keystore -deststoretype pkcs12
+```
+
+#### 给app配置自动签名
+创建文件/android/key.properties
+```ini
+storePassword=上一步骤中的密码
+keyPassword=上一步骤中的密码
+keyAlias=demo别名
+storeFile=密钥库路径 需要\\双斜杠
+```
+
+修改/android/app/build.gradle 将 key.properties 文件加载到 keystoreProperties 对象中
+```java
+def keystoreProperties = new Properties()
+def keystorePropertiesFile = rootProject.file('key.properties')
+if (keystorePropertiesFile.exists()) {
+    keystoreProperties.load(new FileInputStream(keystorePropertiesFile))
+}
+//在这新增前面的代码
+
+android {
+  ...
+}
+```
+
+继续修改/android/app/build.gradle
+```java
+signingConfigs {
+  release {
+      keyAlias keystoreProperties['keyAlias']
+      keyPassword keystoreProperties['keyPassword']
+      storeFile keystoreProperties['storeFile'] ? file(keystoreProperties['storeFile']) : null
+      storePassword keystoreProperties['storePassword']
+  }
+}
+
+//在这新增前面的代码 下面的signingConfig signingConfigs.release 也要替换记得
+buildTypes {
+    release {
+        signingConfig signingConfigs.release
+    }
+}
+```
+
+!> 配置完后就能自动签名了，当你更改 gradle 文件后，也许需要运行一下 flutter clean。这将防止缓存的版本影响签名过程 运行完后保存下yaml配置文件重新pub get一下
+
+#### 打包
+生成release版本，生成过程中会自动签名
+```powershell
+flutter build apk
+or
+flutter build apk --split-per-abi #这种会生成三个
+```
+生成文件目录\build\app\outputs\apk\release\xxx.apk
+
+#### 查看是否签名
+```powershell
+keytool -list -printcert -jarfile .\app-release.apk
+```
