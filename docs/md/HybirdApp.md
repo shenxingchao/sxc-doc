@@ -2872,3 +2872,86 @@ class _HomePageState extends State<HomePage> {
   }
 }
 ```
+
+### Provider状态管理
+按1，2，3，4，5的步骤创建状态
+```dart
+import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+
+//1.创建一个User状态管理类 别的地方都叫Model不好理解  其实就是一个全局状态管理类 实际把这个类拿出来放到store文件夹
+class UserState with ChangeNotifier {
+  //比如你在这里记录用户昵称状态
+  String nickname = '';
+
+  //获取状态方法 相当于vue里的 store getter
+  String get name => nickname;
+
+  //改变用户昵称状态值 相当于vue里的 store action
+  void changeNickName(String name) {
+    nickname = name;
+    //5.通知外部使用状态的widget组件 用户昵称状态更新了 必须使用
+    notifyListeners();
+  }
+}
+
+//2.MultiProvide直接用多状态管理
+void main() => runApp(MultiProvider(
+      //MultiProvider提供多个状态管理
+      providers: [
+        //ChangeNotifierProvider是通知widget组件状态更新的类 后面接受一个用户状态UserState
+        ChangeNotifierProvider(create: (context) => UserState()),
+      ],
+      child: const MyApp(),
+    ));
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            //4.调用UserState里面change方法去设置状态
+            Provider.of<UserState>(context, listen: false)
+                .changeNickName('fultter provider');
+          },
+          child: const Text("设置昵称"),
+        ),
+        //3.获取状态值 因为在2已经包裹了MultiProvider 所以他包裹下面的widget都能获取到状态了
+        //使用Consumer 获取状态
+        Consumer<UserState>(
+          builder: (context, store, child) {
+            return Text("昵称是：" + store.nickname);
+          },
+        )
+      ],
+    );
+  }
+}
+```
