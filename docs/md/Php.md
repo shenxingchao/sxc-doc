@@ -660,3 +660,104 @@ function getRand($proArr){
 转盘抽奖：http://www.thinkphp.cn/code/1153.html  
 
 
+## thinkphp6后端框架
+此步骤所有文件参考原项目即可 http://demo.o8o8o8.com/vue-admin-thinkphp6/#/
+
+### composer
+[composer安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481)
+
+### 创建项目
+切换到网站根目录运行
+```powershell
+composer create-project topthink/think demo
+```
+
+### 更新框架
+切换到应用根目录
+```powershell
+composer update topthink/framework
+```
+
+!> 运行出现No input file specified 可能是nginx root目录配置的有问题 最好用\\双斜杠去表示\就不会出问题了
+
+### 配置域名绑定模块
+配置/config/app.php(上线需要更改的一块)
+```php
+<?
+return [
+ 'domain_bind'      => [
+        'www.xxx.com' => 'admin',
+    ],
+]
+```
+
+### 配置路由
+/config/route.php
+```php
+<?php
+return [
+    // URL普通方式参数 用于自动生成
+    'url_common_param'      => true,
+    // 是否开启路由延迟解析
+    'url_lazy_route'        => true,
+    // 是否强制使用路由
+    'url_route_must'        => true,
+    // 合并路由规则
+    'route_rule_merge'      => false,
+    // 路由是否完全匹配
+    'route_complete_match'  => true,
+]
+```
+
+### 新建模块
+/app/admin
+
+### 配置数据库连接
+/app/admin/config/database.php 和/.env配置文件(上线需要更改的一块)
+
+### 配置路由中间件
+/app/admin/config/route.php 配置路由中间件设置跨域规则。如果要鉴权的也可以在这里设置priority优先中间件，设置方法参考以前的项目
+```php
+<?php
+//路由
+return [
+    //路由中间件
+    'middleware' => [
+        app\admin\middleware\Cors::class, //跨域中间件 这里开了整个模块都跨域
+    ],
+];
+```
+
+app\admin\middleware\Cors.php
+```php
+<?php
+declare (strict_types = 1);
+namespace app\admin\middleware;
+
+//跨域中间件
+class Cors {
+    public function handle($request, \Closure$next) {
+        //构造方法 设置允许跨域请求
+        header('Access-Control-Allow-Origin:*');
+        header("Access-Control-Allow-Methods: POST, GET, OPTIONS, PUT, DELETE");
+        header("Access-Control-Allow-Credentials: true");
+        header("Access-Control-Allow-Headers: Origin, X-Requested-With, Content-Type, Accept,  X-Token");
+        header("Access-Control-Expose-Headers: Token,Code");
+        header('Access-Control-Max-Age: 3600');
+        if (strtoupper($_SERVER['REQUEST_METHOD']) == 'OPTIONS') {
+            exit;
+        }
+        return $next($request);
+    }
+}
+```
+
+### 多应用模式
+需要安装think-multi-app 不然无法访问，默认是单应用模式
+```powershell
+composer require topthink/think-multi-app
+```
+
+### 新建路由
+新建app\admin\route\route.php 
+路由文件随便起怎么起，只要在这下面都会加载
