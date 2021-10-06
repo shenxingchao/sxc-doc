@@ -852,7 +852,8 @@ renderTabBar={() => <ScrollableTabBar />}
 
 ## flutter
 ### 安装
-参考地址 https://flutter.cn/docs/get-started/install/windows
+参考地址 https://flutter.cn/docs/get-started/install/windows  
+创建项目 https://flutter.cn/docs/get-started/test-drive?tab=vscode#create-app
 
 ### vscode配置
 
