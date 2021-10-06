@@ -2730,6 +2730,9 @@ class _HomePageState extends State<HomePage> {
 
 request.dart
 ```dart
+import 'dart:io';
+
+import 'package:dio/adapter.dart';
 import 'package:dio/dio.dart';
 
 class Request {
@@ -2748,6 +2751,18 @@ class Request {
     data,
   }) async {
     Dio dio = Dio(_baseOptions);
+    //解决夜神模拟器无法访问本地host映射域名问题
+    (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
+        (client) {
+      //这一段是解决安卓https抓包的问题
+      client.badCertificateCallback =
+          (X509Certificate cert, String host, int port) {
+        return Platform.isAndroid;
+      };
+      client.findProxy = (uri) {
+        return "PROXY 192.168.1.10:80";
+      };
+    };
     //拦截器
     dio.interceptors.add(InterceptorsWrapper(onRequest: (options, handler) {
       //请求拦截 token 附加方法暂时不需要 options.headers['X-Token'] = 'token string';
