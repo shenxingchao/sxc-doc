@@ -2491,6 +2491,7 @@ class AppBarComponent extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
         //标题
         title: Text(title),
+        centerTitle: true,
         titleTextStyle: const TextStyle(fontSize: 14, color: Colors.white));
   }
 
