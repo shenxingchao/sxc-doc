@@ -1460,6 +1460,16 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### SingleChildScrollView滚动视图
+```dart
+Scrollbar(
+  child: SingleChildScrollView(
+    padding: const EdgeInsets.all(10),
+    child:const Text("123"),
+  )
+)
+```
+
 ### ListView列表组件
 
 #### ListTile 左侧图标中间标题右侧图标组件
@@ -2972,6 +2982,10 @@ class _HomePageState extends State<HomePage> {
   }
 }
 ```
+
+### 加载Html
+[flutter_html](https://pub.dev/packages/flutter_html/install)
+Flutter默认为16, 所以需要修改app/build.gradle下的minSdkVersion为19
 
 ### 打包安装
 #### 添加启动图标
