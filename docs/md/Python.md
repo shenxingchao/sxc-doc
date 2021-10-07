@@ -4567,7 +4567,118 @@ if __name__ == "__main__":
     main()
 ```
 
-### 爬取小说网站所有小说 异步请求方式
+####  爬取指定名称的小说封面图
+```py
+# 导入网络请求库
+import requests
+
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多进程
+from multiprocessing import Process
+
+# 导入BeautifulSoup类库
+from bs4 import BeautifulSoup
+
+# 随机数
+import random
+
+# 数据库
+from Db import Db
+
+# 为什么是test.com 因为访问的是nginx反向代理服务器 具体配置看nginx反向代理服务器那块
+BaseUrl = "http://www.qidian.com"
+
+
+# 定义header头
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+}
+
+# 请求进程类
+class Request(Process):
+    def __init__(self, url_list, response_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param response_list list 返回的数据列表
+        @param index 返回列表的的起始索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__response_list = response_list
+        self.__index = index
+
+    def run(self):
+        # 多进程同时请求url
+        print(f"进程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            print(f"请求{self.__index + 1}-{key}发出")
+            # 请求书籍列表
+            res = requests.get(value, headers=headers)
+            print(f"请求{self.__index + 1}-{key}收到")
+            # 创建BeautifulSoup对象 使用lxml解析器
+            soup = BeautifulSoup(res.text, "lxml")
+            # 找到图片容器
+            image_text = soup.select(".res-book-item")[0]
+            # 找到书籍名称
+            book_soup = BeautifulSoup(str(image_text), "lxml")
+            # 如果书名相同，则找到图片地址
+            image_url = "https://bookcover.yuewen.com/qdbimg/349573/1026722127/400"
+            if book_soup.select_one("cite") and book_soup.select_one("cite").text == str.replace(
+                value, "https://www.qidian.com/search?kw=", ""
+            ):
+                image_url = "https:" + book_soup.select_one(".book-img-box img")["src"]
+            id = self.__response_list[self.__index + key]
+            # 保存图片
+            if image_url != "":
+                with open("./images/" + str(id) + ".png", "wb") as f:
+                    res = requests.get(image_url)
+                    # .content是二进制数据 比如图片，音频，视频
+                    f.write(res.content)
+            # 设置请求间隔
+            time.sleep(random.uniform(0, 1) + 0.25)
+
+
+def main():
+    # 请求当前地址内容
+    base_url = "https://www.qidian.com/search?kw="
+    with Db() as db:
+        res = db.table("book").where({"image_url": ""}).field("id,book_name").select()
+        # 生成器生成url列表  一共有540
+        base_url_list = [base_url + item["book_name"] for item in res]
+
+        # url分组 650个为1组,分成 len/650 组  每组用一个进程去处理 开7个进程
+        request_url_list = []
+        for i in range(0, len(base_url_list), 200):
+            request_url_list.append(base_url_list[i : i + 200])
+
+        # id list用于保存图片的名称
+        response_list = [item["id"] for item in res]
+
+        Process = []
+        for key, value in enumerate(request_url_list):
+            p = Request(value, response_list, key * 200)
+            Process.append(p)
+        # 同时开启进程
+        for p in Process:
+            p.start()
+        # 等待所有进程结束
+        for p in Process:
+            p.join()
+        print("爬取完成")
+
+
+if __name__ == "__main__":
+    main()
+```
+
+#### 爬取小说网站所有小说 异步请求方式
 这种方式太快了，直接搞崩了
 ```py
 # 异步io
