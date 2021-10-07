@@ -714,6 +714,7 @@ return [
 
 ### 配置数据库连接
 /app/admin/config/database.php 和/.env配置文件(上线需要更改的一块)
+!> 上线还要重启php8 不然数据库连不上出现localhsot no Password错误,很坑
 
 ### 配置路由中间件
 /app/admin/config/route.php 配置路由中间件设置跨域规则。如果要鉴权的也可以在这里设置priority优先中间件，设置方法参考以前的项目
