@@ -2236,7 +2236,7 @@ class NewPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    //获取路由参数
+    //获取路由参数 不使用路由拦截的才能获得,不然是null
     final args = ModalRoute.of(context)!.settings.arguments;
     // ignore: avoid_print
     // print(args);
