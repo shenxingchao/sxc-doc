@@ -2760,6 +2760,7 @@ class Request {
     type,
     data,
   }) async {
+    //组装get参数
     if (type == 'get') {
       if (data != null && !data.isEmpty) {
         url += "?";
