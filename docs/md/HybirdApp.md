@@ -2995,12 +2995,17 @@ class _HomePageState extends State<HomePage> {
 ```
 
 ### 加载Html
-[flutter_html](https://pub.dev/packages/flutter_html/install)
+[flutter_html](https://pub.dev/packages/flutter_html/install)  
 Flutter默认为16, 所以需要修改app/build.gradle下的minSdkVersion为19
+
+### get强大的路由状态缓存一体框架
+[get](https://pub.dev/packages/get)  
+
+
 
 ### 打包安装
 #### 添加启动图标
-[插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)
+[插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)  
 ```ini
 dev_dependencies:
   flutter_launcher_icons: "^0.9.2"
