@@ -3000,6 +3000,130 @@ Flutter默认为16, 所以需要修改app/build.gradle下的minSdkVersion为19
 
 ### get强大的路由状态缓存一体框架
 [get](https://pub.dev/packages/get)  
+路由一章的代码可修改为下面的
+```dart
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //1.MaterialApp前面加Get
+    return GetMaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
+        //名为"/"的路由作为应用的home(首页)
+        initialRoute: "/",
+        //路由配置变更
+        getPages: Routers.routes
+        //路由数组
+        );
+  }
+}
+
+//2.抽离路由代码
+class Routers {
+  //没有传参的路由全部放这里
+  static final routes = [
+    GetPage(
+        name: '/',
+        page: () => Scaffold(
+              appBar: AppBar(
+                title: const Text('状态栏标题'),
+              ),
+              body: const HomePage(),
+            ),
+        transition: Transition.rightToLeft),
+    GetPage(
+        name: '/new_page',
+        page: () => const NewPage(),
+        transition: Transition.rightToLeft),
+  ];
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(children: [
+      //3.点击按钮跳转到新路由
+      ElevatedButton(
+        child: const Text('命名路由跳转'),
+        onPressed: () {
+          _routeToName();
+        },
+      ),
+      //7.路由返回时带参数
+      ElevatedButton(
+        child: const Text('跳转点参数返回后接收'),
+        onPressed: () {
+          _routeToBack();
+        },
+      ),
+    ]);
+  }
+
+  //4.命名路由跳转并传值
+  void _routeToName() {
+    Get.toNamed('/new_page', arguments: '标题传值');
+  }
+
+  //8.跳转点参数返回后接收
+  void _routeToBack() async {
+    var data = await Get.toNamed('/new_page', arguments: '标题传值');
+    // ignore: avoid_print
+    print(data);
+  }
+}
+
+//新页面组件
+class NewPage extends StatelessWidget {
+  const NewPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //5.获取路由参数 简单吧
+    final args = Get.arguments;
+    // ignore: avoid_print
+    // print(args);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(args.toString()),
+      ),
+      //浮动按钮返回 如果没有AppBar，可以加这个
+      floatingActionButton: FloatingActionButton(
+        child: const Text('返回并携带参数'),
+        onPressed: () {
+          //9.返回上一页并带参数
+          Get.back(result: '我是新页面返回的参数');
+        },
+      ),
+      body: Column(children: [
+        ElevatedButton(
+          child: const Text('返回主页'),
+          onPressed: () {
+            //6.返回主页(跳转并删除栈内所有路由)
+            Get.offAllNamed("/");
+          },
+        ),
+      ]),
+    );
+  }
+}
+```
 
 
 
