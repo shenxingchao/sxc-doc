@@ -2760,6 +2760,16 @@ class Request {
     type,
     data,
   }) async {
+    if (type == 'get') {
+      if (data != null && !data.isEmpty) {
+        url += "?";
+        data.forEach((key, value) {
+          url += key.toString() + "=" + value.toString() + "&&";
+        });
+        url = url.replaceRange(url.length - 2, url.length, '');
+        data = {};
+      }
+    }
     Dio dio = Dio(_baseOptions);
     //解决夜神模拟器无法访问本地host映射域名问题
     (dio.httpClientAdapter as DefaultHttpClientAdapter).onHttpClientCreate =
