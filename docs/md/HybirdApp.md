@@ -1297,6 +1297,15 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### FractionallySizedBox宽度高度百分比组件
+```dart
+FractionallySizedBox (
+  widthFactor: 1/3,
+  heightFactor: 1/3,
+  child:Text("123"),
+)
+```
+
 ### Text文本组件
 ```dart
 class HomePage extends StatelessWidget {
@@ -1437,6 +1446,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 第二种 采用裁剪组件（推荐）
+这个直接就是圆形了
 ```dart
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -1446,6 +1456,30 @@ class HomePage extends StatelessWidget {
     return Center(
       // 使用圆形图片第二种 推荐这种 相当于一个Imgaeview组件
       child: ClipOval(
+        child: Image.network(
+          'https://v3.cn.vuejs.org/logo.png',
+          alignment: Alignment.center,
+          //图片适应父组件方式  cover:等比缩放水平垂直直到2者都填满父组件 其他的没啥用了
+          fit: BoxFit.cover,
+          width: 100,
+          height: 100,
+        ),
+      ),
+    );
+  }
+}
+```
+
+这个是可以自定义圆角
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
         child: Image.network(
           'https://v3.cn.vuejs.org/logo.png',
           alignment: Alignment.center,
