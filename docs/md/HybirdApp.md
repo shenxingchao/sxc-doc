@@ -3125,6 +3125,94 @@ class NewPage extends StatelessWidget {
 }
 ```
 
+状态栏一章可改为下面代码
+```dart
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //1.GetMaterialApp
+    return GetMaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+//2.定义状态类
+class Store {
+  //比如你在这里记录用户昵称状态
+  final nickname = ''.obs;
+
+  //5.改变用户昵称状态值 相当于vue里的 store action
+  void changeNickName(name) {
+    nickname.value = name;
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    //3.实例化store 一定要用Get.put包裹 使用Get.put()实例化你的类，使其对当下的所有子路由可用
+    final Store store = Get.put(Store());
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            //4.设置状态
+            store.changeNickName('新昵称');
+          },
+          child: const Text("设置昵称"),
+        ),
+        ElevatedButton(
+          onPressed: () {
+            //7.新页面查看状态
+            Get.to(const NewPage());
+          },
+          child: const Text("新页面查看状态"),
+        ),
+        //6.获取状态值 Obx(() => widget)
+        Obx(() => Text(store.nickname.value))
+      ],
+    );
+  }
+}
+
+//新页面
+class NewPage extends StatelessWidget {
+  const NewPage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //8.一定要用Get.put包裹
+    final Store store = Get.put(Store());
+    return Scaffold(
+        appBar: AppBar(
+          title: const Text('新页面'),
+        ),
+        //9.新页面获取
+        body: Obx(() => Text(store.nickname.value)));
+  }
+}
+```
 
 
 ### 打包安装
