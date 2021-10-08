@@ -1297,6 +1297,15 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### FractionallySizedBox宽度高度百分比组件
+```dart
+FractionallySizedBox (
+  widthFactor: 1/3,
+  heightFactor: 1/3,
+  child:Text("123"),
+)
+```
+
 ### Text文本组件
 ```dart
 class HomePage extends StatelessWidget {
