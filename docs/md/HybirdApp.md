@@ -3250,6 +3250,130 @@ class NewPage extends StatelessWidget {
 
 ### 上拉加载下拉刷新
 [pull_to_refresh](https://pub.dev/packages/pull_to_refresh)
+```dart
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:pull_to_refresh/pull_to_refresh.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  //声明一个列表
+  List list = [];
+
+  //定义刷新控件
+  final RefreshController _refreshController =
+      RefreshController(initialRefresh: false);
+
+  @override
+  void initState() {
+    super.initState();
+    //初始化模拟加载完成
+    setState(() {
+      _onRefresh();
+    });
+  }
+
+  //下拉刷新方法
+  void _onRefresh() async {
+    //模拟请求完成
+    await Future.delayed(const Duration(milliseconds: 1000));
+
+    if (mounted) {
+      setState(() {
+        list.clear(); //可省略
+        list = [
+          {'id': 1, "name": '张三'},
+          {'id': 2, "name": '李四'},
+          {'id': 3, "name": '王五'},
+          {'id': 4, "name": '小六'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+          {'id': 5, "name": '老七'},
+        ];
+      });
+    }
+
+    //下拉刷新完成
+    _refreshController.refreshCompleted();
+  }
+
+  //下拉加载方法
+  void _onLoading() async {
+    //模拟请求完成
+    await Future.delayed(const Duration(milliseconds: 1000));
+    if (mounted) {
+      setState(() {
+        list.add({'id': 5, "name": '老牛1'});
+        list.add({'id': 5, "name": '老牛2'});
+        list.add({'id': 5, "name": '老牛3'});
+        list.add({'id': 5, "name": '老牛4'});
+        list.add({'id': 5, "name": '老牛5'});
+        //下拉加载完成
+      });
+    }
+    _refreshController.loadComplete();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //刷新组件
+    return SmartRefresher(
+        //下拉刷新
+        enablePullDown: true,
+        //上拉加载
+        enablePullUp: true,
+        //经典header 其他[ClassicHeader],[WaterDropMaterialHeader],[MaterialClassicHeader],[WaterDropHeader],[BezierCircleHeader]
+        header: const ClassicHeader(
+          releaseText: "松开刷新",
+          refreshingText: '刷新中...',
+          completeText: '刷新完成',
+          idleText: '下拉刷新',
+        ),
+        footer: const ClassicFooter(
+          canLoadingText: '松开加载',
+          loadingText: '加载中...',
+          idleText: '上拉加载',
+        ),
+        controller: _refreshController,
+        onRefresh: _onRefresh,
+        onLoading: _onLoading,
+        child: ListView(
+            children: list
+                .map((item) => ListTile(title: Text(item['name'])))
+                .toList()));
+  }
+}
+```
 
 
 ### 打包安装
