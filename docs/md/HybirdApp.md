@@ -3375,6 +3375,8 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
+### 轮播图
+[flutter_swiper](https://pub.flutter-io.cn/packages/flutter_swiper)
 
 ### 打包安装
 #### 添加启动图标
