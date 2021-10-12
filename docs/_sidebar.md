@@ -90,6 +90,8 @@
 
     - [ListView列表组件](/md/HybirdApp#listview列表组件)
 
+    - [CustomScrollView可下拉刷新的滚动视图](/md/HybirdApp#CustomScrollView可下拉刷新的滚动视图)
+
     - [GirdView网格布局](/md/HybirdApp#girdview网格布局)
 
     - [Padding边距组件](/md/HybirdApp#padding边距组件)

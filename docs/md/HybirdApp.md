@@ -1592,6 +1592,55 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### CustomScrollView可下拉刷新的滚动视图
+以下滚动皆可添加下拉刷新，pull-to-refresh  
+普通列表滚动
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      // 不要滚动特效，不然会整页滚动
+      // physics: const PageScrollPhysics(),
+      slivers: <Widget>[
+        //SliverList 列表 还有其他的SliverFixedExtentList SliverGrid等
+        SliverList(
+            delegate: SliverChildListDelegate([
+          const Center(child: Text("1")),
+          //使用...扩展符放入
+          ...[1, 2, 3].map((e) => const Text('e')).toList()
+        ]))
+      ],
+    );
+  }
+}
+```
+
+抖音视频滚动
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomScrollView(
+      physics: const PageScrollPhysics(),
+      slivers: <Widget>[
+        SliverFillViewport(
+            delegate: SliverChildListDelegate(const [
+          Center(child: Text("第一页")),
+          Center(child: Text("第二页")),
+          Center(child: Text("第三页")),
+          Center(child: Text("第四页"))
+        ]))
+      ],
+    );
+  }
+}
+```
+
 ### GirdView网格布局
 #### GirdView.count 创建网格布局(推荐)
 ```dart
