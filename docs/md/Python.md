@@ -4458,85 +4458,80 @@ class Request(Process):
                 book_id = chapter_soup.select(".cc2 a")[0]["href"]
 
                 with Db() as db:
+                        # 因为他网站定时会更新排序 所以判断下重复插入
+                    res = db.table("book").where({"book_name": book_name}).field("id").find()
+                    if res:
+                        continue
+                    # 请求目录
+                    res = requests.get(BaseUrl + book_id, headers=headers)
+                    # 章节目录soup
+                    chapter_content_soup = BeautifulSoup(res.text, "lxml")
+                    # 大于1000章的直接死掉
+                    if len(chapter_content_soup.select(".chapter a")) > 300:
+                        continue
                     # 写入书籍表
                     insert = {
                         "book_name": book_name,
                         "author": author,
                         "update_time": update_time,
                     }
-                    # 因为他网站定时会更新排序 所以判断下重复插入
-                    res = db.table("book").where({"book_name": book_name}).field("id").find()
-                    if res:
-                        continue
                     # 返回数据库书籍id
                     id = db.table("book").insert(insert, True)
                     print("录入书名：" + book_name + ",录入成功")
-                    # 请求目录
-                    res = requests.get(BaseUrl + book_id, headers=headers)
-                    # 章节目录soup
-                    chapter_content_soup = BeautifulSoup(res.text, "lxml")
                     # 分类名称
                     category_name = (
                         chapter_content_soup.select_one(".w3 font").text
                         if chapter_content_soup.select_one(".w3 font")
                         else "其他"
                     )
-                    with Db() as db:
-                        # 写入分类表
-                        category = {
-                            "category_name": category_name,
-                            "book_id": id,
-                        }
-                        db.table("book_category").insert(category)
-                        # 设置请求间隔
-                        time.sleep(random.uniform(0, 1) + 0.5)
-                        # 章节使用事务统一提交  不然太慢了
-                        db.beginTransaction()
-                        try:
-                            # 章节序号
-                            chapter_index = 1
-                            # 循环获取章节目录
-                            for chapter_item in chapter_content_soup.select(".chapter a"):
-                                # 章节名称
-                                chapter_name = re.sub(r"第.*?章\s+", "", str(chapter_item.text), 1, re.S | re.I | re.M)
-                                # 章节详情id
-                                chapter_id = chapter_item["href"]
-                                # 请求详情
-                                res = requests.get(BaseUrl + chapter_id, headers=headers)
-                                # 详情soup
-                                book_detail_soup = BeautifulSoup(res.text, "lxml")
-                                # 详情内容
-                                chapter_detail = re.sub(
-                                    r"<div.*?>.*?</div>.*?</div>",
+                    # 写入分类表
+                    category = {
+                        "category_name": category_name,
+                        "book_id": id,
+                    }
+                    db.table("book_category").insert(category)
+                    # 设置请求间隔
+                    time.sleep(random.uniform(0, 1) + 1)
+                        # 章节序号
+                        chapter_index = 1
+                        # 循环获取章节目录
+                        for chapter_item in chapter_content_soup.select(".chapter a"):
+                            # 章节名称
+                            chapter_name = re.sub(r"第.*?章\s+", "", str(chapter_item.text), 1, re.S | re.I | re.M)
+                            # 章节详情id
+                            chapter_id = chapter_item["href"]
+                            # 请求详情
+                            res = requests.get(BaseUrl + chapter_id, headers=headers)
+                            # 详情soup
+                            book_detail_soup = BeautifulSoup(res.text, "lxml")
+                            # 详情内容
+                            chapter_detail = re.sub(
+                                r"<div.*?>.*?</div>.*?</div>",
+                                "",
+                                re.sub(
+                                    r"<div id=\"content\">\s+<div style=\".*?\">.*?</div>",
                                     "",
-                                    re.sub(
-                                        r"<div id=\"content\">\s+<div style=\".*?\">.*?</div>",
-                                        "",
-                                        str(book_detail_soup.select_one("#content")),
-                                        1,
-                                        re.S | re.I | re.M,
-                                    ),
+                                    str(book_detail_soup.select_one("#content")),
                                     1,
                                     re.S | re.I | re.M,
-                                )
-                                # 写入章节表
-                                chapter = {
-                                    "chapter_name": chapter_name,
-                                    "chapter_detail": chapter_detail,
-                                    "book_id": id,
-                                    "chapter_index": chapter_index,
-                                }
-                                db.table("book_chapter").insert(chapter)
-                                chapter_index = chapter_index + 1
-                                # 设置请求间隔
-                                time.sleep(random.uniform(0, 1) + 0.5)
-                                print(chapter_item.text)
-                            db.commit()
-                        except Exception as result:
-                            print(result)  # 输出事务错误
-                            db.rollback()
+                                ),
+                                1,
+                                re.S | re.I | re.M,
+                            )
+                            # 写入章节表
+                            chapter = {
+                                "chapter_name": chapter_name,
+                                "chapter_detail": chapter_detail,
+                                "book_id": id,
+                                "chapter_index": chapter_index,
+                            }
+                            db.table("book_chapter").insert(chapter)
+                            chapter_index = chapter_index + 1
+                            # 设置请求间隔
+                            time.sleep(random.uniform(0, 1) + 1)
+                            print(chapter_item.text)
             # 设置请求间隔
-            time.sleep(random.uniform(0, 1) + 0.5)
+            time.sleep(random.uniform(0, 1) + 1)
 
 
 def main():
@@ -4676,6 +4671,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+```
+
+!> 下载完图片后上传到服务器，然后数据库执行批量设置图片地址
+```sql
+UPDATE `book` SET image_url = CONCAT('http://noval.o8o8o8.com/static/images/',id,'.png'); 
 ```
 
 #### 爬取小说网站所有小说 异步请求方式
