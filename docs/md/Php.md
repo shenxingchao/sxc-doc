@@ -615,6 +615,8 @@ __统一下载路径cd /usr/local/src__
     查看是否启动 ps aux | grep php-fpm  
     Php配置目录  /usr/local/php8/etc/php.ini   
 
+!> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后性能提升的原因，因为不需要重新编译php脚本了
+
 ## 扩展
 ### linux为php添加redis扩展
 <p align="left" style="color:#777777;">发布日期：2020-07-23</p>
