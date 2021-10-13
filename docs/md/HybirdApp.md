@@ -3521,6 +3521,44 @@ class _HomePageState extends State<HomePage> {
 ### 轮播图
 [carousel_slider](https://pub.flutter-io.cn/packages/carousel_slider)
 
+### animations内容动画效果组件
+[animations](https://pub.flutter-io.cn/packages/animations)
+点击容器 将容器放大并过渡到新页面
+```dart
+class HomePage extends StatelessWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return OpenContainer<bool>(
+      //动画持续时间
+      transitionDuration: const Duration(milliseconds: 2000),
+      //动画类型
+      transitionType: ContainerTransitionType.fadeThrough,
+      //点击跳转的container按钮
+      closedBuilder: (BuildContext _, VoidCallback openContainer) {
+        return GestureDetector(
+          child: Container(
+              width: 100,
+              height: 200,
+              color: Colors.blue),
+          onTap: () {
+            openContainer();
+          },
+        );
+      },
+      //跳转后的页面
+      openBuilder: (BuildContext context, VoidCallback _) {
+        return const Text('详情页');
+      },
+      //关闭详情页触发
+      onClosed: (bool? bool) {},
+      tappable: true,
+    );
+  }
+}
+```
+
 ### 打包安装
 #### 添加启动图标
 [插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)  
