@@ -3297,6 +3297,100 @@ class NewPage extends StatelessWidget {
 }
 ```
 
+本地存储一章可以改为  
+使用[get_storage](https://pub.flutter-io.cn/packages/get_storage)库,需要配置  
+```ini
+dependencies:
+  get_storage: ^2.0.3
+```
+
+```dart
+import 'package:flutter/material.dart';
+import 'package:get_storage/get_storage.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  //定义一个语言
+  String lang = 'cn';
+  //初始化本地缓存
+  final box = GetStorage();
+
+  //初始化状态 相当于mounted
+  @override
+  void initState() {
+    super.initState();
+    _getLocalStorage();
+  }
+
+  //获取本地缓存并设置当前语言
+  void _getLocalStorage() async {
+    if (mounted) {
+      //查找当前收藏的本地存储
+      if (box.read('lang') != null) {
+        setState(() {
+          lang = box.read('lang');
+        });
+      }
+    }
+  }
+
+  //设置本地缓存
+  void _setLocalStorage() async {
+    //设置本地缓存
+    setState(() {
+      box.write('lang', lang == 'cn' ? 'en' : 'cn');
+      lang = lang == 'cn' ? 'en' : 'cn';
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Column(
+        children: [
+          Text(lang),
+          ElevatedButton(
+              onPressed: () {
+                _setLocalStorage();
+              },
+              child: const Text("切换语言")),
+          ElevatedButton(
+              onPressed: () {
+                _getLocalStorage();
+              },
+              child: const Text("获取语言"))
+        ],
+      ),
+    );
+  }
+}
+```
+
 ### 上拉加载下拉刷新
 [pull_to_refresh](https://pub.dev/packages/pull_to_refresh)
 ```dart
