@@ -3446,6 +3446,24 @@ flutter_icons:
 flutter pub run flutter_launcher_icons:main 
 ```
 
+#### 添加闪屏页
+[flutter_native_splash](https://pub.flutter-io.cn/packages/flutter_native_splash)
+```ini
+dev_dependencies:
+  flutter_native_splash: ^1.2.4
+
+flutter_native_splash:
+  #下面2个选一个
+  color: "#42a5f5"
+  #background_image: "assets/images/splashscreen.png"
+```
+
+然后在项目根目录新建assets/images/splashscreen.png
+运行创建闪屏页 
+```powershell
+flutter pub run flutter_native_splash:create
+```
+
 #### 添加一下需要的权限
 这里添加基本的网络权限
 ```
