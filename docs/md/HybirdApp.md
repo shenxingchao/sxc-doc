@@ -3559,6 +3559,83 @@ class HomePage extends StatelessWidget {
 }
 ```
 
+### 定位插件
+[geolocator](https://pub.flutter-io.cn/packages/geolocator)
+
+```ini
+dependencies:
+  geolocator: '7.6.2'
+  # 安卓Sdk30及以下用这个 安卓SDK31及以上（安卓12） 用最新版
+```
+
+AndroidManifest.xml
+```xml
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.example.demo">
+    <!-- 添加下面2个权限 -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+</manifest>
+```
+
+使用
+```dart
+import 'package:geolocator/geolocator.dart';
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  
+  @override
+  void initState() {
+    super.initState();
+    //获取位置
+    _determinePosition().then((Position) => print(Position));
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container();
+  }
+}
+
+Future _determinePosition() async {
+  bool serviceEnabled;
+  LocationPermission permission;
+
+  //查看定位是否开启
+  serviceEnabled = await Geolocator.isLocationServiceEnabled();
+  if (!serviceEnabled) {
+    return Future.error('Location services are disabled.');
+  }
+
+  //检查定位权限是否授予
+  permission = await Geolocator.checkPermission();
+  if (permission == LocationPermission.denied) {
+    permission = await Geolocator.requestPermission();
+    if (permission == LocationPermission.denied) {
+      //定位权限拒绝访问
+      return Future.error('Location permissions are denied');
+    }
+  }
+
+  //定位权限永久拒绝
+  if (permission == LocationPermission.deniedForever) {
+    return Future.error(
+        'Location permissions are permanently denied, we cannot request permissions.');
+  }
+
+  //获取到定位权限
+  return await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.best);
+}
+```
+
+
 ### 打包安装
 #### 添加启动图标
 [插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)  
