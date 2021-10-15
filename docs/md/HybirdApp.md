@@ -3561,7 +3561,7 @@ class HomePage extends StatelessWidget {
 
 ### 定位插件
 [geolocator](https://pub.flutter-io.cn/packages/geolocator)  
-这个插件只能获取经纬度，要获取详细地址还得用[百度地图](https://pub.flutter-io.cn/packages/flutter_bmflocation/versions),目前他的最新版还有点问题[官方文档](https://lbsyun.baidu.com/index.php?title=flutter/loc/guide/create)
+
 ```ini
 dependencies:
   geolocator: '7.6.2'
@@ -3632,6 +3632,166 @@ Future _determinePosition() async {
   //获取到定位权限
   return await Geolocator.getCurrentPosition(
       desiredAccuracy: LocationAccuracy.best);
+}
+```
+
+这个插件只能获取经纬度，要获取详细地址还得用[百度地图](https://pub.flutter-io.cn/packages/flutter_bmflocation/versions),目前他的最新版还有点问题[官方文档](https://lbsyun.baidu.com/index.php?title=flutter/loc/guide/create)  
+```ini
+dependencies:
+  flutter_bmflocation: ^2.0.0-nullsafety.1
+```
+
+```dart
+// ignore_for_file: avoid_print
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bmflocation/bdmap_location_flutter_plugin.dart';
+import 'package:flutter_bmflocation/flutter_baidu_location.dart';
+import 'package:flutter_bmflocation/flutter_baidu_location_android_option.dart';
+import 'package:flutter_bmflocation/flutter_baidu_location_ios_option.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        debugShowCheckedModeBanner: false,
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  // 定位结果1
+  Map<String, Object>? _loationResult;
+  // 定位结果2
+  BaiduLocation? _baiduLocation;
+  //监听器
+  StreamSubscription<Map<String, Object>?>? _locationListener;
+  //定位插件
+  final LocationFlutterPlugin _locationPlugin = LocationFlutterPlugin();
+
+  @override
+  void initState() {
+    super.initState();
+
+    /// 动态申请定位权限
+    _locationPlugin.requestPermission();
+
+    _locationListener = _locationPlugin
+        .onResultCallback()
+        .listen((Map<String, Object>? result) {
+      setState(() {
+        _loationResult = result;
+        print(_loationResult);
+        try {
+          // 将原生端返回的定位结果信息存储在定位结果类中
+          _baiduLocation = BaiduLocation.fromMap(result);
+          //输出定位信息
+          print(_baiduLocation?.latitude);
+          print(_baiduLocation?.longitude);
+          print(_baiduLocation?.country);
+          print(_baiduLocation?.province);
+          print(_baiduLocation?.city);
+          print(_baiduLocation?.district);
+          print(_baiduLocation?.street);
+          print(_baiduLocation?.address);
+          print(_baiduLocation?.locationDetail);
+          print(_baiduLocation?.poiList);
+        } catch (e) {
+          print(e);
+        }
+      });
+    });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    if (null != _locationListener) {
+      _locationListener?.cancel(); // 停止定位
+    }
+  }
+
+  /// 设置android端和ios端定位参数
+  void _setLocOption() {
+    /// android 端设置定位参数
+    BaiduLocationAndroidOption androidOption = BaiduLocationAndroidOption();
+    androidOption.setCoorType("bd09ll"); // 设置返回的位置坐标系类型
+    androidOption.setIsNeedAltitude(true); // 设置是否需要返回海拔高度信息
+    androidOption.setIsNeedAddres(true); // 设置是否需要返回地址信息
+    androidOption.setIsNeedLocationPoiList(true); // 设置是否需要返回周边poi信息
+    androidOption.setIsNeedNewVersionRgc(true); // 设置是否需要返回最新版本rgc信息
+    androidOption.setIsNeedLocationDescribe(true); // 设置是否需要返回位置描述
+    androidOption.setOpenGps(true); // 设置是否需要使用gps
+    androidOption.setLocationMode(LocationMode.Hight_Accuracy); // 设置定位模式
+    androidOption.setScanspan(0); // 设置发起定位请求时间间隔
+    Map androidMap = androidOption.getMap();
+
+    /// ios 端设置定位参数
+    BaiduLocationIOSOption iosOption = BaiduLocationIOSOption();
+    iosOption.setIsNeedNewVersionRgc(true); // 设置是否需要返回最新版本rgc信息
+    iosOption.setBMKLocationCoordinateType(
+        "BMKLocationCoordinateTypeBMK09LL"); // 设置返回的位置坐标系类型
+    iosOption.setActivityType("CLActivityTypeAutomotiveNavigation"); // 设置应用位置类型
+    iosOption.setLocationTimeout(10); // 设置位置获取超时时间
+    iosOption.setDesiredAccuracy("kCLLocationAccuracyBest"); // 设置预期精度参数
+    iosOption.setReGeocodeTimeout(10); // 设置获取地址信息超时时间
+    iosOption.setDistanceFilter(100); // 设置定位最小更新距离
+    iosOption.setAllowsBackgroundLocationUpdates(true); // 是否允许后台定位
+    iosOption.setPauseLocUpdateAutomatically(true); //  定位是否会被系统自动暂停
+    Map iosMap = iosOption.getMap();
+
+    _locationPlugin.prepareLoc(androidMap, iosMap);
+  }
+
+  /// 启动定位
+  void _startLocation() {
+    _setLocOption();
+    _locationPlugin.startLocation();
+  }
+
+  /// 停止定位
+  void _stopLocation() {
+    _locationPlugin.stopLocation();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      //按钮主动获取定位信息 实际可以弄一个弹窗 让他点访问 或者配置持续定位
+      children: [
+        ElevatedButton(
+            onPressed: () {
+              _startLocation();
+            },
+            child: const Text("开启定位")),
+        ElevatedButton(
+            onPressed: () {
+              _stopLocation();
+            },
+            child: const Text("停止定位"))
+      ],
+    );
+  }
 }
 ```
 
