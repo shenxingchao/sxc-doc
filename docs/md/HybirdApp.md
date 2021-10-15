@@ -3680,32 +3680,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  // 定位结果1
+  // 定位结果1Map形式
   Map<String, Object>? _loationResult;
-  // 定位结果2
+  // 定位结果2对象形式
   BaiduLocation? _baiduLocation;
   //监听器
   StreamSubscription<Map<String, Object>?>? _locationListener;
   //定位插件
-  final LocationFlutterPlugin _locationPlugin = LocationFlutterPlugin();
+  late LocationFlutterPlugin _locationPlugin;
 
   @override
   void initState() {
     super.initState();
+    //初始化插件
+    _locationPlugin = LocationFlutterPlugin();
 
     /// 动态申请定位权限
     _locationPlugin.requestPermission();
 
-    _locationListener = _locationPlugin
-        .onResultCallback()
-        .listen((Map<String, Object>? result) {
+    _locationListener = _locationPlugin.onResultCallback().listen((result) {
       setState(() {
+        //PS这里面的异常处理捕捉不到，不影响使用
         _loationResult = result;
         print(_loationResult);
-        try {
-          // 将原生端返回的定位结果信息存储在定位结果类中
-          _baiduLocation = BaiduLocation.fromMap(result);
-          //输出定位信息
+        // 将原生端返回的定位结果信息存储在定位结果类中
+        _baiduLocation = BaiduLocation.fromMap(result);
+        //输出定位信息
+        if (_baiduLocation?.country != null) {
           print(_baiduLocation?.latitude);
           print(_baiduLocation?.longitude);
           print(_baiduLocation?.country);
@@ -3716,8 +3717,8 @@ class _HomePageState extends State<HomePage> {
           print(_baiduLocation?.address);
           print(_baiduLocation?.locationDetail);
           print(_baiduLocation?.poiList);
-        } catch (e) {
-          print(e);
+          //停止定位
+          _locationListener?.cancel(); // 停止定位
         }
       });
     });
@@ -3743,7 +3744,7 @@ class _HomePageState extends State<HomePage> {
     androidOption.setIsNeedLocationDescribe(true); // 设置是否需要返回位置描述
     androidOption.setOpenGps(true); // 设置是否需要使用gps
     androidOption.setLocationMode(LocationMode.Hight_Accuracy); // 设置定位模式
-    androidOption.setScanspan(0); // 设置发起定位请求时间间隔
+    androidOption.setScanspan(3000); // 设置发起定位请求时间间隔1S
     Map androidMap = androidOption.getMap();
 
     /// ios 端设置定位参数
