@@ -3561,7 +3561,7 @@ class HomePage extends StatelessWidget {
 
 ### 定位插件
 [geolocator](https://pub.flutter-io.cn/packages/geolocator)  
-这个插件只能获取经纬度，要获取详细地址还得用[百度地图](https://pub.flutter-io.cn/packages/flutter_bmflocation/versions),目前他的最新版还有点问题  
+这个插件只能获取经纬度，要获取详细地址还得用[百度地图](https://pub.flutter-io.cn/packages/flutter_bmflocation/versions),目前他的最新版还有点问题[官方文档](https://lbsyun.baidu.com/index.php?title=flutter/loc/guide/create)
 ```ini
 dependencies:
   geolocator: '7.6.2'
