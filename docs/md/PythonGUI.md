@@ -4249,10 +4249,13 @@ import pandas as pd
 """
 导入matplotlib相关start
 """
-import matplotlib
+# 画布和工具条
+from matplotlib.backends.backend_qtagg import FigureCanvas, NavigationToolbar2QT as NavigationToolbar
 
-matplotlib.use("Agg")
-from matplotlib.backends.backend_agg import FigureCanvas  # backend_agg到时候改成qt6就行了
+# 绘图容器
+from matplotlib.figure import Figure
+
+# 用于配置显示中文的
 import matplotlib.pyplot as plt
 
 """
@@ -4270,9 +4273,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.renderChart()
 
     def renderChart(self):
-        """
-        matplotlib 图表中文支持
-        """
+        # 配置matplotlib开始
         # 配置支持中文的非衬线字体（默认的字体无法显示中文）
         plt.rcParams["font.sans-serif"] = [
             "SimHei",
@@ -4280,23 +4281,23 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         ]
         # 使用指定的中文字体时需要下面的配置来避免负号无法显示
         plt.rcParams["axes.unicode_minus"] = False
+
+        # 创建容器对象并添加到布局开始
+        # canvs绑定figure对象
+        canvas = FigureCanvas(Figure(figsize=(5, 3)))
+        # 添加到布局
+        self.main_layout.addWidget(canvas)
+        # 添加工具条
+        self.main_layout.addWidget(NavigationToolbar(canvas, self))
+        # 获取数据源
+        axes = canvas.figure.subplots()
+
+        # 图标数据创建开始
         # 数据
         data = {"x": ["第一季度", "第二季度", "第三季度", "第四季度"], "y": [10, 20, 30, 40], "z": [20, 10, 60, 80]}
         dataframe = pd.DataFrame(data)
-        # 获取图表对象和轴对象
-        figure, axes = plt.subplots()
         # 设置轴数据
         axes.bar(dataframe["x"], dataframe["y"], width=0.2)
-        # 设置图表标题
-        axes.set_title("年度业绩表")
-        # 绑定figure到canvas上
-        canvas = FigureCanvas(figure)
-        # 更新canvas画布
-        # canvas.draw()
-        # 显示至pyqt主界面 canvass怎么转qwidget类型
-        # canvas.print_png("./2.png")
-        # 下面的无效，提示canvas不是一个控件
-        self.main_layout.addWidget(canvas)
 
 
 def main():
@@ -4313,7 +4314,6 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-!> 最新的matplotlib还没有适配PySide6,使用PySide2时是正确的
 
 ## 打包exe
 ```py
