@@ -4052,7 +4052,7 @@ def main():
 if __name__ == "__main__":
     main()
 ```
-!> 使用ui加载方式，代码没有智能提示
+!> 使用ui加载方式，代码没有智能提示 不推荐
 
 
 ## 使用ui导出的py文件
@@ -4148,7 +4148,7 @@ lib\ui_main.ui
 
 !> 这种有智能提示，但是每次修改界面需要重新执行 PySide6-uic ./lib/ui_main.ui > ./lib/ui_main.py  这种完了之后还要改成utf8编码 也可以直接在qtdesigner里面转换，如果提示uic错误的，创建一个bin目录，把uic.exe放到bin目录下就行了
 
-!> 推荐这种 vscode 直接下右键ui文件可以直接编译 用qt for python扩展
+!> 推荐这种 vscode 直接下右键ui文件可以直接编译 用qt for python扩展，还是qt designer 直接转换然后保存比较好。
 
 ?> 这里的qss样式也可以放在资源目录里，然后打包完后，再放到打包完成的文件夹中
 
