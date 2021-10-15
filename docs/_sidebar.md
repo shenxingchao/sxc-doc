@@ -346,9 +346,9 @@
   
     - [备份](/md/Mysql#备份)
 
-    - [备份](/md/Mysql#导出)
+    - [导出](/md/Mysql#导出)
 
-    - [备份](/md/Mysql#导入)
+    - [导入](/md/Mysql#导入)
     
     - [检查](/md/Mysql#检查)
     
