@@ -4412,7 +4412,7 @@ import random
 # 数据库
 from Db import Db
 
-# 为什么是test.com 因为访问的是nginx反向代理服务器 具体配置看nginx反向代理服务器那块
+
 BaseUrl = "http://www.test.com"
 
 
@@ -4458,7 +4458,7 @@ class Request(Process):
                 book_id = chapter_soup.select(".cc2 a")[0]["href"]
 
                 with Db() as db:
-                        # 因为他网站定时会更新排序 所以判断下重复插入
+                    # 因为他网站定时会更新排序 所以判断下重复插入
                     res = db.table("book").where({"book_name": book_name}).field("id").find()
                     if res:
                         continue
@@ -4467,12 +4467,13 @@ class Request(Process):
                     # 章节目录soup
                     chapter_content_soup = BeautifulSoup(res.text, "lxml")
                     # 大于1000章的直接死掉
-                    if len(chapter_content_soup.select(".chapter a")) > 300:
+                    if len(chapter_content_soup.select(".chapter a")) > 1000:
                         continue
                     # 写入书籍表
                     insert = {
                         "book_name": book_name,
                         "author": author,
+                        "book_introduction": "",
                         "update_time": update_time,
                     }
                     # 返回数据库书籍id
@@ -4491,63 +4492,62 @@ class Request(Process):
                     }
                     db.table("book_category").insert(category)
                     # 设置请求间隔
-                    time.sleep(random.uniform(0, 1) + 1)
-                        # 章节序号
-                        chapter_index = 1
-                        # 循环获取章节目录
-                        for chapter_item in chapter_content_soup.select(".chapter a"):
-                            # 章节名称
-                            chapter_name = re.sub(r"第.*?章\s+", "", str(chapter_item.text), 1, re.S | re.I | re.M)
-                            # 章节详情id
-                            chapter_id = chapter_item["href"]
-                            # 请求详情
-                            res = requests.get(BaseUrl + chapter_id, headers=headers)
-                            # 详情soup
-                            book_detail_soup = BeautifulSoup(res.text, "lxml")
-                            # 详情内容
-                            chapter_detail = re.sub(
-                                r"<div.*?>.*?</div>.*?</div>",
+                    time.sleep(random.uniform(0, 1) + 2)
+                    # 章节序号
+                    chapter_index = 1
+                    # 循环获取章节目录
+                    for chapter_item in chapter_content_soup.select(".chapter a"):
+                        # 章节名称
+                        chapter_name = re.sub(r"第.*?章\s+", "", str(chapter_item.text), 1, re.S | re.I | re.M)
+                        # 章节详情id
+                        chapter_id = chapter_item["href"]
+                        # 请求详情
+                        res = requests.get(BaseUrl + chapter_id, headers=headers)
+                        # 详情soup
+                        book_detail_soup = BeautifulSoup(res.text, "lxml")
+                        # 详情内容
+                        chapter_detail = re.sub(
+                            r"<div.*?>.*?</div>.*?</div>",
+                            "",
+                            re.sub(
+                                r"<div id=\"content\">\s+<div style=\".*?\">.*?</div>",
                                 "",
-                                re.sub(
-                                    r"<div id=\"content\">\s+<div style=\".*?\">.*?</div>",
-                                    "",
-                                    str(book_detail_soup.select_one("#content")),
-                                    1,
-                                    re.S | re.I | re.M,
-                                ),
+                                str(book_detail_soup.select_one("#content")),
                                 1,
                                 re.S | re.I | re.M,
-                            )
-                            # 写入章节表
-                            chapter = {
-                                "chapter_name": chapter_name,
-                                "chapter_detail": chapter_detail,
-                                "book_id": id,
-                                "chapter_index": chapter_index,
-                            }
-                            db.table("book_chapter").insert(chapter)
-                            chapter_index = chapter_index + 1
-                            # 设置请求间隔
-                            time.sleep(random.uniform(0, 1) + 1)
-                            print(chapter_item.text)
+                            ),
+                            1,
+                            re.S | re.I | re.M,
+                        )
+                        # 写入章节表
+                        chapter = {
+                            "chapter_name": chapter_name,
+                            "chapter_detail": chapter_detail,
+                            "book_id": id,
+                            "chapter_index": chapter_index,
+                        }
+                        db.table("book_chapter").insert(chapter)
+                        chapter_index = chapter_index + 1
+                        # 设置请求间隔
+                        time.sleep(random.uniform(0, 1) + 2)
+                        print(chapter_item.text)
             # 设置请求间隔
-            time.sleep(random.uniform(0, 1) + 1)
+            time.sleep(random.uniform(0, 1) + 2)
 
 
 def main():
     # 请求当前地址内容
-    base_url = "http://www.test.com/last"
-    page_ext = ".htm"
+    base_url = "http://www.test.com/top/"
+    page_ext = "/"
     # 生成器生成url列表  一共有4500页
-    base_url_list = [base_url + str(item) + page_ext for item in range(1, 5)]
+    base_url_list = [base_url + str(item) + page_ext for item in range(1, 4)]
     # url分组 650个为1组,分成 len/650 组  每组用一个进程去处理 开7个进程
     request_url_list = []
-    for i in range(0, len(base_url_list), 3):
-        request_url_list.append(base_url_list[i : i + 3])
-
+    for i in range(0, len(base_url_list), 1):
+        request_url_list.append(base_url_list[i : i + 1])
     Process = []
     for key, value in enumerate(request_url_list):
-        p = Request(value, key * 3)
+        p = Request(value, key * 1)
         Process.append(p)
     # 同时开启进程
     for p in Process:
@@ -4676,6 +4676,121 @@ if __name__ == "__main__":
 !> 下载完图片后上传到服务器，然后数据库执行批量设置图片地址
 ```sql
 UPDATE `book` SET image_url = CONCAT('http://noval.o8o8o8.com/static/images/',id,'.png'); 
+```
+
+#### 爬取小说的描述
+```py
+# 导入网络请求库
+import requests
+
+# 导入时间库
+import time
+
+# 导入正则表达库
+import re
+
+# 导入多进程
+from multiprocessing import Process
+
+# 导入BeautifulSoup类库
+from bs4 import BeautifulSoup
+
+# 随机数
+import random
+
+# 数据库
+from Db import Db
+
+
+# 定义header头
+headers = {
+    "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/90.0.4430.212 Safari/537.36",
+}
+
+# 请求进程类
+class Request(Process):
+    def __init__(self, url_list, response_list, index):
+        """
+        @description 初始化方法
+        @param url_list list 请求的url列表
+        @param response_list list 返回的数据列表
+        @param index 返回列表的的起始索引
+        @return
+        """
+        super().__init__()
+        self.__url_list = url_list
+        self.__response_list = response_list
+        self.__index = index
+
+    def run(self):
+        # 多进程同时请求url
+        print(f"进程{self.__index + 1}启动")
+        for key, value in enumerate(self.__url_list):
+            print(f"请求{self.__index + 1}-{key}发出")
+            # 请求书籍列表
+            res = requests.get(value, headers=headers)
+            print(f"请求{self.__index + 1}-{key}收到")
+            # 创建BeautifulSoup对象 使用lxml解析器
+            soup = BeautifulSoup(res.text, "lxml")
+            # 找到图片容器
+            image_text = soup.select(".res-book-item")[0]
+            # 找到书籍名称
+            book_soup = BeautifulSoup(str(image_text), "lxml")
+            if book_soup.select_one("cite") and book_soup.select_one("cite").text == str.replace(
+                value, "https://www.qidian.com/search?kw=", ""
+            ):
+                # 书籍详情链接
+                book_introduction_href = "https:" + book_soup.select_one(".book-img-box  a")["href"]
+                # 请求书籍详情
+                res = requests.get(book_introduction_href, headers=headers)
+                # 创建BeautifulSoup对象 使用lxml解析器
+                book_introduction_soup = BeautifulSoup(res.text, "lxml")
+                # 找到描述
+                book_introduction = str(book_introduction_soup.select_one(".book-intro p"))
+                # id
+                id = self.__response_list[self.__index + key]
+                # 写入数据库
+                with Db() as db:
+                    res = db.table("book").where({"id": id}).update({"book_introduction": book_introduction})
+                    # 返回影响的行数
+                    print(res)
+                    if res == 1:
+                        print(id, "更新成功")
+            # 设置请求间隔
+            time.sleep(random.uniform(0, 1) + 0.25)
+
+
+def main():
+    # 请求当前地址内容
+    base_url = "https://www.qidian.com/search?kw="
+    with Db() as db:
+        res = db.table("book").where({"book_introduction": ""}).field("id,book_name").select()
+        # 生成器生成url列表  一共有540
+        base_url_list = [base_url + item["book_name"] for item in res]
+
+        # url分组 650个为1组,分成 len/650 组  每组用一个进程去处理 开7个进程
+        request_url_list = []
+        for i in range(0, len(base_url_list), 200):
+            request_url_list.append(base_url_list[i : i + 200])
+
+        # id list用于保存对应记录的描述
+        response_list = [item["id"] for item in res]
+
+        Process = []
+        for key, value in enumerate(request_url_list):
+            p = Request(value, response_list, key * 200)
+            Process.append(p)
+        # 同时开启进程
+        for p in Process:
+            p.start()
+        # 等待所有进程结束
+        for p in Process:
+            p.join()
+        print("爬取完成")
+
+
+if __name__ == "__main__":
+    main()
 ```
 
 #### 爬取小说网站所有小说 异步请求方式
