@@ -18,7 +18,7 @@
 | [vue-gaode在Vue中完美的使用高德地图](http://vue-gaode.rxshc.com/)                                                                             |    vue 地图    |  2021年1月25日 |
 | [香蕉云编无苹果电脑上传ipa](https://www.yunedit.com/)                                                                                         |      ios       |  2021年1月25日 |
 | [微信开发文档-公众号-小程序](https://developers.weixin.qq.com/doc/)                                                                           |     wechat     |  2021年1月26日 |
-| [react-native-element rn UI框架](https://reactnativeelements.com/docs/)                                                                       |     wechat     |  2021年2月19日 |
+| [react-native-element rn UI框架](https://reactnativeelements.com/docs/)                                                                       |  react-native  |  2021年2月19日 |
 | [js项目库git排行](https://bestofjs.org/)                                                                                                      |    js rank     |  2021年3月23日 |
 | [deno-nodejs的替代品，下一代前端开发运行环境](https://deno.land/)                                                                             | js ts runtime  |  2021年3月23日 |
 | [windows nodejs版本管理工具](https://github.com/coreybutler/nvm-windows/releases)                                                             |     nodejs     |  2021年3月23日 |
@@ -26,4 +26,5 @@
 | [python 高性能图表库](https://matplotlib.org/)                                                                                                |  python 图表   |  2021年3月23日 |
 | [git badge 小标签按钮创建](https://shields.io/)                                                                                               |  git markdown  |  2021年8月27日 |
 | [git profile 创建](https://rahuldkjain.github.io/gh-profile-readme-generator/)                                                                |  git markdown  |  2021年8月27日 |
-| [vue devtools](https://github.com/vuejs/devtools/)                                                                                            | vue vue3 debug | 2021年10月18日 |
+| [vue devtools](https://github.com/vuejs/devtools/)                                                                                            | vue浏览器插件  | 2021年10月18日 |
+| [FeHelper](https://github.com/zxlie/FeHelper/tree/master/apps/static/screenshot/crx)                                                          | json浏览器插件 | 2021年10月19日 |
