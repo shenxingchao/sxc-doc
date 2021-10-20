@@ -3208,7 +3208,7 @@ class NewPage extends StatelessWidget {
 }
 ```
 
-状态管理 是局部的状态管理 不是全局的，全局还是得用provider
+局部的状态管理（也不是很好用）
 ```dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -3260,13 +3260,86 @@ class _HomePageState extends State<HomePage> {
           },
           child: const Text("设置昵称"),
         ),
-        //6.获取状态值 Obx(() => widget)
+        //5.获取状态值 Obx(() => widget)
         Obx(() => Text(store.nickname.value))
       ],
     );
   }
 }
 ```
+
+全局的状态管理（推荐使用）
+```dart
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+void main() => runApp(const MyApp());
+
+class MyApp extends StatelessWidget {
+  const MyApp({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    //1.GetMaterialApp
+    return GetMaterialApp(
+        title: 'app',
+        theme: ThemeData(primarySwatch: Colors.red),
+        home: Scaffold(
+          appBar: AppBar(
+            title: const Text('状态栏标题'),
+          ),
+          body: const HomePage(),
+        ));
+  }
+}
+
+//2.定义状态类
+class Store extends GetxController {
+  //比如你在这里记录用户昵称状态
+  String _nickname = '';
+
+  //5.获取
+  get nickname => _nickname;
+
+  //4.改变用户昵称状态值 相当于vue里的 store action
+  void changeNickName(String nickname) {
+    _nickname = nickname;
+    update();
+  }
+}
+
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        ElevatedButton(
+          onPressed: () {
+            //3.设置状态
+            Get.find<Store>().changeNickName('新昵称');
+          },
+          child: const Text("设置昵称"),
+        ),
+        //6.获取并显示
+        GetBuilder<Store>(
+            //初始化store控制器
+            init: Store(),
+            builder: (store) {
+              return Text(store.nickname);
+            })
+      ],
+    );
+  }
+}
+```
+
 
 本地存储一章可以改为  
 使用[get_storage](https://pub.flutter-io.cn/packages/get_storage)库,需要配置  
