@@ -3273,7 +3273,11 @@ class _HomePageState extends State<HomePage> {
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-void main() => runApp(const MyApp());
+void main() {
+  //3.依赖注入到内存 必须 注入后就可以在后面任何地方使用了，相当于初始化
+  Get.put(Store());
+  runApp(const MyApp());
+}
 
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
@@ -3296,14 +3300,12 @@ class MyApp extends StatelessWidget {
 //2.定义状态类
 class Store extends GetxController {
   //比如你在这里记录用户昵称状态
-  String _nickname = '';
+  String nickname = '默认昵称';
 
-  //5.获取
-  get nickname => _nickname;
 
-  //4.改变用户昵称状态值 相当于vue里的 store action
-  void changeNickName(String nickname) {
-    _nickname = nickname;
+  //5.改变用户昵称状态值 相当于vue里的 store action
+  void changeNickName(String nicknameChangeValue) {
+    nickname = nicknameChangeValue;
     update();
   }
 }
@@ -3316,13 +3318,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  @override
+  void initState() {
+    super.initState();
+    //7.init获取或设置状态值 
+    // ignore: avoid_print
+    print(Get.find<Store>().nickname);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
       children: [
         ElevatedButton(
           onPressed: () {
-            //3.设置状态
+            //4.设置状态
             Get.find<Store>().changeNickName('新昵称');
           },
           child: const Text("设置昵称"),
