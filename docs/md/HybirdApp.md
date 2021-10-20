@@ -3208,7 +3208,7 @@ class NewPage extends StatelessWidget {
 }
 ```
 
-状态栏一章可改为下面代码
+状态管理 是局部的状态管理 不是全局的，全局还是得用provider
 ```dart
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -3237,11 +3237,6 @@ class MyApp extends StatelessWidget {
 class Store {
   //比如你在这里记录用户昵称状态
   final nickname = ''.obs;
-
-  //5.改变用户昵称状态值 相当于vue里的 store action
-  void changeNickName(name) {
-    nickname.value = name;
-  }
 }
 
 class HomePage extends StatefulWidget {
@@ -3261,38 +3256,14 @@ class _HomePageState extends State<HomePage> {
         ElevatedButton(
           onPressed: () {
             //4.设置状态
-            store.changeNickName('新昵称');
+            store.nickname.value = '新昵称';
           },
           child: const Text("设置昵称"),
-        ),
-        ElevatedButton(
-          onPressed: () {
-            //7.新页面查看状态
-            Get.to(const NewPage());
-          },
-          child: const Text("新页面查看状态"),
         ),
         //6.获取状态值 Obx(() => widget)
         Obx(() => Text(store.nickname.value))
       ],
     );
-  }
-}
-
-//新页面
-class NewPage extends StatelessWidget {
-  const NewPage({Key? key}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    //8.一定要用Get.put包裹
-    final Store store = Get.put(Store());
-    return Scaffold(
-        appBar: AppBar(
-          title: const Text('新页面'),
-        ),
-        //9.新页面获取
-        body: Obx(() => Text(store.nickname.value)));
   }
 }
 ```
