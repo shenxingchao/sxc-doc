@@ -6198,7 +6198,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 淘宝自动领喵币
+#### 淘宝自动领喵币(真机，模拟器不行，有检测)
 ```py
 # appium python驱动
 from appium import webdriver
@@ -6218,8 +6218,8 @@ import time
 # 启动参数
 desired_caps = {
     "platformName": "Android",
-    "deviceName": "device",
-    "platformVersion": "7.1.2",
+    "deviceName": "3030140101005KU",
+    "platformVersion": "11",
     "appPackage": "com.taobao.taobao",
     "appActivity": "com.taobao.tao.TBMainActivity",
     "noReset": True,  # 防止一登录登出
@@ -6268,35 +6268,34 @@ def main():
     # 等待加载完成
     driver.wait_activity(ac, 30)
     # 为了测试输出还需要等内容完全加载 不然下面的print都没有数据的 实际可注释掉
-    time.sleep(7)
-
+    time.sleep(3)
     # 点击双11
-    driver.tap([(26, 961), (540, 1226)], 10)
-    time.sleep(10)
+    driver.tap([(26, 1056), (540, 1321)], 10)
+    time.sleep(3)
 
     # 点击做任务
-    Action(driver).press(x=947, y=1769).release().perform()
-    time.sleep(5)
+    Action(driver).press(x=939, y=1808).release().perform()
+    time.sleep(3)
 
     # 完成签到任务
-    if isElement(driver, "text", 'text("完成签到×1")'):
-        wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("完成签到×1")'))).click()
+    if isElement(driver, "text", 'text("完成签到")'):
+        wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("完成签到")'))).click()
 
     # 获取屏幕尺寸
     screen_width = driver.get_window_size()["width"]
     screen_height = driver.get_window_size()["height"]
     # 完成浏览任务
     while True:
-        if isElement(driver, "text", 'text("浏览15秒得奖励×1")'):
-            wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15秒得奖励×1")'))).click()
-            # 浏览他喵的30秒 模拟器打开太慢了
-            time.sleep(10)
-            # 滑动一下
-            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
+        if isElement(driver, "text", 'text("浏览15秒得奖励")'):
+            wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15秒得奖励")'))).click()
+            # 浏览他喵的15秒
             time.sleep(8)
             # 滑动一下
             driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
-            time.sleep(8)
+            time.sleep(5)
+            # 滑动一下
+            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
+            time.sleep(5)
             driver.back()
             # 返回上一页
             time.sleep(3)
