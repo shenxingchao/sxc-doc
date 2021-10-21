@@ -6067,6 +6067,8 @@ desired_caps = {
     "platformVersion": "7.1.2",
     "appPackage": "com.example.novalapp",
     "appActivity": "com.example.novalapp.MainActivity",
+    "noReset": True,  # 防止一登录登出
+    "fullReset": False,  # 防止一登录登出
 }
 
 driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
@@ -6105,6 +6107,8 @@ desired_caps = {
     "platformVersion": "7.1.2",
     "appPackage": "com.example.novalapp",
     "appActivity": "com.example.novalapp.MainActivity",
+    "noReset": True,  # 防止一登录登出
+    "fullReset": False,  # 防止一登录登出
 }
 
 
