@@ -6111,6 +6111,28 @@ desired_caps = {
     "fullReset": False,  # 防止一登录登出
 }
 
+def isElement(driver, by, value):
+    """
+    @description 判断元素是否存在
+    @param
+    @return
+    """
+    flag = None
+    try:
+        if by == "id":
+            driver.find_element_by_id(value)
+        elif by == "xpath":
+            driver.find_element_by_xpath(value)
+        elif by == "class":
+            driver.find_element_by_class_name(value)
+        elif by == "text":
+            driver.find_element_by_android_uiautomator(value)
+        flag = True
+    except Exception as e:
+        print("不存在")
+        flag = False
+    finally:
+        return flag
 
 def main():
     # 启动
@@ -6168,7 +6190,9 @@ def main():
     Action(driver).tap(x=540, y=930, count=1).release().perform()
     # Action(driver).press(x=540, y=930).release().perform()
     time.sleep(3)
-
+    
+    # 返回上一页
+    driver.back()
 
 if __name__ == "__main__":
     main()
