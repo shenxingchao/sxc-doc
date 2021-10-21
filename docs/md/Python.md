@@ -6292,7 +6292,19 @@ def main():
             wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15秒得奖励")'))).click()
             # 浏览他喵的15秒
             time.sleep(20)
-            print("完成浏览15秒任务")
+            print("完成浏览15秒得奖励任务")
+            driver.back()
+            # 返回上一页
+            time.sleep(3)
+        else:
+            break
+
+    while True:
+        if isElement(driver, "text", 'text("浏览15s立得")'):
+            wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15s立得")'))).click()
+            # 浏览他喵的15秒
+            time.sleep(20)
+            print("完成浏览15s立得任务")
             driver.back()
             # 返回上一页
             time.sleep(3)
