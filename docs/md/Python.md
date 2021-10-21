@@ -6013,6 +6013,163 @@ pip install pycryptodome --no-binary :all:
 3. 文档地址
    [使用](https://playwright.dev/python/docs/intro/) [api](https://playwright.dev/python/docs/api/class-page)
 
+### 移动端自动化工具 appium
+#### 安装服务端
+```powershell
+npm install -g appium
+```
+#### 开启
+```powershell
+appium
+```
+
+#### 安装python客户端
+```powershell
+pip install Appium-Python-Client
+```
+
+!> 其他安卓环境参考App开发那块
+
+#### 连接夜神模拟器
+```powershell
+abd connect 127.0.0.1:62001
+```
+
+#### 检测环境是否安装完成
+```powershell
+npm install -g appium-doctor
+appium-doctor # 有警告无所谓不影响使用
+```
+
+#### 获取必要的参数
+1. 获取设备名称
+   ```powershell
+   adb devices
+   ```
+2. 获取包名和启动页面
+   先打开测试app，然后执行下面的命令
+   ```powershell
+   adb shell
+   dumpsys activity | grep mFocusedActivity # 如 mFocusedActivity: ActivityRecord{a20305f u0 com.example.novalapp/.MainActivity t5}
+   ```
+3. 查看手机型号
+   ```powershell
+   adb shell getprop ro.build.version.release #7.1.2
+   ```
+
+#### 启动app
+```py
+from appium import webdriver
+
+desired_caps = {
+    "platformName": "Android",
+    "deviceName": "device",
+    "platformVersion": "7.1.2",
+    "appPackage": "com.example.novalapp",
+    "appActivity": "com.example.novalapp.MainActivity",
+}
+
+driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
+```
+
+#### 获取app内元素
+使用安卓adk目录下的uiautomatorviewer
+位置androidsdk\tools\bin\uiautomatorviewer.bat,双击打开  
+出现错误，关闭bat下面命令后重新打开:  
+```powershell
+adb root
+```
+不行的话重启模拟器，真机的话打开手机开发者权限，将USB调试按钮重新启动就好了
+
+#### 完整示例
+```py
+# appium python驱动
+from appium import webdriver
+
+from appium.webdriver.common.mobileby import MobileBy as By
+
+from appium.webdriver.common.touch_action import TouchAction as Action
+
+# 导入等待模块显性等待类
+from selenium.webdriver.support.wait import WebDriverWait
+
+# 导入等待模块条件类
+from selenium.webdriver.support import expected_conditions as EC
+
+import time
+
+# 启动参数
+desired_caps = {
+    "platformName": "Android",
+    "deviceName": "device",
+    "platformVersion": "7.1.2",
+    "appPackage": "com.example.novalapp",
+    "appActivity": "com.example.novalapp.MainActivity",
+}
+
+
+def main():
+    # 启动
+    driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
+    # selenium的wait
+    wait = WebDriverWait(driver, 30, 0.2)
+    # 获取当前界面activity
+    ac = driver.current_activity
+    # 等待加载完成
+    driver.wait_activity(ac, 30)
+    # 为了测试输出还需要等内容完全加载 不然下面的print都没有数据的 实际可注释掉
+    time.sleep(2)
+
+    # 通过resource-id属性获取
+    print(driver.find_element_by_id("android:id/content"))
+
+    # 通过class属性获取（不好用）
+    print(driver.find_elements_by_class_name("android.view.View"))
+    # 输入内容
+    wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "android.widget.EditText"))).click()
+    driver.find_element_by_class_name("android.widget.EditText").send_keys("搜索内容")
+
+    # 向下滑屏 从屏幕的1/3高度位置 滑到3/2高度位置 持续时间只能是100 或者 200
+    screen_width = driver.get_window_size()["width"]
+    screen_height = driver.get_window_size()["height"]
+    driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
+    time.sleep(3)
+
+    # 通过content-desc获取 复制出来有换行的就是\n （好用推荐）
+    print(driver.find_element_by_accessibility_id("分类\nTab 2 of 3"))
+    # 等待元素可点击
+    # driver.find_element_by_accessibility_id("分类\nTab 2 of 3").click()
+    wait.until(EC.element_to_be_clickable((By.ACCESSIBILITY_ID, "分类\nTab 2 of 3"))).click()
+    time.sleep(3)
+
+    # 通过文本text属性来获取
+    wait.until(EC.element_to_be_clickable((By.ACCESSIBILITY_ID, "主页\nTab 1 of 3"))).click()
+    print(driver.find_element_by_android_uiautomator('text("全站小说搜索就看，惊喜等你来发现")'))
+    wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("全站小说搜索就看，惊喜等你来发现")'))).click()
+    time.sleep(3)
+
+    # 使用xpath定位子元素 index ：按同一控件类型 然后找index
+    # print(driver.find_element_by_xpath("//android.widget.ScrollView/android.widget.ImageView[1]"))
+    print(driver.find_element_by_xpath('//*[@class="android.widget.ScrollView"]/android.widget.ImageView[1]'))
+    wait.until(
+        EC.element_to_be_clickable((By.XPATH, "//android.widget.ScrollView/android.widget.ImageView[1]"))
+    ).click()
+    time.sleep(3)
+
+    # 模拟点击返回按钮 显示的边界是 [0,54][126,203] tap第一个参数是表示手指包含的区域
+    driver.tap([(0, 54), (126, 203)], 10)
+    time.sleep(3)
+
+    # 模拟点击任意位置 长按,移动等等
+    Action(driver).tap(x=540, y=930, count=1).release().perform()
+    # Action(driver).press(x=540, y=930).release().perform()
+    time.sleep(3)
+
+
+if __name__ == "__main__":
+    main()
+```
+
 
 ### pyinstaller打包python脚本
 
