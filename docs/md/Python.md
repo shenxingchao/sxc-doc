@@ -6013,7 +6013,7 @@ pip install pycryptodome --no-binary :all:
 3. 文档地址
    [使用](https://playwright.dev/python/docs/intro/) [api](https://playwright.dev/python/docs/api/class-page)
 
-### 移动端自动化工具 appium
+### 移动端自动化工具appium
 #### 安装服务端
 ```powershell
 npm install -g appium

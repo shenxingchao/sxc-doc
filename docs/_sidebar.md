@@ -510,6 +510,8 @@
 
     - [自动化测试工具playwright](/md/Python#自动化测试工具playwright)
 
+    - [移动端自动化工具appium](/md/Python#移动端自动化工具appium)
+
     - [pyinstaller打包python脚本](/md/Python#pyinstaller打包python脚本)
 
     - [python图表pyecharts](/md/Python#python图表pyecharts)
