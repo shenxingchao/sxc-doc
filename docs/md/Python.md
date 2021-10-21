@@ -6271,7 +6271,7 @@ def main():
     time.sleep(3)
     # 点击双11
     driver.tap([(26, 1056), (540, 1321)], 10)
-    time.sleep(3)
+    time.sleep(8)
 
     # 点击做任务
     Action(driver).press(x=939, y=1808).release().perform()
@@ -6280,6 +6280,8 @@ def main():
     # 完成签到任务
     if isElement(driver, "text", 'text("完成签到")'):
         wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("完成签到")'))).click()
+        print("完成签到任务")
+        time.sleep(3)
 
     # 获取屏幕尺寸
     screen_width = driver.get_window_size()["width"]
@@ -6289,13 +6291,8 @@ def main():
         if isElement(driver, "text", 'text("浏览15秒得奖励")'):
             wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15秒得奖励")'))).click()
             # 浏览他喵的15秒
-            time.sleep(8)
-            # 滑动一下
-            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
-            time.sleep(5)
-            # 滑动一下
-            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
-            time.sleep(5)
+            time.sleep(20)
+            print("完成浏览15秒任务")
             driver.back()
             # 返回上一页
             time.sleep(3)
@@ -6304,7 +6301,7 @@ def main():
 
     # 任务完成
     time.sleep(5)
-    print("任务完成")
+    print("所有任务完成")
 
 
 if __name__ == "__main__":
