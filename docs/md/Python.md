@@ -6198,6 +6198,119 @@ if __name__ == "__main__":
     main()
 ```
 
+#### 淘宝自动领喵币
+```py
+# appium python驱动
+from appium import webdriver
+
+from appium.webdriver.common.mobileby import MobileBy as By
+
+from appium.webdriver.common.touch_action import TouchAction as Action
+
+# 导入等待模块显性等待类
+from selenium.webdriver.support.wait import WebDriverWait
+
+# 导入等待模块条件类
+from selenium.webdriver.support import expected_conditions as EC
+
+import time
+
+# 启动参数
+desired_caps = {
+    "platformName": "Android",
+    "deviceName": "device",
+    "platformVersion": "7.1.2",
+    "appPackage": "com.taobao.taobao",
+    "appActivity": "com.taobao.tao.TBMainActivity",
+    "noReset": True,  # 防止一登录登出
+    "fullReset": False,  # 防止一登录登出
+}
+
+
+"""
+@description 判断元素是否存在
+@param 
+@return 
+"""
+
+
+def isElement(driver, by, value):
+    """
+    @description 判断元素是否存在
+    @param
+    @return
+    """
+    flag = None
+    try:
+        if by == "id":
+            driver.find_element_by_id(value)
+        elif by == "xpath":
+            driver.find_element_by_xpath(value)
+        elif by == "class":
+            driver.find_element_by_class_name(value)
+        elif by == "text":
+            driver.find_element_by_android_uiautomator(value)
+        flag = True
+    except Exception as e:
+        print("不存在")
+        flag = False
+    finally:
+        return flag
+
+
+def main():
+    # 启动
+    driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
+    # selenium的wait
+    wait = WebDriverWait(driver, 30, 0.2)
+    # 获取当前界面activity
+    ac = driver.current_activity
+    # 等待加载完成
+    driver.wait_activity(ac, 30)
+    # 为了测试输出还需要等内容完全加载 不然下面的print都没有数据的 实际可注释掉
+    time.sleep(7)
+
+    # 点击双11
+    driver.tap([(26, 961), (540, 1226)], 10)
+    time.sleep(10)
+
+    # 点击做任务
+    Action(driver).press(x=947, y=1769).release().perform()
+    time.sleep(5)
+
+    # 完成签到任务
+    if isElement(driver, "text", 'text("完成签到×1")'):
+        wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("完成签到×1")'))).click()
+
+    # 获取屏幕尺寸
+    screen_width = driver.get_window_size()["width"]
+    screen_height = driver.get_window_size()["height"]
+    # 完成浏览任务
+    while True:
+        if isElement(driver, "text", 'text("浏览15秒得奖励×1")'):
+            wait.until(EC.element_to_be_clickable((By.ANDROID_UIAUTOMATOR, 'text("浏览15秒得奖励×1")'))).click()
+            # 浏览他喵的30秒 模拟器打开太慢了
+            time.sleep(10)
+            # 滑动一下
+            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
+            time.sleep(8)
+            # 滑动一下
+            driver.swipe(screen_width / 2, screen_height / 3, screen_width / 2, screen_height * 2 / 3, 100)
+            time.sleep(8)
+            driver.back()
+            # 返回上一页
+            time.sleep(3)
+        else:
+            break
+
+    # 任务完成
+    time.sleep(5)
+    print("任务完成")
+
+
+if __name__ == "__main__":
+    main()
+```
 
 ### pyinstaller打包python脚本
 
