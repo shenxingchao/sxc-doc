@@ -6320,6 +6320,17 @@ if __name__ == "__main__":
     main()
 ```
 
+### 更牛逼的跨平台自动化测试工具airtest
+下载 [airtestIDE]()
+1. 确保adb连接手机或模拟器
+2. 然后打开IDE——>connect
+3. 使用IDE编写脚本
+4. IDE运行
+5. 或使用脚本运行
+   ```powershell
+   "D:\AirtestIDE\AirtestIDE" runner "C:\xxx\taobao.air"  --device android://127.0.0.1:5037/设备名
+   ```
+
 ### pyinstaller打包python脚本
 
 #### 安装

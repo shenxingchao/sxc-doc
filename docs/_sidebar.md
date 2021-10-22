@@ -512,6 +512,8 @@
 
     - [移动端自动化工具appium](/md/Python#移动端自动化工具appium)
 
+    - [更牛逼的跨平台自动化测试工具airtest](/md/Python#更牛逼的跨平台自动化测试工具airtest)
+
     - [pyinstaller打包python脚本](/md/Python#pyinstaller打包python脚本)
 
     - [python图表pyecharts](/md/Python#python图表pyecharts)
