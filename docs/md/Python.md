@@ -6321,7 +6321,7 @@ if __name__ == "__main__":
 ```
 
 ### 更牛逼的跨平台自动化测试工具airtest
-下载 [airtestIDE]()
+下载 [airtestIDE](https://airtest.netease.com/)
 1. 确保adb连接手机或模拟器
 2. 然后打开IDE——>connect
 3. 使用IDE编写脚本
