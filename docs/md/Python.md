@@ -6026,7 +6026,7 @@ from bs4 import BeautifulSoup
 import time
 
 # 抢购地址 尿不湿M22 片13块
-BaseUrl = "https://item.jd.com/100021826492.html"
+BaseUrl = "https://item.jd.com/100014486277.html"
 
 
 def login(driver, wait):
@@ -6037,6 +6037,17 @@ def login(driver, wait):
     login_button.click()
     # 10秒扫描登录时间 登录后跳转到商品详情页
     time.sleep(10)
+
+
+#   该方法用来确认元素是否存在，如果存在返回flag=true，否则返回false
+def isElementExist(driver, element):
+    flag = True
+    try:
+        driver.find_element_by_css_selector(element)
+        return flag
+    except:
+        flag = False
+        return flag
 
 
 def main():
@@ -6066,26 +6077,36 @@ def main():
     # 无限循环 查找是否有抢购按钮
     while True:
         # 是否有抢购按钮
-        try:
-            if driver.find_element(By.ID, "btn-reservation"):
-                # 抢购按钮文字
-                button_text = driver.find_element(By.ID, "btn-reservation").get_attribute("textContent")
-                # 抢购按钮class
-                button_class = driver.find_element(By.ID, "btn-reservation").get_attribute("class")
-                if button_text != "抢购":
-                    print("没有抢购文字")
-                    raise Exception("没有抢购文字")
-                elif button_class.find("btn-disable") != -1:
-                    print("不能抢购")
-                    raise Exception("不能抢购")
-                else:
-                    print("可以抢购")
-                    driver.find_element(By.ID, "btn-reservation").click()
-                    break
-        except:
-            # 刷新浏览器 这个值看网速
-            time.sleep(0.3)
-            driver.refresh()
+        if isElementExist(driver, "#btn-reservation"):
+            # 抢购按钮文字
+            button_text = driver.find_element(By.ID, "btn-reservation").get_attribute("textContent")
+            # 抢购按钮class
+            button_class = driver.find_element(By.ID, "btn-reservation").get_attribute("class")
+            if button_text != "抢购":
+                print("没有抢购文字")
+            elif button_class.find("btn-disable") != -1:
+                print("不能抢购")
+            else:
+                print("可以抢购")
+                driver.find_element(By.ID, "btn-reservation").click()
+                break
+        # 是否有加入购物车按钮
+        elif isElementExist(driver, "#InitCartUrl"):
+            # 加入购物车按钮文字
+            button_text = driver.find_element(By.ID, "InitCartUrl").get_attribute("textContent")
+            # 加入购物车按钮class
+            button_class = driver.find_element(By.ID, "InitCartUrl").get_attribute("class")
+            if button_text != "加入购物车":
+                print("没有加入购物车文字")
+            elif button_class.find("btn-disable") != -1:
+                print("不能加入购物车")
+            else:
+                print("可以加入购物车")
+                driver.find_element(By.ID, "InitCartUrl").click()
+                break
+        # 刷新浏览器 这个值看网速
+        time.sleep(0.3)
+        driver.refresh()
     # 点击去结算
     qujiesuan_button = wait.until(EC.element_to_be_clickable((By.ID, "GotoShoppingCart")))
     qujiesuan_button.click()
