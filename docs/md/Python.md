@@ -5999,6 +5999,119 @@ if __name__ == "__main__":
 pip install pycryptodome --no-binary :all: 
 ```
 
+#### selenium京东秒杀
+```py
+# 导入了 web 驱动模块
+from selenium import webdriver
+
+# 导入浏览器配置
+from selenium.webdriver.chrome.options import Options
+
+# 导入等待模块显性等待类
+from selenium.webdriver.support.wait import WebDriverWait
+
+# 导入等待模块条件类
+from selenium.webdriver.support import expected_conditions as EC
+
+# 定位方式类
+from selenium.webdriver.common.by import By
+
+# 导入动作类
+from selenium.webdriver.common.action_chains import ActionChains as AC
+
+# 导入BeautifulSoup类库
+from bs4 import BeautifulSoup
+
+# 导入时间模块
+import time
+
+# 抢购地址 尿不湿M22 片13块
+BaseUrl = "https://item.jd.com/100021826492.html"
+
+
+def login(driver, wait):
+    # 登录 ReturnUrl  为抢购地址
+    driver.get("https://passport.jd.com/uc/login?ltype=logout&ReturnUrl=" + BaseUrl)
+    # 点击微信登录
+    login_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, "#kbCoagent ul li:nth-child(2)")))
+    login_button.click()
+    # 10秒扫描登录时间 登录后跳转到商品详情页
+    time.sleep(10)
+
+
+def main():
+    # 下面是设置无痕浏览器的配置
+    chrome_options = Options()
+    chrome_options.add_argument("window-size=1920x3000")  # 指定浏览器分辨率 必须指定 不然元素不存在
+    chrome_options.add_argument("--disable-gpu")  # 谷歌文档提到需要加上这个属性来规避bug
+    chrome_options.add_argument("--hide-scrollbars")  # 隐藏滚动条, 应对一些特殊页面
+    # chrome_options.add_argument("blink-settings=imagesEnabled=false")  # 不加载图片, 提升速度
+    # chrome_options.add_argument("--headless")  # 浏览器不提供可视化页面. linux下如果系统不支持可视化不加这条会启动失败
+    chrome_options.add_argument("log-level=3")  # 关闭控制台输出 INFO = 0 WARNING = 1 LOG_ERROR = 2 LOG_FATAL = 3 default is 0
+    # 去除自动化弹窗提示
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    # 创建了一个无痕Chrome浏览器
+    driver = webdriver.Chrome(options=chrome_options)
+    # 最大化 防止一些元素被遮挡不能交互
+    driver.maximize_window()
+    # 初始化等待对象，第三个参数0.2，表示0.2秒去检查一次
+    wait = WebDriverWait(driver, 30, 0.2)
+    # 扫码登录登录 自己扫
+    login(driver, wait)
+    # 点击
+    """ 
+    下面是具体测试的功能
+    """
+    # 无限循环 查找是否有抢购按钮
+    while True:
+        # 是否有抢购按钮
+        try:
+            if driver.find_element(By.ID, "btn-reservation"):
+                # 抢购按钮文字
+                button_text = driver.find_element(By.ID, "btn-reservation").get_attribute("textContent")
+                # 抢购按钮class
+                button_class = driver.find_element(By.ID, "btn-reservation").get_attribute("class")
+                if button_text != "抢购":
+                    print("没有抢购文字")
+                    raise Exception("没有抢购文字")
+                elif button_class.find("btn-disable") != -1:
+                    print("不能抢购")
+                    raise Exception("不能抢购")
+                else:
+                    print("可以抢购")
+                    driver.find_element(By.ID, "btn-reservation").click()
+                    break
+        except:
+            # 刷新浏览器 这个值看网速
+            time.sleep(0.3)
+            driver.refresh()
+    # 点击去结算
+    qujiesuan_button = wait.until(EC.element_to_be_clickable((By.ID, "GotoShoppingCart")))
+    qujiesuan_button.click()
+    # 点击结算
+    qujiesuan_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".common-submit-btn")))
+    qujiesuan_button.click()
+    # 点击提交订单
+    qujiesuan_button = wait.until(EC.element_to_be_clickable((By.ID, "order-submit")))
+    qujiesuan_button.click()
+    # 点击微信支付
+    wx_pay_button = wait.until(EC.element_to_be_clickable((By.CSS_SELECTOR, ".plate-form-item:nth-child(2)")))
+    wx_pay_button.click()
+    # 下面付款 抢购结束
+    """ 
+    上面是具体测试的功能
+    """
+    # 停留500秒
+    time.sleep(500)
+    # 关闭驱动
+    driver.quit()
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 自动化测试工具playwright
 
 1. 安装
