@@ -4120,8 +4120,6 @@ class _HomePageState extends State<HomePage> {
 
   //当前下载进度
   double downloadPercent = 0;
-  //是否显示下载进度
-  bool showDownloadPercent = false;
 
   //mounted
   @override
@@ -4156,10 +4154,23 @@ class _HomePageState extends State<HomePage> {
                 child: const Text('立即更新'),
                 onPressed: () async {
                   Navigator.of(context).pop();
-                  //显示下载进度
-                  setState(() {
-                    showDownloadPercent = true;
-                  });
+                  //显示下载进度 这里用到了局部刷新StatefulBuilder
+                  late StateSetter dialogState;
+                  showDialog(
+                      context: context,
+                      barrierDismissible: false,
+                      builder: (BuildContext context) {
+                        return StatefulBuilder(builder: (context, state) {
+                          dialogState = state;
+                          return AlertDialog(
+                            title: const Text('更新提示'),
+                            content: Text("正在更新 当前进度" +
+                                (downloadPercent * 100).toStringAsFixed(2) +
+                                '%'),
+                          );
+                        });
+                      });
+
                   //创建下载任务
                   Dio dio = Dio();
                   await dio.download(appUpdate.downloadUrl, appUpdate.savePath,
@@ -4168,7 +4179,7 @@ class _HomePageState extends State<HomePage> {
                       //当前下载的百分比例
                       double percentValue =
                           double.parse((received / total).toStringAsFixed(2));
-                      setState(() {
+                      dialogState(() {
                         downloadPercent = percentValue;
                       });
                     }
@@ -4180,14 +4191,6 @@ class _HomePageState extends State<HomePage> {
           );
         },
       );
-    }
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    //是否显示下载弹窗
-    if (showDownloadPercent) {
-      return Center(child: Text("正在更新 当前进度"+(downloadPercent*100).toStringAsFixed(2) + '%'));
     }
   }
 }
