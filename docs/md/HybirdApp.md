@@ -2897,7 +2897,15 @@ class Request {
 
   static download(downloadUrl, saveUrl) async {
     Dio dio = Dio();
-    return await dio.download(downloadUrl, saveUrl);
+    return await dio.download(downloadUrl, saveUrl,
+        onReceiveProgress: (received, total) {
+      if (total != -1) {
+        //当前下载的百分比例
+        var currentProgress = received / total;
+        print((received / total * 100).toStringAsFixed(0) + "%");
+        print(currentProgress);
+      }
+    });
   }
 }
 ```
@@ -4125,18 +4133,18 @@ class AppUpdate {
             TextButton(
               child: const Text('立即更新'),
               onPressed: () async {
+                Navigator.of(context).pop();
                 //使用dio下载
                 var savePath = _savePath + "/app-release.apk";
-                //提示正在下载
-                Navigator.of(context).pop();
+                //显示下载进度框
                 showDialog(
                     context: _context,
-                    barrierDismissible: true,
+                    barrierDismissible: false,
                     builder: (BuildContext context) {
-                      return const AlertDialog(title: Text('正在下载,请稍等'));
+                      return const AlertDialog(title: Text('下载中,请勿关闭弹窗'));
                     });
+                //调起下载
                 await Request.download(_downloadUrl, savePath);
-                Navigator.of(context).pop();
                 //安装
                 await OpenFile.open(savePath);
               },
