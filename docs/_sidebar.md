@@ -142,6 +142,8 @@
 
     - [打包安装](/md/HybirdApp#打包安装)
 
+    - [App升级方案](/md/HybirdApp#App升级方案)
+
 - [Javascript](/md/Javascript#javascript)
 
   - [效果](/md/Javascript#效果)

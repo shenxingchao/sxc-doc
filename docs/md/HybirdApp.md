@@ -2894,6 +2894,11 @@ class Request {
       }
     }
   }
+
+  static download(downloadUrl, saveUrl) async {
+    Dio dio = Dio();
+    return await dio.download(downloadUrl, saveUrl);
+  }
 }
 ```
 
@@ -3964,4 +3969,190 @@ flutter build apk --split-per-abi #这种会生成三个
 #### 查看是否签名
 ```powershell
 keytool -list -printcert -jarfile .\app-release.apk
+```
+
+### App升级方案
+#### 检查版本号
+安装package_info
+```ini
+dev_dependencies:
+  package_info: ^2.0.2
+```
+
+#### 获取文件存储路径
+安装path_provider
+```ini
+dev_dependencies: 
+  path_provider: ^2.0.5
+```
+
+#### 检查读写权限
+安装 permission_handler
+```ini
+dev_dependencies: 
+  permission_handler: ^8.2.5
+```
+
+android\app\src\main\AndroidManifest.xml 添加读写和请求安装的权限
+```java
+<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+<uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+```
+
+!> 最新版的需要设置android\app\build.gradle sdk31 不然会报错
+
+#### 服务器上传app.json和安装包
+app.json
+```json
+{
+  "version": "1.0.2",
+  "url":"http://noval.o8o8o8.com/version/app-release.apk"
+}
+```
+
+#### 获取app.json信息
+安装dio
+```ini
+dev_dependencies: 
+  dio: ^4.0.0 
+```
+
+#### 打开安装文件
+安装open_file
+```ini
+dependencies:
+  open_file: ^3.2.1
+```
+
+#### 完整代码
+```dart
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:package_info/package_info.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:open_file/open_file.dart';
+import './request.dart';
+
+class AppUpdate {
+  late String _version; //版本号
+  late String _savePath; //文件存储路径
+  late String _downloadUrl; //下载路径
+  late BuildContext _context; //这个参数打开dialog必须用到
+
+  AppUpdate(context) {
+    _context = context;
+    _init();
+  }
+
+  _init() async {
+    //获取版本号
+    await _getVersion();
+    //获取文件存储路径
+    await _findLocalPath();
+    //检查权限
+    var isPermission = await _checkPermission();
+    //有权限
+    if (isPermission) {
+      //获取版本信息 这里的http dio章节封装好了自己看
+      await Request.http(url: '/version/app.json', type: 'get', data: {})
+          .then((res) {
+        //比对版本号 若有新版本则下载
+        _downloadUrl = res.data['url'];
+        if (res.data["version"] != _version) {
+          //有新版本需要更新
+          _installApk();
+        }
+      }).catchError((error) {});
+    }
+  }
+
+  //获取版本号 pubspec.yaml version: 1.0.0+1  版本号+构件号 一般改前面的就行
+  _getVersion() async {
+    PackageInfo packageInfo = await PackageInfo.fromPlatform();
+    _version = packageInfo.version;
+  }
+
+  //获取文件存储路径
+  Future _findLocalPath() async {
+    var directory = Platform.isAndroid
+        ? await getExternalStorageDirectory()
+        : await getApplicationDocumentsDirectory();
+    _savePath = directory!.path;
+  }
+
+  //检测存储权限
+  Future<bool> _checkPermission() async {
+    if (Platform.isAndroid) {
+      //获取状态
+      var status = await Permission.storage.status;
+      //如果没有授权，请求授权
+      if (!status.isGranted) {
+        if (await Permission.storage.request().isGranted) {
+          //授权了
+          return true;
+        } else {
+          //拒绝授权
+          return false;
+        }
+      } else {
+        //已经授权了
+        return true;
+      }
+    } else {
+      //ios
+      return true;
+    }
+  }
+
+  //安装Apk
+  _installApk() {
+    showDialog(
+      context: _context,
+      barrierDismissible: true,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('检测到新版本'),
+          content: const Text('是否立即更新'),
+          actions: <Widget>[
+            TextButton(
+              child: const Text('下次在说'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: const Text('立即更新'),
+              onPressed: () async {
+                //使用dio下载
+                var savePath = _savePath + "/app-release.apk";
+                //提示正在下载
+                Navigator.of(context).pop();
+                showDialog(
+                    context: _context,
+                    barrierDismissible: true,
+                    builder: (BuildContext context) {
+                      return const AlertDialog(title: Text('正在下载,请稍等'));
+                    });
+                await Request.download(_downloadUrl, savePath);
+                Navigator.of(context).pop();
+                //安装
+                await OpenFile.open(savePath);
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+```
+调用
+```dart
+  void initState() {
+    super.initState();
+    //检查App升级 不用担心这里的context没有 在build里面呢
+    AppUpdate(context);
+  }
 ```
