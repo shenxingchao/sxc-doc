@@ -2894,19 +2894,6 @@ class Request {
       }
     }
   }
-
-  static download(downloadUrl, saveUrl) async {
-    Dio dio = Dio();
-    return await dio.download(downloadUrl, saveUrl,
-        onReceiveProgress: (received, total) {
-      if (total != -1) {
-        //当前下载的百分比例
-        var currentProgress = received / total;
-        print((received / total * 100).toStringAsFixed(0) + "%");
-        print(currentProgress);
-      }
-    });
-  }
 }
 ```
 
@@ -4036,7 +4023,6 @@ dependencies:
 #### 完整代码
 ```dart
 import 'dart:io';
-import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -4045,35 +4031,19 @@ import './request.dart';
 
 class AppUpdate {
   late String _version; //版本号
-  late String _savePath; //文件存储路径
-  late String _downloadUrl; //下载路径
-  late BuildContext _context; //这个参数打开dialog必须用到
+  late String savePath; //文件存储路径
+  late String downloadUrl; //下载路径
+  bool _permision = false; //是否有存储权限
+  bool canUpdate = false; //是否可以更新
 
-  AppUpdate(context) {
-    _context = context;
-    _init();
-  }
 
-  _init() async {
+  init() async {
     //获取版本号
     await _getVersion();
     //获取文件存储路径
     await _findLocalPath();
     //检查权限
-    var isPermission = await _checkPermission();
-    //有权限
-    if (isPermission) {
-      //获取版本信息 这里的http dio章节封装好了自己看
-      await Request.http(url: '/version/app.json', type: 'get', data: {})
-          .then((res) {
-        //比对版本号 若有新版本则下载
-        _downloadUrl = res.data['url'];
-        if (res.data["version"] != _version) {
-          //有新版本需要更新
-          _installApk();
-        }
-      }).catchError((error) {});
-    }
+    await _checkPermission();
   }
 
   //获取版本号 pubspec.yaml version: 1.0.0+1  版本号+构件号 一般改前面的就行
@@ -4087,11 +4057,11 @@ class AppUpdate {
     var directory = Platform.isAndroid
         ? await getExternalStorageDirectory()
         : await getApplicationDocumentsDirectory();
-    _savePath = directory!.path;
+    savePath = directory!.path + "/app-release.apk";
   }
 
   //检测存储权限
-  Future<bool> _checkPermission() async {
+  _checkPermission() async {
     if (Platform.isAndroid) {
       //获取状态
       var status = await Permission.storage.status;
@@ -4099,68 +4069,125 @@ class AppUpdate {
       if (!status.isGranted) {
         if (await Permission.storage.request().isGranted) {
           //授权了
-          return true;
+          _permision = true;
         } else {
           //拒绝授权
-          return false;
+          _permision = false;
         }
       } else {
         //已经授权了
-        return true;
+        _permision = true;
       }
     } else {
       //ios
-      return true;
+      _permision = true;
+    }
+  }
+
+  checkUpdate() async {
+    //有权限
+    if (_permision) {
+      //获取版本信息 这里的http dio章节封装好了自己看
+      await Request.http(url: '/version/app.json', type: 'get', data: {})
+          .then((res) {
+        //比对版本号 若有新版本则下载
+        downloadUrl = res.data['url'];
+        if (res.data["version"] != _version) {
+          //有新版本需要更新
+          canUpdate = true;
+        }
+      }).catchError((error) {});
     }
   }
 
   //安装Apk
-  _installApk() {
-    showDialog(
-      context: _context,
-      barrierDismissible: true,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text('检测到新版本'),
-          content: const Text('是否立即更新'),
-          actions: <Widget>[
-            TextButton(
-              child: const Text('下次在说'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: const Text('立即更新'),
-              onPressed: () async {
-                Navigator.of(context).pop();
-                //使用dio下载
-                var savePath = _savePath + "/app-release.apk";
-                //显示下载进度框
-                showDialog(
-                    context: _context,
-                    barrierDismissible: false,
-                    builder: (BuildContext context) {
-                      return const AlertDialog(title: Text('下载中,请勿关闭弹窗'));
-                    });
-                //调起下载
-                await Request.download(_downloadUrl, savePath);
-                //安装
-                await OpenFile.open(savePath);
-              },
-            ),
-          ],
-        );
-      },
-    );
+  installApk() async {
+    await OpenFile.open(savePath);
   }
 }
 ```
 调用
 ```dart
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
+  List list = [];
+
+  //当前下载进度
+  double downloadPercent = 0;
+  //是否显示下载进度
+  bool showDownloadPercent = false;
+
+  //mounted
+  @override
   void initState() {
     super.initState();
-    //检查App升级 不用担心这里的context没有 在build里面呢
-    AppUpdate(context);
+    _updateApp();
   }
+
+  //检查app更新
+  void _updateApp() async {
+    //检查App升级
+    AppUpdate appUpdate = AppUpdate();
+    await appUpdate.init();
+    await appUpdate.checkUpdate();
+    if (appUpdate.canUpdate) {
+      //如果可以更新 弹窗选择是否更新
+      showDialog(
+        context: context,
+        barrierDismissible: true,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: const Text('检测到新版本'),
+            content: const Text('是否立即更新'),
+            actions: <Widget>[
+              TextButton(
+                child: const Text('下次在说'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: const Text('立即更新'),
+                onPressed: () async {
+                  Navigator.of(context).pop();
+                  //显示下载进度
+                  setState(() {
+                    showDownloadPercent = true;
+                  });
+                  //创建下载任务
+                  Dio dio = Dio();
+                  await dio.download(appUpdate.downloadUrl, appUpdate.savePath,
+                      onReceiveProgress: (received, total) {
+                    if (total != -1) {
+                      //当前下载的百分比例
+                      double percentValue =
+                          double.parse((received / total).toStringAsFixed(2));
+                      setState(() {
+                        downloadPercent = percentValue;
+                      });
+                    }
+                  });
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    //是否显示下载弹窗
+    if (showDownloadPercent) {
+      return Center(child: Text("正在更新 当前进度"+(downloadPercent*100).toStringAsFixed(2) + '%'));
+    }
+  }
+}
 ```
