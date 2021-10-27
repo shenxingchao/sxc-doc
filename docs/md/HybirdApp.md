@@ -4173,6 +4173,7 @@ class _HomePageState extends State<HomePage> {
                       });
                     }
                   });
+                  await appUpdate.installApk();
                 },
               ),
             ],
