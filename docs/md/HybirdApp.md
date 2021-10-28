@@ -4108,15 +4108,16 @@ class AppUpdate {
 ```
 调用
 ```dart
-class HomePage extends StatefulWidget {
+class HomePage extends StatefulWidget{
   const HomePage({Key? key}) : super(key: key);
 
   @override
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   List list = [];
+  late AppUpdate appUpdate;
 
   //当前下载进度
   double downloadPercent = 0;
@@ -4125,13 +4126,28 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    //这句是监听绑定关键
+    WidgetsBinding.instance!.addObserver(this);
     _updateApp();
+  }
+  
+  //监听APP切换状态 必须with WidgetsBindingObserver 类似继承 但是不会覆盖原有的变量方法 可以with多个类
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    super.didChangeAppLifecycleState(state);
+    //从后台隐藏状态切换到前台显示状态
+    if (state == AppLifecycleState.resumed) {
+      //如果进度下载进度为1 则安装APP
+      if (downloadPercent >= 1) {
+        appUpdate.installApk();
+      }
+    }
   }
 
   //检查app更新
   void _updateApp() async {
     //检查App升级
-    AppUpdate appUpdate = AppUpdate();
+    appUpdate = AppUpdate();
     await appUpdate.init();
     await appUpdate.checkUpdate();
     if (appUpdate.canUpdate) {
