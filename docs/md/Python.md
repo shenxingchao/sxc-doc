@@ -4673,9 +4673,11 @@ if __name__ == "__main__":
     main()
 ```
 
-!> 下载完图片后上传到服务器，然后数据库执行批量设置图片地址
+!> 下载完图片后上传到服务器，然后数据库执行批量设置图片地址 设置字数
 ```sql
 UPDATE `book` SET image_url = CONCAT('http://noval.o8o8o8.com/static/images/',id,'.png'); 
+SELECT sum(chapter_detail_count) AS chapter_detail_count_all,book_id FROM (
+SELECT CHAR_LENGTH(chapter_detail) AS chapter_detail_count,book_id FROM book_chapter WHERE book_id BETWEEN 642 AND 646) AS bc GROUP BY book_id
 ```
 
 #### 爬取小说的描述
