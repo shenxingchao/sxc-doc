@@ -28,6 +28,14 @@ mkdir -p
 移动到开始 g
 
 
-### 直播或监控解决方案
+## 直播或监控解决方案
 1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流
 2. [rtsp直接转webrtc播放,以组件形式](https://github.com/mpromonet/webrtc-streamer)
+
+## 服务器迁移
+1. 原服务器关机
+2. 创建原服务器镜像
+3. 跨区域复制镜像
+4. 新服务器选择重装系统，选择自定义镜像
+5. 安装完毕后 启动相应Web服务
+6. 域名解析全部替换为新服务器的ip地址

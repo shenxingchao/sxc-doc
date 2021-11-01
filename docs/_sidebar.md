@@ -190,6 +190,10 @@
   
   - [vim命令](/md/Linux#vim命令)
 
+  - [直播或监控解决方案](/md/Linux#直播或监控解决方案)
+
+  - [服务器迁移](/md/Linux#服务器迁移)
+
 - [Mysql](/md/Mysql#mysql)
 
   - [准备工作](/md/Mysql#准备工作)
