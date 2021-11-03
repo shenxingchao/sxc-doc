@@ -90,7 +90,7 @@
 
     - [ListView列表组件](/md/HybirdApp#listview列表组件)
 
-    - [CustomScrollView可下拉刷新的滚动视图](/md/HybirdApp#CustomScrollView可下拉刷新的滚动视图)
+    - [CustomScrollView可下拉刷新的滚动视图](/md/HybirdApp#customscrollview可下拉刷新的滚动视图)
 
     - [GirdView网格布局](/md/HybirdApp#girdview网格布局)
 
@@ -140,9 +140,17 @@
 
     - [上拉加载下拉刷新](/md/HybirdApp#上拉加载下拉刷新)
 
+    - [轮播图](/md/HybirdApp#轮播图)
+
+    - [animations内容动画效果组件](/md/HybirdApp#animations内容动画效果组件)
+
+    - [定位插件](/md/HybirdApp#定位插件)
+
+    - [动画](/md/HybirdApp#动画)
+
     - [打包安装](/md/HybirdApp#打包安装)
 
-    - [App升级方案](/md/HybirdApp#App升级方案)
+    - [App升级方案](/md/HybirdApp#app升级方案)
 
 - [Javascript](/md/Javascript#javascript)
 

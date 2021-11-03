@@ -3851,6 +3851,136 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
+### 动画
+#### Tween补间动画
+```dart
+class HomePage extends StatefulWidget {
+  const HomePage({Key? key}) : super(key: key);
+
+  @override
+  _HomePageState createState() => _HomePageState();
+}
+
+//with SingleTickerProviderStateMixin 单个动画必须继承
+class _HomePageState extends State<HomePage>
+    with SingleTickerProviderStateMixin {
+  //定义动画控制器
+  late AnimationController _animationController;
+  //定义动画对象
+  late Animation<Offset> _animation;
+  //定义动画位移控制变量
+  Offset _position = const Offset(0.0, 0.0);
+  //动画是否开始  开始则控制变量用动画值代替 否则用控制变量代替
+  bool _isAnimationStart = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _initAnimation();
+  }
+
+  @override
+  void dispose() {
+    //路由销毁时需要释放动画资源
+    _animationController.dispose();
+    super.dispose();
+  }
+
+  //初始化动画方法
+  void _initAnimation() {
+    //初始化动画控制器
+    _animationController = AnimationController(
+        duration: const Duration(milliseconds: 2000), vsync: this);
+    //初始化动画对象 不然会报错动画对象不存
+    _animation =
+        Tween(begin: const Offset(0.0, 0.0), end: const Offset(0.0, 0.0))
+            .animate(_animationController);
+    //监听动画开始和结束
+    _animationController.addStatusListener((AnimationStatus status) {
+      if (status == AnimationStatus.forward) {
+        setState(() {
+          //动画开始播放啦
+          _isAnimationStart = true;
+        });
+      }
+      if (status == AnimationStatus.completed) {
+        setState(() {
+          //动画完成
+          _isAnimationStart = false;
+          //归位
+          _position = const Offset(0.0, 0.0);
+        });
+      }
+    });
+  }
+
+  // 执行动画
+  // @offset begin 开始的位置
+  // @offset end 结束的位置
+  void _runAnimation(Offset begin, Offset end) {
+    //初始化过度曲线
+    var curve =
+        CurvedAnimation(parent: _animationController, curve: Curves.easeInOut);
+    //初始化动画对象 .animate()如果没有曲线curve 可以直接传_animationController
+    _animation = Tween(begin: begin, end: end).animate(curve);
+    //启动动画(..代表使用前面的返回值调用函数 reset重置动画 forward正向执行)
+    _animationController
+      ..reset()
+      ..forward();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+        color: Colors.blue,
+        child: AnimatedBuilder(
+            animation: _animation,
+            builder: (context, child) {
+              return SizedBox(
+                child: Transform.translate(
+                  offset: _isAnimationStart ? _animation.value : _position,
+                  child: GestureDetector(
+                    child: const SizedBox(
+                      child: Center(
+                        child: Text(
+                            '文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容'),
+                      ),
+                    ),
+                    onPanUpdate: (details) {
+                      //实时设置偏移量
+                      setState(() {
+                        _position += Offset(details.delta.dx, 0.0);
+                      });
+                    },
+                    onPanEnd: (details) {
+                      //设置偏移量状态
+                      setState(() {
+                        if (_position.dx.abs() <
+                            MediaQuery.of(context).size.width / 6 * 1) {
+                          _position = const Offset(0.0, 0.0);
+                        } else {
+                          //判断方向
+                          if (_position.dx < 0) {
+                            //向左拖动 执行动画
+                            _runAnimation(
+                                _position,
+                                Offset(
+                                    -MediaQuery.of(context).size.width, 0.0));
+                          } else {
+                            //向右拖动 执行动画
+                            _runAnimation(_position,
+                                Offset(MediaQuery.of(context).size.width, 0.0));
+                          }
+                        }
+                      });
+                    },
+                  ),
+                ),
+              );
+            }));
+  }
+}
+```
 
 ### 打包安装
 #### 添加启动图标
@@ -4211,3 +4341,4 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   }
 }
 ```
+
