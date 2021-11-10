@@ -178,16 +178,16 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
 #### Composition API
 - setup()函数
   - 在beforeCreate之前调用，所有变量、方法都在setup函数中定义，最后return出去给模板使用
-  - 该函数有2个参数：
-    props
-    context
-    其中context是一个上下文对象，具有属性（attrs，slots，emit，parent，root），其对应于vue2中的this.$attrs，this.$slots，this.$emit，this.$parent，this.$root。
+  - 该函数有2个参数：  
+    props 属性  
+    context 上下文对象  
+    其中context具有属性（attrs，slots，emit，parent，root），其对应于vue2中的this.$attrs，this.$slots，this.$emit，this.$parent，this.$root。
 
 - ref 和 reactive
-  - ref和reactvie的数据都是响应式的，但是如果需要对整个对象进行重新赋值, 那么用ref，如果只是改变属性，用reactive
-  - 基本类型值（String 、Nmuber 、Boolean 等）或单值对象（类似像 {count: 3} 这样只有一个属性值的对象）使用 ref
-  - 引用类型值（Object 、Array）使用 reactive
-- toRef和ref
+  - ref和reactvie的数据都是响应式的
+  - 基本类型值（String 、Nmuber 、Boolean 等）或单值对象（类似像 {count: 3} 这样只有一个属性值的对象）使用ref
+  - 引用类型值（Object 、Array）复杂数据类型使用reactive
+- toRef和ref  
   toRef 是将某个对象中的某个值转化为响应式数据，其接收两个参数，第一个参数为 obj 对象；第二个参数为对象中的属性名
   - ref 是对原数据的拷贝，响应式数据对象值改变后会同步更新视图，不会影响到原始值
   - toRef 是对原数据的引用，响应式数据对象值改变后不会改变视图，会影响到原始值。
@@ -198,8 +198,8 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
     const state2 = toRef(obj, 'count') //对象，属性
     ```
 - toRefs
-  将传入的对象里所有的属性的值都转化为响应式数据对象(ref)
-  解构返回
+  将传入的对象里所有的属性的值都转化为响应式数据对象(ref) 解构返回  
+  ..toRefs(data) 就是把data对象解构成逐个变量  然后每个变量都是响应式了  
   ```javascript
   <template>
     {{str}}
@@ -216,6 +216,8 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
   }
   </script>
   ```
+  
+!> reactive如果不用toRefs转就不能响应式，会导致数据更改画面不更新
 
 ### vue3-vite-electron
 <p align="left" style="color:#777777;">发布日期：2021-03-04</p>
