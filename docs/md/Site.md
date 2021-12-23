@@ -2,9 +2,10 @@
 | 主题                                                                                                                                          |      标签      |       更新日期 |
 | :-------------------------------------------------------------------------------------------------------------------------------------------- | :------------: | -------------: |
 | [MDN 前端开发学习网站](https://developer.mozilla.org/zh-CN/)                                                                                  |      MDN       |  2021年1月26日 |
-| [iconfont  阿里巴巴矢量图标库](https://www.iconfont.cn/)                                                                                      |      MDN       |  2021年1月27日 |
+| [iconfont  阿里巴巴矢量图标库](https://www.iconfont.cn/)                                                                                      |      fonticon       |  2021年1月27日 |
 | [json对比 用于接口json格式参数对比](https://www.sojson.com/jsondiff.html)                                                                     |      json      |  2021年1月26日 |
-| [docsify一个神奇的文档网站生成器](https://docsify.js.org/#/zh-cn/)                                                                            |    Markdown    |  2021年1月25日 |
+| [docsify一个神奇的文档网站生成器](https://docsify.js.org/#/zh-cn/)                                                                            |    markdown    |  2021年1月25日 |
+| [cloc代码统计工具](https://github.com/AlDanial/cloc/releases)                                                                            |    code sum    |  2021年12月23日 |
 | [mockjs在线格式编辑](http://mockjs.com/0.1/editor.html#help)                                                                                  |    Mock.js     |  2021年1月25日 |
 | [Lodash JavaScript 实用工具库](https://www.lodashjs.com/)                                                                                     |    js 插件     |  2021年1月26日 |
 | [SortableJS功能强大的JavaScript 拖拽库](http://www.sortablejs.com)                                                                            |    js 插件     |  2021年1月25日 |
