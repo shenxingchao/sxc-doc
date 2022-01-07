@@ -201,3 +201,37 @@ cc.Class({
     }
 });
 ```
+
+### 相机
+1.相机层级属性Depth 越大表示越迟渲染，ZINDEX在上面
+2.cullingMask表示拍摄哪个分组
+
+#### 主角跟随相机移动
+核心代码  
+camera.js
+```javascript
+update(dt) {
+    let w_p = this.player.convertToWorldSpaceAR(cc.v2(0, 0));
+    let c_p = this.node.parent.convertToNodeSpaceAR(w_p);
+    this.node.setPosition(c_p);
+},
+```
+player.js
+```javascript
+onLoad() {
+    let _this = this;
+    //this.bg是点击的范围
+    this.bg.on(
+        "touchstart",
+        function (e) {
+        let pos = _this.camera
+            .getComponent(cc.Camera)
+            .getScreenToWorldPoint(e.getLocation(), cc.v2(0, 0));
+        //console.log(pos); //getScreenToWorldPoint可用替换getCameraToWorldPoint这个也一样
+        _this.node.setPosition(_this.node.parent.convertToNodeSpaceAR(pos));
+        },
+        this
+    );
+},
+```
+!> getScreenToWorldPoint这个很关键，很多教程里面都没写，屏幕坐标组转世界坐标
