@@ -210,11 +210,56 @@ cc.Class({
 核心代码  
 camera.js
 ```javascript
-update(dt) {
-    let w_p = this.player.convertToWorldSpaceAR(cc.v2(0, 0));
-    let c_p = this.node.parent.convertToNodeSpaceAR(w_p);
-    this.node.setPosition(c_p);
-},
+cc.Class({
+  extends: cc.Component,
+
+  properties: {
+    //玩家
+    player: {
+      default: null,
+      type: cc.Node,
+    },
+    //地图
+    map: {
+      default: null,
+      type: cc.Node,
+    },
+  },
+
+  onLoad() {
+    let _this = this;
+    //计算摄像机边界 地图左下角在世界坐标的左下角
+    _this._camera_min_x = cc.view.getVisibleSize().width / 2;
+    _this._camera_max_x = _this.map.width - cc.view.getVisibleSize().width / 2;
+    _this._camera_min_y = cc.view.getVisibleSize().height / 2;
+    _this._camera_max_y = _this.map.height - cc.view.getVisibleSize().height / 2;
+  },
+
+  start() {},
+
+  update(dt) {
+    let _this = this;
+    //转成世界坐标去判断
+    let w_p = _this.player.convertToWorldSpaceAR(cc.v2(0, 0));
+
+    //下面这个判断不要就是会看到地图外的世界
+    if (w_p.x > _this._camera_max_x) {
+      w_p.x = _this._camera_max_x;
+    }
+    if (w_p.x < _this._camera_min_x) {
+      w_p.x = _this._camera_min_x;
+    }
+    if (w_p.y > _this._camera_max_y) {
+      w_p.y = _this._camera_max_y;
+    }
+    if (w_p.y < _this._camera_min_y) {
+      w_p.y = _this._camera_min_y;
+    }
+
+    let c_p = _this.node.parent.convertToNodeSpaceAR(w_p);
+    _this.node.setPosition(c_p);
+  },
+});
 ```
 player.js
 ```javascript
