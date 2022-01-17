@@ -4009,7 +4009,7 @@ pip list --outdated --trusted-host mirrors.aliyun.com
 ```
 
 #### 更新库命令
-```
+```powershell
 pip install --upgrade 库名称
 ```
 
@@ -5748,7 +5748,7 @@ selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_pac
 #### 爬取ajax数据
 - 安装
 
-```
+```powershell
 pip install browsermob-proxy
 ```
 下载browsermob-proxy 并放到项目目录下
@@ -6470,7 +6470,7 @@ if __name__ == "__main__":
 ### pyinstaller打包python脚本
 
 #### 安装
-```py
+```powershell
 pip install pyinstaller
 ```
 
@@ -6495,7 +6495,7 @@ pyinstaller -F filename.py
 ### python图表pyecharts
 
 #### 安装
-```py
+```powershell
 pip install pyecharts
 ```
 #### 使用
@@ -6741,3 +6741,112 @@ Application(backend="win32").connect(process=21564)
 
 
 
+## Sanic
+支持异步请求的web框架
+### 安装
+```powershell
+pip install sanic
+```
+
+### 开启服务器
+```py
+from sanic import Sanic
+from sanic.response import text
+
+app = Sanic("App")
+
+@app.get("/")
+async def index(request):
+    """
+    @description 首页
+    @param 
+    @return 
+    """
+    return text("hello wolrd!")
+```
+运行 sanic server.app
+
+
+
+### 全局配置方式
+```py
+app = Sanic("App")
+
+# app 全局配置方式 直接挂载到属性
+app.config.APP_NAME = "webapp"
+# 使用字典方式挂载
+app.config["APP_NAME"] = "webapp"
+# 使用函数配置
+config = {"APP_NAME": "webapp"}
+app.config.update(config)
+```
+
+### 全局对象挂载方式
+```py
+app = Sanic("App")
+
+
+class Database:
+    def __init__(self) -> None:
+
+        pass
+
+
+app.ctx.db = Database()
+```
+
+### request中间件存储数据使用方法
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    # 可直接从中间件上下文对象ctx中读取获取到的数据
+    return text(request.ctx.user_name)
+
+
+# 存储到中间件上下文对象ctx中
+@app.middleware("request")
+async def getUserName(request: Request) -> None:
+    """
+    @description 获取用户信息
+    @param
+    @return
+    """
+    request.ctx.user_name = "hello world!"
+```
+
+### 获取get参数
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    # 访问http://127.0.0.1:8000/?name=helloworld
+    print(request.args)  # 输出{'name': ['helloworld']}
+    print(request.args.get('name'))  # 输出helloworld
+    print(request.args.getlist('name'))  # 输出['helloworld']
+    print(request.query_args)  # 输出[('name', 'helloworld')]
+    print(request.query_string)  # 输出name=helloworld
+    return text("hello world!")
+```
