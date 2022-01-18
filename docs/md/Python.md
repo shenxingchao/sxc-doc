@@ -7292,3 +7292,159 @@ async def index(request: Request) -> HTTPResponse:
     return text("hello add2!")
 ```
 !> 前缀version_prefix可省略
+
+
+### 蓝图（组件）
+#### 创建和注册蓝图
+```py
+from sanic import Sanic, Blueprint
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+# 创建蓝图
+bp = Blueprint("Bp")
+# app
+app = Sanic("App")
+# 注册蓝图
+app.blueprint(bp)
+
+
+@bp.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+def main():
+    # 开启调试模式和自动重载
+    app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+
+### 蓝图组
+假如有目录如下  
+```
+|--api  
+|----admin 后台  
+|------__init__.py  
+|------index.py  
+|------admin.py  
+|----app 前台  
+|------__init__.py  
+|------index.py  
+|----__init__.py  
+|--server.py  
+```
+用蓝图组实现项目结构  
+**`/api/admin/__init__.py`**
+```py
+from sanic import Blueprint
+from .index import indexBp
+from .user import userBp
+
+adminBpGroup = Blueprint.group(indexBp, userBp, url_prefix="/admin")
+```
+
+**`/api/admin/index.py`**
+```py
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+from sanic import Blueprint
+
+indexBp = Blueprint("admin_index", url_prefix="/index")
+
+
+@indexBp.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 后台首页
+    @param
+    @return
+    """
+    return text("welcome admin!")
+```
+
+**`/api/admin/admin.py`**
+```py
+from sanic import Blueprint
+
+userBp = Blueprint("admin_user", url_prefix="/user")
+```
+
+**`/api/app/__init__.py`**
+```py
+from sanic import Blueprint
+from .index import indexBp
+
+appBpGroup = Blueprint.group(indexBp, url_prefix="/app")
+```
+
+**`/api/app/index.py`**
+```py
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+from sanic import Blueprint
+
+indexBp = Blueprint("app_index", url_prefix="/index")
+
+
+@indexBp.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 前台首页
+    @param
+    @return
+    """
+    return text("welcome app!")
+```
+
+**`/api/__init__.py`**
+```py
+from sanic import Blueprint
+from .admin import adminBpGroup
+from .app import appBpGroup
+
+apiBpGroup = Blueprint.group(adminBpGroup, appBpGroup, url_prefix="/api")
+```
+
+**`/server.py`**
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+# 导入所有蓝图
+from api import apiBpGroup
+
+# app
+app = Sanic("App")
+# 注册所有蓝图组
+app.blueprint(apiBpGroup)
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+def main():
+    # 开启调试模式和自动重载
+    app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
+
+
+if __name__ == "__main__":
+    main()
+```
