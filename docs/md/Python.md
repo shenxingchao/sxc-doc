@@ -1472,7 +1472,7 @@ with DBCM('localhost', '8080') as db_client:
 | \\s                | 匹配空白字符（包括\r、\n、\t等）       | love\\syou          | 可以匹配love you                                                                |
 | \\d                | 匹配数字                               | \\d\\d              | 可以匹配01 / 23 / 99等                                                          |
 | \\b                | 匹配单词的边界                         | \\bThe\\b           |                                                                                 |
-| ^                  | 匹配字符串的开始或在[]里表示否定        | ^The                | 可以匹配The开头的字符串                                                         |
+| ^                  | 匹配字符串的开始或在[]里表示否定       | ^The                | 可以匹配The开头的字符串                                                         |
 | $                  | 匹配字符串的结束                       | .exe$               | 可以匹配.exe结尾的字符串                                                        |
 | \\W                | 匹配非字母/数字/下划线                 | b\\Wt               | 可以匹配b#t / b@t等<br>但不能匹配but / b1t / b_t等                              |
 | \\S                | 匹配非空白字符                         | love\\Syou          | 可以匹配love#you等<br>但不能匹配love you                                        |
@@ -1953,7 +1953,7 @@ print(get_response.text)  # 文本格式返回 返回的是html源代码
 
 get_stream = requests.get("https://api.github.com/events", stream=True)
 """
-@description 获取流相应内容
+@description 获取流响应内容
 @param stream bool 是否获取流内容
 @return 
 """
@@ -6766,6 +6766,34 @@ async def index(request):
 ```
 运行 sanic server.app
 
+### 调式模式(热重载)
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+def main():
+    # 开启调试模式和自动重载
+    app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
+
+
+if __name__ == "__main__":
+    main()
+```
+运行 python server.py
 
 
 ### 全局配置方式
@@ -6795,38 +6823,8 @@ class Database:
 app.ctx.db = Database()
 ```
 
-### request中间件存储数据使用方法
-```py
-from sanic import Sanic
-from sanic.response import text
-from sanic.request import Request, HTTPResponse
 
-app = Sanic("App")
-
-
-@app.route("/")
-async def index(request: Request) -> HTTPResponse:
-    """
-    @description 首页
-    @param
-    @return
-    """
-    # 可直接从中间件上下文对象ctx中读取获取到的数据
-    return text(request.ctx.user_name)
-
-
-# 存储到中间件上下文对象ctx中
-@app.middleware("request")
-async def getUserName(request: Request) -> None:
-    """
-    @description 获取用户信息
-    @param
-    @return
-    """
-    request.ctx.user_name = "hello world!"
-```
-
-### 获取get参数
+### 获取参数
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6850,3 +6848,447 @@ async def index(request: Request) -> HTTPResponse:
     print(request.query_string)  # 输出name=helloworld
     return text("hello world!")
 ```
+
+### 获取body数据
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    # 获取提交的json数据
+    print(request.json)
+    # 获取form表单提交的数据
+    print(request.form)
+    # 获取raw原始数据
+    print(request.body)
+    # 获取文件
+    print(request.files)
+    print(request.files)
+    print(request.files.get("file_name"))
+    print(request.files.getlist("file_list"))
+    return text("hello world!")
+```
+
+### 响应response
+```py
+from sanic import Sanic
+from sanic.response import text,json,html
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+    return json({"text": "hello world!"})
+    return html("<h1>hello world!</h1>")
+```
+
+### 请求或响应中间件存储数据使用方法
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    # 可直接从中间件上下文对象ctx中读取获取到的数据
+    return text(request.ctx.user_name)
+
+
+# 存储到中间件上下文对象ctx中
+# 请求中间件 或者 @app.on_request
+@app.middleware("request")
+async def getUserName(request: Request) -> None:
+    """
+    @description 获取用户信息
+    @param
+    @return
+    """
+    request.ctx.user_name = "hello world!"
+
+
+# 返回响应中间件 或者 @app.on_response
+@app.middleware("response")
+async def headerToken(request: Request, response: HTTPResponse):
+    response.headers["Token"] = "token_str"
+```
+!> 要注意如果有多个响应中间件，会按逆序执行
+
+### 请求头信息
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    # 获取header头信息
+    print(request.headers)
+    print(request.headers.get('host'))
+    print(list(request.headers.items()))
+    # 获取主机信息
+    print(request.host)
+    # 请求头里的Token会被直接赋值到这里 名称得一致
+    print(request.token)
+    return text("hello world!")
+```
+
+### 路由
+**使用函数添加路由**
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+# 函数添加路由
+app.add_route(index, "/", methods=["POST", "GET", "PUT", "DELETE"])
+```
+
+**使用装饰器添加路由**
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/", methods=["POST", "GET", "PUT", "DELETE"])
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+```
+
+**各种装饰器**
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.post("/")
+@app.get("/")
+@app.put("/")
+@app.delete("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+```
+
+**重定向**
+```py
+from sanic import Sanic
+from sanic.response import text, redirect
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    url = app.url_for("handleCallback", str="helloworld!")
+    return redirect(url)
+
+
+@app.route("/redirect/<str>")
+async def handleCallback(request: Request, str: str) -> HTTPResponse:
+    """
+    @description 重定向函数
+    @param
+    @return
+    """
+    return text(str)
+```
+
+### 挂载入口文件index.html及多入口
+```py
+from sanic import Sanic
+from sanic.response import text, redirect
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+# 挂载首页 访问方式 直接访问 / 后面的别名可选择性加上
+app.static("/", "./index.html", name="index")
+# 挂载多入口 例如挂载到后台首页
+app.static("/admin", "./admin.html", name="admin")
+```
+
+
+### 服务器启动生命周期
+!> 可以在启动时初始化一些必要的配置和实例
+
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+class Database:
+    def __init__(self) -> None:
+        # 初始化数据库
+        pass
+
+
+async def init():
+    Database()
+
+
+@app.listener("before_server_start")
+async def listener_1(app, loop):
+
+    app.ctx.db = await init()
+    print("listener_1")
+
+
+@app.listener("before_server_start")
+async def listener_2(app, loop):
+    print("listener_2")
+
+
+@app.listener("after_server_start")
+async def listener_3(app, loop):
+
+    print("listener_3")
+
+
+@app.listener("after_server_start")
+async def listener_4(app, loop):
+
+    print("listener_4")
+
+
+@app.listener("before_server_stop")
+async def listener_5(app, loop):
+    print("listener_5")
+
+
+@app.listener("before_server_stop")
+async def listener_6(app, loop):
+    print("listener_6")
+
+
+@app.listener("after_server_stop")
+async def listener_7(app, loop):
+    print("listener_7")
+
+
+@app.listener("after_server_stop")
+async def listener_8(app, loop):
+    print("listener_8")
+
+
+@app.route("/")
+def index(request: Request) -> HTTPResponse:
+    return text("hello world!")
+```
+
+### 后台运行脚本
+```py
+import asyncio
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+
+@app.route("/")
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+async def exexTask():
+    await asyncio.sleep(5)
+    print("exec script")
+
+
+# 5秒后执行任务 服务器启动之前 用来启动一些后台脚本 这样添加任务 每个子进程都会有该任务
+app.add_task(exexTask())
+app.run()
+```
+
+### 视图（同一路由分发不同类型的请求）
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+from sanic.views import HTTPMethodView
+
+app = Sanic("App")
+
+# 使用视图来实现一个控制器的curd 
+# 但是路由地址局限于同一个 我感觉这个用的不多，因为比如get 会有很多get请求，例如getUserName,getUserAddress
+class IndexController(HTTPMethodView):
+    # 应用于所有方法的装饰器
+    decorators = []
+
+    async def get(self, request: Request, str: str) -> HTTPResponse:
+        return text(f"str={str}")
+
+    async def post(self, request):
+        return text("I am post method")
+
+    async def put(self, request):
+        return text("I am put method")
+
+    async def delete(self, request):
+        return text("I am delete method")
+
+
+app.add_route(IndexController.as_view(), "/<str>")
+```
+
+### websocket
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    hello websocket!
+    <script>
+      let ws = new WebSocket("ws://127.0.0.1:8000/wss");
+      ws.onopen = function () {
+        ws.send("Message to send");
+      };
+      ws.onmessage = function (evt) {
+        let received_msg = evt.data;
+        console.log(received_msg);
+        ws.send("Message to send");
+      };
+    </script>
+  </body>
+</html>
+```
+```py
+import asyncio
+from socket import socket
+from sanic import Sanic
+from sanic.request import Request
+
+app = Sanic("App")
+
+# 挂载首页
+app.static("/", "./index.html", name="index")
+
+# websocket装饰器
+@app.websocket("/wss")
+async def websocketFn(request: Request, ws: socket) -> None:
+    while True:
+        await asyncio.sleep(2)
+        await ws.send("hello world!")
+        data = await ws.recv()
+        print(data)
+
+```
+
+### api接口版本管理
+```py
+from sanic import Sanic
+from sanic.response import text
+from sanic.request import Request, HTTPResponse
+
+app = Sanic("App")
+
+# 访问/api/v1/add
+@app.route(
+    "/add",
+    version=1,
+    version_prefix="/api/v",
+)
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description add
+    @param
+    @return
+    """
+    return text("hello add1!")
+
+
+# 访问/api/v2/add
+@app.route(
+    "/add",
+    version=2,
+    version_prefix="/api/v",
+)
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description add
+    @param
+    @return
+    """
+    return text("hello add2!")
+```
+!> 前缀version_prefix可省略
