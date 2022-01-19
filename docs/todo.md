@@ -6,6 +6,6 @@
 
 3.  观察者模式
 
-## 学习Python flask框架 和 sanic框架
+## 学习Python flask框架 和 sanic框架(还差数据库框架和跨域)
 
 ## 学习swoole框架

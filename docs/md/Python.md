@@ -7448,3 +7448,133 @@ def main():
 if __name__ == "__main__":
     main()
 ```
+
+### jwt
+**`server.py`**
+```py
+from sanic import Sanic
+from sanic.response import text, json
+from sanic.request import Request, HTTPResponse
+
+# protected函数装饰器 用于保护路由 只能被授权的用户访问
+from auth import protected, generateJwt, refreshToken
+
+# app
+app = Sanic("App")
+# 签名秘钥
+app.config.SECRET = "签名秘钥"
+
+
+@app.route("/login", methods=["POST"])
+async def login(request: Request, *args, **kwargs) -> dict:
+    """
+    @description 登录接口 可以放到指定模块下面
+    @param
+    @return
+    """
+    # 假设这里用户名密码验证通过
+    print(request.json)
+    token = generateJwt(request, {})
+    # 这里必须返回指定格式dict
+    return json({"token": token})
+
+
+@app.route("/refreshToken", methods=["POST"])
+async def login(request: Request, *args, **kwargs) -> dict:
+    """
+    @description 前端主动刷新token
+    @param
+    @return
+    """
+    token = refreshToken(request)
+    # 这里必须返回指定格式dict
+    return json({"token": token})
+
+
+@app.route("/")
+@protected()
+async def index(request: Request) -> HTTPResponse:
+    """
+    @description 首页
+    @param
+    @return
+    """
+    return text("hello world!")
+
+
+def main():
+    # 开启调试模式和自动重载
+    app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
+
+
+if __name__ == "__main__":
+    main()
+```
+
+**`auth.py`**
+```py
+from sanic import text
+from functools import wraps
+import jwt
+import time
+
+
+def generateJwt(request, payload):
+    """
+    @description 生成token 10秒过期
+    @param payload 用户数据
+    @return
+    """
+    _payload = {"exp": time.time() + 10}
+    _payload.update(payload)
+    token = jwt.encode(_payload, request.app.config.SECRET)
+    return token
+
+
+def refreshToken(request):
+    """
+    @description 生成token
+    @param payload 用户数据
+    @param expiry 有效期(s)
+    @return
+    """
+    # 这里利用旧的Token去查询数据库用户数据 存在则可刷新token 否则抛出错误
+    # 用户数据
+    payload = {}
+    return generateJwt(request, payload)
+
+
+def checkToken(request):
+    """
+    @description 检查token合法性
+    @param
+    @return
+    """
+    # Header头名称为Authorization
+    if not request.token:
+        return False
+
+    try:
+        jwt.decode(request.token, request.app.config.SECRET, algorithms=["HS256"])
+    except jwt.exceptions.InvalidTokenError:
+        return False
+    else:
+        return True
+
+
+def protected():
+    def decorator(f):
+        @wraps(f)
+        async def decorated_function(request, *args, **kwargs):
+            is_authenticated = checkToken(request)
+
+            if is_authenticated:
+                response = await f(request, *args, **kwargs)
+                return response
+            else:
+                return text("You are unauthorized.", 401)
+
+        return decorated_function
+
+    return decorator
+```
