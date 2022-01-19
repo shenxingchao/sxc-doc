@@ -544,6 +544,48 @@
 
     - [键盘鼠标控制](/md/Python#键盘鼠标控制)
 
+  - [Sanic](/md/Python#sanic)
+
+    - [安装](/md/Python#安装-4)
+
+    - [开启服务器](/md/Python#开启服务器)
+
+    - [调式模式(热重载)](/md/Python#调式模式热重载)
+
+    - [全局配置方式](/md/Python#全局配置方式)
+
+    - [全局对象挂载方式](/md/Python#全局对象挂载方式)
+
+    - [获取参数](/md/Python#获取参数)
+
+    - [获取body数据](/md/Python#获取body数据)
+
+    - [响应response](/md/Python#响应response)
+
+    - [请求或响应中间件存储数据使用方法](/md/Python#请求或响应中间件存储数据使用方法)
+
+    - [请求头信息](/md/Python#请求头信息)
+
+    - [路由](/md/Python#路由)
+
+    - [挂载入口文件index.html及多入口](/md/Python#挂载入口文件indexhtml及多入口)
+
+    - [服务器启动生命周期](/md/Python#服务器启动生命周期)
+
+    - [后台运行脚本](/md/Python#后台运行脚本)
+
+    - [视图（同一路由分发不同类型的请求）](/md/Python#视图同一路由分发不同类型的请求)
+
+    - [websocket](/md/Python#websocket)
+
+    - [api接口版本管理](/md/Python#api接口版本管理)
+
+    - [蓝图（组件）](/md/Python#蓝图组件)
+
+    - [蓝图组](/md/Python#蓝图组)
+
+    - [jwt](/md/Python#jwt)
+
 - [PythonGUI](/md/PythonGUI#pythongui)
 
   - [安装](/md/PythonGUI#安装)
