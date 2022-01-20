@@ -50,6 +50,35 @@
 }
 ``` 
 
+### linux安装python
+1. wget https://www.python.org/ftp/python/3.9.10/Python-3.9.10.tar 最好直接windows下载完放到/usr/local/src/目录下比较快
+2. 解压文件
+   ```powershell
+   cd /usr/local/src/
+   tar -zxvf Python-3.9.10.tgz
+   ```
+3. 移动目录
+   ```
+   mv Python-3.9.10 /usr/local/
+   cd ..
+   ```
+4. 编译 安装
+   ```
+   cd Python-3.9.10
+   ./configure
+   make && make install
+   ```
+5. 加入环境变量
+   ```
+   vi ~/.bash_profile
+   i
+   export PATH=/usr/local/Python-3.9.10/bin:$PATH
+   esc+:wq
+   source ~/.bash_profile
+   cd /
+   pyython3 -V
+   ```
+
 ## python100天入门笔记
 
 ### 第一个python脚本
@@ -7578,3 +7607,241 @@ def protected():
 
     return decorator
 ```
+
+### sqlalchemy和aiomysql配合使用
+1. 安装
+   ```powershell
+   pip install sqlalchemy
+   pip install aiomysql
+   ```
+!> aiomysql 需要先安装 pymysql
+
+2. 使用
+    mysql.py
+    ```py
+    # 文档 https://www.osgeo.cn/sqlalchemy/orm/
+    # 1.导入sqlalchemy
+    import asyncio
+    from soupsieve import select
+    import sqlalchemy as sa
+
+    # 2.导入创建连接方法
+    from sqlalchemy.ext.asyncio import create_async_engine
+    from sqlalchemy.orm import declarative_base
+
+    # 3.关系元数据模型对象
+    Base = declarative_base()
+    # 4.创建模型数据 https://www.osgeo.cn/sqlalchemy/orm/declarative_tables.html
+    # 映射字段名称 https://www.osgeo.cn/sqlalchemy/orm/mapping_columns.html
+    # 可以拿出来单独放到一个模型文件/model/User.py里面
+    class User(Base):
+        __tablename__ = "user"
+
+        id = sa.Column(
+            "id", sa.Integer, nullable=False, primary_key=True, autoincrement=True
+        )
+        name = sa.Column("name", sa.String(255), nullable=False, default="")
+
+        # 用于返回的元组数据转字典
+        def to_json(self):
+            dict = self.__dict__
+            if "_sa_instance_state" in dict:
+                del dict["_sa_instance_state"]
+
+            return dict
+
+
+    """
+    Integer:整型，映射到数据库中是int类型。
+    Float:浮点类型，映射到数据库中是float类型。他占据的32位。
+    浮点类型，有可能会造成精度丢失，特别是在money方面，不可原谅。
+    Double（SQLAlchemy中没有，代替品为DECIMAL）:双精度浮点类型，映射到数据库中是double类型，占据64位
+    String:可变字符类型，映射到数据库中是varchar类型.
+    Boolean:布尔类型，映射到数据库中的是tinyint类型。
+    DECIMAL:定点类型。是专门为了解决浮点类型精度丢失的问题的。在存储money相关的字段的时候建议大家都使用这个数据类型。并且这个类型使用的时候需要传递两个参数，第一个参数是用来标记这个字段总能能存储多少个数字，第二个参数表示小数点后有多少位。
+    Enum:枚举类型。指定某个字段只能是枚举中指定的几个值，不能为其他值。在ORM模型中，使用Enum来作为枚举。
+    Date:存储时间，只能存储年月日。映射到数据库中是date类型。在Python代码中，可以使用datetime.date来指定。
+    DateTime:存储时间，可以存储年月日时分秒毫秒等。映射到数据库中也是datetime类型。在Python代码中，可以使用datetime.datetime来指定。
+    Time:存储时间，可以存储时分秒。映射到数据库中也是time类型。在Python代码中，可以使用datetime.time来指定
+    ps:注意区分Date/DateTime/Time的储存信息
+    Text:存储长字符串。一般可以存储6W多个字符
+    LONGTEXT:长文本类型，映射到数据库中是longtext类型（不过这个只有mysql有，orcale没有）
+    """
+
+
+    # 5.数据库连接 https://www.osgeo.cn/sqlalchemy/orm/extensions/asyncio.html
+    engine = create_async_engine(
+        "mysql+aiomysql://root:@127.0.0.1:3307/dbname?charset=utf8"
+    )
+
+
+    async def main():
+        """
+        假如有表格user数据如下
+        SET FOREIGN_KEY_CHECKS=0;
+
+        -- ----------------------------
+        -- Table structure for user
+        -- ----------------------------
+        DROP TABLE IF EXISTS `user`;
+        CREATE TABLE `user` (
+        `id` int(11) NOT NULL AUTO_INCREMENT,
+        `name` varchar(255) NOT NULL DEFAULT '',
+        PRIMARY KEY (`id`)
+        ) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+
+        -- ----------------------------
+        -- Records of user
+        -- ----------------------------
+        INSERT INTO `user` VALUES ('1', 'a');
+        INSERT INTO `user` VALUES ('2', 'b');
+        INSERT INTO `user` VALUES ('3', 'c');
+        INSERT INTO `user` VALUES ('4', 'd');
+        INSERT INTO `user` VALUES ('5', 'hack');
+
+        下面是使用案例:
+        """
+        # 文档 https://www.osgeo.cn/sqlalchemy/core/tutorial.html
+        # 需要返回字典看 https://www.osgeo.cn/sqlalchemy/core/connections.html?highlight=sqlalchemy%20engine%20row%20row#sqlalchemy.engine.RowMapping
+        # 表达式 and or 等等 https://www.osgeo.cn/sqlalchemy/core/sqlelement.html#sqlalchemy.sql.expression
+        # 返回字典 resDict = [row for row in res.mappings()]
+        async with engine.connect() as conn:
+            # 查询一条记录
+            res = await conn.execute(
+                sa.select(User.id, User.name).where(sa.and_(User.id == 3, User.name == "c"))
+            )
+            row = res.fetchone()
+            print(row)  # 输出(3, 'c')
+            print(row._mapping)  # 输出{'id': 3, 'name': 'c'}
+            # 简单查询
+            res = await conn.execute(
+                sa.select(User.id, User.name).where(sa.and_(User.id == 3, User.name == "c"))
+            )
+            print(res.fetchone())  # 输出(3, 'c')
+            # 高级查询
+            res = await conn.execute(
+                sa.select(User.id, User.name)
+                .where(User.id > 2)
+                .where(User.name.like("%c%"))
+            )
+            print(res.fetchall())  # 输出 [(3, 'c'), (5, 'hack')]
+            # 或查询
+            res = await conn.execute(
+                sa.select(User).where(
+                    sa.or_((sa.and_(User.id > 2, User.name.like("%c%"))), User.name == "b")
+                )
+            )
+            print(res.fetchall())  # 输出 [(2, 'b'), (3, 'c'), (5, 'hack')]
+
+
+    if __name__ == "__main__":
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(main())
+    ```
+
+    server.py
+    ```py
+    from sanic import Sanic
+    from sanic.response import text, json
+    from sanic.request import Request, HTTPResponse
+
+    # 导入数据库连接和模型
+    from mysql import engine, User
+    import sqlalchemy as sa
+
+    # app
+    app = Sanic("App")
+
+
+    @app.route("/")
+    async def index(request: Request) -> HTTPResponse:
+        """
+        @description 首页
+        @param
+        @return
+        """
+        async with engine.connect() as conn:
+            # 查询一条记录
+            res = await conn.execute(
+                sa.select(User.id, User.name).where(User.id == 3).where(User.name == "c")
+            )
+            print(res.fetchall())
+
+        return text("hello world!")
+
+
+    def main():
+        # 开启调试模式和自动重载
+        app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
+
+
+    if __name__ == "__main__":
+        main()
+    ```
+   
+
+### linux部署
+1. 安装python3环境（前面有）
+2. 安装sanic
+   ```powershell
+   pip3 install sanic
+   ```
+3. 将后台目录上传到/usr/local/sanic/demo下
+4. 服务器启动作为服务运行
+    ```powershell
+    vim /etc/systemd/system/sanic_demo.service
+    # 复制以下内容
+    [Unit]
+    Description=Sanic Demo
+
+    [Service]
+    User=nobody
+    WorkingDirectory=/usr/local/sanic/demo
+    ExecStart=/usr/bin/env python3 server.py
+    Restart=always
+
+    [Install]
+    WantedBy=multi-user.target
+   ```
+   ```powershell
+   # 注册服务
+   systemctl enable sanic_demo.service
+   # 重新载入sanic_demo.service配置 修改.service文件才需执行
+   systemctl daemon-reload
+   # 启动
+   systemctl start sanic_demo.service
+   # 重启
+   systemctl restart sanic_demo.service
+   # 停止
+   systemctl stop sanic_demo.service
+   #查看是否启动 
+   ps aux | grep sanic_demo.service
+   ```
+
+5. 本地服务器ip用niginx反向代理访问
+    ```ini
+    #sanic-demo
+    upstream sanic-demo.o8o8o8.com {
+    #启用长连接
+    keepalive 100;
+        server 127.0.0.1:8000;
+        }
+        server {
+        server_name sanic-demo.o8o8o8.com;
+        # Serve static files if found, otherwise proxy to Sanic
+        location / {
+            root /usr/local/sanic/demo;
+            try_files $uri @sanic;
+        }
+        location @sanic {
+            proxy_pass http://$server_name;
+            # Allow fast streaming HTTP/1.1 pipes (keep-alive, unbuffered)
+            proxy_http_version 1.1;
+            proxy_request_buffering off;
+            proxy_buffering off;
+
+            proxy_set_header connection "upgrade";
+            proxy_set_header upgrade $http_upgrade;
+        }
+    }
+    ```

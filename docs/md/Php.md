@@ -598,7 +598,7 @@ __统一下载路径cd /usr/local/src__
     Php配置目录 /etc/php.ini  
 - Mysql  
     启动 systemctl start mysql.service  
-    停止 systemctl start mysql.service  
+    停止 systemctl stop mysql.service  
     重启 systemctl start mysql.service  
     查看是否启动 ps aux | grep mysql  
     配置目录/usr/local/mysql/my.cnf  

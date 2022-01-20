@@ -6,14 +6,23 @@ su
 ### 创建多级目录
 mkdir -p
 
+### 清除
+clear
+
+### 下载命令
+wget `http://download.com` 
+一般下载路径放在`/usr/local/src/`
+应用程序放在`/usr/local/`  
+
+### 移动目录或文件
+mv xxx /usr/local/
+
 ### 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压
-- *.tar.gz和*.tgz 用 tar –xzf 解压
+- *.tar.gz和*.tgz 用 tar -zxvf 解压
 - *.bz2 用 bzip2 -d或者用bunzip2 解压
-- *.tar.bz2用tar –xjf 解压
-- *.Z 用 uncompress 解压
-- *.tar.Z 用tar –xZf 解压
+- *.tar.bz2用tar -xjvf 解压
 - *.rar 用 unrar e解压
 - *.zip 用 unzip 解压
 
