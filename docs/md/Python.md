@@ -7616,7 +7616,7 @@ def protected():
    ```
 !> aiomysql 需要先安装 pymysql
 
-2. 使用
+2. 使用  
     mysql.py
     ```py
     # 文档 https://www.osgeo.cn/sqlalchemy/orm/
@@ -7651,7 +7651,6 @@ def protected():
     LONGTEXT:长文本类型，映射到数据库中是longtext类型（不过这个只有mysql有，orcale没有）
     """
 
-
     class User(Base):
         __tablename__ = "user"
         id = sa.Column(
@@ -7659,8 +7658,7 @@ def protected():
         )
         name = sa.Column("name", sa.String(255), nullable=False, default="")
         children = relationship("Address", backref="parent")
-
-
+        
     class Address(Base):
         __tablename__ = "user_address"
         id = sa.Column(
@@ -7673,12 +7671,10 @@ def protected():
             nullable=False,
         )
 
-
     # 5.数据库连接 https://www.osgeo.cn/sqlalchemy/orm/extensions/asyncio.html
     engine = create_async_engine(
         "mysql+aiomysql://root:@127.0.0.1:3307/dbname?charset=utf8"
     )
-
 
     async def main():
         """
@@ -7817,7 +7813,6 @@ def protected():
                 await conn.execute(sa.update(User).where(User.id == 2), {"name": "事务更新"})
                 await conn.commit()
 
-
     if __name__ == "__main__":
         loop = asyncio.get_event_loop()
         loop.run_until_complete(main())
@@ -7836,7 +7831,6 @@ def protected():
     # app
     app = Sanic("App")
 
-
     @app.route("/")
     async def index(request: Request) -> HTTPResponse:
         """
@@ -7853,11 +7847,9 @@ def protected():
 
         return text("hello world!")
 
-
     def main():
         # 开启调试模式和自动重载
         app.run(host="127.0.0.1", port=8000, debug=True, auto_reload=True)
-
 
     if __name__ == "__main__":
         main()
