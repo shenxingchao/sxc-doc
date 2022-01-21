@@ -7622,35 +7622,18 @@ def protected():
     # 文档 https://www.osgeo.cn/sqlalchemy/orm/
     # 1.导入sqlalchemy
     import asyncio
-    from soupsieve import select
     import sqlalchemy as sa
 
     # 2.导入创建连接方法
     from sqlalchemy.ext.asyncio import create_async_engine
-    from sqlalchemy.orm import declarative_base
+    from sqlalchemy.orm import declarative_base, relationship
 
     # 3.关系元数据模型对象
     Base = declarative_base()
     # 4.创建模型数据 https://www.osgeo.cn/sqlalchemy/orm/declarative_tables.html
     # 映射字段名称 https://www.osgeo.cn/sqlalchemy/orm/mapping_columns.html
     # 可以拿出来单独放到一个模型文件/model/User.py里面
-    class User(Base):
-        __tablename__ = "user"
-
-        id = sa.Column(
-            "id", sa.Integer, nullable=False, primary_key=True, autoincrement=True
-        )
-        name = sa.Column("name", sa.String(255), nullable=False, default="")
-
-        # 用于返回的元组数据转字典
-        def to_json(self):
-            dict = self.__dict__
-            if "_sa_instance_state" in dict:
-                del dict["_sa_instance_state"]
-
-            return dict
-
-
+    # 关系模式 一对多 一对一 多对多 https://www.osgeo.cn/sqlalchemy/orm/basic_relationships.html#one-to-many
     """
     Integer:整型，映射到数据库中是int类型。
     Float:浮点类型，映射到数据库中是float类型。他占据的32位。
@@ -7667,6 +7650,28 @@ def protected():
     Text:存储长字符串。一般可以存储6W多个字符
     LONGTEXT:长文本类型，映射到数据库中是longtext类型（不过这个只有mysql有，orcale没有）
     """
+
+
+    class User(Base):
+        __tablename__ = "user"
+        id = sa.Column(
+            "id", sa.Integer, nullable=False, primary_key=True, autoincrement=True
+        )
+        name = sa.Column("name", sa.String(255), nullable=False, default="")
+        children = relationship("Address", backref="parent")
+
+
+    class Address(Base):
+        __tablename__ = "user_address"
+        id = sa.Column(
+            "id", sa.Integer, nullable=False, primary_key=True, autoincrement=True
+        )
+        address = sa.Column("address", sa.String(255), nullable=False, default="")
+        user_id = sa.Column(
+            sa.Integer,
+            sa.ForeignKey("user.id"),
+            nullable=False,
+        )
 
 
     # 5.数据库连接 https://www.osgeo.cn/sqlalchemy/orm/extensions/asyncio.html
@@ -7732,6 +7737,85 @@ def protected():
                 )
             )
             print(res.fetchall())  # 输出 [(2, 'b'), (3, 'c'), (5, 'hack')]
+            # between
+            res = await conn.execute(
+                sa.select(User.id, User.name).where(sa.between(User.id, 3, 5))
+            )
+            print(res.fetchall())  # 输出[(3, 'c'), (4, 'd'), (5, 'hack')]
+            # in | not in
+            res = await conn.execute(
+                sa.select(User.id, User.name).where(User.id.in_([3, 4, 5]))
+            )
+            print(res.fetchall())  # 输出[(3, 'c'), (4, 'd'), (5, 'hack')]
+            # 分页查询
+            res = await conn.execute(sa.select(User.id, User.name).offset(2).limit(2))
+            print(res.fetchall())  # 输出[(3, 'c'), (4, 'd')]
+            # 排序查询
+            res = await conn.execute(
+                sa.select(User.id, User.name).order_by(sa.asc("name"), sa.asc("id"))
+            )
+            print(
+                res.fetchall()
+            )  # 输出 [(1, 'a'), (2, 'b'), (3, 'c'), (4, 'd'), (5, 'hack')]
+            res = await conn.execute(sa.select(User.id, User.name).order_by(sa.desc("id")))
+            print(
+                res.fetchall()
+            )  # 输出 [(5, 'hack'), (4, 'd'), (3, 'c'), (2, 'b'), (1, 'a')]
+            # 原生查询
+            res = await conn.execute(
+                sa.text(
+                    "SELECT * FROM `user` WHERE `id` = :x AND `name` = :y",
+                ),
+                {"x": 3, "y": "c"},
+            )
+            print(res.fetchall())  # 输出 [(3, 'c')]
+            # 关联表查询 isouter=False 表示联接只查2个表都有 isouter=True 表示左外联接 返回左表全部
+            res = await conn.execute(
+                sa.select(
+                    User.id, User.name, Address.address, Address.id.label("addressId")
+                ).join(Address, User.id == Address.user_id, False, False)
+            )
+            print(
+                [row for row in res.mappings()]
+            )  # 输出 [{'id': 1, 'name': 'a', 'address': '杭州', 'addressId': 1}, {'id': 2, 'name': 'b', 'address': '上海', 'addressId': 2}, {'id': 2, 'name': 'b', 'address': '北京', 'addressId': 3}]
+            """
+            添加方法
+            原生语句  INSERT INTO `table_name` (`field1`,`field2`) VALUES (value1,value2),(value3,value4)
+            """
+            # 插入一条记录1
+            res = await conn.execute(sa.insert(User).values(name="e"))
+            print(
+                res
+            )  # 输出 <sqlalchemy.engine.cursor.CursorResult object at 0x00000232D9F6C190>
+            # 插入一条记录返回插入的Id
+            res = await conn.execute(sa.insert(User), {"name": "f"})
+            print(res.inserted_primary_key[0])  # 输出7
+            # 插入多条记录
+            res = await conn.execute(sa.insert(User), [{"name": "新增多条"}, {"name": "新增多条"}])
+            print(res)
+            await conn.commit()
+            """
+            修改方法
+            原生语句 UPDATE `table_name` SET `field1`=value1,`field2`=value2 WHERE where1 AND where2  OR where3 AND where4
+            """
+            res = await conn.execute(sa.update(User).where(User.id == 5), {"name": "hack"})
+            print(res)
+            await conn.commit()
+            """ 
+            删除方法
+            原生语句 DELETE FROM `table_name` WHERE where1 AND where2  OR where3 AND where4
+            """
+            res = await conn.execute(sa.delete(User).where(User.id > 5))
+            print(res)
+            # 这一行很重要
+            await conn.commit()
+            """
+            事务
+            """
+            async with conn.begin():
+                await conn.execute(sa.update(User).where(User.id == 1), {"name": "事务更新"})
+                await conn.execute(sa.update(User).where(User.id == 2), {"name": "事务更新"})
+                await conn.commit()
 
 
     if __name__ == "__main__":

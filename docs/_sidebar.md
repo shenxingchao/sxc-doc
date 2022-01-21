@@ -458,6 +458,8 @@
 
     - [windows10 python3.9.4环境搭建](/md/Python#windows10-python394环境搭建)
 
+    - [linux安装python](/md/Python#linux安装python)
+
   - [python100天入门笔记](/md/Python#python100天入门笔记)
 
     - [第一个python脚本](/md/Python#第一个python脚本)
@@ -585,6 +587,10 @@
     - [蓝图组](/md/Python#蓝图组)
 
     - [jwt](/md/Python#jwt)
+
+    - [sqlalchemy和aiomysql配合使用](/md/Python#sqlalchemy和aiomysql配合使用)
+
+    - [linux部署](/md/Python#linux部署)
 
 - [PythonGUI](/md/PythonGUI#pythongui)
 
