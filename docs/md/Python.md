@@ -7282,6 +7282,7 @@ async def websocketFn(request: Request, ws: socket) -> None:
         print(data)
 
 ```
+[在线聊天室案例](http://sanic-demo.o8o8o8.com/)
 
 ### api接口版本管理
 ```py
