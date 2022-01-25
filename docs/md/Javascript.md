@@ -198,226 +198,273 @@ $('div').mouseout(function(){
 stop()方法还带有两个参数，自行百度  
 
 ## typescript
-### typescript从入门到出门
+
 <p align="left" style="color:#777777;">发布日期：2020-08-18</p>
 
-1. 初始化tscofig
-    ```tsc
-    tsc --init
-    ```
-2. 编译
-    ```tsc
-    tsc test.ts
-    ```
-3. 编译遇到错误终止选项
-    ```tsc
-    tsc test.ts --noEmitOnError
-    ```
-4. 数据类型定义
-    ```typescript
-    let isFlag: boolean = false;
-    let num: number = 1;
-    let names: string = 'hello';
-    let n: null = null;
-    ```
-5. 没有返回值方法定义
-    ```typescript
-    function nFn(): void {
-        console.log('void');
-    }
-    ```
-6. 任意值类型定义
-    ```typescript
-    let anyValue: any = 'xxx';
-    ```
-    可随意改变类型 赋值， 如果设置了其他的类型就不可以改变了
-    ```typescript
-    anyValue = 3
-    ```
-    也可以随意调用属性和方法
-    ```typescript
-    anyValue.name;
-    anyValue.setName();
-    ```
-7. 类型推论
-    定义时赋值 则会被推出字符串类型
-    如下编译会报错， 会被推出let a: string = 3;
-    ```typescript
-    let a = '3';
-    a = 4;
-    ```
-    如下编译不会报错， 此时会被推出为任意类型let a: any;
-    ```typescript
-    let a;
-    a = '3';
-    a = 4;
-    ```
-8. 联合类型
-    ```typescript
-    let name: string | number;
-    ```
-9. 简单的接口
-    接口开头字母大写， 定义的变量的格式必须和接口格式一致
-    ```typescript
-    interface Person {
-        name: string;
-        age: number;
-    }
-    let tom: Person = {
-        name: 'Tom',
-        age: 25
-    };
-    ```
-10. 可选属性
-    不一致可定义可选属性
-    ```typescript
-    interface Person {
-        name: string;
-        age ? : number;
-    }
-    let tom: Person = {
-        name: 'Tom'
-    };
-    ```
-11. 任意属性
-    允许任意属性[propName: string]: any;
-    那么定义的name: string 和 可选属性age ? : number必须是string 类型的 所以下面的age也要改为age ? : string
-    ```typescript
-    interface Person {
-        name: string;
-        age ? : number;
-        [propName: string]: any;
-    }
-    let tom: Person = {
-        name: 'Tom',
-        gender: 'male'
-    };
-    ```
-    正确写法 多个任意属性 用联合类型定义
-    ```typescript
-    interface Person {
-        name: string;
-        age ? : number;
-        [propName: string]: string | number;
-    }
-    let tom: Person = {
-        name: 'Tom',
-        age: 25,
-        gender: 'male'
-    };
-    ```
-12. 只读属性
-用readonly定义只读属性
-    ```typescript
-    interface Person {
-        readonly id: number;
-        name: string;
-        age ? : number;
-        [propName: string]: any;
-    }
-    let tom: Person = {
-        id: 89757,
-        name: 'Tom',
-        gender: 'male'
-    };
-    ```
-    只读只有在第一次给对象复制的时候， 第二次给只读属性复制会报错
-    如tom.id = 333 会报错
-    如果第一次给对象复制的时候没有初始化只读属性， 也会报错
-    如
-    ```typescript
-    let tom: Person = {
-        name: 'Tom',
-        gender: 'male'
-    };
-    ```
-13. 数组声明【 类型 + 方括号】
-    ```typescript
-    let names: string[] = ['a', 'n', 'c'];
-    ```
-    【泛型表示】
-    ```typescript
-    let names: Array < string > = ['a', 'b', 'c', 'd'];
-    ```
-    【接口表示法】 一般不用这个
-    ```typescript
-    interface NumberArray {
+### 初始化tscofig
+```tsc
+tsc --init
+```
+
+### 编译
+```tsc
+tsc test.ts
+```
+
+### 编译遇到错误终止选项
+```tsc
+tsc test.ts --noEmitOnError
+```
+
+### 数据类型定义
+```typescript
+let isFlag: boolean = false;
+let num: number = 1;
+let names: string = 'hello';
+let n: null = null;
+```
+
+### 没有返回值方法定义
+```typescript
+function nFn(): void {
+    console.log('void');
+}
+```
+
+### 任意值类型定义
+```typescript
+let anyValue: any = 'xxx';
+```
+可随意改变类型 赋值， 如果设置了其他的类型就不可以改变了
+```typescript
+anyValue = 3
+```
+也可以随意调用属性和方法
+```typescript
+anyValue.name;
+anyValue.setName();
+```
+
+### 类型推论
+定义时赋值 则会被推出字符串类型  
+如下编译会报错， 会被推出let a: string = 3;  
+```typescript
+let a = '3';
+a = 4;
+```
+如下编译不会报错， 此时会被推出为任意类型let a: any;  
+```typescript
+let a;
+a = '3';
+a = 4;
+```
+
+### 联合类型
+```typescript
+let name: string | number;
+```
+
+### 简单的接口
+接口开头字母大写， 定义的变量的格式必须和接口格式一致
+```typescript
+interface Person {
+    name: string;
+    age: number;
+}
+let tom: Person = {
+    name: 'Tom',
+    age: 25
+};
+```
+
+### 可选属性
+不一致可定义可选属性
+```typescript
+interface Person {
+    name: string;
+    age ? : number;
+}
+let tom: Person = {
+    name: 'Tom'
+};
+```
+
+### 任意属性
+允许任意属性[propName: string]: any;  
+那么定义的name: string 和 可选属性age ? : number必须是string 类型的 所以下面的age也要改为age ? : string(不需要，因为有:any)  
+```typescript
+interface Person {
+    name: string;
+    age ? : number;
+    [propName: string]: any;
+}
+let tom: Person = {
+    name: 'Tom',
+    gender: 'male'
+};
+```
+多个任意属性 用联合类型定义
+```typescript
+interface Person {
+    name: string;
+    age ? : number;
+    [propName: string]: string | number;
+}
+let tom: Person = {
+    name: 'Tom',
+    age: 25,
+    gender: 'male'
+};
+```
+
+### 只读属性
+用readonly定义只读属性  
+```typescript
+interface Person {
+    readonly id: number;
+    name: string;
+    age ? : number;
+    [propName: string]: any;
+}
+let tom: Person = {
+    id: 89757,
+    name: 'Tom',
+    gender: 'male'
+};
+```
+只读只有在第一次给对象复制的时候， 第二次给只读属性复制会报错  
+如tom.id = 333 会报错  
+如果第一次给对象复制的时候没有初始化只读属性， 也会报错  
+如
+```typescript
+let tom: Person = {
+    name: 'Tom',
+    gender: 'male'
+};
+```
+
+### 数组声明【 类型 + 方括号】
+```typescript
+let names: string[] = ['a', 'n', 'c'];
+```
+【泛型表示】
+```typescript
+let names: Array < string > = ['a', 'b', 'c', 'd'];
+```
+【接口表示法】 一般不用这个
+```typescript
+interface NumberArray {
+    [index: number]: number;
+}
+let fibonacci: NumberArray = [1, 1, 2, 3, 5];
+```
+
+###  函数中定义数组
+需要用接口对象来定义数组 而不是let args: number[] = arguments
+length和 callee 额外的约束属性而已
+```typescript
+function sum() {
+    let args: {
         [index: number]: number;
-    }
-    let fibonacci: NumberArray = [1, 1, 2, 3, 5];
-    ```
-14.  函数中定义数组
-    需要用接口对象来定义数组 而不是let args: number[] = arguments
-    length和 callee 额外的约束属性而已
-    ```typescript
-    function sum() {
-        let args: {
-            [index: number]: number;
-            length: number;
-            callee: Function;
-        } = arguments;
-    }
-    ```
-    也可以把接口事先定义好
-    ```typescript
-    interface IArguments {
-        [index: number]: any;
         length: number;
         callee: Function;
+    } = arguments;
+}
+```
+也可以把接口事先定义好
+```typescript
+interface IArguments {
+    [index: number]: any;
+    length: number;
+    callee: Function;
+}
+```
+再引用
+```typescript
+function sum() {
+    let args: IArguments = arguments;
+}
+```
+
+### 任意类型的数组定义
+```typescript
+let names: any[] = [1, '3', 444, {
+    name: 'ssss'
+}];
+```
+
+###  函数声明， 参数输入和返回输出都被约束
+```typescript
+function sum(x: number, y: number): number {
+    return x + y;
+}
+```
+表达式定义法
+```typescript
+let mySum: (x: number, y: number) => number = function (x: number, y: number): number {
+    return x + y;
+};
+```
+```typescript
+let mySum: (x: number, y: number) => number =  (x: number, y: number): number => {
+    return x + y;
+};
+```
+(x: number, y: number) => number 表示函数类型,这里的x,y可以用任何名称  
+这里的 => 左边表示输入类型， 右边表示输出类型  
+(x: number, y: number): number 表示参数和返回值
+
+### 函数变量可选参数
+和可选属性一样加？
+```typescript
+function fn(one: string, two ? : string) {
+    return one;
+}
+```
+可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
+
+### 类型断言
+就是自己知道这是什么类型的时候，告诉编译器这是什么类型
+```typescript
+let someValue: any = "this is a string";
+//第一种方式
+let strLength: number = (<string>someValue).length;
+//第二种方式
+let strLength: number = (someValue as string).length;
+```
+
+### 枚举类型
+```typescript
+enum Color {
+    red,
+    green,
+    blue
+}
+let color: Color = Color.red //红色
+console.log(color) //输出0
+```
+
+### 类
+```typescript
+class Person{
+    private _name: string;
+    private _age: number;
+
+    constructor(name: string = "默认name", age: number = 0) {
+        this._name = name;
+        this._age = age
     }
-    ```
-    再引用
-    ```typescript
-    function sum() {
-        let args: IArguments = arguments;
+
+    say() {
+        console.log(this._name,this._age)
     }
-    ```
-15. 任意类型的数组定义
-    ```typescript
-    let names: any[] = [1, '3', 444, {
-        name: 'ssss'
-    }];
-    ```
-16.  函数声明， 参数输入和返回输出都被约束
-    ```typescript
-    function sum(x: number, y: number): number {
-        return x + y;
-    }
-    ```
-    表达式定义法
-    ```typescript
-    let mySum: (x: number, y: number) => number = function (x: number, y: number): number {
-        return x + y;
-    };
-    ```
-    这里的 => 左边表示输入类型， 右边表示输出类型
-16. 函数变量可选参数
-    和可选属性一样加？
-    ```typescript
-    function fn(one: string, two ? : string) {
-        return one;
-    }
-    ```
-    可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
-17. 类型断言
-    就是自己知道这是什么类型的时候，告诉编译器这是什么类型
-    ```typescript
-    let someValue: any = "this is a string";
-    //第一种方式
-    let strLength: number = (<string>someValue).length;
-    //第二种方式
-    let strLength: number = (someValue as string).length;
-    ```
-18. 枚举类型
-    ```typescript
-    enum Color {
-        red,
-        green,
-        blue
-    }
-    let color: Color = Color.red //红色
-    console.log(color) //输出0
-    ```
+}
+
+let person1 = new Person("马云", 99)
+person1.say()
+let person2 = new Person()
+person2.say()
+```
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
