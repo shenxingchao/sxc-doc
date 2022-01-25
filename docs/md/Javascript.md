@@ -408,6 +408,16 @@ stop()方法还带有两个参数，自行百度
     //第二种方式
     let strLength: number = (someValue as string).length;
     ```
+18. 枚举类型
+    ```typescript
+    enum Color {
+        red,
+        green,
+        blue
+    }
+    let color: Color = Color.red //红色
+    console.log(color) //输出0
+    ```
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
