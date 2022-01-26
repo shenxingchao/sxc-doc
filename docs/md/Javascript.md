@@ -745,6 +745,44 @@ form.addEventListener("input", (event)=>{
 });
 ```
 
+### 工厂模式
+工厂模式就是帮助我们快速创建对象  
+假入你在项目中new了某个对象100次，一年后由于业务逻辑变更，构造方法多了一个参数，你会怎么办？你应该会这么做：找到这100个对象new的地方，用新的构造方法来创建对象，你重复劳动了100次，假如采用工厂模式，你只用改一次：把创建工厂给改一下就好了。这就是工厂模式最简单最直接的好处。
+```typescript
+//身份类型
+enum PersonType {
+    student = 1,//学生
+    teacher = 2,//老师
+}
+
+//就是一个工厂类 用来创建对象的
+class Person {
+    static create(personType: PersonType): Person {
+        let person: Person;
+
+        //想要什么类型的人就创建什么类型的对象  这就是工厂模式
+        switch (personType) {
+            case PersonType.student:
+                person = new Student()
+                break;
+            case PersonType.teacher:
+                person = new Teacher()
+                break;
+                break;
+        }
+
+        return person;
+    }
+}
+
+
+class Student extends Person { }
+class Teacher extends Person { }
+
+let student = Person.create(PersonType.student);
+console.log(student)
+```
+
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
