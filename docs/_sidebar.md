@@ -174,7 +174,67 @@
 
   - [typescript](/md/Javascript#typescript)
 
-    - [typescript从入门到出门](/md/Javascript#typescript从入门到出门)
+    - [初始化tscofig](/md/Javascript#初始化tscofig)
+
+    - [编译](/md/Javascript#编译)
+
+    - [编译遇到错误终止选项](/md/Javascript#编译遇到错误终止选项)
+
+    - [数据类型定义](/md/Javascript#数据类型定义)
+
+    - [没有返回值方法定义](/md/Javascript#没有返回值方法定义)
+
+    - [回调函数](/md/Javascript#回调函数)
+
+    - [任意值类型定义](/md/Javascript#任意值类型定义)
+
+    - [类型推论](/md/Javascript#类型推论)
+
+    - [联合类型](/md/Javascript#联合类型)
+
+    - [简单的接口](/md/Javascript#简单的接口)
+
+    - [可选属性](/md/Javascript#可选属性)
+
+    - [任意属性](/md/Javascript#任意属性)
+
+    - [只读属性](/md/Javascript#只读属性)
+
+    - [数组声明【 类型 + 方括号】](/md/Javascript#数组声明-类型-方括号)
+
+    - [函数中定义数组](/md/Javascript#函数中定义数组)
+
+    - [任意类型的数组定义](/md/Javascript#任意类型的数组定义)
+
+    - [元组](/md/Javascript#元组)
+
+    - [字典](/md/Javascript#字典)
+
+    - [函数声明， 参数输入和返回输出都被约束](/md/Javascript#函数声明-参数输入和返回输出都被约束)
+
+    - [函数变量可选参数](/md/Javascript#函数变量可选参数)
+
+    - [类型断言](/md/Javascript#类型断言)
+
+    - [枚举类型](/md/Javascript#枚举类型)
+
+    - [类](/md/Javascript#类)
+
+    - [抽象类与继承](/md/Javascript#抽象类与继承)
+
+    - [接口与实现](/md/Javascript#接口与实现)
+
+    - [set和get](/md/Javascript#set和get)
+
+    - [namespace命名空间](/md/Javascript#namespace命名空间)
+
+    - [单例模式](/md/Javascript#单例模式)
+
+    - [代理模式](/md/Javascript#代理模式)
+
+    - [观察者模式和vue2的原理](/md/Javascript#观察者模式和vue2的原理)
+
+    - [工厂模式](/md/Javascript#工厂模式)
 
   - [es6](/md/Javascript#es6)
 
