@@ -231,6 +231,20 @@ function nFn(): void {
 }
 ```
 
+### 回调函数
+```typescript
+//回调函数就是函数传参
+const fn = (a: number, b: number, callback): Function => {
+    //callback就是回调函数
+    return callback(a + b);
+}
+
+//在回调函数中输出结果
+fn(1, 2, (sum: number) => {
+    console.log(sum);
+})
+```
+
 ### 任意值类型定义
 ```typescript
 let anyValue: any = 'xxx';
@@ -349,7 +363,9 @@ let names: string[] = ['a', 'n', 'c'];
 ```
 【泛型表示】
 ```typescript
-let names: Array < string > = ['a', 'b', 'c', 'd'];
+//Array<string>用到了泛型Array<T> T可以是任意类型
+let names: Array<string> = new Array<string>();
+let names: Array<string> = ['a', 'b', 'c', 'd'];
 ```
 【接口表示法】 一般不用这个
 ```typescript
@@ -391,6 +407,26 @@ function sum() {
 let names: any[] = [1, '3', 444, {
     name: 'ssss'
 }];
+```
+
+### 元组
+```typescript
+//元组 类型必须一一对应
+let tuple: [number, string] = [1, "2"];
+//应用 函数返回值不同的时候 直接返回元组
+
+const fn = (a: number, b: number): [string, number] => {
+    return [a.toString(), b];
+}
+
+let [a, b]: [string, number] = fn(1, 2);
+console.log(a, b);
+```
+
+### 字典
+```typescript
+let dict: { [key: string]: any } = { "a": 1, "b": "2" }
+console.log(dict["a"])
 ```
 
 ###  函数声明， 参数输入和返回输出都被约束
@@ -440,8 +476,8 @@ enum Color {
     green,
     blue
 }
-let color: Color = Color.red //红色
-console.log(color) //输出0
+let color: Color = Color.red; //红色
+console.log(color); //输出0
 ```
 
 ### 类
@@ -452,19 +488,263 @@ class Person{
 
     constructor(name: string = "默认name", age: number = 0) {
         this._name = name;
-        this._age = age
+        this._age = age;
     }
 
     say() {
-        console.log(this._name,this._age)
+        console.log(this._name, this._age);
     }
 }
 
-let person1 = new Person("马云", 99)
-person1.say()
-let person2 = new Person()
-person2.say()
+let person1 = new Person("马云", 99);
+person1.say();
+let person2 = new Person();
+person2.say();
 ```
+
+### 抽象类与继承
+```typescript
+abstract class Person {
+    //可以有实现的方法
+    run() {
+        console.log("会跑步");
+    }
+    //可以有抽象方法 必须被子类所实现
+    abstract say();
+}
+
+//继承抽象类
+class Student extends Person {
+    run() {
+        //重写 可调用父类的方法 不掉就完全覆盖了
+        super.run();
+        console.log("学生会跑步");
+    }
+    say() {
+        console.log("会说话");
+    }
+}
+
+
+let person1: Student = new Student();
+person1.say();
+//这里的的Person类型 说明父类指针（地址）可以指向子类对象
+//反之不行, 因为你调用person.xxx() xxx()方法在父类不存在, 只在子类存在就会报错
+let person2: Person = new Student();
+person2.say();
+```
+
+### 接口与实现
+```typescript
+interface Person {
+    name: string;
+    age?: number;
+    //接口方法不需要实现
+    run();
+}
+
+class Student implements Person {
+    //实现接口  接口里的东西必须都在这里出现 可选属性age可以不用加
+    name: string = '';
+    run() {
+        console.log("会跑步");
+    }
+}
+
+let person: Person = new Student();
+person.run();
+```
+
+### set和get
+```typescript
+class Person {
+    private _name: string;
+
+    get name(): string {
+        return this._name;
+    }
+
+    set name(name: string) {
+        if (name == '马云') {
+            this._name = "阿里巴巴董事长";
+            return;
+        }
+        this._name = name;
+    }
+}
+
+let person = new Person();
+person.name = '马云';
+```
+
+### namespace命名空间
+```typescript
+namespace workspace1 {
+    //必须要加export才能在外部被引用
+    export class Person {
+        _name: string = '马云1';
+
+        get name(): string {
+            return this._name;
+        }
+    }
+}
+namespace workspace2 {
+    export class Person {
+        _name: string = '马云2';
+
+        get name(): string {
+            return this._name;
+        }
+    }
+}
+
+//调用不同命名空间的同名方法
+let person1 = new workspace1.Person();
+console.log(person1.name);
+let person2 = new workspace2.Person();
+console.log(person1.name);
+```
+
+### 单例模式
+单例模式就是一个类只产生一个对象
+```typescript
+//游戏管理类
+class GameManager {
+    //定义一个唯一实例
+    private static _instance: GameManager;
+    public name: string;
+
+    //使用静态方法 获取单例 保证这个类上只产生这一个对象 这样用静态方法调用 保证在调用的时候才会产生对象
+    //因为如果你在构造方法里调用
+    static Instance() {
+        if (!this._instance) {
+            this._instance = new GameManager();
+        }
+        return this._instance;
+    }
+}
+
+let game1 = GameManager.Instance();
+game1.name = "愤怒的小鸡";
+console.log(game1.name);//输出愤怒的小鸡
+let game2 = GameManager.Instance();
+game2.name = "打地鼠";
+console.log(game1.name);//输出打地鼠
+console.log(game2.name);//输出打地鼠
+//说明game1和game2指向了同一个单例
+console.log(game1==game2)//输出true
+```
+
+### 代理模式
+代理模式就是一件事情，让不同的人去做
+```typescript
+interface Name {
+    setName(name: string): string;
+}
+
+//代理人1
+class Person1 implements Name {
+    setName(name: string): string {
+        return "代理人1起的名字" + name;
+    }
+}
+
+//代理人2
+class Person2 implements Name {
+    setName(name: string): string {
+        return "代理人2起的名字" + name;
+    }
+}
+
+
+class Person {
+    //使用哪个接口代理
+    public agent: Name;
+
+    getName() {
+        //使用代理去获取名称
+        let name = this.agent.setName("马云");
+        return name;
+    }
+}
+
+let person = new Person();
+//设定一个使用的代理人 才能使用代理人的方法
+person.agent = new Person1();
+console.log(person.getName());
+```
+
+### 观察者模式和vue2的原理
+观察者模式就是一个观察者监听一个变量自动触发函数
+```typescript
+//观察者协议
+interface Observer {
+    //观察名字改变
+    emitNameChange(newValue);
+}
+
+class Person {
+    private _name: string;
+    //用数组保存所有的观察者
+    public observers: Array<Observer> = new Array<Observer>();
+
+    get name(): string {
+        return this._name;
+    }
+
+    set name(name: string) {
+        this._name = name;
+        //通知其他类名字改变了
+        //遍历观察者数组 并发送消息
+        this.observers.forEach((observer) => {
+            observer.emitNameChange(this.name);
+        })
+    }
+}
+
+class Test implements Observer {
+    emitNameChange(newValue) {
+        console.log(newValue);
+    }
+}
+
+
+let person = new Person()
+let test = new Test()
+//设置test对象为person对象的观察者
+person.observers.push(test)
+
+person.name = "马云" //这个时候test.nameChange就被调用了
+```
+vue2的原理就是在set方法里调用观察者的回调函数去更新dom元素
+```javascript
+//视图元素，获取form中的DOM节点并设置默认值，该默认值是VUE是data对象中的数据。
+let form = document.querySelector(".form");
+//定义对象
+let object = {
+    _data:{
+        username:"",
+        usertype:""
+    }
+};
+//实现用户输入数据与object对象内同名属性的同步修改
+Object.defineProperty(object, "username", {
+    get(){return object._data.username;},
+    set(value){object._data.username = value;}
+});
+Object.defineProperty(object, "usertype",{
+    get(){return object._data.usertype;},
+    set(value){object._data.usertype = value;}
+});
+//监听form元素事件，获取目标DOM节点的value并赋值给object对象中的响应属性，即可完成用户输入与对象值之间的数据绑定。
+form.addEventListener("input", (event)=>{
+    let value = event.target.value;
+    let name = event.target.getAttribute("name");
+    object[name] = value;
+});
+```
+
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
