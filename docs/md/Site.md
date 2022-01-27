@@ -31,11 +31,13 @@
 | [FeHelper](https://github.com/zxlie/FeHelper/tree/master/apps/static/screenshot/crx)                                                          | json浏览器插件 | 2021年10月19日 |
 
 # 命名规范
-| 语言       | 命名规范                                                                                                                                                                        |
-| :--------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| css        | class、id采用小写加横杠 - <br>如 first-name                                                                                                                                     |
-| html       | 组件采用小写加横杠 - <br>如 `<first-component></first-component>`                                                                                                               |
-| javascript | 常量 const FIRST_NAME = 'hello' <br>变量  let firstName = 'hello' <br>方法 getFirstName() setFirstName() <br>类名 FirstClass <br>私有属性 _firstName <br>私有方法 _getFirstName |
-| python/php | 常量 FIRST_NAME = 'hello' <br>类名 FirstClass <br>方法 getFirstName() setFirstName() <br>属性/变量 firstName  <br>全局函数 get_ip()  <br>配置参数 {'db_host':'127.0.0.1'}       |
-| mysql      | 表名、字段名采用小写下划线方式 <br>如 first_table_name  first_field_name <br>数据库录入 <br>如 'first_name'=>post['firstName']                                                  |
-| 文件       | 采用小写下划线方式 <br>如 first_file.js fisrt_image.png                                                                                                                             |
+| 语言                 | 命名规范                                                                                                                                                                        |
+| :------------------- | :------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| css                  | class、id采用小写加横杠 - <br>如 first-name                                                                                                                                     |
+| html                 | 组件采用小写加横杠 - <br>如 `<first-component></first-component>`                                                                                                               |
+| javascript           | 常量 const FIRST_NAME = 'hello' <br>变量  let firstName = 'hello' <br>方法 getFirstName() setFirstName() <br>类名 FirstClass <br>私有属性 _firstName <br>私有方法 _getFirstName |
+| python/php           | 常量 FIRST_NAME = 'hello' <br>类名 FirstClass <br>方法 getFirstName() setFirstName() <br>属性/变量 firstName  <br>全局函数 get_ip()  <br>配置参数 {'db_host':'127.0.0.1'}       |
+| mysql                | 表名、字段名采用小写下划线方式 <br>如 first_table_name  first_field_name <br>数据库录入 <br>如 'first_name'=>post['firstName']                                                  |
+| 任何资源文件 文件夹  | 采用小写下划线方式 <br>如 first_file.js fisrt_image.png                                                                                                                         |
+| 任何组件或者类文件名 | 采用大写驼峰                                                                                                                                                                    |
+| 常用动词             | add update delete list get set detail                                                                                                                                           |
