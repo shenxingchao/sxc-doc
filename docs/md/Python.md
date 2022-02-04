@@ -6813,7 +6813,7 @@ async def index(request):
 ```
 运行 sanic server.app
 
-### 调式模式(热重载)
+### 调式模式热重载
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -7222,7 +7222,7 @@ app.add_task(exexTask())
 app.run()
 ```
 
-### 视图（同一路由分发不同类型的请求）
+### 视图同一路由分发不同类型的请求
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -7342,7 +7342,7 @@ async def index(request: Request) -> HTTPResponse:
 !> 前缀version_prefix可省略
 
 
-### 蓝图（组件）
+### 蓝图组件
 #### 创建和注册蓝图
 ```py
 from sanic import Sanic, Blueprint
