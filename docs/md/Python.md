@@ -7882,7 +7882,19 @@ def protected():
 
 如果要用[sanic-cors](https://github.com/ashleysommer/sanic-cors)  
 1. 没有安装sanic-ext的情况下可以用他的基本示例
-2. 如果同时安装了sanic-ext的情况下，那么需要用他的扩展示例，否则它不会启用，而是使用了sanic-ext里的cors导致看起来cors无效(整了2天看了原来才知道，坑)
+2. 如果同时安装了sanic-ext的情况下，那么需要用他的扩展示例，否则它不会启用，而是使用了sanic-ext里的cors导致看起来cors无效(整了2天看了原来才知道，坑)  
+
+简单的项目可直接使用response中间件  
+```py
+@app.middleware("response")
+async def cors(request: Request, response: HTTPResponse):
+    """
+    @description cors跨域中间件 这种方法最简单
+    @param
+    @return
+    """
+    response.headers.update({"Access-Control-Allow-Origin": "*"})
+```
 
 ### linux部署
 1. 安装python3环境（前面有）

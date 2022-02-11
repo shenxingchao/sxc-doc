@@ -650,6 +650,8 @@
 
     - [sqlalchemy和aiomysql配合使用](/md/Python#sqlalchemy和aiomysql配合使用)
 
+    - [cors扩展](/md/Python#cors扩展)
+
     - [linux部署](/md/Python#linux部署)
 
 - [PythonGUI](/md/PythonGUI#pythongui)
