@@ -7873,7 +7873,16 @@ def protected():
     if __name__ == "__main__":
         main()
     ```
-   
+
+### cors扩展
+[cors](https://sanic.dev/zh/plugins/sanic-ext/http/cors.html#%E8%B7%A8%E5%9F%9F%E4%BF%9D%E6%8A%A4-cors-protection)  
+直接安装sanic-ext,在导入sanic时会自动导入,默认启用了cors保护  
+
+!> 需要配置app.config.CORS_ORIGINS 来指定可访问的来源  
+
+如果要用[sanic-cors](https://github.com/ashleysommer/sanic-cors)  
+1. 没有安装sanic-ext的情况下可以用他的基本示例
+2. 如果同时安装了sanic-ext的情况下，那么需要用他的扩展示例，否则它不会启用，而是使用了sanic-ext里的cors导致看起来cors无效(整了2天看了原来才知道，坑)
 
 ### linux部署
 1. 安装python3环境（前面有）
