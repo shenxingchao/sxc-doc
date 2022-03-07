@@ -60,7 +60,7 @@
 
     - [常用](/md/HybirdApp#常用)
 
-    - [安装](/md/HybirdApp#安装)
+    - [安装](/md/HybirdApp#安装-3)
 
     - [vscode配置](/md/HybirdApp#vscode配置)
 
