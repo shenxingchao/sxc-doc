@@ -54,9 +54,13 @@
 
     - [运算符](/md/HybirdApp#运算符)
 
+    - [单例模式](/md/HybirdApp#单例模式)
+
   - [flutter](/md/HybirdApp#flutter)
 
-    - [安装](/md/HybirdApp#安装-3)
+    - [常用](/md/HybirdApp#常用)
+
+    - [安装](/md/HybirdApp#安装)
 
     - [vscode配置](/md/HybirdApp#vscode配置)
 

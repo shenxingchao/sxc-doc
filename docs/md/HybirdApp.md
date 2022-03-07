@@ -848,9 +848,42 @@ renderTabBar={() => <ScrollableTabBar />}
 
 ?> 什么swith for while do...while... try catch都和js一样就不列了
 
+### 单例模式
+```dart
+class Manager{
+  // 工厂模式
+  factory Manager() => _getInstance();
+  static Manager get instance => _getInstance();
+  static Manager? _instance;
+
+  //音频播放器
+  late AudioPlayer audioPlayer;
+
+  Manager._internal() {
+    //全局AudioPlayer对象只有一个实例
+    audioPlayer = AudioPlayer();
+  }
+
+  static Manager _getInstance() {
+    _instance ??= Manager._internal();
+    return _instance as Manager;
+  }
+}
+// 无论如何初始化，取到的都是同一个对象
+Manager manager = new Manager();
+Manager manager2 = Manager.instance;
+```
+
 
 
 ## flutter
+### 常用
+[flutter pub 中文网](https://pub.flutter-io.cn/)
+
+[flutter实战第二版](https://book.flutterchina.club/)
+
+[flutter老孟](http://laomengit.com/flutter/widgets/widgets_structure.html)
+
 ### 安装
 参考地址 https://flutter.cn/docs/get-started/install/windows  
 创建项目 https://flutter.cn/docs/get-started/test-drive?tab=vscode#create-app
