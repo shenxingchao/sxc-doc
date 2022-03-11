@@ -96,7 +96,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 [https://devdocs.io/](https://devdocs.io/)
 
-## 变量类型
+## 常用数据类型
 
 ```java
 public class VarType {
@@ -126,6 +126,34 @@ public class VarType {
         Boolean boolFalse = false;
         System.out.println(boolTrue);
         System.out.println(boolFalse);
+    }
+}
+```
+
+## 类型转换
+
+```java
+public class VarType {
+    public static void main(String[] args) {
+        // 强制类型转换
+        byte a = 97;
+        byte b = 2;
+        byte c = (byte) (a + b);
+        char word = (char) (a + b);
+        // int转String
+        String str = Integer.toString(1000);
+        // double转String
+        String str2 = Double.toString(1000.0);
+        // String转int
+        int num = Integer.parseInt(str);
+        System.out.println(c);// 输出99
+        System.out.println(word);// 输出c
+        System.out.println(str);// 输出1000
+        System.out.println(str2);// 输出1000.0
+        System.out.println(num);// 输出1000
+        // +号强转
+        System.out.println(num + "");// 输出1000
+
     }
 }
 ```
