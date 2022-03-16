@@ -363,7 +363,16 @@ public class Demo {
         // 定义一个数组
         double[] arr = { 1, 5, 1, 3.4, 2, 50 };
         // 或者 这种初始化是长度位6的空数组
-        // double[] arr = new double[6];
+        double[] arr1 = new double[6];
+        // 牛逼初始化
+        double[] arr2 = new double[] { 1, 5, 1, 3.4, 2, 50 };
+        // 定义一个二维数组
+        // 静态赋值
+        double[][] arr3 = { { 1, 2.0 }, { 3.0 } };
+        // 声明一个空数组
+        double[][] arr4 = new double[6][1];
+        // 动态赋值数组长度
+        double[][] arr5 = new double[6][];
         // 打印某个值
         System.out.println(arr[0]);// 输出1.0
         // 赋值
@@ -384,6 +393,300 @@ public class Demo {
 
     }
 }
+```
+
+### 常用方法
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        double[] arr = { 1, 5, 1, 3.4, 2, 50 };
+        // 复制拷贝一个数组
+        double[] arr2 = arr.clone();
+        System.out.println(Arrays.toString(arr2));// 输出[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+        // 数组反转
+        double[] arrReverse = new double[arr.length];
+        for (int i = 0; i < arr.length; i++) {
+            arrReverse[i] = arr[arr.length - 1 - i];
+        }
+        System.out.println(Arrays.toString(arrReverse));// 输出[50.0, 2.0, 3.4, 1.0, 5.0, 1.0]
+    }
+}
+```
+
+**二维数组案例**
+
+输出10行的杨辉三角
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        int[][] arr = new int[10][];
+        for (int i = 0; i < arr.length; i++) {
+            arr[i] = new int[i + 1];
+            for (int j = 0; j < i + 1; j++) {
+                if (j == 0 || j == i) {
+                    arr[i][j] = 1;
+                } else {
+                    arr[i][j] = arr[i - 1][j - 1] + arr[i - 1][j];
+                }
+            }
+        }
+        for (int[] item : arr) {
+            System.out.println(Arrays.toString(item));
+        }
+    }
+}
+```
+
+```
+[1]
+[1, 1]
+[1, 2, 1]
+[1, 3, 3, 1]
+[1, 4, 6, 4, 1]
+[1, 5, 10, 10, 5, 1]
+[1, 6, 15, 20, 15, 6, 1]
+[1, 7, 21, 35, 35, 21, 7, 1]
+[1, 8, 28, 56, 70, 56, 28, 8, 1]
+[1, 9, 36, 84, 126, 126, 84, 36, 9, 1]
+```
+
+## 类
+
+### 创建类
+
+```java
+public class Demo {
+
+    public static void main(String[] args) {
+        Cat cat1 = new Cat("小白", "白色", 3);
+        Cat cat2 = new Cat("小花", "花色", 100);
+        System.out.println(cat1.getCat());// 输出 小白 白色 3
+        System.out.println(cat2.getCat());// 输出 小花 花色 100
+    }
+}
+
+class Cat {
+    private String _name = "";
+    private String _color = "";
+    private int _age = 0;
+
+    public Cat(String name, String color, int age) {
+        this._name = name;
+        this._color = color;
+        this._age = age;
+    }
+
+    public String getCat() {
+        return this._name + " " + this._color + " " + this._age;
+    }
+}
+```
+
+## 算法
+
+### 冒泡排序
+
+相邻两个数比较，进行arr.length-1轮比较，每轮比较的次数都会少一次
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        double[] arr = { 1, 5, 1, 3.4, 2, 50 };
+        // 冒泡排序从小到大
+        double temp;
+        for (int i = 0; i < arr.length - 1; i++) {
+            for (int j = 0; j < arr.length - 1 - i; j++) {
+                // 如果前面的比后面的大 则交换
+                if (arr[j] > arr[j + 1]) {
+                    temp = arr[j];
+                    arr[j] = arr[j + 1];
+                    arr[j + 1] = temp;
+                }
+                // 每一轮的结果是
+                System.out.println(Arrays.toString(arr));
+            }
+        }
+        System.out.println(Arrays.toString(arr));//输出[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+    }
+}
+```
+
+第一轮
+
+```
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 3.4, 5.0, 2.0, 50.0]
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+```
+
+第二轮
+
+```
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+第三轮
+
+```
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+[1.0, 1.0, 3.4, 2.0, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+第四轮
+
+```
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+第五轮
+
+```
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+### 选择排序
+
+每次和最小值比较，选出最小的值放在第i个位置，共进行arr.length-2轮
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        double[] arr = { 1, 5, 1, 3.4, 2, 50 };
+        // 选择排序从小到大
+        double min;
+        for (int i = 0; i < arr.length - 1; i++) {
+            min = arr[i];
+            for (int j = i + 1; j < arr.length - 1; j++) {
+                if (arr[j] < min) {
+                    min = arr[j];
+                    arr[j] = arr[i];
+                    arr[i] = min;
+                }
+                System.out.println(Arrays.toString(arr));
+            }
+        }
+        System.out.println(Arrays.toString(arr));// 输出[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+    }
+}
+```
+
+第一轮 注意一共只有四轮
+
+```
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+```
+
+第二轮
+
+```
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+```
+
+第三轮
+
+```
+[1.0, 1.0, 3.4, 5.0, 2.0, 50.0]
+[1.0, 1.0, 2.0, 5.0, 3.4, 50.0]
+```
+
+第四轮
+
+```
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+### 插入排序
+
+每次取第i个数和他前面的有序列表对比，插入到相应为止，共进行arr.length - 1
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        double[] arr = { 1, 5, 1, 3.4, 2, 50 };
+        // 插入排序从小到大
+        double min;
+        for (int i = 0; i < arr.length - 1; i++) {
+            for (int j = 0; j < i + 1; j++) {
+                min = arr[i + 1];
+                if (min < arr[j]) {
+                    arr[i + 1] = arr[j];
+                    arr[j] = min;
+                }
+                System.out.println(Arrays.toString(arr));
+            }
+        }
+        System.out.println(Arrays.toString(arr));// 输出[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+    }
+}
+```
+
+第一轮
+
+```
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+```
+
+第二轮
+
+```
+[1.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+```
+
+第三轮
+
+```
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 5.0, 3.4, 2.0, 50.0]
+[1.0, 1.0, 3.4, 5.0, 2.0, 50.0]
+```
+
+第四轮
+
+```
+[1.0, 1.0, 3.4, 5.0, 2.0, 50.0]
+[1.0, 1.0, 3.4, 5.0, 2.0, 50.0]
+[1.0, 1.0, 2.0, 5.0, 3.4, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+```
+
+第五轮
+
+```
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
+[1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
 ```
 
 ## 内置类
