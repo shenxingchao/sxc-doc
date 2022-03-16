@@ -115,15 +115,15 @@ public class VarType {
         // 双精度浮点数
         double d = 3.1415926;
         System.out.println(d);
-        // 字符串
+        // 字符串ps:不是基本数据类型
         String str = "hello world";
         System.out.println(str);
         // 单个字符 单引号
         char word = 97;
         System.out.println(word);
         // 布尔值
-        Boolean boolTrue = true;
-        Boolean boolFalse = false;
+        boolean boolTrue = true;
+        boolean boolFalse = false;
         System.out.println(boolTrue);
         System.out.println(boolFalse);
     }
@@ -154,6 +154,286 @@ public class VarType {
         // +号强转
         System.out.println(num + "");// 输出1000
 
+    }
+}
+```
+
+## 逻辑运算符
+
+```java
+public class AndOr {
+    public static void main(String[] args) {
+        int a = 1, b = 3;
+        // && 短路规则 => 前面的条件如果为false后面的就不执行
+        if (a > b && ++b == 4) {
+            // ++b没执行
+        }
+        System.out.println("b=" + b);
+        // & 不遵循短路规则 => 前面的如果是false那后面的也执行
+        a = 1;
+        b = 3;
+        if (a > b & ++b == 4) {
+            // ++b执行了
+        }
+        System.out.println("b=" + b);
+
+    }
+}
+```
+
+## 条件语句
+
+```java
+public class IfElse {
+    public static void main(String[] args) {
+        boolean a = true;
+        boolean b = false;
+        if (a) {
+            System.out.println("a");
+        } else if (!b) {
+            System.out.println("因为a满足了不会输出,a满足了就跳出这个if else if else代码块了");
+        } else {
+            System.out.println("因为a满足了不会输出,else不会输出的");
+        }
+    }
+}
+```
+
+## 循环
+
+### for循环计1~100的和
+
+```java
+public class SumNumber {
+    public static void main(String[] args) {
+        int sum = 0;
+        for (int i = 1; i < 101; i++) {
+            sum+=i;
+        }
+        System.out.println(sum);
+    }
+}
+```
+
+### for循环输出列表
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4 };
+        for (int i = 0; i < arr.length; i++) {
+            System.out.println(arr[i]);
+        }
+    }
+}
+```
+
+### for循环打印99乘法表
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        for (int i = 1, j = 1; i <= 9; i++) {
+            for (j = 1; j <= i; j++) {
+                System.out.print(i + "*" + j + " = " + i * j + "  ");
+            }
+            System.out.println("\n");
+        }
+    }
+}
+```
+
+### while循环最好是用在不确定循环次数的时,也可计算0-100的和
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        int sum = 0;
+        int i = 1;
+        while (true) {
+            if (i <= 100) {
+                sum += i;
+                i++;
+            } else {
+                break;
+            }
+        }
+        System.out.println(sum);
+    }
+}
+```
+
+练习：
+
+**打印金字塔**
+
+```
+     *
+    ***
+   *****
+  *******
+ *********
+***********
+```
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        int line = 6;
+        for (int i = 1; i <= line; i++) {
+            for (int j = 0; j < line - i; j++) {
+                System.out.print(" ");
+            }
+            for (int j = 0; j < i*2-1; j++) {
+                System.out.print("*");
+            }
+            System.out.println();
+        }
+    }
+}
+```
+
+**打印镂空金字塔**
+
+```
+         *
+        * *
+       *   *
+      *     *
+     *       *
+    *         *
+   *           *
+  *             *
+ *               *
+*******************
+```
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        int line = 10;
+        for (int i = 1; i <= line; i++) {
+            for (int j = 0; j < line - i; j++) {
+                System.out.print(" ");
+            }
+            for (int j = 0; j < i * 2 - 1; j++) {
+                if (i > 1 && i < line) {
+                    if (j == 0 || j == i * 2 - 2) {
+                        System.out.print("*");
+                    } else {
+                        System.out.print(" ");
+                    }
+                } else {
+                    System.out.print("*");
+                }
+            }
+            System.out.println();
+        }
+    }
+}
+```
+
+### break用法
+
+这里记录一下break可以跳出for循环标签，其他语言类似，continue也可以跳到指定标签运行
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        outer: for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 3; j++) {
+                if (j > 0)
+                    break outer;
+            }
+            System.out.println("我不会输出，因为已经跳出最外层循环outer");
+        }
+    }
+}
+```
+
+## 数组
+
+### 基本操作
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 定义一个数组
+        double[] arr = { 1, 5, 1, 3.4, 2, 50 };
+        // 或者 这种初始化是长度位6的空数组
+        // double[] arr = new double[6];
+        // 打印某个值
+        System.out.println(arr[0]);// 输出1.0
+        // 赋值
+        arr[0] = 3;
+        // 打印数组
+        System.out.println(Arrays.toString(arr)); // 输出[3.0, 5.0, 1.0, 3.4, 2.0, 50.0]
+        // 遍历数组
+        for (double item : arr) {
+            System.out.print(item); // 输出3.05.01.03.42.050.0
+        }
+        System.out.println();
+        for (int i = 0; i < arr.length; i++) {
+            System.out.print(arr[i]); // 输出3.05.01.03.42.050.0
+        }
+        System.out.println();
+        // 数组长度
+        System.out.println(arr.length);// 输出6
+
+    }
+}
+```
+
+## 内置类
+
+### Scanner获取用户输入
+
+```java
+import java.util.Scanner;
+
+public class GetInput {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        System.out.println("请输入a");
+        int a = Integer.parseInt(scanner.next());
+        System.out.println("请输入b");
+        int b = Integer.parseInt(scanner.next());
+        System.out.println("请输入c");
+        int c = scanner.nextInt();
+        System.out.println(a * b * c);
+        scanner.close();
+    }
+}
+```
+
+### Math数学方法
+
+**随机整数**
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 0~10随机整数
+        System.out.println((int)Math.ceil(Math.random() * 10));
+    }
+}
+```
+
+### String
+
+**equals**
+
+判断两个字符串是否相等 被判断的变量放在传参里 可以防止空指针
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        String str = "hello";
+        if("hello".equals(str)){
+            System.out.println("相等");
+        }
     }
 }
 ```
