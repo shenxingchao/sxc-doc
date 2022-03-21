@@ -466,26 +466,371 @@ public class Demo {
 public class Demo {
 
     public static void main(String[] args) {
-        Cat cat1 = new Cat("小白", "白色", 3);
-        Cat cat2 = new Cat("小花", "花色", 100);
-        System.out.println(cat1.getCat());// 输出 小白 白色 3
-        System.out.println(cat2.getCat());// 输出 小花 花色 100
+        Person person1 = new Person("小白", 3);
+        Person person2 = new Person("小花", 100);
+        System.out.println(person1.getCat());// 输出 小白 3
+        System.out.println(person2.getCat());// 输出 小花 100
     }
 }
 
-class Cat {
-    private String _name = "";
-    private String _color = "";
-    private int _age = 0;
+class Person {
+    private String name = "";
+    private int age = 0;
 
-    public Cat(String name, String color, int age) {
-        this._name = name;
-        this._color = color;
-        this._age = age;
+    // 构造方法
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
     }
 
     public String getCat() {
-        return this._name + " " + this._color + " " + this._age;
+        return this.name + " " + this.age;
+    }
+}
+```
+
+### 变量
+
+全局变量（成员方法\属性）有默认值
+
+局部变量指在代码块中定义的，使用前必须赋值
+
+### 构造方法
+
+构造方法和类名同名，他既然是方法，也具有方法重载
+
+```java
+public class Demo {
+
+    public static void main(String[] args) {
+        Person person = new Person();
+        System.out.println(person.getCat());// 姓名 0
+    }
+}
+
+class Person {
+    private String name = "";
+    private int age = 0;
+
+    public Person() {
+        // 调用本类里的构造方法
+        this("姓名", 0);
+    }
+
+    // 构造方法
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    public String getCat() {
+        return this.name + " " + this.age;
+    }
+}
+```
+
+### 静态方法
+
+```java
+public class Demo {
+
+    public static void main(String[] args) {
+        Person.staticFn("直接调用");
+    }
+}
+
+class Person {
+    public static void staticFn(String content) {
+        System.out.println(content);
+    }
+}
+```
+
+### 传参方式
+
+分为引用传递和值传递
+
+基本数据类型：int double等都是值传递（值的拷贝）  值传递不会改变原变量的值
+
+引用数据类型：数组、对象等是引用传递（地址拷贝），在方法里改变值会影响原变量的值
+
+另外字符串虽然是引用数据类型（但是他是不可变的对象final，String赋值的过程相当于new了一个String对象） 
+
+tips:任何方法的调用会创建新的栈空间，如果在这个新的空间里创建同名对象，这个对象和实参是2个不同的对象
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+
+    public static void main(String[] args) {
+        int num = 1;
+        int[] intArr = { 1, 2, 3, 4 };
+        String str = "hello world!";
+        changeNum(num);
+        changeArr(intArr);
+        changeStr(str);
+        System.out.println(num);//1 基本数据类型是值传递 所以原变量不变
+        System.out.println(Arrays.toString(intArr));// [-1, 2, 3, 4] 数组是引用传递，所以值发生了改变
+        System.out.println(str);//hello world!String也是值传递 所以原变量不变
+    }
+
+    public static void changeNum(int num) {
+        num = -1;
+    }
+
+    public static void changeArr(int[] intArr) {
+        intArr[0] = -1;
+    }
+
+    public static void changeStr(String str) {
+        str = "hello";//注意这里本质是new 了一个String对象 相当于在栈开辟了新空间，和main里的str是2个String对象了
+    }
+}
+```
+
+### 可变参数
+
+可变参数 不确定参数的个数时使用 ，需要放在形参的最后
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+
+    public static void main(String[] args) {
+        Person.argsFn(1, 2, 3);// [1, 2, 3]
+    }
+}
+
+class Person {
+
+    /**
+     * 
+     * @param nums 可变参数 不确定参数的个数时使用 相当于int[] nums
+     */
+    public static void argsFn(int... nums) {
+        System.out.println(Arrays.toString(nums));
+    }
+}
+```
+
+### 方法重载
+
+方法的重载就是同一个类中方法名相同，形参不同（返回类型不构成重载的条件，只有返回类型不一样，不算重载）
+
+```java
+public class Demo {
+
+    public static void main(String[] args) {
+        Person.overloadFn();// 我没有形参，是overloadFn方法
+        Person.overloadFn("我多了个形参，是overloadFn方法的重载");// 我多了个形参，是overloadFn方法的重载
+    }
+}
+
+class Person {
+    public static void overloadFn() {
+        System.out.println("我没有形参，是overloadFn方法");
+    }
+
+    public static void overloadFn(String content) {
+        System.out.println(content);
+    }
+}
+```
+
+### 返回值
+
+返回包装类
+
+```java
+public class Demo {
+
+    public static void main(String[] args) {
+        double a = 0;
+        double b = 1;
+        Calc calc = new Calc();
+        Double res = calc.div(a, b);
+        System.out.println(res);
+    }
+}
+
+class Calc {
+    /**
+     * 除法运算
+     * @param a 除数
+     * @param b 被除数
+     * @return Double 是因为结果里可能包含null，所以要用包装类返回，因为类对象可以是null，不用double是因为是基本数据类型，不能为null
+     */
+    public Double div(double a, double b) {
+        if (a == 0) {
+            return null;
+        } else {
+            return a / b;
+        }
+    }
+}
+```
+
+### 包
+
+创建包
+
+规范 com.公司名.项目名.模块名
+
+新建文件夹com → 新建文件PackageDemo.java
+
+```java
+package com;
+
+public class PackageDemo {
+    
+}
+```
+
+使用
+
+```java
+import com.PackageDemo;
+
+public class Demo {
+    public static void main(String[] args) {
+      PackageDemo packageDemo = new PackageDemo();
+    }
+}
+```
+
+### 访问修饰符
+
+| 访问修饰符         | 同类 | 同包 | 子类          | 不同包 |
+| ------------------ | ---- | ---- | ------------- | ------ |
+| public             | √    | √    | √             | √      |
+| protected          | √    | √    | √             | ×      |
+| 默认（什么也不加） | √    | √    | ×不同包 √同包 | ×      |
+| private            | √    | ×    | ×             | ×      |
+
+### 封装
+
+属性私有化 设置or获取数据通过方法
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        new Person("小白", 18);
+    }
+}
+
+class Person {
+    private String name;
+    private int age;
+
+    public Person() {
+    }
+
+    public Person(String name, int age) {
+        setName(name);
+        setAge(age);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+```
+
+### 继承和多态
+
+继承 子类和父类有共同属性或方法时使用，java是单继承
+
+多态 重写父类的方法
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Person p = new Person("小白", 18);
+        // 继承后可调用父类的方法
+        p.setAddress("上海金融大厦");
+        System.out.println(p.getAddress());// 输出上海金融大厦
+        // 重写父类方法 多态
+        System.out.println(p.getCompanyName());// 输出阿里巴巴公司
+    }
+}
+
+/**
+ * 公司类
+ */
+class Company {
+    private String address = "浙江省杭州市";
+    private String companyName = "阿里巴巴";
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public String getCompanyName() {
+        return companyName;
+    }
+
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
+    }
+
+}
+
+/**
+ * Person 继承 公司类
+ */
+class Person extends Company {
+    private String name;
+    private int age;
+
+    public Person() {
+        super();// 虽然会默认调，最好写一下，因为假如父类没有无参构造器（定义了一个构造器）,那这里就会报错
+    }
+
+    public Person(String name, int age) {
+        super();
+        setName(name);
+        setAge(age);
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    // 重写父类的方法 称之为多态。。。
+    @Override
+    public String getCompanyName() {
+        // super.访问父类属性或方法
+        return super.getCompanyName() + "公司";
     }
 }
 ```
@@ -724,6 +1069,23 @@ public class Demo {
 }
 ```
 
+### Random
+
+随机整数
+
+```java
+import java.util.Random;
+
+public class Demo {
+
+    public static void main(String[] args) {
+        Random random = new Random();
+        // 输出0-10的随机整数
+        System.out.println(random.nextInt(10));
+    }
+}
+```
+
 ### String
 
 **equals**
@@ -740,5 +1102,3 @@ public class Demo {
     }
 }
 ```
-
-#

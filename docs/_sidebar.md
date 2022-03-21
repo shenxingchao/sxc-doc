@@ -254,6 +254,96 @@
 
     - [利用iframe跨域单点登录](/md/Javascript#利用iframe跨域单点登录)
 
+- [Java](/md/Java#java)
+
+  - [let’s go](/md/Java#lets-go)
+
+  - [jdk](/md/Java#jdk)
+
+  - [环境变量](/md/Java#环境变量)
+
+  - [HelloWorld](/md/Java#helloworld)
+
+  - [编译](/md/Java#编译)
+
+  - [运行](/md/Java#运行)
+
+  - [args](/md/Java#args)
+
+  - [VsCode运行配置](/md/Java#vscode运行配置)
+
+  - [api文档](/md/Java#api文档)
+
+  - [常用数据类型](/md/Java#常用数据类型)
+
+  - [类型转换](/md/Java#类型转换)
+
+  - [逻辑运算符](/md/Java#逻辑运算符)
+
+  - [条件语句](/md/Java#条件语句)
+
+  - [循环](/md/Java#循环)
+
+    - [for循环计1~100的和](/md/Java#for循环计1100的和)
+
+    - [for循环输出列表](/md/Java#for循环输出列表)
+
+    - [for循环打印99乘法表](/md/Java#for循环打印99乘法表)
+
+    - [while循环最好是用在不确定循环次数的时,也可计算0-100的和](/md/Java#while循环最好是用在不确定循环次数的时也可计算0-100的和)
+
+    - [break用法](/md/Java#break用法)
+
+  - [数组](/md/Java#数组)
+
+    - [基本操作](/md/Java#基本操作)
+
+    - [常用方法](/md/Java#常用方法)
+
+  - [类](/md/Java#类)
+
+    - [创建类](/md/Java#创建类)
+
+    - [变量](/md/Java#变量)
+
+    - [构造方法](/md/Java#构造方法)
+
+    - [静态方法](/md/Java#静态方法)
+
+    - [传参方式](/md/Java#传参方式)
+
+    - [可变参数](/md/Java#可变参数)
+
+    - [方法重载](/md/Java#方法重载)
+
+    - [返回值](/md/Java#返回值)
+
+    - [包](/md/Java#包)
+
+    - [访问修饰符](/md/Java#访问修饰符)
+
+    - [封装](/md/Java#封装)
+
+    - [继承和多态](/md/Java#继承和多态)
+
+  - [算法](/md/Java#算法)
+
+    - [冒泡排序](/md/Java#冒泡排序)
+
+    - [选择排序](/md/Java#选择排序)
+
+    - [插入排序](/md/Java#插入排序)
+
+  - [内置类](/md/Java#内置类)
+
+    - [Scanner获取用户输入](/md/Java#scanner获取用户输入)
+
+    - [Math数学方法](/md/Java#math数学方法)
+
+    - [Random](/md/Java#random)
+
+    - [String](/md/Java#string)
+
 - [Linux](/md/Linux#linux)
   
   - [常用命令](/md/Linux#常用命令)
