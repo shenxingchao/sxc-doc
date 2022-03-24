@@ -88,6 +88,8 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 }
 ```
 
+自己去快捷键绑定  alt+insert(源代码操作) 用于快速生成构造函数 set get tostring等
+
 ## api文档
 
 [https://www.matools.com/api/java8](https://www.matools.com/api/java8)
@@ -131,6 +133,12 @@ public class VarType {
 ```
 
 ## 类型转换
+
+char-int-long-float-double
+
+byte-short-int-long-float-double
+
+从大的类型转到小就要用强转 比如double转到int 需要 (int)double
 
 ```java
 public class VarType {
@@ -684,7 +692,7 @@ class Calc {
 package com;
 
 public class PackageDemo {
-    
+
 }
 ```
 
@@ -702,12 +710,12 @@ public class Demo {
 
 ### 访问修饰符
 
-| 访问修饰符         | 同类 | 同包 | 子类          | 不同包 |
-| :----------------- | :--- | :--- | :------------ | :----- |
-| public             | √    | √    | √             | √      |
-| protected          | √    | √    | √             | ×      |
-| 默认（什么也不加） | √    | √    | ×不同包 √同包 | ×      |
-| private            | √    | ×    | ×             | ×      |
+| 访问修饰符     | 同类  | 同包  | 子类       | 不同包 |
+| --------- | --- | --- | -------- | --- |
+| public    | √   | √   | √        | √   |
+| protected | √   | √   | √        | ×   |
+| 默认（什么也不加） | √   | √   | 不同包× 同包√ | ×   |
+| private   | √   | ×   | ×        | ×   |
 
 ### 封装
 
@@ -752,9 +760,9 @@ class Person {
 
 ### 继承和多态
 
-继承 子类和父类有共同属性或方法时使用，java是单继承
+继承 子类和父类有共同属性或方法时使用，java是单继承，本质是查找关系，就近原则
 
-多态 重写父类的方法
+多态 重写父类的方法，方法的多态 例如父类动物有说的方法，狗有说的方法，猫也有说的方法 这种同一个行为表现多个不同的样式称之为多态
 
 ```java
 public class Demo {
@@ -832,6 +840,90 @@ class Person extends Company {
         // super.访问父类属性或方法
         return super.getCompanyName() + "公司";
     }
+}
+```
+
+**多态细节**
+
+对象的多态
+
+向上转型 - 父类引用指向子类对象（自动转换，且对象会遗失父类中没有的方法，可以调用的方法看父类，实际运行先看子类，再看父类，tips:这里要注意一点是如果是调用属性的话，是看父类的，看编译类型而不是运行类型，属性和方法是不一样的，属性没有重写的说法）
+
+向下转型（强制转换，只能转换父类的引用，不能转换父类对象，可用子类中的方法）
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 父类引用指向子类对象-向上转型 （自动，且对象会遗失父类中没有的方法）
+        Person student1 = new Student();//左边是Person是编译类型  右边Student是运行类型
+        student1.say1();// 输出 Student say1()
+        student1.eat();// 输出 Person eat()
+        // 强转-向下转型 （强制，可用子类中的方法）(Student) new Person();这样转是错的,
+        Student student2 = (Student) student1;
+        student2.say1();// 输出 Student say1()
+        student2.say2();// 输出 Student say2()
+    }
+}
+
+class Person {
+    public void say1() {
+        System.out.println("Person say1()");
+    }
+
+    public void eat() {
+        System.out.println("Person eat()");
+    }
+}
+
+class Student extends Person {
+    public void say1() {
+        System.out.println("Student say1()");
+    }
+
+    public void say2() {
+        System.out.println("Student say2()");
+    }
+}
+```
+
+### this和super关键字
+
+| 区别    | this                     | super                       |
+| ----- | ------------------------ | --------------------------- |
+| 访问属性  | 先访问本类中的属性，如果没有，则继续查找父类属性 | 直接访问父类属性，就近原则               |
+| 调用方法  | 先访问本类中的方法，如果没有，则继续查找父类方法 | 直接访问父类方法，就近原则               |
+| 调用构造器 | 调用本类构造器，放在构造器首行this()    | 调用父类构造器，必须放在子类构造器首行，super() |
+| 特殊    | 表示当前对象                   | 子类中访问父类对象                   |
+
+### instanceof关键字
+
+用于判断对象x的运行类型是否xx类型或xx类型的父类型
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Integer x = new Integer(0);
+        System.out.println(x instanceof Integer);//true
+    }
+}
+```
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        A b = new B();
+        System.out.println(b instanceof A);// b的运行类型是B类型，A是B的父类型所以是true
+        System.out.println(b instanceof B);// b的运行类型是B类型所以是true
+
+        A a = new A();
+        System.out.println(a instanceof B);// a的运行类型是A类型 不是B类型所以是false
+    }
+}
+
+class A {
+}
+
+class B extends A {
 }
 ```
 
@@ -1088,9 +1180,9 @@ public class Demo {
 
 ### String
 
-**equals**
+**equals()**
 
-判断两个字符串是否相等 被判断的变量放在传参里 可以防止空指针
+判断两个字符串是否相等 被判断的变量放在传参里 可以防止空指针(判断的是引用对象的内容是否一致，而==在对象中判断的是地址和值是否都相同，在基本数据类型判断的是值是否相等) 
 
 ```java
 public class Demo {
@@ -1099,6 +1191,58 @@ public class Demo {
         if("hello".equals(str)){
             System.out.println("相等");
         }
+    }
+}
+```
+
+### Object
+
+**hashcode()**
+
+返回对象的哈希值 如果两个对象指向同一个地址，那么他们的hashcode值相同
+
+
+
+**toString()**
+
+一般需要重写该方法 用于打印对象属性 快捷生成alt+insert(idea编辑器)，vscode需要自己定义快捷键
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Person person = new Person("jack", 10);
+        System.out.println(person.toString());// Person [age=10, name=jack]
+    }
+}
+
+class Person {
+    private String name;
+    private int age;
+
+    public Person(String name, int age) {
+        this.name = name;
+        this.age = age;
+    }
+
+    @Override
+    public String toString() {
+        return "Person [age=" + age + ", name=" + name + "]";
+    }
+}
+```
+
+### Date
+
+格式化日期方法SimpleDateFormat 属于text类的放在这为了方便看
+
+```java
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+public class Demo {
+    public static void main(String[] args) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
+        System.out.println(simpleDateFormat.format(new Date()));// 2022-03-24 17:14:37
     }
 }
 ```
