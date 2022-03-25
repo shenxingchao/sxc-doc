@@ -492,7 +492,7 @@ class Person {
     }
 
     public String getCat() {
-        return this.name + " " + this.age;
+        return name + " " + age;
     }
 }
 ```
@@ -502,6 +502,28 @@ class Person {
 全局变量（成员方法\属性）有默认值
 
 局部变量指在代码块中定义的，使用前必须赋值
+
+### 静态变量
+
+也称之为类变量，被所有对象所共享，在类加载的时候就生成了 (有一个loadClass方法)
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        A a = new A();
+        A b = new A();
+        A.count++;
+        //下面代码输出的值相同
+        System.out.println(A.count);// 推荐 静态变量直接用类名调用
+        System.out.println(a.count);// 被a对象共享 但最好不要这么写 会有警告
+        System.out.println(b.count);// 被b对象共享 但最好不要这么写 会有警告
+    }
+}
+
+class A {
+    public static int count;
+}
+```
 
 ### 构造方法
 
@@ -532,12 +554,14 @@ class Person {
     }
 
     public String getCat() {
-        return this.name + " " + this.age;
+        return name + " " + age;
     }
 }
 ```
 
 ### 静态方法
+
+静态方法只能访问静态变量，不允许使用this，super关键字
 
 ```java
 public class Demo {
@@ -762,7 +786,7 @@ class Person {
 
 继承 子类和父类有共同属性或方法时使用，java是单继承，本质是查找关系，就近原则
 
-多态 重写父类的方法，方法的多态 例如父类动物有说的方法，狗有说的方法，猫也有说的方法 这种同一个行为表现多个不同的样式称之为多态
+多态 重写父类的方法，方法的多态 例如父类动物有说的方法，狗有说的方法，猫也有说的方法 这种同一个行为表现多个不同的样式称之为多态（多种形态嘛，除了方法，对象也可以是多态）
 
 ```java
 public class Demo {
@@ -886,6 +910,52 @@ class Student extends Person {
 }
 ```
 
+**多态数组**
+
+对象数组编译类型是其所有元素类型的父类，称之为多态数组
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 这个数组就被称为多态数组。。挺无语的
+        Person[] persons = new Person[2];
+        persons[0] = new Student("小明");
+        persons[1] = new Teacher("老王");
+    }
+}
+
+class Person {
+    private String name;
+
+    public Person(String name) {
+        this.name = name;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+}
+
+class Student extends Person {
+
+    public Student(String name) {
+        super(name);
+    }
+
+}
+
+class Teacher extends Person {
+
+    public Teacher(String name) {
+        super(name);
+    }
+}
+```
+
 ### this和super关键字
 
 | 区别    | this                     | super                       |
@@ -894,6 +964,46 @@ class Student extends Person {
 | 调用方法  | 先访问本类中的方法，如果没有，则继续查找父类方法 | 直接访问父类方法，就近原则               |
 | 调用构造器 | 调用本类构造器，放在构造器首行this()    | 调用父类构造器，必须放在子类构造器首行，super() |
 | 特殊    | 表示当前对象                   | 子类中访问父类对象                   |
+
+**关于构造器的坑**
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        new C();// 输出A B C
+    }
+}
+
+class A {
+    public A() {
+        System.out.println("A");
+    }
+}
+
+class B extends A {
+
+    public B() {
+        // 这里隐式调用了父类的构造器 super();所以最好写上
+        System.out.println("B");
+    }
+}
+
+class C extends B {
+
+    public C() {
+        // 这里不会调用super() 因为已经调用了本类的有参构造器this(str)
+        this("我是调用本类的有参构造器");
+    }
+
+    public C(String str) {
+        // 这里我显示写出来了
+        super();
+        System.out.println("C");
+    }
+}
+```
+
+!> 除非方法形参和局部变量重名，否则在方法里省略this，因为java源码也是这么写的
 
 ### instanceof关键字
 
@@ -1197,11 +1307,24 @@ public class Demo {
 
 ### Object
 
+**getClass()**
+
+返回对象的运行类型，可以拿来调式
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(new A().getClass());// class A
+    }
+}
+
+class A {
+}
+```
+
 **hashcode()**
 
 返回对象的哈希值 如果两个对象指向同一个地址，那么他们的hashcode值相同
-
-
 
 **toString()**
 
