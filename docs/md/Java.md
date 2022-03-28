@@ -88,7 +88,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 }
 ```
 
-自己去快捷键绑定  alt+insert(源代码操作) 用于快速生成构造函数 set get tostring等
+自己去快捷键绑定  alt+insert(源代码操作) 用于快速生成构造方法 set get tostring等
 
 ## api文档
 
@@ -466,7 +466,7 @@ public class Demo {
 [1, 9, 36, 84, 126, 126, 84, 36, 9, 1]
 ```
 
-## 类
+## 面向对象
 
 ### 创建类
 
@@ -1037,6 +1037,261 @@ class B extends A {
 }
 ```
 
+### 代码块
+
+代码块用于初始化对象的共同属性，静态代码块会随着类的加载被调用，只会调用一次；普通代码块会随着对象创建被调用，创建一次调用一次
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(A.i);// 我是静态代码块，随着类的加载执行，只会执行一次 1
+        new A();// 我是代码块,每创建一个对象，就会执行一次
+        new A();// 我是代码块,每创建一个对象，就会执行一次
+        new A();// 我是代码块,每创建一个对象，就会执行一次
+    }
+}
+
+class A {
+
+    public static int i = getI();
+
+    // 静态代码块
+    static {
+        System.out.println("我是静态代码块，随着类的加载执行，只会执行一次");
+    }
+
+    // 普通代码块
+    {
+        System.out.println("我是代码块,每创建一个对象，就会执行一次");
+    }
+
+    public static int getI() {
+        System.out.println("staic属性i和静态代码块按顺序加载，所以我先被执行");
+        return 1;
+    }
+
+    public A() {
+        System.out.println("构造器最后被调用");
+    }
+
+}
+```
+
+代码块的运行顺序
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // A 静态属性
+        // A 静态代码块
+        // B 静态属性
+        // B 静态代码块
+        // A 普通代码块
+        // A 构造方法
+        // B 普通代码块
+        // B 构造方法
+        new B();
+    }
+}
+
+class A {
+    public static int i = getI();
+
+    static {
+        System.out.println("A 静态代码块");
+    }
+
+    {
+        System.out.println("A 普通代码块");
+    }
+
+    public A() {
+        System.out.println("A 构造方法");
+    }
+
+    private static int getI() {
+        System.out.println("A 静态属性");
+        return 1;
+    }
+}
+
+class B extends A {
+    public static int j = getJ();
+
+    static {
+        System.out.println("B 静态代码块");
+    }
+
+    {
+        System.out.println("B 普通代码块");
+    }
+
+    public B() {
+        // 隐式调用super();
+        System.out.println("B 构造方法");
+    }
+
+    private static int getJ() {
+        System.out.println("B 静态属性");
+        return 2;
+    }
+}
+```
+
+### final关键字
+
+可以修饰类 、方法、属性、局部变量
+
+类加上final后不能被继承
+
+方法加上final不能被子类重写
+
+属性加上final后就变成常量了，不能被修改
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        final int i = 0;
+    }
+}
+
+final class A {
+    private static final String BASE_URL = "";
+
+    public static final String getUrl() {
+        return BASE_URL;
+    }
+}
+```
+
+### abstract抽象类
+
+抽象类（不能实例化，但它的本质还是类，也可以有属性和方法，抽象类的构造函数由其子类实例化用super(args)调用）
+
+抽象方法（不能有方法体，子类必须实现，且不能有private,final,static关键字，因为和子类重写相违背）
+
+```java
+abstract class Animal {
+    public abstract void eat();
+}
+
+class Dog extends Animal {
+    @Override
+    public void eat() {
+        System.out.println("狗狗喜欢吃骨头");
+    }
+}
+
+class Cat extends Animal {
+    @Override
+    public void eat() {
+        System.out.println("猫喜欢吃鱼");
+    }
+}
+```
+
+### 接口interface
+
+接口不能被实例化
+
+接口中的抽象方法可以省略abstract关键字
+
+接口中的抽象方法必须由实现该接口的类去实现
+
+## 设计模式
+
+### 单例模式
+
+**饿汉式**
+
+类加载就初始化，效率高，但浪费内存（还没用就占住这部分内存）
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        SingleInstance.getInstance();// 单例初始化了,只初始化一次
+        SingleInstance.getInstance();// 这句不输出了
+    }
+}
+
+class SingleInstance {
+    // 单例对象初始化
+    private static SingleInstance instance = new SingleInstance();
+
+    // 构造方法私有化 防止用户直接new初始化类
+    private SingleInstance() {
+        System.out.println("单例初始化了,只初始化一次");
+    }
+
+    // 获取单例
+    public static SingleInstance getInstance() {
+        return instance;
+    }
+}
+```
+
+**懒汉式**
+
+什么时候创建对象 什么时候调用，不浪费内存，多线程创建对象会造成创建多个对象，需要用同步锁（synchronized）解决，效率没有上面的高
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        SingleInstance.getInstance();// 单例初始化了,只初始化一次
+        SingleInstance.getInstance();// 这句不输出了
+    }
+}
+
+class SingleInstance {
+    // 单例对象
+    private static SingleInstance instance;
+
+    // 构造方法私有化 防止用户直接new初始化类
+    private SingleInstance() {
+        System.out.println("单例初始化了,只初始化一次");
+    }
+
+    // 获取单例，单例对象初始化
+    public static synchronized SingleInstance getInstance() {
+        if (instance == null) {
+            instance = new SingleInstance();
+        }
+        return instance;
+    }
+}
+```
+
+### 抽象模板设计模式
+
+共同代码父类实现，不同的代码子类实现(其实这个和继承没有太大区别，无非抽象方法没有方法体了)
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        B b = new B();
+        b.publicFn();
+    }
+}
+
+abstract class A {
+    // 共同代码提取到抽象类
+    public void publicFn() {
+        System.out.println("公共方法");
+        fn();
+    }
+
+    // 不同代码变成抽象方法，由子类去实现
+    public abstract void fn();
+}
+
+class B extends A {
+    @Override
+    public void fn() {
+        System.out.println("B");
+    }
+}
+```
+
 ## 算法
 
 ### 冒泡排序
@@ -1366,6 +1621,18 @@ public class Demo {
     public static void main(String[] args) {
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
         System.out.println(simpleDateFormat.format(new Date()));// 2022-03-24 17:14:37
+    }
+}
+```
+
+### System
+
+返回当前时间的毫秒数 currentTimeMillis()
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(System.currentTimeMillis());// 1648455831901
     }
 }
 ```
