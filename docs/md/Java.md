@@ -1198,6 +1198,54 @@ class Cat extends Animal {
 
 接口中的抽象方法必须由实现该接口的类去实现
 
+接口可以多继承
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        AInterface aInterface = new A();
+        aInterface.fnA();
+    }
+}
+
+interface AInterface {
+    // 接口里的属性必须是这样声明 public static final 且必须赋值
+    public static final int i = 0;
+
+    // 抽象方法，这里可以省略abstract关键字
+    public void fnA();
+
+    // 可以有普通方法，必须要有default/static关键字
+    public default void getName() {
+        System.out.println("name");
+    }
+}
+
+interface BInterface {
+    public void fnB();
+}
+
+// 接口可以多继承接口
+interface CInterface extends AInterface, BInterface {
+
+}
+
+// 接口可以多实现（抽象类的话只能单继承）
+class A implements AInterface, BInterface {
+
+    @Override
+    public void fnA() {
+        System.out.println("fnA");
+    }
+
+    @Override
+    public void fnB() {
+        System.out.println("fnB");
+    }
+
+}
+```
+
 ## 设计模式
 
 ### 单例模式
