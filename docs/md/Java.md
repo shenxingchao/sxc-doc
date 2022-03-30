@@ -1246,6 +1246,113 @@ class A implements AInterface, BInterface {
 }
 ```
 
+### 内部类
+
+内部类分为成员内部类（类似成员属性） 和 局部内部类（类似局部变量）
+
+匿名内部类可用lambda表达式代替
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 创建外部类
+        new Outer();
+        // 匿名内部类作形参
+        Demo.fn(new AInterface() {
+            @Override
+            public void fn() {
+                System.out.println("匿名内部类实现了fn方法");
+            }
+        });// 匿名内部类实现了fn方法
+
+        // lambda表达式作形参(这里作为扩展)
+        Demo.fn(() -> {
+            System.out.println("lambda表达式实现了fn方法");// lambda表达式实现了fn方法
+        });
+        // 访问成员内部类
+        new Outer().new Inner();
+        // 或者通过方法去访问
+        new Outer().getInner();
+        // 访问静态成员内部类
+        new Outer.staticInner();
+    }
+
+    /**
+     * 匿名内部类对象直接作形参用法（好处声明完接口，不需要创建类去实现，直接在用的地方实现）
+     * 
+     * @param aInterface
+     */
+    public static void fn(AInterface aInterface) {
+        aInterface.fn();
+    }
+}
+
+interface AInterface {
+    public void fn();
+}
+
+class Outer {
+    private int outerValue = 1;
+    private int value = 2;
+
+    // 成员内部类（类似于成员变量，可以添加任意访问修饰符，是一个独立的类）
+    public class Inner {
+        private int value = 3;
+
+        public Inner() {
+            // 访问内部重名变量，就近原则
+            System.out.println("dupInnerValue:" + value);// 2
+            // 访问外部重名变量
+            System.out.println("dupOuterValue:" + Outer.this.value);// 1
+            // 访问外部不重名变量
+            System.out.println("outerValue:" + outerValue);
+        }
+    }
+
+    // 静态成员内部类
+    public static class staticInner {
+
+        public staticInner() {
+            System.out.println("静态成员内部类");
+        }
+    }
+
+    /**
+     * 获取成员内部类对象
+     * 
+     * @return
+     */
+    public Inner getInner() {
+        return new Inner();
+    }
+
+    // 外部类构造方法
+    public Outer() {
+        // 内部类（类似于局部变量，可以访问外部的所有属性和方法，不能加public\private\protected修饰符）
+        class InnerLocal {
+            public InnerLocal() {
+                System.out.println(outerValue);
+            }
+        }
+        // 匿名内部类（直接在方法体实现了，接口仅这种方法可以new并紧跟实现方法体，
+        // 他的运行类型是匿名内部类class Outer$1【可以getClass()获取】,只创建一次，赋值给对象，匿名类就销毁了）
+        AInterface aInterface = new AInterface() {
+            @Override
+            public void fn() {
+                System.out.println("匿名内部类实现了fn方法");
+            }
+        };
+
+        // 实例化内部类
+        new InnerLocal();// 1
+        // 实例化成员内部类
+        new Inner();// dupInnerValue:3 dupOuterValue:2 outerValue:1
+        // 调用匿名内部类方法
+        aInterface.fn();// 匿名内部类实现了fn方法
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
