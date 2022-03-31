@@ -1471,6 +1471,35 @@ enum B {
 }
 ```
 
+### 枚举判断
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Color color = Color.RED;
+        switch (color) {
+            case RED:
+                System.out.println("red");//red
+                break;
+            case GREEN:
+                System.out.println("green");
+                break;
+            case BLUE:
+                System.out.println("blue");
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+enum Color {
+    RED,
+    GREEN,
+    BLUE;
+}
+```
+
 ## 注解
 
 三种注解：@Override @Deprecated @ SuppressWarnings
@@ -1605,6 +1634,50 @@ class B extends A {
     @Override
     public void fn() {
         System.out.println("B");
+    }
+}
+```
+
+### 工厂设计模式
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 使用工厂类快速创建不同对象
+        // 创建B对象
+        Factory.productObj(1).fn();
+        // 创建C对象
+        Factory.productObj(2).fn();
+    }
+}
+
+abstract class A {
+    public abstract void fn();
+}
+
+class B extends A {
+    @Override
+    public void fn() {
+        System.out.println("B fn");
+    }
+}
+
+class C extends A {
+    @Override
+    public void fn() {
+        System.out.println("A fn");
+    }
+}
+
+class Factory {
+    public static A productObj(int type) {
+        switch (type) {
+            case 1:
+                return new B();
+            case 2:
+                return new C();
+        }
+        return null;
     }
 }
 ```

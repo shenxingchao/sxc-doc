@@ -284,7 +284,7 @@
 
   - [循环](/md/Java#循环)
 
-    - [for循环计1~100的和](/md/Java#for循环计1100的和)
+    - [for循环计1~100的和](/md/Java#for循环计1~100的和)
 
     - [for循环输出列表](/md/Java#for循环输出列表)
 
@@ -294,17 +294,21 @@
 
     - [break用法](/md/Java#break用法)
 
+  - [增强for循环foreach](/md/Java#增强for循环foreach)
+
   - [数组](/md/Java#数组)
 
     - [基本操作](/md/Java#基本操作)
 
     - [常用方法](/md/Java#常用方法)
 
-  - [类](/md/Java#类)
+  - [面向对象](/md/Java#面向对象)
 
     - [创建类](/md/Java#创建类)
 
     - [变量](/md/Java#变量)
+
+    - [静态变量](/md/Java#静态变量)
 
     - [构造方法](/md/Java#构造方法)
 
@@ -326,6 +330,38 @@
 
     - [继承和多态](/md/Java#继承和多态)
 
+    - [this和super关键字](/md/Java#this和super关键字)
+
+    - [instanceof关键字](/md/Java#instanceof关键字)
+
+    - [代码块](/md/Java#代码块)
+
+    - [final关键字](/md/Java#final关键字)
+
+    - [abstract抽象类](/md/Java#abstract抽象类)
+
+    - [接口interface](/md/Java#接口interface)
+
+    - [内部类](/md/Java#内部类)
+
+  - [枚举](/md/Java#枚举)
+
+    - [定义](/md/Java#定义)
+
+    - [枚举常用方法](/md/Java#枚举常用方法)
+
+    - [枚举判断](/md/Java#枚举判断)
+
+  - [注解](/md/Java#注解)
+
+  - [设计模式](/md/Java#设计模式)
+
+    - [单例模式](/md/Java#单例模式)
+
+    - [抽象模板设计模式](/md/Java#抽象模板设计模式)
+
+    - [工厂设计模式](/md/Java#工厂设计模式)
+
   - [算法](/md/Java#算法)
 
     - [冒泡排序](/md/Java#冒泡排序)
@@ -343,6 +379,12 @@
     - [Random](/md/Java#random)
 
     - [String](/md/Java#string)
+
+    - [Object](/md/Java#object)
+
+    - [Date](/md/Java#date)
+
+    - [System](/md/Java#system)
 
 - [Linux](/md/Linux#linux)
   
