@@ -359,6 +359,21 @@ public class Demo {
 }
 ```
 
+## 增强for循环foreach
+
+vscode输入foreach或者iter
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4 };
+        for (int i : arr) {
+            System.out.println(i);
+        }
+    }
+}
+```
+
 ## 数组
 
 ### 基本操作
@@ -1146,7 +1161,7 @@ class B extends A {
 
 方法加上final不能被子类重写
 
-属性加上final后就变成常量了，不能被修改
+属性加上final后就变成常量了（大写），不能被修改
 
 ```java
 public class Demo {
@@ -1350,6 +1365,153 @@ class Outer {
         // 调用匿名内部类方法
         aInterface.fn();// 匿名内部类实现了fn方法
     }
+}
+```
+
+## 枚举
+
+### 定义
+
+不用enum关键字的枚举类 基本不用这个
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(A.RED);// A@15db9742
+        System.out.println(A.GREEN);// A@6d06d69c
+    }
+
+}
+
+// 不用enum关键字的枚举类
+class A {
+    private String color;
+
+    // RED,GREEN 即枚举对象 由类调用的静态属性
+    public static final A RED = new A("红色");
+    public static final A GREEN = new A("绿色");
+    public static final A BLUE = new A("蓝色");
+
+    // 枚举类的构造器私有化 类似于单例模式
+    private A(String color) {
+        this.color = color;
+    }
+
+    // 只有get方法，不设置set方法，也是不让用户改变属性
+    public String getColor() {
+        return color;
+    }
+}
+```
+
+使用enum关键字的枚举类 枚举变量是由final修饰的常量对象
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(A.RED);// RED 这里本质都调用了父类Enum的toString()方法 输出了枚举对象的名称 需要jsonp反编译class文件才能看到
+        System.out.println(A.GREEN);// GREEN
+        System.out.println(B.RED);// RED
+    }
+}
+
+// 用enum关键字替代class的枚举类 enum底层继承了Enum类 并且父类重写了toString方法 返回枚举对象的名称
+enum A {
+    // 常量(构造器参数) 若构造器参数为空，则括号可以省略 注意：必须放在最前面
+    RED("红色"), // 代替了 public static final A RED = new A("红色");
+    GREEN("绿色"),
+    BLUE("蓝色");
+
+    private String color;
+
+    private A(String color) {
+        this.color = color;
+    }
+
+    // 只有get方法，不设置set方法，也是不让用户改变属性
+    public String getColor() {
+        return color;
+    }
+}
+
+// 最简单的枚举类 这里面其实默认有无参构造器 B()，RED 也是由 RED() 简化而来的
+enum B {
+    RED,
+    GREEN,
+    BLUE;
+}
+```
+
+### 枚举常用方法
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 枚举对象名称
+        System.out.println(B.RED.name()); // RED
+        // 枚举对象对应的编号
+        System.out.println(B.RED.ordinal()); // 0
+        System.out.println(B.GREEN.ordinal()); // 1
+        System.out.println(B.BLUE.ordinal()); // 2
+        // 打印所有枚举
+        System.out.println(Arrays.toString(B.values())); // [RED, GREEN, BLUE]
+        // 将字符串转成已有枚举常量对象
+        System.out.println(B.valueOf("RED"));// RED
+        // 比较枚举常量对象值 返回的是编号的差值
+        System.out.println(B.RED.compareTo(B.BLUE));// -2
+    }
+}
+
+enum B {
+    RED,
+    GREEN,
+    BLUE;
+}
+```
+
+## 注解
+
+三种注解：@Override @Deprecated @ SuppressWarnings
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+    }
+}
+
+interface A {
+    public void fn();
+}
+
+class B implements A {
+    // 抑制所有警告 这里抑制了这个私有属性未使用的警告
+    // 警告类型 all unused 等
+    @SuppressWarnings({ "unused" })
+    private int a = 0;
+
+    /**
+     * 重写注解 实现接口方法 或者是 重写父类方法
+     */
+    @Override
+    public void fn() {
+
+    }
+
+    /**
+     * 过时注解 表示方法废弃了 不推荐使用
+     */
+    @Deprecated
+    public void deprecatedFn() {
+
+    }
+}
+
+// 表示类过时了
+@Deprecated
+class C extends B {
+
 }
 ```
 
