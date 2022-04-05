@@ -207,6 +207,19 @@ public class IfElse {
 }
 ```
 
+## 三元运算符
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 继承关系Integer/Double -> Number -> Object
+        // 三元运算符 条件真？则取1：否则取2
+        Object num = true ? new Integer(1) : new Double(2.0);
+        System.out.println(num);// 会输出1.0 是因为三元运算符是一个整体 :两边的类型要一致 这里Integer直接类型提升了为Double了
+    }
+}
+```
+
 ## 循环
 
 ### for循环计1~100的和
@@ -1544,6 +1557,143 @@ class C extends B {
 }
 ```
 
+## 异常
+
+### 普通用法
+
+catch可以捕获多个异常，且try方法体内出现第一个异常后，异常后面的代码不执行，跳到对应的catch执行
+
+finally不管有没有异常必定执行 tips：有finally关键字的时候catch捕获的第一个异常方法体还是执行的，只不过执行完，finally必执行，所以如果有return得看finally里的return
+
+```java
+public class Demo {
+    public static void main(String[] args) throws Exception {
+        // try catch finally
+        try {
+            // 除0异常
+            int num1 = 10;
+            int num2 = 0;
+            int res = num1 / num2;
+            System.out.println(res);
+            // 空指针异常
+            String str = "hello try catch";
+            str = null;
+            System.out.println(str.length());
+        } catch (ArithmeticException e) {
+            // 算数异常
+            System.out.println(e.getMessage());// by zero
+        } catch (NullPointerException e) {
+            // 空指针异常
+            System.out.println(e.getMessage());// null
+        } finally {
+            // 不管有没有异常都会执行
+            System.out.println("一定执行");
+        }
+    }
+}
+```
+
+### 异常主动抛出
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // f2()->f1()->main() 异常传递
+        try {
+            new Demo().f1();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());// 出错啦f1
+        }
+        new Demo().f3();// java.lang.NullPointerException
+    }
+
+    //throws抛出异常类型
+    public void f1() throws Exception {
+        try {
+            f2();
+        } catch (Exception e) {
+            System.out.println(e.getMessage());// 出错啦f2
+            // 抛出一个异常对象
+            throw new Exception("出错啦f1");
+        }
+    }
+
+    //throws抛出异常类型
+    public void f2() throws Exception {
+        // 抛出一个异常对象
+        throw new Exception("出错啦f2");
+    }
+
+    // 由这个函数抛出多个异常类型
+    @SuppressWarnings({ "all" })
+    private void f3() throws NullPointerException, NumberFormatException {
+        String str = "hello throws";
+        str = null;
+        System.out.println(str.length());
+        int num = Integer.parseInt(str);
+        System.out.println(num);
+    }
+}
+```
+
+## 包装类
+
+### 拆箱和装箱
+
+就是基本类型转换为对象 叫装箱 对象转换为基本类型 为拆箱
+
+```java
+public class Demo {
+    @SuppressWarnings({ "all" })
+    public static void main(String[] args) {
+        int num1 = 100;
+        // 手动装箱
+        Integer num2 = Integer.valueOf(num1);
+        // 手动拆箱
+        Integer integer = new Integer(num1);
+        int num3 = integer.intValue();
+
+        // 自动装箱
+        Integer integer2 = num1;
+        // 自动拆箱
+        int num4 = integer;
+
+        // 自动装箱
+        Double d = 100d; // 底层执行了 new Double.valueOf(100);
+        Float f = 1.5f;
+    }
+}
+```
+
+### 包装类和String转换
+
+其他类型转为String类似
+
+```java
+public class Demo {
+    @SuppressWarnings({ "all" })
+    public static void main(String[] args) {
+        Integer num1 = 100;
+        // 包装类转为String
+        String str1 = String.valueOf(num1);
+        String str2 = Integer.toString(num1);
+        String str3 = num1 + "";
+        String str4 = num1.toString();
+        System.out.println(str1);
+        System.out.println(str2);
+        System.out.println(str3);
+        System.out.println(str4);
+        // String转为包装类
+        Integer num2 = Integer.parseInt(str1);
+        Integer num3 = Integer.valueOf(str1);
+        Integer num4 = new Integer(str1);
+        System.out.println(num2);
+        System.out.println(num3);
+        System.out.println(num4);
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
@@ -1948,6 +2098,56 @@ public class Demo {
         }
     }
 }
+```
+
+**equalsIgnoreCase**
+
+忽略大小写判断是否相等，可用于验证码判断
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        String code1 = "A3b4";
+        String code2 = "a3B4";
+        System.out.println(code1.equalsIgnoreCase(code2));// true
+    }
+}
+```
+
+**toUpperCase()**
+
+转大写
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        String str = "hello world";
+        // 转大写
+        System.out.println(str.toUpperCase());
+    }
+}
+```
+
+**toLowerCase()**
+
+转小写
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 转小写
+        String str = "HELLO WORLD";
+        System.out.println(str.toLowerCase());
+    }
+}
+```
+
+**split**
+
+拆分字符串为数组
+
+```java
+
 ```
 
 ### Object
