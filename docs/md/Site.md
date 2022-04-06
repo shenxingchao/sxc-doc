@@ -42,11 +42,21 @@
 
 [uni-app一个使用 Vue.js 开发所有前端应用的框架](https://uniapp.dcloud.net.cn/quickstart-cli)
 
+[flutter 国产ui框架bruno](https://bruno.ke.com/page/guide/start)
+
+[Flutter中文社区](http://www.flutterchina.net.cn/tech/flutter)
+
+[react native组件库](https://js.coach/)
+
 ## Python
 
 [PySide6 python GUI框架](https://doc.qt.io/qtforpython/PySide6/QtGui/index.html)
 
 [python 高性能图表库](https://matplotlib.org/)
+
+## PHP
+
+[序言 · ThinkPHP6.0完全开发手册 · 看云](https://www.kancloud.cn/manual/thinkphp6_0/1037479)
 
 ## Git
 
@@ -54,11 +64,23 @@
 
 [git profile 创建](https://rahuldkjain.github.io/gh-profile-readme-generator/)
 
+## Mock
+
+[mockjs](http://mockjs.com/)
+
 ## 其他
 
 [在线api快速查询](https://devdocs.io/)
 
 # 问题类
+
+[关于vscode中执行vue进行热更新时，报内存溢出错误](https://blog.csdn.net/weixin_46275928/article/details/109725616)
+
+[启动和关闭ADB服务](https://blog.csdn.net/sirchenhua/article/details/49229799)
+
+[针对 npm ERR! cb() never called! 问题](https://www.cnblogs.com/webdragon/p/9700879.html)
+
+[运行Flutter时连接超时](https://www.cnblogs.com/steinven/p/13972097.html)
 
 # 工具类
 
@@ -72,6 +94,10 @@
 
 [FeHelper](https://github.com/zxlie/FeHelper/tree/master/apps/static/screenshot/crx)
 
+[占位图生成](https://placekitten.com/)
+
+[图标工厂](https://icon.wuruihong.com/)
+
 ## 文档
 
 **[docsify一个神奇的文档网站生成器](https://docsify.js.org/#/zh-cn/)**
@@ -83,6 +109,10 @@
 **[cloc代码统计工具](https://github.com/AlDanial/cloc/releases)**
 
 [c盘空间扫描](https://www.jam-software.com/treesize_free)
+
+[1080P影视资源](https://fantuan.tv/)
+
+[无广告视频解析接口_VIP视频解析](https://660e.com/?url=)
 
 ## Ios应用上架
 

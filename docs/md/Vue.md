@@ -273,7 +273,7 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
 
 [快速开始](https://www.electronjs.org/zh/docs/latest/tutorial/quick-start)
 
-[参考搭建](https://dev.to/brojenuel/vite-vue-3-electron-5h4ohttps://dev.to/brojenuel/vite-vue-3-electron-5h4o)
+[参考搭建](https://dev.to/brojenuel/vite-vue-3-electron-5h4o)
 
 注意运行electron需要等待vite运行完毕，不然白屏
 
@@ -354,7 +354,6 @@ app.on("window-all-closed", () => {
     app.quit();
   }
 });
-
 ```
 
 preload.js
