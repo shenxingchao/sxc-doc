@@ -2055,18 +2055,56 @@ public class GetInput {
 
 ### Math数学方法
 
-**随机整数**
+**random()**
+
+随机数
 
 ```java
 public class Demo {
     public static void main(String[] args) {
-        // 0~10随机整数
-        System.out.println((int)Math.ceil(Math.random() * 10));
+        // 0~10随机整数 (int)强转会舍弃小数部分 所以要 * (10 + 1)
+        System.out.println((int) (Math.random() * (10 + 1)));
     }
 }
 ```
 
+**abs()**
+
+取绝对值
+
+**pow()**
+
+平方
+
+**ceil()**
+
+向上取整
+
+**floor()**
+
+向下取整
+
+**round()**
+
+四舍五入
+
+**sqrt()**
+
+开平方根
+
+**max()**
+
+取最大值
+
+**min()**
+
+取最小值
+
+
+
 ### Random
+
+**nextInt()**
 
 随机整数
 
@@ -2084,6 +2122,14 @@ public class Demo {
 ```
 
 ### String
+
+> 存储在常量池，常量池存储的字符串只会创建一次，复用率高；字符长度不可变，重写赋值相当于新建一个String对象
+> 
+> 字符串不经常修改，重复使用如配置文件使用String
+> 
+> 字符串存在大量修改，且单线程使用StringBuilder
+> 
+> 字符串存在大量修改，且多线程使用StringBuffer
 
 **equals()**
 
@@ -2145,6 +2191,162 @@ public class Demo {
 **split**
 
 拆分字符串为数组
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        String str = "a,b,c,d,e";
+        System.out.println(Arrays.toString(str.split(",")));// [a, b, c, d, e]
+    }
+}
+```
+
+### StringBuffer
+
+> 字符长度可变，存储字符的char数组在堆中，重写赋值大于原数组长度的话会动态创建新的数组赋予长度，stringbuffer的方法用了synchronized关键字，是线程安全的
+
+**初始化和方法**
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // 1.不初始化大小，默认为16个字符
+        StringBuffer str1 = new StringBuffer();
+        // 2.初始化指定大小
+        StringBuffer str2 = new StringBuffer(5);
+        // 3.直接使用字符串初始化，长度为字符串长度+16个字符
+        StringBuffer str = new StringBuffer("hello");
+        // 4.转String
+        String str3 = str.toString();
+
+        // 方法
+        // 添加字符串
+        str.append(" world");
+        // 修改字符串
+        str.replace(6, str.length(), "java");
+        // 插入字符串
+        str.insert(10, " world");
+        // 删除字符串不包含右边界
+        str.delete(5, 10);
+        // 查找
+        System.out.println(str.indexOf("world"));// 6
+        // 输出字符串
+        System.out.println(str);
+    }
+}
+```
+
+### StringBuilder
+
+> 基本用法同Stringbuffer，线程不安全，但是效率比Stringbuffer高
+
+### Arrays
+
+**toString()**
+
+数组通过字符串输出
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4, 5 };
+        System.out.println(Arrays.toString(arr));// [1, 2, 3, 4, 5]
+    }
+}
+```
+
+**sort()**
+
+数组排序
+
+```java
+import java.util.Arrays;
+import java.util.Comparator;
+
+public class Demo {
+    public static void main(String[] args) {
+        Integer[] arr = { 1, 3, 4, 3, 2 };
+        // 默认是升序排列
+        Arrays.sort(arr);
+        System.out.println(Arrays.toString(arr));// [1, 2, 3, 3, 4]
+        // 使用匿名内部类或lambda改为降序
+        Arrays.sort(arr, new Comparator() {
+            @Override
+            public int compare(Object o1, Object o2) {
+                Integer integer1 = (Integer) o1;
+                Integer integer2 = (Integer) o2;
+                return integer2 - integer1;
+            }
+        });
+        // 上面的等同于lambda表达式
+        Arrays.sort(arr, (Object o1, Object o2) -> {
+            Integer integer1 = (Integer) o1;
+            Integer integer2 = (Integer) o2;
+            return integer2 - integer1;
+        });
+        System.out.println(Arrays.toString(arr));// [4, 3, 3, 2, 1]
+    }
+}
+```
+
+**copyOf()**
+
+拷贝数组到新数组
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4, 5 };
+        int[] ints = Arrays.copyOf(arr, arr.length);
+        System.out.println(Arrays.toString(ints));// [1, 2, 3, 4, 5]
+        // 如果拷贝数组的长度大于原数组，会在末尾加null或者0(看原数组的元素类型)
+        int[] ints2 = Arrays.copyOf(arr, arr.length + 1);
+        System.out.println(Arrays.toString(ints2));// [1, 2, 3, 4, 5, 0]
+    }
+}
+```
+
+**fill()**
+
+数组平铺填充指定元素
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4, 5 };
+        Arrays.fill(arr, 6);
+        System.out.println(Arrays.toString(arr));// [6, 6, 6, 6, 6]
+    }
+}
+```
+
+**equals()**
+
+比较两个数组元素是否完全一致
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        int[] arr = { 1, 2, 3, 4, 5 };
+        int[] arr2 = { 1, 2, 3, 4, 5 };
+        System.out.println(Arrays.equals(arr, arr2));// true
+    }
+}
+```
+
+**asList()**
+
+将一组数据转成集合
 
 ```java
 
