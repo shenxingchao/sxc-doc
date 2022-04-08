@@ -2264,33 +2264,7 @@ public class Demo {
 数组排序
 
 ```java
-import java.util.Arrays;
-import java.util.Comparator;
 
-public class Demo {
-    public static void main(String[] args) {
-        Integer[] arr = { 1, 3, 4, 3, 2 };
-        // 默认是升序排列
-        Arrays.sort(arr);
-        System.out.println(Arrays.toString(arr));// [1, 2, 3, 3, 4]
-        // 使用匿名内部类或lambda改为降序
-        Arrays.sort(arr, new Comparator() {
-            @Override
-            public int compare(Object o1, Object o2) {
-                Integer integer1 = (Integer) o1;
-                Integer integer2 = (Integer) o2;
-                return integer2 - integer1;
-            }
-        });
-        // 上面的等同于lambda表达式
-        Arrays.sort(arr, (Object o1, Object o2) -> {
-            Integer integer1 = (Integer) o1;
-            Integer integer2 = (Integer) o2;
-            return integer2 - integer1;
-        });
-        System.out.println(Arrays.toString(arr));// [4, 3, 3, 2, 1]
-    }
-}
 ```
 
 **copyOf()**
@@ -2349,7 +2323,16 @@ public class Demo {
 将一组数据转成集合
 
 ```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
+public class Demo {
+    public static void main(String[] args) {
+        List<Integer> arrayList = Arrays.asList(1, 2, 3, 4, 5);
+        System.out.println(arrayList);// [1, 2, 3, 4, 5]
+    }
+}
 ```
 
 ### Object
