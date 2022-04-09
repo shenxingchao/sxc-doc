@@ -2446,7 +2446,7 @@ public class Demo {
         Date date = new Date(milliseconds);
         System.out.println(date);
 
-        // 格式化Date字符串为日期格式
+        // 格式化Date对象为日期格式
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(simpleDateFormat.format(new Date()));// 2022-03-24 17:14:37
         // 日期格式转为Date对象 这里的日期格式必须和SimpleDateFormat的格式一样
@@ -2468,7 +2468,7 @@ public class Demo {
     public static void main(String[] args) {
         Calendar calendar = Calendar.getInstance();
         System.out.println(calendar.getTime());// Sat Apr 09 21:27:43 CST 2022
-        // 格式化Date字符串为日期格式
+        // 格式化Calendar对象为日期格式
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(simpleDateFormat.format(calendar.getTime()));// 2022-03-24 17:14:37
 
@@ -2478,6 +2478,110 @@ public class Demo {
                         + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR_OF_DAY)
                         + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND));// 2022-4-9
                                                                                                      // 21:38:44
+    }
+}
+```
+
+### LocalDateTime
+
+常用的日期时间类(jdk8)
+
+```java
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.ZoneOffset;
+import java.time.format.DateTimeFormatter;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 获取日期
+        LocalDate localDate = LocalDate.now();
+        System.out.println(localDate);// 2022-04-09
+        // 获取时间
+        LocalTime localTime = LocalTime.now();
+        System.out.println(localTime);// 21:51:29.354
+        // 获取日期时间
+        LocalDateTime localDateTime = LocalDateTime.now();
+        System.out.println(localDateTime);// 2022-04-09T21:51:29.354
+        // 获取时间戳秒
+        System.out.println(localDateTime.toEpochSecond(ZoneOffset.UTC));// 1649546518
+        // 获取时间戳毫秒
+        System.out.println(localDateTime.toInstant(ZoneOffset.UTC).toEpochMilli());// 1649546518843
+        // 时间戳秒转LocalDateTime
+        System.out.println(LocalDateTime.ofEpochSecond(1649546518L, 0, ZoneOffset.UTC));// 2022-04-09T23:21:58
+        // 时间戳毫秒转LocalDateTime
+        System.out.println(LocalDateTime.ofInstant(Instant.ofEpochMilli(1649546518843L), ZoneOffset.UTC));// 2022-04-09T23:21:58.843
+
+        // 获取年份
+        System.out.println(localDateTime.getYear());// 2022
+        // 获取月份
+        System.out.println(localDateTime.getMonthValue());// 4
+        // 获取天
+        System.out.println(localDateTime.getDayOfMonth());// 9
+        // 获取时
+        System.out.println(localDateTime.getHour());// 21
+        // 获取分
+        System.out.println(localDateTime.getMinute());// 55
+        // 获取秒
+        System.out.println(localDateTime.getSecond());// 50
+
+        // 格式化localDateTime对象为日期格式
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        System.out.println(dateTimeFormatter.format(localDateTime));// 2022-04-09 22:43:32
+        // 字符串转LocalDateTime时间对象
+        System.out.println(LocalDateTime.parse("2022-04-09 22:43:32", dateTimeFormatter));// 2022-04-09T22:43:32
+
+        // 运算
+        // 加30天
+        System.out.println(localDateTime.plusDays(30));// 2022-05-09T22:35:06.272
+        // 加2个月
+        System.out.println(localDateTime.plusMonths(2));// 2022-06-09T22:35:42.275
+        // 减30天
+        System.out.println(localDateTime.minusDays(30));// 2022-03-10T22:36:27.489
+    }
+}
+```
+
+### Instant
+
+时间戳(jdk8) 可用于Date和LocalDateTime转换的中间类
+
+```java
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 获取当前时间
+        Instant now = Instant.now().plusMillis(TimeUnit.HOURS.toMillis(8));
+        System.out.println(now);// 2022-04-09T23:11:24.467Z
+        // 转时间戳
+        System.out.println(now.toEpochMilli());// 1649545884467
+        // 时间戳转日期
+        System.out.println(Instant.ofEpochMilli(1649545884467L));// 2022-04-09T23:11:24.467Z
+
+        // Instant和Date互相转换
+        Date date = Date.from(now);
+        System.out.println(date);// Sun Apr 10 07:11:24 CST 2022
+        Instant instant = date.toInstant();
+        System.out.println(instant);// 2022-04-09T23:11:24.467Z
+
+        // Instant和Date互相转换
+        LocalDateTime localDateTime = now.atOffset(ZoneOffset.UTC).toLocalDateTime();
+        System.out.println(localDateTime);// 2022-04-09T23:34:24.168
+        Instant instant2 = localDateTime.toInstant(ZoneOffset.UTC);
+        System.out.println(instant2);// 2022-04-09T23:35:05.948Z
+
+        // Date和LocalDateTime
+        Date date2 = Date.from(localDateTime.toInstant(ZoneOffset.UTC));
+        System.out.println(date2);
+        LocalDateTime localDateTime2 = date2.toInstant().atOffset(ZoneOffset.UTC).toLocalDateTime();
+        System.out.println(localDateTime2);
     }
 }
 ```

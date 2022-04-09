@@ -282,6 +282,8 @@
 
   - [条件语句](/md/Java#条件语句)
 
+  - [三元运算符](/md/Java#三元运算符)
+
   - [循环](/md/Java#循环)
 
     - [for循环计1~100的和](/md/Java#for循环计1~100的和)
@@ -354,6 +356,18 @@
 
   - [注解](/md/Java#注解)
 
+  - [异常](/md/Java#异常)
+
+    - [普通用法](/md/Java#普通用法)
+
+    - [异常主动抛出](/md/Java#异常主动抛出)
+
+  - [包装类](/md/Java#包装类)
+
+    - [拆箱和装箱](/md/Java#拆箱和装箱)
+
+    - [包装类和String转换](/md/Java#包装类和string转换)
+
   - [设计模式](/md/Java#设计模式)
 
     - [单例模式](/md/Java#单例模式)
@@ -380,9 +394,25 @@
 
     - [String](/md/Java#string)
 
+    - [StringBuffer](/md/Java#stringbuffer)
+
+    - [StringBuilder](/md/Java#stringbuilder)
+
+    - [Arrays](/md/Java#arrays)
+
+    - [BigInteger](/md/Java#biginteger)
+
+    - [BigDecimal](/md/Java#bigdecimal)
+
     - [Object](/md/Java#object)
 
     - [Date](/md/Java#date)
+
+    - [Calendar](/md/Java#calendar)
+
+    - [LocalDateTime](/md/Java#localdatetime)
+
+    - [Instant](/md/Java#instant)
 
     - [System](/md/Java#system)
 
