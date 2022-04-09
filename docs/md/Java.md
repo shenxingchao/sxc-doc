@@ -2100,8 +2100,6 @@ public class Demo {
 
 取最小值
 
-
-
 ### Random
 
 **nextInt()**
@@ -2335,6 +2333,52 @@ public class Demo {
 }
 ```
 
+### BigInteger
+
+超大整数
+
+```java
+import java.math.BigInteger;
+
+public class Demo {
+    public static void main(String[] args) {
+        BigInteger bInteger = new BigInteger("1234567890");
+        BigInteger integer = new BigInteger("10");
+        // 加法
+        System.out.println(bInteger.add(integer));// 1234567900
+        // 减法
+        System.out.println(bInteger.subtract(integer));// 1234567880
+        // 乘法
+        System.out.println(bInteger.multiply(integer));// 12345678900
+        // 除法
+        System.out.println(bInteger.divide(integer));// 123456789
+    }
+}
+```
+
+### BigDecimal
+
+超高精度小数
+
+```java
+import java.math.BigDecimal;
+
+public class Demo {
+    public static void main(String[] args) {
+        BigDecimal bigDecimal = new BigDecimal("1.123456789");
+        BigDecimal decimal = new BigDecimal("0.1");
+        // 加法
+        System.out.println(bigDecimal.add(decimal));// 1.223456789
+        // 减法
+        System.out.println(bigDecimal.subtract(decimal));// 1.023456789
+        // 乘法
+        System.out.println(bigDecimal.multiply(decimal));// 0.1123456789
+        // 除法 可能会抛出算术异常（无限循环小数），加一个保留精度参数即可
+        System.out.println(bigDecimal.divide(decimal, BigDecimal.ROUND_CEILING));// 11.234567890
+    }
+}
+```
+
 ### Object
 
 **getClass()**
@@ -2386,23 +2430,37 @@ class Person {
 
 ### Date
 
-格式化日期方法SimpleDateFormat 属于text类的放在这为了方便看
+最原始的日期对象
 
 ```java
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 public class Demo {
-    public static void main(String[] args) {
+    public static void main(String[] args) throws ParseException {
+        // 获取毫秒数
+        long milliseconds = new Date().getTime();
+        System.out.println(milliseconds);// 1649509779737
+        // 通过毫秒数指定日期
+        Date date = new Date(milliseconds);
+        System.out.println(date);
+
+        // 格式化Date字符串为日期格式
         SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
         System.out.println(simpleDateFormat.format(new Date()));// 2022-03-24 17:14:37
+        // 日期格式转为Date对象
+        Date newDate = simpleDateFormat.parse("2022-03-24 17:14:37");
+        System.out.println(newDate);
     }
 }
 ```
 
 ### System
 
-返回当前时间的毫秒数 currentTimeMillis()
+**currentTimeMillis()**
+
+返回当前时间的毫秒数
 
 ```java
 public class Demo {
@@ -2411,3 +2469,19 @@ public class Demo {
     }
 }
 ```
+
+**exit()**
+
+程序退出
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.exit(0);// 0状态码 表示正常退出
+    }
+}
+```
+
+**gc()**
+
+运行垃圾回收机制
