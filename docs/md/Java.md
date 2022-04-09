@@ -2447,11 +2447,37 @@ public class Demo {
         System.out.println(date);
 
         // 格式化Date字符串为日期格式
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyy-MM-dd HH:mm:ss");
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         System.out.println(simpleDateFormat.format(new Date()));// 2022-03-24 17:14:37
-        // 日期格式转为Date对象
+        // 日期格式转为Date对象 这里的日期格式必须和SimpleDateFormat的格式一样
         Date newDate = simpleDateFormat.parse("2022-03-24 17:14:37");
         System.out.println(newDate);
+    }
+}
+```
+
+### Calendar
+
+日历类
+
+```java
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+
+public class Demo {
+    public static void main(String[] args) {
+        Calendar calendar = Calendar.getInstance();
+        System.out.println(calendar.getTime());// Sat Apr 09 21:27:43 CST 2022
+        // 格式化Date字符串为日期格式
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        System.out.println(simpleDateFormat.format(calendar.getTime()));// 2022-03-24 17:14:37
+
+        // 也可使用他内部的静态变量来组合显示
+        System.out.println(
+                calendar.get(Calendar.YEAR) + "-" + (calendar.get(Calendar.MONTH) + 1) + "-"
+                        + calendar.get(Calendar.DAY_OF_MONTH) + " " + calendar.get(Calendar.HOUR_OF_DAY)
+                        + ":" + calendar.get(Calendar.MINUTE) + ":" + calendar.get(Calendar.SECOND));// 2022-4-9
+                                                                                                     // 21:38:44
     }
 }
 ```
