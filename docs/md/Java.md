@@ -2201,6 +2201,14 @@ public class Demo {
 }
 ```
 
+**toCharArray()**
+
+字符串转char数组及char数组转String
+
+```java
+
+```
+
 ### StringBuffer
 
 > 字符长度可变，存储字符的char数组在堆中，重写赋值大于原数组长度的话会动态创建新的数组赋予长度，stringbuffer的方法用了synchronized关键字，是线程安全的
@@ -2232,6 +2240,8 @@ public class Demo {
         System.out.println(str.indexOf("world"));// 6
         // 输出字符串
         System.out.println(str);
+        // 字符串反转
+        System.out.println(str.reverse());// dlrow olleh
     }
 }
 ```
