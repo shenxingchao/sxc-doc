@@ -30,6 +30,8 @@
 
 [vue-gaode在Vue中完美的使用高德地图](http://vue-gaode.rxshc.com/)
 
+[uView 2.0 uni-app UI框架](https://www.uviewui.com/components/form.html)
+
 ## React Native
 
 [react-native-element rn UI框架](https://reactnativeelements.com/docs/)

@@ -1694,6 +1694,28 @@ public class Demo {
 }
 ```
 
+## 集合
+
+集合分为单列集合Collection（索引数组）双列集合Map（关联数组）
+
+### 体系图
+
+```mermaid
+graph TB;
+    Collection --> List
+        List --> Vector
+        List --> ArrayList
+        List --> LinkedList
+    Collection --> Set
+        Set --> TreeSet
+        Set --> HashSet
+    Map --> HashMap
+        HashMap --> LinkedHashMap
+    Map --> TreeMap
+    Map --> Hashtable
+        Hashtable --> properties
+```
+
 ## 设计模式
 
 ### 单例模式
@@ -2129,6 +2151,18 @@ public class Demo {
 > 
 > 字符串存在大量修改，且多线程使用StringBuffer
 
+**format()**
+
+格式化输出字符串
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(String.format("%s,%c,%d,%.2f", "hello", 'a', 100, 99.99));// hello,a,100,99.99
+    }
+}
+```
+
 **equals()**
 
 判断两个字符串是否相等 被判断的变量放在传参里 可以防止空指针(判断的是引用对象的内容是否一致，而==在对象中判断的是地址和值是否都相同，在基本数据类型判断的是值是否相等) 
@@ -2201,12 +2235,38 @@ public class Demo {
 }
 ```
 
+**join()**
+
+数组按指定字符拼接
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        String[] strings = { "hello", "a", "world" };
+        System.out.println(String.join(",", strings));// hello,a,world
+    }
+}
+```
+
 **toCharArray()**
 
 字符串转char数组及char数组转String
 
 ```java
+import java.util.Arrays;
 
+public class Demo {
+    public static void main(String[] args) {
+        // String转char数组
+        String string = "abcdefg";
+        char[] ch = string.toCharArray();
+        System.out.println(Arrays.toString(ch));// [a, b, c, d, e, f, g]
+
+        // char数组转String
+        System.out.println(new String(ch));// abcdefg
+        System.out.println(String.valueOf(ch));// abcdefg
+    }
+}
 ```
 
 ### StringBuffer
@@ -2272,7 +2332,29 @@ public class Demo {
 数组排序
 
 ```java
+import java.util.Arrays;
+import java.util.Comparator;
 
+public class Demo {
+    public static <T> void main(String[] args) {
+        Integer[] arr = { 1, 3, 4, 3, 2 };
+        // 默认是升序排列
+        Arrays.sort(arr);
+        System.out.println(Arrays.toString(arr));// [1, 2, 3, 3, 4]
+        // 使用匿名内部类或lambda改为降序 <Integer>->泛型<T>
+        Arrays.sort(arr, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o1 - o2;
+            }
+        });
+        // 上面的等同于lambda表达式
+        Arrays.sort(arr, (Integer o1, Integer o2) -> {
+            return o1 - 02;
+        });
+        System.out.println(Arrays.toString(arr));// [4, 3, 3, 2, 1]
+    }
+}
 ```
 
 **copyOf()**
@@ -2550,6 +2632,10 @@ public class Demo {
         System.out.println(localDateTime.plusMonths(2));// 2022-06-09T22:35:42.275
         // 减30天
         System.out.println(localDateTime.minusDays(30));// 2022-03-10T22:36:27.489
+
+        // 判断是否是闰年
+        System.out.println(localDate.isLeapYear());// false
+        System.out.println(localDateTime.toLocalDate().isLeapYear());// false
     }
 }
 ```
