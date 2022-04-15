@@ -1696,7 +1696,7 @@ public class Demo {
 
 ## 集合
 
-集合分为单列集合Collection（索引数组）双列集合Map（关联数组）
+集合是可动态改变的数组，集合分为单列集合Collection（类似PHP索引数组）双列集合Map（类似PHP关联数组）
 
 ### 体系图
 
