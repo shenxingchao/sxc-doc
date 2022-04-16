@@ -1716,6 +1716,84 @@ graph TB;
         Hashtable --> properties
 ```
 
+### List
+
+**常用方法**
+
+这里以创建一个ArrayList为例，这里创建的list是List类型向上转型，可以调用List里的所有方法，这些方法Vector LinkedList也是可以调用的
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) {
+        // <Object> 泛型<T> 表示里面的元素可以是Obejct的所有子类这样就可以保存不一样的类型了
+        // 这里的List是ArrayList的父类型，向上转型了
+        List<Object> list = new ArrayList<>();
+
+        // 方法
+        // 添加一个元素
+        list.add("hello");
+        list.add(100);
+        System.out.println(list);// [hello,100]
+        // 删除指定索引的元素
+        list.remove(1);
+        System.out.println(list);// [hello]
+        // 查找指定索引元素
+        System.out.println(list.get(0));// hello
+        // 获取元素个数
+        System.out.println(list.size());// 1
+        // 判空
+        System.out.println(list.isEmpty());// false
+        // 清空
+        list.clear();
+        System.out.println(list);// []
+        // 添加多个元素
+        List<Object> list2 = new ArrayList<>();
+        list2.add("hello");
+        list2.add(100);
+        list.addAll(list2);
+        System.out.println(list);// [hello, 100]
+        // 查找元素是否存在
+        System.out.println(list.contains("hello"));// true
+        // 查找多个元素是否存在
+        System.out.println(list.containsAll(list2));// true
+        // 删除多个元素
+        list.removeAll(list2);
+        System.out.println(list);// []
+    }
+}
+```
+
+## 迭代器
+
+使用方法
+
+```java
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) {
+        List<Object> list = new ArrayList<>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add("hello");
+        // 得到一个可迭代的对象
+        Iterator<Object> iterator = list.iterator();
+        // 遍历
+        while (iterator.hasNext()) {
+            System.out.println(iterator.next());
+        }
+        // 重新迭代 需要重置一下
+        iterator = list.iterator();
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
