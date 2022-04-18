@@ -376,6 +376,8 @@ public class Demo {
 
 vscode输入foreach或者iter
 
+增强for循环就是简化版的迭代器Iterator
+
 ```java
 public class Demo {
     public static void main(String[] args) {
@@ -1702,6 +1704,7 @@ public class Demo {
 
 ```mermaid
 graph TB;
+    Iterator --> Collection
     Collection --> List
         List --> Vector
         List --> ArrayList
@@ -1730,30 +1733,40 @@ public class Demo {
     public static void main(String[] args) {
         // <Object> 泛型<T> 表示里面的元素可以是Obejct的所有子类这样就可以保存不一样的类型了
         // 这里的List是ArrayList的父类型，向上转型了
-        List<Object> list = new ArrayList<>();
+        List<Object> list = new ArrayList<Object>();
 
-        // 方法
-        // 添加一个元素
+        // 下面是常用方法
+        // 添加(插入)一个元素到末尾
         list.add("hello");
         list.add(100);
         System.out.println(list);// [hello,100]
-        // 删除指定索引的元素
-        list.remove(1);
-        System.out.println(list);// [hello]
+        // 添加一个元素到指定位置
+        list.add(2, "world");
+        System.out.println(list);// [hello, 100, world]
+        // 删除指定索引的元素 并返回删除的元素 此处删除100
+        System.out.println(list.remove(1)); // 100
+        System.out.println(list);// [hello, world]
         // 查找指定索引元素
         System.out.println(list.get(0));// hello
+        // 查找指定元素的索引 返回最后一次出现的位置lastIndexOf
+        System.out.println(list.indexOf("hello"));// 0
+        // 获取指定索引范围内的元素集合 谨慎对获取的集合进行操作，对获取的集合操作会影响到原集合
+        System.out.println(list.subList(0, 1));// [hello]
+        // 修改指定索引的元素
+        list.set(1, "list");
+        System.out.println(list);// [hello, list]
         // 获取元素个数
-        System.out.println(list.size());// 1
+        System.out.println(list.size());// 2
         // 判空
         System.out.println(list.isEmpty());// false
         // 清空
         list.clear();
         System.out.println(list);// []
-        // 添加多个元素
+        // 添加多个元素到末尾
         List<Object> list2 = new ArrayList<>();
         list2.add("hello");
         list2.add(100);
-        list.addAll(list2);
+        list.addAll(list2);// 也可以指定索引插入 类似add(index,element)方法
         System.out.println(list);// [hello, 100]
         // 查找元素是否存在
         System.out.println(list.contains("hello"));// true
@@ -1766,9 +1779,33 @@ public class Demo {
 }
 ```
 
+### ArrayList
+
+ArrayList是线程不安全的，但是执行效率高
+
+底层代码扩容机制 如果用的是无参构造器，那么第一次扩容是10 后面每次扩容是**old+向下取整(old/2)**，使用Arrays.copyOf方法进行扩容，扩容元素的默认值为null（因为如果是基础类型他会有一个装箱[转为包装类]的过程，所以添加的也是一个类的，默认值当然是null了）,如果直接初始化大小，则直接按初始化大小扩容
+
+**tips**：初始化为1时扩容为2，初始化为无参构造器或者为0时扩容为10，就这两个比较特殊
+
+下面这段是扩容的源码
+
+```java
+    private void grow(int minCapacity) {
+        // overflow-conscious code
+        int oldCapacity = elementData.length;
+        int newCapacity = oldCapacity + (oldCapacity >> 1);// >>右移相当于/2，且会向下取整 左移的话是*2  以初始化大小1为例，也就是1 + 1/2 = 1
+        if (newCapacity - minCapacity < 0) // 1 - 2 < 0
+            newCapacity = minCapacity; // 2 所以扩容为2
+        if (newCapacity - MAX_ARRAY_SIZE > 0)
+            newCapacity = hugeCapacity(minCapacity);
+        // minCapacity is usually close to size, so this is a win:
+        elementData = Arrays.copyOf(elementData, newCapacity);
+    }
+```
+
 ## 迭代器
 
-使用方法
+使用方法 可用于迭代集合
 
 ```java
 import java.util.ArrayList;
