@@ -1,36 +1,44 @@
 # Javascript
+
 ## 效果
+
 ### 浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告
+
 <p align="left" style="color:#777777;">发布日期：2019-03-27</p>
 
 经常可以看到网页上悬浮在边上的广告  
 无论你怎么拖动滚动条，他都不会离开视窗  
 
 实现悬浮广告的方法有两个  
+
 1. 用css的position：fixed;  
     在页面内放一个div，给要悬浮的div元素加上如下样式  
-    ```css
-    div{
-        width:200px;
-        height:200px;
-        background:red;
-        position:fixed;
-        top:300px;
-        right:2px;
-    }
-    ```
+   
+   ```css
+   div{
+       width:200px;
+       height:200px;
+       background:red;
+       position:fixed;
+       top:300px;
+       right:2px;
+   }
+   ```
+   
     这样既可以了，但是这样有个不好的问题，当你缩小浏览器窗口，会盖住其他内容。
     所有你可以用js动态添加样式解决。
 
 2. 用滚动监听来实现悬浮广告  
-    ```javascript
-    $(window).scroll(function () {
-        if($(window).width() > 750){
-            var offsetTop = 0 + $(window).scrollTop() +"px";
-            $('div').css('margin-top',offsetTop);
-        }
-    });
-    ```
+   
+   ```javascript
+   $(window).scroll(function () {
+       if($(window).width() > 750){
+           var offsetTop = 0 + $(window).scrollTop() +"px";
+           $('div').css('margin-top',offsetTop);
+       }
+   });
+   ```
+   
     解释一下这段代码  
     $(window).scroll()就是当你拖动滚动条时，会出发的事件  
     $(window).width()是获取当前浏览器可视窗口的大小  
@@ -39,22 +47,29 @@
     当然前提是这个div首先要浮动到浏览器窗口的右边  
 
 ## 方法
+
 ### 浮点数四舍五入保留小数位数
+
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 错误写法使用toFixed()，导致精度丢失
+
 ```javascript
 let num = 0.35;
 num = num.toFixed(1); //输出0.3 并没有进位
 ```
+
 !>千万不要直接使用toFixed 保留小数
 正确写法使用Math.round()四舍五入取整后，使用toFixed()保留
 错误示例 测试数据2.445 保留2位
+
 ```javascript
 let num = 2.445;
 num = (Math.round(num * 100) / 100).toFixed(1); //输出2.44
 ```
+
 正确示例
+
 ```javascript
 function GetRound(num, len) {
      var x = num.toString().indexOf(".") !== -1?num.toString().length -num.toString().indexOf(".")-1:0
@@ -62,9 +77,48 @@ function GetRound(num, len) {
 }
 GetRound(2.445,2) //2.45
 ```
-!>精髓就是先四舍五入，再保留。保留几位小数就*多少  但是这里的乘法会出问题原因是2.445*100 = 244.49999999999997
 
-改写底层函数 [来源](https://zhuanlan.zhihu.com/p/31202697)
+!>精髓就是先四舍五入，再保留。保留几位小数就*多少  但是这里的乘法会出问题原因是2.445 * 100 = 244.49999999999997
+
+**解决浮点数加法和乘法丢失精度**
+
+```javascript
+//自定义加法运算
+function addNum(num1: any, num2: any) {
+  var sq1, sq2, m
+  try {
+    sq1 = num1.toString().split('.')[1].length
+  } catch (e) {
+    sq1 = 0
+  }
+  try {
+    sq2 = num2.toString().split('.')[1].length
+  } catch (e) {
+    sq2 = 0
+  }
+  m = Math.pow(10, Math.max(sq1, sq2))
+  return (mulNum(num1, m) + mulNum(num2, m)) / m
+}
+//乘法
+function mulNum(arg1: any, arg2: any) {
+  var m = 0,
+    s1 = arg1.toString(),
+    s2 = arg2.toString()
+  try {
+    m += s1.split('.')[1].length
+  } catch (e) {}
+  try {
+    m += s2.split('.')[1].length
+  } catch (e) {}
+  return (
+    (Number(s1.replace('.', '')) * Number(s2.replace('.', ''))) /
+    Math.pow(10, m)
+  )
+}
+```
+
+也可以改写底层函数来四舍五入保留小数 [来源](https://zhuanlan.zhihu.com/p/31202697)
+
 ```javascript
 if (!Number.prototype._toFixed) {
     Number.prototype._toFixed = Number.prototype.toFixed;
@@ -75,10 +129,13 @@ Number.prototype.toFixed = function(n) {
 ```
 
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
+
 ### 数组按某个值排序
+
 <p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
 ?>按order值的大小，对数组List进行升序排序
+
 ```javascript
 let List = [{
         id: 1,
@@ -93,11 +150,15 @@ List.sort((x, y) => {
     return x.order - y.order
 });
 ```
+
 !>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
+
 ### 数组对象按某个属性值分组
+
 <p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
 ?>就是以对象的某个属性作为索引值key 变成一个关联数组，然后再用Object.keys 循环关联数组赋给新数组，以去掉索引key
+
 ```javascript
 let List = [{
         id: '1001',
@@ -145,11 +206,15 @@ Object.keys(map).forEach(key => {
 })
 console.log(res)
 ```
+
 ## jquery
+
 ### jquery插件编写模板
+
 <p align="left" style="color:#777777;">发布日期：2019-04-02</p>
 
 可以编写各种插件，如弹窗，表格，选项卡，等等。
+
 ```javascript
 ;(function($){
     $.fn.functionName1 = function(options){
@@ -159,22 +224,24 @@ console.log(res)
         var options = $.extend(defaults,options);
         this.each(function(){ 
             var _this = $(this);
-			//功能编写
+            //功能编写
         });
         return this;
 }
 
 $.fn.functionName2 = function(options){
-		...
+        ...
 }
 })(jQuery);
 ```
 
 ### jquery重复执行事件导致的动画在队列里的问题,停止动画
+
 <p align="left" style="color:#777777;">发布日期：2019-03-17</p>
 
 用jquery动画的时候，经常会出现的一个问题
 比如鼠标移入移出事件中,在元素上加上 淡入淡出
+
 ```javascript
 $('div').mousemove(function(){
     $('span').fadeIn();
@@ -183,9 +250,11 @@ $('div').mouseout(function(){
     $('span').fadeOut();
 });
 ```
+
 我重复我移入移出div  
 那么span的动画会累积到队列里面，直到执行完毕，那么怎么解决这个问题呢  
 其实很简单,只要把当前元素要执行的动画前面的所有动画停止掉就好了，加上stop()  
+
 ```javascript
 $('div').mousemove(function(){
     $('span').stop().fadeIn();
@@ -194,6 +263,7 @@ $('div').mouseout(function(){
     $('span').stop().fadeOut();
 });
 ```
+
 这样，问题是不是解决了呢？  
 stop()方法还带有两个参数，自行百度  
 
@@ -202,21 +272,25 @@ stop()方法还带有两个参数，自行百度
 <p align="left" style="color:#777777;">发布日期：2020-08-18</p>
 
 ### 初始化tscofig
+
 ```tsc
 tsc --init
 ```
 
 ### 编译
+
 ```tsc
 tsc test.ts
 ```
 
 ### 编译遇到错误终止选项
+
 ```tsc
 tsc test.ts --noEmitOnError
 ```
 
 ### 数据类型定义
+
 ```typescript
 let isFlag: boolean = false;
 let num: number = 1;
@@ -225,6 +299,7 @@ let n: null = null;
 ```
 
 ### 没有返回值方法定义
+
 ```typescript
 function nFn(): void {
     console.log('void');
@@ -232,6 +307,7 @@ function nFn(): void {
 ```
 
 ### 回调函数
+
 ```typescript
 //回调函数就是函数传参
 const fn = (a: number, b: number, callback): Function => {
@@ -246,27 +322,36 @@ fn(1, 2, (sum: number) => {
 ```
 
 ### 任意值类型定义
+
 ```typescript
 let anyValue: any = 'xxx';
 ```
+
 可随意改变类型 赋值， 如果设置了其他的类型就不可以改变了
+
 ```typescript
 anyValue = 3
 ```
+
 也可以随意调用属性和方法
+
 ```typescript
 anyValue.name;
 anyValue.setName();
 ```
 
 ### 类型推论
+
 定义时赋值 则会被推出字符串类型  
 如下编译会报错， 会被推出let a: string = 3;  
+
 ```typescript
 let a = '3';
 a = 4;
 ```
+
 如下编译不会报错， 此时会被推出为任意类型let a: any;  
+
 ```typescript
 let a;
 a = '3';
@@ -274,12 +359,15 @@ a = 4;
 ```
 
 ### 联合类型
+
 ```typescript
 let name: string | number;
 ```
 
 ### 简单的接口
+
 接口开头字母大写， 定义的变量的格式必须和接口格式一致
+
 ```typescript
 interface Person {
     name: string;
@@ -292,7 +380,9 @@ let tom: Person = {
 ```
 
 ### 可选属性
+
 不一致可定义可选属性
+
 ```typescript
 interface Person {
     name: string;
@@ -304,8 +394,10 @@ let tom: Person = {
 ```
 
 ### 任意属性
+
 允许任意属性[propName: string]: any;  
 那么定义的name: string 和 可选属性age ? : number必须是string 类型的 所以下面的age也要改为age ? : string(不需要，因为有:any)  
+
 ```typescript
 interface Person {
     name: string;
@@ -317,7 +409,9 @@ let tom: Person = {
     gender: 'male'
 };
 ```
+
 多个任意属性 用联合类型定义
+
 ```typescript
 interface Person {
     name: string;
@@ -332,7 +426,9 @@ let tom: Person = {
 ```
 
 ### 只读属性
+
 用readonly定义只读属性  
+
 ```typescript
 interface Person {
     readonly id: number;
@@ -346,10 +442,12 @@ let tom: Person = {
     gender: 'male'
 };
 ```
+
 只读只有在第一次给对象复制的时候， 第二次给只读属性复制会报错  
 如tom.id = 333 会报错  
 如果第一次给对象复制的时候没有初始化只读属性， 也会报错  
 如
+
 ```typescript
 let tom: Person = {
     name: 'Tom',
@@ -358,16 +456,21 @@ let tom: Person = {
 ```
 
 ### 数组声明【 类型 + 方括号】
+
 ```typescript
 let names: string[] = ['a', 'n', 'c'];
 ```
+
 【泛型表示】
+
 ```typescript
 //Array<string>用到了泛型Array<T> T可以是任意类型
 let names: Array<string> = new Array<string>();
 let names: Array<string> = ['a', 'b', 'c', 'd'];
 ```
+
 【接口表示法】 一般不用这个
+
 ```typescript
 interface NumberArray {
     [index: number]: number;
@@ -375,9 +478,11 @@ interface NumberArray {
 let fibonacci: NumberArray = [1, 1, 2, 3, 5];
 ```
 
-###  函数中定义数组
+### 函数中定义数组
+
 需要用接口对象来定义数组 而不是let args: number[] = arguments
 length和 callee 额外的约束属性而已
+
 ```typescript
 function sum() {
     let args: {
@@ -387,7 +492,9 @@ function sum() {
     } = arguments;
 }
 ```
+
 也可以把接口事先定义好
+
 ```typescript
 interface IArguments {
     [index: number]: any;
@@ -395,7 +502,9 @@ interface IArguments {
     callee: Function;
 }
 ```
+
 再引用
+
 ```typescript
 function sum() {
     let args: IArguments = arguments;
@@ -403,6 +512,7 @@ function sum() {
 ```
 
 ### 任意类型的数组定义
+
 ```typescript
 let names: any[] = [1, '3', 444, {
     name: 'ssss'
@@ -410,6 +520,7 @@ let names: any[] = [1, '3', 444, {
 ```
 
 ### 元组
+
 ```typescript
 //元组 类型必须一一对应
 let tuple: [number, string] = [1, "2"];
@@ -424,43 +535,54 @@ console.log(a, b);
 ```
 
 ### 字典
+
 ```typescript
 let dict: { [key: string]: any } = { "a": 1, "b": "2" }
 console.log(dict["a"])
 ```
 
-###  函数声明， 参数输入和返回输出都被约束
+### 函数声明， 参数输入和返回输出都被约束
+
 ```typescript
 function sum(x: number, y: number): number {
     return x + y;
 }
 ```
+
 表达式定义法
+
 ```typescript
 let mySum: (x: number, y: number) => number = function (x: number, y: number): number {
     return x + y;
 };
 ```
+
 ```typescript
 let mySum: (x: number, y: number) => number =  (x: number, y: number): number => {
     return x + y;
 };
 ```
+
 (x: number, y: number) => number 表示函数类型,这里的x,y可以用任何名称  
 这里的 => 左边表示输入类型， 右边表示输出类型  
 (x: number, y: number): number 表示参数和返回值
 
 ### 函数变量可选参数
+
 和可选属性一样加？
+
 ```typescript
 function fn(one: string, two ? : string) {
     return one;
 }
 ```
+
 可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
 
 ### 类型断言
+
 就是自己知道这是什么类型的时候，告诉编译器这是什么类型
+
 ```typescript
 let someValue: any = "this is a string";
 //第一种方式
@@ -470,6 +592,7 @@ let strLength: number = (someValue as string).length;
 ```
 
 ### 枚举类型
+
 ```typescript
 enum Color {
     red,
@@ -481,6 +604,7 @@ console.log(color); //输出0
 ```
 
 ### 类
+
 ```typescript
 class Person{
     private _name: string;
@@ -503,6 +627,7 @@ person2.say();
 ```
 
 ### 抽象类与继承
+
 ```typescript
 abstract class Person {
     //可以有实现的方法
@@ -535,6 +660,7 @@ person2.say();
 ```
 
 ### 接口与实现
+
 ```typescript
 interface Person {
     name: string;
@@ -556,6 +682,7 @@ person.run();
 ```
 
 ### set和get
+
 ```typescript
 class Person {
     private _name: string;
@@ -578,6 +705,7 @@ person.name = '马云';
 ```
 
 ### namespace命名空间
+
 ```typescript
 namespace workspace1 {
     //必须要加export才能在外部被引用
@@ -607,7 +735,9 @@ console.log(person1.name);
 ```
 
 ### 单例模式
+
 单例模式就是一个类只产生一个对象
+
 ```typescript
 //游戏管理类
 class GameManager {
@@ -637,7 +767,9 @@ console.log(game1==game2)//输出true
 ```
 
 ### 代理模式
+
 代理模式就是一件事情，让不同的人去做
+
 ```typescript
 interface Name {
     setName(name: string): string;
@@ -676,7 +808,9 @@ console.log(person.getName());
 ```
 
 ### 观察者模式和vue2的原理
+
 观察者模式就是一个观察者监听一个变量自动触发函数
+
 ```typescript
 //观察者协议
 interface Observer {
@@ -717,7 +851,9 @@ person.observers.push(test)
 
 person.name = "马云" //这个时候test.nameChange就被调用了
 ```
+
 vue2的原理就是在set方法里调用观察者的回调函数去更新dom元素
+
 ```javascript
 //视图元素，获取form中的DOM节点并设置默认值，该默认值是VUE是data对象中的数据。
 let form = document.querySelector(".form");
@@ -746,8 +882,10 @@ form.addEventListener("input", (event)=>{
 ```
 
 ### 工厂模式
+
 工厂模式就是帮助我们快速创建对象  
 假入你在项目中new了某个对象100次，一年后由于业务逻辑变更，构造方法多了一个参数，你会怎么办？你应该会这么做：找到这100个对象new的地方，用新的构造方法来创建对象，你重复劳动了100次，假如采用工厂模式，你只用改一次：把创建工厂给改一下就好了。这就是工厂模式最简单最直接的好处。
+
 ```typescript
 //身份类型
 enum PersonType {
@@ -783,75 +921,83 @@ let student = Person.create(PersonType.student);
 console.log(student)
 ```
 
-
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
 ## es6
+
 ### 数组去重
+
 <p align="left" style="color:#777777;">发布日期：2020-11-13</p>
 
 - 普通数组去重
-    ```javascript
-    let arr = [1, 2, 3, 2, 1];
-    let temp = new Set(arr);
-    console.log([...temp]); //输出[1, 2, 3]
-    ```
+  
+  ```javascript
+  let arr = [1, 2, 3, 2, 1];
+  let temp = new Set(arr);
+  console.log([...temp]); //输出[1, 2, 3]
+  ```
 
 - 对象数组去重 某个值
+  
   1. 数组方法
-      ```javascript
-      arr = [{
-              name: 1,
-              value: 2
-          },
-          {
-              name: 2,
-              value: 3
-          },
-          {
-              name: 1,
-              value: 2
-          },
-          {
-              name: 4,
-              value: 3
-          },
-      ];
-      temp = [];
-      let newArr = arr.filter(
-          (item) => !temp.includes(item.value) && temp.push(item.value)
-      );
-      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-      ```
+     
+     ```javascript
+     arr = [{
+             name: 1,
+             value: 2
+         },
+         {
+             name: 2,
+             value: 3
+         },
+         {
+             name: 1,
+             value: 2
+         },
+         {
+             name: 4,
+             value: 3
+         },
+     ];
+     temp = [];
+     let newArr = arr.filter(
+         (item) => !temp.includes(item.value) && temp.push(item.value)
+     );
+     console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+     ```
   2. set方法
-      ```javascript
-      temp = new Set();
-      newArr = arr.filter(
-          (item) => !temp.has(item.value) && temp.add(item.value)
-      );
-      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-      ```
+     
+     ```javascript
+     temp = new Set();
+     newArr = arr.filter(
+         (item) => !temp.has(item.value) && temp.add(item.value)
+     );
+     console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+     ```
   3. map方法
-      ```javascript
-      temp = new Map();
-      newArr = arr.filter(
-          (item, key) => !temp.has(item.value + '') && temp.set(item.value + '', true)
-      );
-      console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
-      ```
-?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
-
+     
+     ```javascript
+     temp = new Map();
+     newArr = arr.filter(
+         (item, key) => !temp.has(item.value + '') && temp.set(item.value + '', true)
+     );
+     console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}
+     ```
+     
+     ?>三个方法都可以封装为  fn(arr,key)  key 即是item.value的value
 
 - 对象数组去重 整个对象
-    ```javascript
-    temp = new Map();
-    newArr = arr.filter((item, key) =>
-        !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item), true)
-    );
-    console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
-    ```
+  
+  ```javascript
+  temp = new Map();
+  newArr = arr.filter((item, key) =>
+      !temp.has(JSON.stringify(item)) && temp.set(JSON.stringify(item), true)
+  );
+  console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
+  ```
 
 ### 求数组并集 差集 交集
+
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ```javascript
@@ -865,32 +1011,37 @@ let intersect = [...a].filter(x => b.has(x)); //交集 返回a和b共有的  也
 ```
 
 ## 框架
+
 ### apidoc
+
 <p align="left" style="color:#777777;">发布日期：2021-01-28</p>
 
 [apidoc官方网站](https://apidocjs.com/#demo)
 
 1. 已经安装了node.js 和 npm
 2. 安装apidoc
-```npm
-npm install apidoc -g
-```
+   
+   ```npm
+   npm install apidoc -g
+   ```
 3. 创建apidoc.json 在项目根目录
-内容如下
-```json
-{
+   内容如下
+   
+   ```json
+   {
     "name": "接口文档",
     "version": "0.3.0",
     "description": "接口描述",
     "url": "http://www.baidu.com",
     "sampleUrl": "http://test.baidu.com"
-}
-```
+   }
+   ```
 
 ?>url和sampleUrl分别为正式地址和测试地址
 
 4. 按他的规则写注释如下
-```
+   
+   ```
     /**
     * @api {get} /user/:id Get方法获取用户信息（前面的是接口名称）
     * @apiVersion 0.2.2
@@ -955,21 +1106,25 @@ npm install apidoc -g
     * @apiError (错误代码) 1001 内容1
     * @apiError (错误代码) 1002 内容2
     */
-```
+   ```
 5. 生成api文档到指定目录
-```
-apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .php(需要生成接口的文件类型)
-```
+   
+   ```
+   apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .php(需要生成接口的文件类型)
+   ```
 6. 版本控制
-建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
+   建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
 
 ## 实战
+
 ### 利用iframe跨域单点登录
+
 单点登录就是不同域名系统之间只需要登录一次 就可以访问多个系统了  
 如下图  
  ![calc](../images/cors_write_cookie.gif)  
 
 页面a
+
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -1016,7 +1171,9 @@ apidoc -i ./test（需要扫描的文件夹） -o ./doc(存放的文件夹) -f .
   </body>
 </html>
 ```
+
 页面b
+
 ```html
 <!DOCTYPE html>
 <html lang="en">

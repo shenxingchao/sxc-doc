@@ -1721,6 +1721,8 @@ graph TB;
 
 ### List
 
+元素可以重复，可以添加任意元素，包括null
+
 **常用方法**
 
 这里以创建一个ArrayList为例，这里创建的list是List类型向上转型，可以调用List里的所有方法，这些方法Vector LinkedList也是可以调用的
@@ -1801,6 +1803,48 @@ ArrayList是线程不安全的，但是执行效率高
         // minCapacity is usually close to size, so this is a win:
         elementData = Arrays.copyOf(elementData, newCapacity);
     }
+```
+
+### Vector
+
+多个线程同时操作一个集合时使用，因为他是线程安全的
+
+**初始化**
+
+可以是无参构造，也可以是指定大小，并指定每次扩容的大小，源码就很简单，每次是**old+指定扩容大小?指定扩容大小:old**
+
+因为是old+old 所以如果是无参构造器，可以看成是**2倍**
+
+```java
+import java.util.Vector;
+
+public class Demo {
+    public static void main(String[] args) {
+        // 指定vector初始化大小为1，每次扩容10个元素
+        Vector<Integer> vector = new Vector<Integer>(1, 10);
+        for (int i = 0; i < 10; i++) {
+            vector.add(i);
+        }
+    }
+}
+```
+
+### LinkedList
+
+线程不安全，底层是双向链表（维护了首尾两个节点属性first和last，存放的是节点对象，每个节点通过他的prev和next属性连接起来）
+
+添加和删除通过改变上一个节点的next和下一个节点的prev来完成，效率更高，但是查找元素效率低，需要从头开始查找，因为他不像数组，有索引。
+
+感觉用不了太多，了解即可。
+
+```mermaid
+graph LR;
+    first --next--> Node1
+    Node1 --prev-->first
+    Node1 --next--> Node2
+    Node2 --prev--> Node1
+    Node2 --next--> last
+    last --prev--> Node2
 ```
 
 ## 迭代器
