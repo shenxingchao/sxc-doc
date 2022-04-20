@@ -1644,6 +1644,8 @@ public class Demo {
 
 就是基本类型转换为对象 叫装箱 对象转换为基本类型 为拆箱
 
+tips:Interger 自动装箱有一个范围-128——127 如果是这里的值，则不会创建一个新的对象,会放入一个缓存类IntegerCache中，只会创建一次，相当于常量啦，比较在这个范围内的值时，相等。大于这个范围就会创建新的对象，在一些比较值的面试题中会出现。其他类型也有类似的缓存类。
+
 ```java
 public class Demo {
     @SuppressWarnings({ "all" })
@@ -1719,7 +1721,7 @@ graph TB;
         Hashtable --> properties
 ```
 
-### List
+## List
 
 元素可以重复，可以添加任意元素，包括null
 
@@ -1845,6 +1847,140 @@ graph LR;
     Node2 --prev--> Node1
     Node2 --next--> last
     last --prev--> Node2
+```
+
+## Set
+
+元素不重复，且无序（添加的顺序和遍历出来的顺序是不一致的，但是遍历的顺序是不会变的，没有索引不能用for循环遍历）
+
+### HashSet
+
+实现了Set接口，底层是HashMap，特性同Set
+
+数组+单向链表+红黑树的存储方式(当List数组长度大于等于64，且ListTabe链表长度大于等于8时，ListTabel转换为树形结构)
+
+扩容：首次加载table长度为16 ，判断加入元素的个数是否大于临界值 * 0.75 来进行扩容，每次扩容2倍
+
+拓展：LinkedHashSet底层是LinkedHashMap，基本同HashSet，只不过他是双向链表
+
+```mermaid
+graph LR;
+    List
+    ListTable0 --next--> Node1
+    Node1 --next--> Node2
+    ListTable1 --next--> Node3
+    Node3 --next-->Node4
+```
+
+**基本使用**
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class Demo {
+    public static void main(String[] args) {
+        Set<Object> set = new HashSet<Object>();
+        set.add(1);
+        set.add(2);
+        set.add(2);
+        set.add(1);
+        set.add(0);
+        set.add(4);
+        set.add(-1);
+        set.add(6);
+        set.add(-4);
+        set.add(new String("set"));
+        set.add(new String("set"));
+        // 无序且不重复 set只会有一个，因为String重写了equals方法，比较的是值是否相等，然后set的底层调用了equals方法去重
+        // 如果是其他对象没有重写equals方法的话，会是两个不同的对象，就会存放两个
+        System.out.println(set);// [0, -1, 1, 2, -4, set, 4, 6]
+        // 下面这行是底层计算首个元素存放在数据表Node<K,V>[] table的索引
+        System.out.println((16 - 1) & ("java".hashCode() ^ "java".hashCode() >>> 16));// 3
+    }
+}
+```
+
+**重复元素不添加**
+
+底层用到hashCode和equals方法共同判断重复性
+
+tips：hashCode和equals方法可以通过编辑器idea快速生成alt+insert(vscode的话需要配置快捷键源代码操作)，直接选择重写这两个方法，还能选择需要比较的属性
+
+```java
+import java.util.HashSet;
+import java.util.Set;
+
+public class Demo {
+    public static void main(String[] args) {
+        Set<Goods> set = new HashSet<Goods>();
+        // 商品去重，保证同一个id的商品只能放一个
+        set.add(new Goods(1, "红苹果"));
+        set.add(new Goods(1, "青苹果"));
+        set.add(new Goods(2, "大西瓜"));
+        // 可以看到重复的青苹果 id为1并没有被加进去
+        System.out.println(set);// [Goods [id=1, name=红苹果], Goods [id=2, name=大西瓜]]
+    }
+}
+
+class Goods {
+    private int id;
+    private String name;
+
+    public Goods(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    /**
+     * 重写set底层计算索引需要用到的hashCode
+     */
+    @Override
+    public int hashCode() {
+        final int prime = 31;
+        int result = 1;
+        result = prime * result + id;
+        return result; // 也可用Objects.hash(id)代替
+    }
+
+    /**
+     * 重写set底层比较用到equals方法
+     */
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        Goods other = (Goods) obj;
+        if (id != other.id)
+            return false;
+        return true;
+    }
+
+    @Override
+    public String toString() {
+        return "Goods [id=" + id + ", name=" + name + "]";
+    }
+}
 ```
 
 ## 迭代器
@@ -2333,6 +2469,44 @@ public class Demo {
         if("hello".equals(str)){
             System.out.println("相等");
         }
+    }
+}
+```
+
+**关于Srtring类型的所有比较**
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        String a = "hello";
+        String b = "hello";
+        // 因为String类型的值保存在常量池，且常量池只会存在一个hello，a和b同时指向常量池的hello，所以他们的地址相同
+        System.out.println(a == b);// true
+        String c = "he" + "llo";
+        // 这里的c是基本类型相加得到，相当于直接指向常量池里的hello,所以他们的地址相同
+        System.out.println(a == c);// true
+        String d = "he";
+        String e = d + "llo";
+        // 这里的e有变量d参与相加，只要有变量参与相加，就相当于创建了一个新的对象
+        // new String(d+"llo")，存放在堆中了char value[]，e指向了这个新的对象的地址，所以不同（这个新的对象value属性指向了常量池的hello）
+        System.out.println(a == e);// false
+        String f = "llo";
+        String g = d + f;
+        // 这里原理和上面一个一样，有变量参加
+        System.out.println(a == g);// false
+        // equals 比较的是值是否相同，不是地址，所以相同
+        System.out.println(a.equals(g));// true
+        String h = new String("hello");
+        String i = new String("hello");
+        // 这是栈里的两个对象，那么他们的地址肯定不同，所以不同
+        System.out.println(h == i);// false
+        // equals 比较的是值是否相同，不是地址，所以相同
+        System.out.println(h.equals(i));// true
+        System.out.println(a.equals(h));// true
+        // 一个指向常量池hello地址 一个指向栈中的h对象地址，所以不同
+        System.out.println(a == h);// false
+        // intern()会返回一个新的String对象指向常量池的值，如果对象已经在常量池存在，直接返回该对象，所以相同
+        System.out.println(a == h.intern()); // true
     }
 }
 ```
