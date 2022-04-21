@@ -1714,6 +1714,7 @@ graph TB;
     Collection --> Set
         Set --> TreeSet
         Set --> HashSet
+            HashSet -->LinkedHashSet
     Map --> HashMap
         HashMap --> LinkedHashMap
     Map --> TreeMap
@@ -1725,7 +1726,7 @@ graph TB;
 
 元素可以重复，可以添加任意元素，包括null
 
-**常用方法**
+### 常用方法
 
 这里以创建一个ArrayList为例，这里创建的list是List类型向上转型，可以调用List里的所有方法，这些方法Vector LinkedList也是可以调用的
 
@@ -1855,7 +1856,7 @@ graph LR;
 
 ### HashSet
 
-实现了Set接口，底层是HashMap，特性同Set
+实现了Set接口，底层是HashMap（他的值存放在HashMapNode的key位置，value位置是一个空的Object(new Object()），特性同Set
 
 数组+单向链表+红黑树的存储方式(当List数组长度大于等于64，且ListTabe链表长度大于等于8时，ListTabel转换为树形结构)
 
@@ -1981,6 +1982,183 @@ class Goods {
         return "Goods [id=" + id + ", name=" + name + "]";
     }
 }
+```
+
+### TreeSet
+
+底层是TreeMap
+
+## Map
+
+### 常用方法
+
+这里以创建一个HashMap为例
+
+```java
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
+
+public class Demo {
+    public static void main(String[] args) {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        // 添加一个元素到末尾 索引可以是任意Object类型,如果索引重复会直接覆盖旧值
+        map.put("name", "hello");
+        map.put("number", 100);
+        System.out.println(map);// {number=100, name=hello}
+        // 删除指定的元素 返回被删除的元素
+        System.out.println(map.remove("number"));// 100
+        System.out.println(map);// {name=hello}
+        // 查找指定索引的元素
+        System.out.println(map.get("name"));// hello
+        // 判断索引是否存在
+        System.out.println(map.containsKey("name"));// true
+        // 判断值是否存在
+        System.out.println(map.containsValue("hello"));// true
+        // 替换 返回boolean
+        map.replace("name", "hello", "java");
+        // 放置多个
+        Map<Object, Object> map2 = new HashMap<Object, Object>();
+        map2.put("multiple", "multipleValue");
+        map.putAll(map2);
+        System.out.println(map);// {name=java, multiple=multipleValue}
+        // 获取元素个数
+        System.out.println(map.size());// 2
+        // 判空
+        System.out.println(map.isEmpty());// false
+        // 清空全部
+        map.clear();
+        System.out.println(map);// {}
+        // 合并相同索引的值到map，可用于List分组求和
+        ArrayList<A> list = new ArrayList<>();
+        list.add(new A("张三", 2));
+        list.add(new A("张三", 100));
+        list.add(new A("李四", 200));
+        Map<String, Integer> map3 = new HashMap<>();
+        for (A a : list) {
+            map3.merge(a.name, a.num, Integer::sum);
+        }
+        System.out.println(map3);// {李四=200, 张三=102}
+
+    }
+}
+
+class A {
+    public String name;
+    public int num;
+
+    public A(String name, int num) {
+        this.name = name;
+        this.num = num;
+    }
+}
+```
+
+### 遍历Map
+
+```java
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class Demo {
+    public static void main(String[] args) {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        map.put("name", "hello");
+        map.put("number", 100);
+
+        // 遍历方法
+        // 1.使用entrySet遍历
+        // 遍历对象
+        System.out.println("1.--------------------");
+        for (Entry<Object, Object> obj : map.entrySet()) {
+            System.out.println(obj);
+            System.out.println(obj.getKey());
+            System.out.println(obj.getValue());
+        }
+        System.out.println("2.--------------------");
+        // 利用迭代器
+        Iterator<Entry<Object, Object>> iterator = map.entrySet().iterator();
+        while (iterator.hasNext()) {
+            Entry<Object, Object> entrySet = iterator.next();
+            System.out.println(entrySet.getKey());
+            System.out.println(entrySet.getValue());
+        }
+
+        System.out.println("3.-------------------");
+        // 2.使用values遍历
+        // 遍历值
+        for (Object obj : map.values()) {
+            System.out.println(obj);
+        }
+
+        System.out.println("4.--------------------");
+        // 3.使用keySet遍历
+        // 遍历索引 利用get获取值
+        for (Object obj : map.keySet()) {
+            System.out.println(obj);
+            System.out.println(map.get(obj));
+        }
+        System.out.println("5.--------------------");
+        // 利用迭代器
+        Iterator<Object> iterator2 = map.keySet().iterator();
+        while (iterator2.hasNext()) {
+            Object key = iterator2.next();
+            System.out.println(key);
+            System.out.println(map.get(key));
+        }
+    }
+}
+```
+
+### HashMap
+
+数据存放在内部类HashMap$Node节点的key,value中，然后底层还有一个entrySet里的table指向HashMap的table，这为了遍历方便
+
+**关于这个entrySet的测试**
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
+
+public class Demo {
+    public static void main(String[] args) {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        map.put(1, 2);
+        for (Entry<Object, Object> entry : map.entrySet()) {
+            System.out.println(entry.getKey());// 1
+            System.out.println(entry.getValue());// 2
+        }
+    }
+}
+```
+
+无序，不同索引相同value元素可以重复，和php关联数组很像，但他的索引key和value可以是**任意对象Object**
+
+**无序和索引可以重复代码测试**
+
+```java
+import java.util.HashMap;
+import java.util.Map;
+
+public class Demo {
+    public static void main(String[] args) {
+        Map<Object, Object> map = new HashMap<Object, Object>();
+        map.put("str", "hello");
+        map.put("str", "hello2");// 这句相当于把索引位str的值hello替换成了hello2
+        map.put("str2", "hello");
+        map.put("name", "marry");
+        map.put(1, "number");
+        map.put(new String("index"), 11);
+        map.put(null, "null index");
+        map.put(null, "null index2");//底层有单独对null的判断，不会调用null.equals
+        map.put("nullValue", null);
+        System.out.println(map);// {str=hello2, null=null index2, 1=number, str2=hello, name=marry, index=11, nullValue=null}
+    }
+}
+
 ```
 
 ## 迭代器
