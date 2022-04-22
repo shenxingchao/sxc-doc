@@ -368,6 +368,42 @@
 
     - [包装类和String转换](/md/Java#包装类和string转换)
 
+  - [集合](/md/Java#集合)
+
+    - [体系图](/md/Java#体系图)
+
+  - [List](/md/Java#list)
+
+    - [常用方法](/md/Java#常用方法-1)
+
+    - [ArrayList](/md/Java#arraylist)
+
+    - [Vector](/md/Java#vector)
+
+    - [LinkedList](/md/Java#linkedlist)
+
+  - [Set](/md/Java#set)
+
+    - [HashSet](/md/Java#hashset)
+
+    - [TreeSet](/md/Java#treeset)
+
+  - [Map](/md/Java#map)
+
+    - [常用方法](/md/Java#常用方法-2)
+
+    - [遍历Map](/md/Java#遍历map)
+
+    - [HashMap](/md/Java#hashmap)
+
+    - [Hashtable](/md/Java#hashtable)
+
+    - [Properties](/md/Java#properties)
+
+    - [TreeMap](/md/Java#treemap)
+
+  - [迭代器](/md/Java#迭代器)
+
   - [设计模式](/md/Java#设计模式)
 
     - [单例模式](/md/Java#单例模式)
@@ -399,6 +435,8 @@
     - [StringBuilder](/md/Java#stringbuilder)
 
     - [Arrays](/md/Java#arrays)
+
+    - [Collections](/md/Java#collections)
 
     - [BigInteger](/md/Java#biginteger)
 

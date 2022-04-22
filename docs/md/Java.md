@@ -814,7 +814,7 @@ class Person {
 
 ### 继承和多态
 
-继承 子类和父类有共同属性或方法时使用，java是单继承，本质是查找关系，就近原则
+继承 子类和父类有共同属性或方法时使用，java是单继承，本质是查找关系，就近原则；子类可以直接调用父类的中的非静态方法，静态方法用父类名.方法名调用
 
 多态 重写父类的方法，方法的多态 例如父类动物有说的方法，狗有说的方法，猫也有说的方法 这种同一个行为表现多个不同的样式称之为多态（多种形态嘛，除了方法，对象也可以是多态）
 
@@ -1230,11 +1230,17 @@ class Cat extends Animal {
 
 接口可以多继承
 
+接口实现类可以直接调用父类中已实现的方法
+
 ```java
 public class Demo {
     public static void main(String[] args) {
         AInterface aInterface = new A();
         aInterface.fnA();
+        // 调用接口实现类A(子类)的方法，需要向下转型（强制转型）为A
+        ((A) aInterface).fnB();
+        // 调用接口中已实现的方法可以直接调用
+        aInterface.getName();
     }
 }
 
@@ -1272,11 +1278,12 @@ class A implements AInterface, BInterface {
     public void fnB() {
         System.out.println("fnB");
     }
-
 }
 ```
 
 ### 内部类
+
+直接创建匿名内部类对象**new 接口名(){ 方法体内实现接口里的方法 }**，然后直接在后面跟上方法体{},在方法体{}内直接重写接口里的方法
 
 内部类分为成员内部类（类似成员属性） 和 局部内部类（类似局部变量）
 
@@ -1852,9 +1859,11 @@ graph LR;
 
 ## Set
 
-元素不重复，且无序（添加的顺序和遍历出来的顺序是不一致的，但是遍历的顺序是不会变的，没有索引不能用for循环遍历）
+元素不重复（底层是map，set的元素存放在map的key位置，利用了key值不能重复的原理）
 
 ### HashSet
+
+无序（添加的顺序和遍历出来的顺序是不一致的，但是遍历的顺序是不会变的，没有索引不能用for循环遍历）
 
 实现了Set接口，底层是HashMap（他的值存放在HashMapNode的key位置，value位置是一个空的Object(new Object()），特性同Set
 
@@ -1986,7 +1995,64 @@ class Goods {
 
 ### TreeSet
 
-底层是TreeMap
+底层是TreeMap，有序（底层默认调用传入类型的compareTo方法），通过设置比较器（覆盖默认的比较器），可以自定义排序规则，也可以使内容重复返比较器返回一个不为0的整数
+
+**添加的类型必须一致**
+
+**基本使用**
+
+```java
+import java.util.TreeSet;
+import java.util.Comparator;
+import java.util.Set;
+
+public class Demo {
+    public static void main(String[] args) {
+        Set<Object> set = new TreeSet<Object>();
+        set.add(1);
+        set.add(2);
+        set.add(2);
+        set.add(1);
+        set.add(0);
+        set.add(4);
+        set.add(-1);
+        set.add(6);
+        set.add(-4);
+        System.out.println(set);// [-4, -1, 0, 1, 2, 4, 6]
+
+        // 指定排序从大到小规则Comparator
+        Set<Integer> set2 = new TreeSet<Integer>(new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2 - o1;
+            }
+        });
+        set2.add(1);
+        set2.add(2);
+        set2.add(0);
+        set2.add(4);
+        set2.add(-1);
+        set2.add(6);
+        set2.add(-4);
+        System.out.println(set2);// [6, 4, 2, 1, 0, -1, -4]
+
+        // 字符串排序
+        Set<String> set3 = new TreeSet<String>(new Comparator<String>() {
+            @Override
+            public int compare(String o1, String o2) {
+                // 底层拆分成char数组。依次比较字符的ASCII码值，如果有一个不相等就返回，不然从头比较到尾，这里第一个就不相等，就直接返回了，我可以用来字符串排序
+                // return o1.compareTo(o2) == 0?-1:o1.compareTo(o2); // 0代表相等，重复了，如果想加进去，修改0的返回，不要返回0就行了
+                return o1.compareTo(o2);
+            }
+        });
+        set3.add("orange");
+        set3.add("pear");
+        set3.add("apple");
+        set3.add("apple");
+        System.out.println(set3);// [apple, orange, pear]
+    }
+}
+```
 
 ## Map
 
@@ -2114,6 +2180,8 @@ public class Demo {
 
 ### HashMap
 
+是线程不安全的，key-value，效率高
+
 数据存放在内部类HashMap$Node节点的key,value中，然后底层还有一个entrySet里的table指向HashMap的table，这为了遍历方便
 
 **关于这个entrySet的测试**
@@ -2158,8 +2226,114 @@ public class Demo {
         System.out.println(map);// {str=hello2, null=null index2, 1=number, str2=hello, name=marry, index=11, nullValue=null}
     }
 }
-
 ```
+
+### Hashtable
+
+线程安全，key-value存放，但是不能存储null索引和null值，效率低
+
+初始大小为11，每次扩容是**old *2 +1**的大小，数据直接存放在Entry类型的数组里面，没有链表和树，使用方法同HashMap
+
+```java
+import java.util.Hashtable;
+import java.util.Map;
+
+public class Demo {
+    public static void main(String[] args) {
+        Map<Object, Object> table = new Hashtable<>();
+        table.put("str", "hello");
+
+        System.out.println(table);// {str=hello}
+    }
+}
+```
+
+### Properties
+
+继承Hashtable，常用于配置文件，key-value都是字符串类型
+
+**基本使用同map常用方法**
+
+```java
+import java.util.Properties;
+
+public class Demo {
+    public static void main(String[] args) {
+        Properties properties = new Properties();
+        // 设置
+        properties.put("str", "hello");
+        // 设置+修改 底层就是put
+        properties.setProperty("str", "hello world");
+        System.out.println(properties);// {str=hello world}
+        // 读取
+        System.out.println(properties.get("str"));// hello world
+        // 读取 底层就是get
+        System.out.println(properties.getProperty("str"));// hello world
+        // 读取，不存在就返回第二个参数
+        System.out.println(properties.getProperty("str2", "hello java"));// hello java
+        // 删除
+        properties.remove("str");
+        System.out.println(properties);// {}
+        // 大小
+        System.out.println(properties.size());// 0
+        // 清空
+        properties.clear();
+    }
+}
+```
+
+**读取配置和写入配置文件案例** 
+
+假如有一个当前目录有一个db.properties文件
+
+```java
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.util.Map;
+import java.util.Properties;
+
+public class Demo {
+    public static void main(String[] args) {
+        Properties properties = new Properties();
+        try {
+            //创建流 BufferedInputStream 比 FileInputStream 读取资源效率高
+            InputStream inputStream = new BufferedInputStream(new FileInputStream("db.properties"));
+            //加载流到properties对象
+            properties.load(inputStream);
+            //遍历properties对象 obj=>key->value键值对
+            for (Map.Entry<Object, Object> obj:properties.entrySet()
+                 ) {
+                System.out.println(obj);
+            }
+            //关闭流
+            inputStream.close();
+
+            //写入资源
+            //创建输出流
+            FileOutputStream fileOutputStream = new FileOutputStream("db.properties", true);//true表示追加打开
+            //设置一个字段 2种方法都可以setProperty底层就是put方法
+            properties.put("password","123456");
+            properties.setProperty("dbname", "new_db");
+            //写入输出流
+            properties.store(fileOutputStream, "描述");
+            //关闭输出流
+            fileOutputStream.close();
+
+        }catch (Exception e){
+            //处理各种异常，文件不存在，等等。。这里简化
+            System.out.println(e.getMessage());
+        }
+    }
+}
+```
+
+### TreeMap
+
+特性同TreeSet，方法同map，线程不安全
+
+**添加的索引key的类型必须一致**
 
 ## 迭代器
 
@@ -2935,6 +3109,67 @@ public class Demo {
     }
 }
 ```
+
+### Collections
+
+集合工具类 用于操作set和map
+
+这里以ArrayList为例
+
+```java
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) {
+        List<Integer> list = new ArrayList<Integer>();
+        list.add(1);
+        list.add(2);
+        list.add(3);
+        list.add(-1);
+        // 方法
+        // 反转
+        Collections.reverse(list);
+        System.out.println(list);// [-1, 3, 2, 1]
+        // 随机打乱顺序
+        Collections.shuffle(list);
+        System.out.println(list);// [-1, 3, 1, 2] 不固定顺序随机的
+        // 默认按添加元素的compareTo方法
+        Collections.sort(list);
+        System.out.println(list);// [-1, 1, 2, 3]
+        // 使用匿名内部类指定排序规则
+        Collections.sort(list, new Comparator<Integer>() {
+            @Override
+            public int compare(Integer o1, Integer o2) {
+                return o2 - o1;
+            }
+        });
+        System.out.println(list);// [3, 2, 1, -1]
+        // 交换指定位置元素
+        Collections.swap(list, 0, 3);
+        System.out.println(list);// [-1, 2, 1, 3]
+        // 最大值最小值
+        System.out.println(Collections.max(list));// 3
+        System.out.println(Collections.min(list));// -1
+        // 替换所有值
+        Collections.replaceAll(list, -1, -2);
+        System.out.println(list);// [-2, 2, 1, 3]
+        // 查看对象出现的次数
+        System.out.println(Collections.frequency(list, 2));// 1
+        // 拷贝 需要目标集合大小大于等于源集合大小。目标集合要有元素，否则会抛异常
+        List<Integer> list2 = new ArrayList<Integer>(Arrays.asList(new Integer[list.size()]));
+        Collections.copy(list2, list);
+        System.out.println(list2);// [-2, 2, 1, 3]
+        // 查找子集合出现的位置
+        System.out.println(Collections.indexOfSubList(list, list2)); // 0
+    }
+}
+```
+
+
 
 ### BigInteger
 
