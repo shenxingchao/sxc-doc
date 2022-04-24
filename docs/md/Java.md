@@ -1245,7 +1245,7 @@ public class Demo {
 }
 
 interface AInterface {
-    // 接口里的属性必须是这样声明 public static final 且必须赋值
+    // 接口里的属性必须是这样声明 public static final 且必须赋值;除非是泛型表示
     public static final int i = 0;
 
     // 抽象方法，这里可以省略abstract关键字
@@ -1705,6 +1705,200 @@ public class Demo {
 }
 ```
 
+## 泛型
+
+泛型可以接收任意数据类型(得是引用类型，或者其子类型，不能是基本数据类型)，可以用来表示属性，方法返回值，方法形参的任意类型
+
+tips:泛型在创建对象时就知道类型是什么了，创建对象等号右边的<>内容可以省略，编译器会进行类型推断
+
+### 泛型的好处
+
+可以防止隐藏的类型转换错误，可以减少向下转向（强制类型转换）次数
+
+不用泛型
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Person person = new Person();
+        // 假如想要输出这个人明年几岁
+        person.setAge(18);
+        // 不用泛型，这里需要强制转换
+        System.out.println((int) person.getAge() + 1);// 可以输出
+        person.setAge("18");
+        // 不用泛型，像这种编译器发现不了类型转换错误 String无法转换为int
+        // java.lang.ClassCastException: java.lang.String cannot be cast to
+        // java.lang.Integer
+        System.out.println((int) person.getAge() + 1);
+    }
+}
+
+class Person {
+    private Object age;
+
+    public Person() {
+    }
+
+    public Object getAge() {
+        return age;
+    }
+
+    public void setAge(Object age) {
+        this.age = age;
+    }
+}
+```
+
+用了泛型
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Person<Integer> person = new Person<Integer>();
+        // 假如想要输出这个人明年几岁
+        person.setAge(18);
+        // 这里不需要强制转换
+        System.out.println(person.getAge() + 1);// 可以输出
+        // 下面这和直接报错
+        // person.setAge("20");
+        // 需要传泛型里的类型<Integer>
+        person.setAge(18);
+        System.out.println(person.getAge() + 1);
+    }
+}
+
+class Person<T> {
+    private T age;
+
+    public Person() {
+    }
+
+    public T getAge() {
+        return age;
+    }
+
+    public void setAge(T age) {
+        this.age = age;
+    }
+}
+```
+
+### 语法
+
+**T** type类型 **E** element 元素 **K** key索引 **V** value值 **?** 未知类型
+
+泛型类class 类名<T,E...>{    }  在类名后面定义后就可以在类内部使用了
+
+泛型接口 interface 接口名<T,E...>{    }
+
+泛型变量public T 变量名
+
+泛型数组private T[] 数组变量名
+
+泛型方法public <T> T fn(T o) {return o;}  方法里不带局部泛型<T>的不是泛型方法，可能只是参数用到了类后面的定义的泛型而已
+
+tips：实例化泛型对象时，类名<Integer,String>是指定class 类名<T,T2>的
+
+tips2：假如成员属性类型是类似于Map List这种类型初始化不算是泛型变量，所以可以在类里面初始化，如`HashMap<String, T> map = new HashMap<>();`
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        // <Integer,String> 分别指定Student<T,T2>里的 T 和 T2
+        Student<Integer, String> student = new Student<>();
+        student.setAge(10, "小明");
+        System.out.println(student.getAge());
+        System.out.println(student.getAge(18));
+    }
+}
+
+interface Person<T> {
+    public String getPerson();
+}
+
+// <T,T2>放在类名后面的 Person<String>里是指定接口里的泛型T的类型
+class Student<T, T2> implements Person<String> {
+    // 属性泛型
+    private T age;
+    private T2 name;
+    // 泛型数组
+    private T[] interests;
+
+    public Student() {
+    }
+
+    // 普通方法参数使用了类定义的泛型
+    public void setAge(T age, T2 name) {
+        this.age = age;
+        this.name = name;
+    }
+
+    // 返回值泛型
+    public T getAge() {
+        return age;
+    }
+
+    // 泛型方法返回值泛型+形参泛型
+    public <E> E getAge(E age) {
+        return age;
+    }
+
+    public T2 getName() {
+        return name;
+    }
+
+    public void setName(T2 name) {
+        this.name = name;
+    }
+
+    @Override
+    public String getPerson() {
+        return (String) getName() + (String) getAge();
+    }
+}
+```
+
+### 泛型继承
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) {
+        List<Object> list1 = new ArrayList<>();
+        List<String> list2 = new ArrayList<>();
+        List<A> list3 = new ArrayList<>();
+        List<B> list4 = new ArrayList<>();
+
+        // fn1(list1); //传入List<Object>错误，不是A或A的子类
+        // fn1(list2); //传入List<Sring>错误，不是A或A的子类
+        fn1(list3);// 正确
+        fn1(list4);// 正确
+
+        fn2(list1); // 正确
+        // fn2(list2); //传入List<Sring>错误，不是B或B的父类
+        fn2(list3);// 正确
+        fn2(list4);// 正确
+
+    }
+
+    // 表示传入的泛型可以是A或A的子类
+    public static void fn1(List<? extends A> list) {
+    }
+
+    // 表示传入的泛型可以是B或B的父类
+    public static void fn2(List<? super B> list) {
+    }
+}
+
+class A {
+}
+
+class B extends A {
+}
+```
+
 ## 集合
 
 集合是可动态改变的数组，集合分为单列集合Collection（类似PHP索引数组）双列集合Map（类似PHP关联数组）
@@ -1995,7 +2189,7 @@ class Goods {
 
 ### TreeSet
 
-底层是TreeMap，有序（底层默认调用传入类型的compareTo方法），通过设置比较器（覆盖默认的比较器），可以自定义排序规则，也可以使内容重复返比较器返回一个不为0的整数
+底层是TreeMap，有序（底层默认调用传入类型的compareTo方法，如果没有必须自己实现），通过设置比较器（覆盖默认的比较器），可以自定义排序规则，也可以使内容重复返比较器返回一个不为0的整数
 
 **添加的类型必须一致**
 
@@ -3169,8 +3363,6 @@ public class Demo {
 }
 ```
 
-
-
 ### BigInteger
 
 超大整数
@@ -3290,6 +3482,9 @@ public class Demo {
         // 日期格式转为Date对象 这里的日期格式必须和SimpleDateFormat的格式一样
         Date newDate = simpleDateFormat.parse("2022-03-24 17:14:37");
         System.out.println(newDate);
+        // 获取转换后的时间戳
+        milliseconds = newDate.getTime();
+        System.out.println(milliseconds);// 1648113277000
     }
 }
 ```
@@ -3370,6 +3565,9 @@ public class Demo {
         System.out.println(dateTimeFormatter.format(localDateTime));// 2022-04-09 22:43:32
         // 字符串转LocalDateTime时间对象
         System.out.println(LocalDateTime.parse("2022-04-09 22:43:32", dateTimeFormatter));// 2022-04-09T22:43:32
+        // 转换日期LocalDateTime改为LocalDate即可
+        dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        System.out.println(LocalDate.parse("2022-04-09", dateTimeFormatter));// 2022-04-09
 
         // 运算
         // 加30天
@@ -3457,3 +3655,23 @@ public class Demo {
 **gc()**
 
 运行垃圾回收机制
+
+## 单元测试
+
+vscode java扩展已经自带了，加上 **@Test** 即可测试**public类**中的方法
+
+[Java Testing in Visual Studio Code](https://code.visualstudio.com/docs/java/java-testing)
+
+```java
+import org.junit.Test;
+
+public class Demo {
+    public static void main(String[] args) {
+    }
+
+    @Test
+    public void test() {
+        System.out.println("一个单元测试方法");
+    }
+}
+```
