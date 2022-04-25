@@ -2557,6 +2557,76 @@ public class Demo {
 }
 ```
 
+## 多线程
+
+### 基本使用
+
+和Python很像
+
+使用接口方式更适合线程间共用一个变量
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        A a = new A();
+        // 启动线程a
+        a.start();// 每隔1秒输出Thread-0
+        A a2 = new A();
+        // 启动线程a2
+        a2.start();// 每隔1秒输出Thread-1
+        B b = new B();
+        // 直接运行run方法 没有启动线程，会导致线程阻塞，相当于run只是一个普通方法
+        b.run();// 每隔2秒输出main
+        System.out.println("我要等到run执行完毕才会执行");
+        B b2 = new B();
+        // 正确的启动线程的方法
+        Thread t = new Thread(b2);
+        t.start();
+        System.out.println("我会直接执行");// 每隔2秒输出Thread-2
+    }
+}
+
+// 线程类
+class A extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        int times = 0;
+        try {
+            while (times < 10) {
+                // Thread.currentThread().getName() 线程名
+                System.out.println("每隔1秒输出" + Thread.currentThread().getName());
+                Thread.sleep(1000);
+                // 线程停止
+                times++;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+// 类实现这个接口也是一个线程类
+class B implements Runnable {
+
+    @Override
+    public void run() {
+        int times = 0;
+        try {
+            while (times < 10) {
+                System.out.println("每隔2秒输出" + Thread.currentThread().getName());
+                Thread.sleep(2000);
+                // 线程停止
+                times++;
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
@@ -2691,6 +2761,68 @@ class Factory {
                 return new C();
         }
         return null;
+    }
+}
+```
+
+### 代理模式
+
+利用接口多态和接口类型的对象实现让不同的人做同一件事
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        Studuent studuent = new Studuent();
+        Teacher teacher = new Teacher();
+        Agent agent = new Agent();
+        // 让学生做作业
+        agent.setAgent(studuent);
+        agent.doHomework();
+        // 让老师做作业
+        agent.setAgent(teacher);
+        agent.doHomework();
+    }
+}
+
+// 作业类
+interface Homework {
+    // 做作业
+    public void doHomework();
+}
+
+// 学生类
+class Studuent implements Homework {
+
+    @Override
+    public void doHomework() {
+        System.out.println("学生做作业");
+    }
+}
+
+// 老师类
+class Teacher implements Homework {
+
+    @Override
+    public void doHomework() {
+        System.out.println("老师做作业");
+    }
+}
+
+// 代理类
+class Agent implements Homework {
+    Homework agent = null;
+
+    @Override
+    public void doHomework() {
+        if (agent != null) {
+            // 确定已经设置好做作业的人，可以让不同的人去做了
+            agent.doHomework();
+        }
+    }
+
+    // 接口多态 向上转型（可以接收实现A接口的任意对象）
+    public void setAgent(Homework agent) {
+        this.agent = agent;
     }
 }
 ```
