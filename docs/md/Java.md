@@ -2559,7 +2559,7 @@ public class Demo {
 
 ## 多线程
 
-### 基本使用
+### 线程创建
 
 和Python很像
 
@@ -2623,6 +2623,222 @@ class B implements Runnable {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+    }
+}
+```
+
+### 线程方法
+
+```java
+public class Demo {
+    public static void main(String[] args) throws InterruptedException {
+        A a = new A();
+        // 设置线程名称
+        a.setName("线程名称");
+        // 获取线程名称
+        System.out.println(a.getName());
+        // 设置线程优先级
+        a.setPriority(Thread.MIN_PRIORITY);
+        // 获取线程优先级
+        System.out.println(a.getPriority());
+        // 启动线程
+        a.start();
+        // 5秒后设置线程中断
+        Thread.sleep(5000);
+        // 中断线程方法，不是停止线程哦
+        a.interrupt();
+
+        // 下面的是线程插队
+        B b = new B();
+        // 主线程每隔一秒输出一次
+        for (int i = 0; i < 5; i++) {
+            if (i == 2) {
+                // 新建一个线程插队
+                b.start();
+                b.join();
+                // 放在这里是主线程让步 如果放在子线程则是子线程让步 不一定让步成功 看cpu资源是否有空余，有就会先执行被让步的线程
+                // Thread.yield();
+            }
+            Thread.sleep(1000);
+            System.out.println("主线程" + i);// 输出2次后，等子线程b执行完毕，才会继续输出
+        }
+        // 以上输出
+        // 主线程0
+        // 主线程1
+        // 我是插队的线程0
+        // 我是插队的线程1
+        // 我是插队的线程2
+        // 主线程2
+        // 主线程3
+        // 主线程4
+    }
+}
+
+// 线程类
+class A extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        // 获取线程名称
+        System.out.println(Thread.currentThread().getName());
+        // 获取线程优先级
+        System.out.println(Thread.currentThread().getPriority());
+        // 线程休眠1秒
+        try {
+            Thread.sleep(1000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        try {
+            // 这里休眠了6秒，但是在主线程调用了interrupt()中断了线程，所以这里会抛出异常
+            Thread.sleep(6000);
+            System.out.println("我还会在输出了");
+        } catch (Exception e) {
+            System.out.println("线程中断处理");
+        }
+        System.out.println("我继续输出");
+    }
+}
+
+// 用于线程插队方法的类
+class B extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        for (int i = 0; i < 3; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("我是插队的线程" + i);
+        }
+    }
+}
+```
+
+### 守护线程
+
+```java
+public class Demo {
+    public static void main(String[] args) throws InterruptedException {
+        A a = new A();
+        // 如过不设置为守护线程，那么子线程会一直执行，如果设置为守护线程，主线程执行完毕，则关闭子线程
+        a.setDaemon(true);
+        // 启动线程
+        a.start();
+        for (int i = 0; i < 5; i++) {
+            Thread.sleep(1000);
+            System.out.println("主线程" + i);
+        }
+        System.out.println("主线程执行完毕");
+    }
+}
+
+class A extends Thread {
+
+    @Override
+    public void run() {
+        super.run();
+        for (int i = 0;; i++) {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            if (i < 5) {
+                System.out.println("子线程" + i);
+            } else {
+                System.out.println("子线程继续执行" + i);
+            }
+        }
+    }
+}
+```
+
+### 线程加锁synchronized
+
+synchronized可以修饰方法，让其变成同步的方法(排队执行)
+
+**方法**public synchronized void fnI(){}
+
+**代码块**synchronized(this){ ... };
+
+案例，线程加锁来解决多个窗口同时售票问题
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        A a = new A();
+        Thread t1 = new Thread(a);
+        Thread t2 = new Thread(a);
+        Thread t3 = new Thread(a);
+        t1.start();
+        t2.start();
+        t3.start();
+
+        // 另一种方法
+        // B b1 = new B();
+        // B b2 = new B();
+        // B b3 = new B();
+        // b1.start();
+        // b2.start();
+        // b3.start();
+    }
+}
+
+// 线程类
+class A implements Runnable {
+    // 售票100
+    public int num = 100;
+
+    @Override
+    public synchronized void run() {
+        while (true) {
+            if (num <= 0) {
+                System.out.println("售票完毕" + num);
+                break;
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            num--;
+            System.out.println(num);
+        }
+        // 也可用synchronized(this){ ... }来包围 this可以用任意对象替代 只要是对象即可
+    }
+}
+
+// 继承锁需要将方法定义为static 那么这个锁就是对象锁 方法由类名.调用
+class B extends Thread {
+    // 售票100
+    public static int num = 100;
+
+    @Override
+    public void run() {
+        super.run();
+        B.sale();
+    }
+
+    private static synchronized void sale() {
+        while (true) {
+            if (num <= 0) {
+                System.out.println("售票完毕" + num);
+                break;
+            }
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            num--;
+            System.out.println(num);
+        }
+        // 也可用synchronized(B.class){ ... }来包围 这里是静态的所以不能用this 要用当前类
     }
 }
 ```
