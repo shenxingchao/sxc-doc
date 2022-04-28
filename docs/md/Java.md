@@ -2492,16 +2492,16 @@ public class Demo {
     public static void main(String[] args) {
         Properties properties = new Properties();
         try {
-            //创建流 BufferedInputStream 比 FileInputStream 读取资源效率高
+            //创建输入流 BufferedInputStream 比 FileInputStream 读取资源效率高
             InputStream inputStream = new BufferedInputStream(new FileInputStream("db.properties"));
-            //加载流到properties对象
+            //加载输入流到properties对象
             properties.load(inputStream);
             //遍历properties对象 obj=>key->value键值对
             for (Map.Entry<Object, Object> obj:properties.entrySet()
                  ) {
                 System.out.println(obj);
             }
-            //关闭流
+            //关闭输入流
             inputStream.close();
 
             //写入资源
@@ -2839,6 +2839,277 @@ class B extends Thread {
             System.out.println(num);
         }
         // 也可用synchronized(B.class){ ... }来包围 这里是静态的所以不能用this 要用当前类
+    }
+}
+```
+
+## IO
+
+**Input输入流**，读取文件数据到程序
+
+**output输出流**，程序写入数据到文件
+
+### 文件管理
+
+**创建文件**
+
+```java
+import org.junit.jupiter.api.Test;
+
+import java.io.File;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) {
+    }
+
+    /**
+     * 通过文件完整路径创建文件
+     * @throws IOException
+     */
+    @Test
+    public void createFileByAbsolutePath() throws IOException {
+        File file = new File("D:\\sxc\\javastudy\\1.txt");
+        if(file.createNewFile()){
+            System.out.println("文件创建成功");
+        }else{
+            System.out.println("创建失败");
+        }
+    }
+
+    /**
+     * 通过File对象+文件名相对路径方式创建
+     * @throws IOException
+     */
+    @Test
+    public void createFileByFileAndFilePath() throws IOException {
+        File file = new File(new File("D:\\sxc\\javastudy\\"),"2.txt");
+        if(file.createNewFile()){
+            System.out.println("文件创建成功");
+        }else{
+            System.out.println("创建失败");
+        }
+    }
+
+    /**
+     * 通过目录+文件名相对路径方式创建
+     * @throws IOException
+     */
+    @Test
+    public void createFileByDirectoryAndPath() throws IOException {
+        File file = new File("D:\\sxc\\javastudy\\","3.txt");
+        if(file.createNewFile()){
+            System.out.println("文件创建成功");
+        }else{
+            System.out.println("创建失败");
+        }
+    }
+}
+```
+
+**常用方法**
+
+```java
+import java.io.File;
+
+public class Demo {
+    public static void main(String[] args) {
+        //创建一个文件对象
+        File file = new File("./1.txt");
+        //获取文件名称
+        System.out.println(file.getName());//1.txt
+        //获取文件绝对路径
+        System.out.println(file.getAbsolutePath());//D:\sxc\javastudy\.\1.txt
+        //获取文件所在目录
+        System.out.println(file.getParent());//.
+        //获取内容长度(字节byte)
+        System.out.println(file.length());//3
+        //文件是否存在
+        System.out.println(file.exists());//true
+        //是否是文件
+        System.out.println(file.isFile());//true
+        //是否是目录
+        System.out.println(file.isDirectory());//false
+        //删除文件
+        if (file.delete()) {
+            System.out.println("删除成功");
+        }
+        //新建一个目录
+        File file1 = new File("./new_directory");
+        if (!file1.exists() && file1.mkdir()) {
+            System.out.println("目录创建成功");
+        }
+        //创建多级目录
+        File file2 = new File("./new_directory/2022/04/28/1");
+        if (!file2.exists() && file2.mkdirs()) {
+            System.out.println("多级目录创建成功");
+        }
+    }
+}
+```
+
+### 体系图
+
+```mermaid
+graph TB;
+    IO流 --通过字节传输-->字节流
+    IO流 --通过字符传输-->字符流
+    字节流 --> InputStream
+    InputStream --> FileInputStream文件输入流
+    InputStream --> BufferedInputStream缓冲字节输入流
+    InputStream --> ObjectInputStream对象字节输入流
+    字节流 --> OutputStream
+    OutputStream --> FileOutputStream文件输出流
+    字符流 --> Reader
+    Reader --> InputStreamReader
+    InputStreamReader --> FileReader字符输入流
+    字符流 --> Writer
+```
+
+### FileInputStram
+
+**文件字节输入流**
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件输入流对象
+        FileInputStream fileInputStream = new FileInputStream("./1.txt");
+
+        //一个字节一个字节的读
+        int read;
+        while ((read = fileInputStream.read()) != -1) {
+            System.out.print((char) read);
+        }
+        //关闭文件流
+        fileInputStream.close();
+        System.out.println();
+
+        //一次读取多个字节到数组
+        FileInputStream fileInputStream2 = new FileInputStream("./1.txt");
+        byte[] bytes = new byte[2];
+        int len;
+        while ((len = fileInputStream2.read(bytes)) != -1) {
+            //byte数组转String 这里必须用长度创建，因为上面的read方法是覆盖读写，最后一次读取的内容小于数组长度
+            //会造成读取的内容滞留。
+            //假如是hello  那么读取过程是 he  ll  ol 存入bytes 这个Bug要注意
+            System.out.print(new String(bytes, 0, len));
+        }
+
+        //关闭文件流
+        fileInputStream2.close();
+    }
+}
+```
+
+### FileOutputStream
+
+**文件字节输出流**
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件输出流对象 第二个参数表示追加 不写表示覆盖
+        FileOutputStream fileOutputStream = new FileOutputStream("./1.txt", false);
+        //通过字符串获取一个字节数组getBytes()
+        fileOutputStream.write("hello world 你好,世界".getBytes());
+        //写入字符串 从0到字符串长度
+        fileOutputStream.write("\nhello java".getBytes(),0,"\nhello java".length());
+
+        fileOutputStream.close();
+    }
+}
+```
+
+**复制文件方法**
+
+```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件输入流对象
+        FileInputStream fileInputStream = new FileInputStream("./1.txt");
+        FileOutputStream fileOutputStream = new FileOutputStream("./2.txt", true);
+
+        //这个2大小可以适当更改，提高效率，底层的copy方法是8192
+        byte[] bytes = new byte[2];
+        int len;
+        while ((len = fileInputStream.read(bytes)) != -1) {
+            //byte数组转String 这里必须用长度创建，因为上面的read方法是覆盖读写，最后一次读取的内容小于数组长度
+            //会造成读取的内容滞留。
+            //假如是hello  那么读取过程是 he  ll  ol 存入bytes 这个Bug要注意
+            fileOutputStream.write(bytes, 0, len);
+        }
+        //关闭文件流
+        fileInputStream.close();
+
+
+        //也可以直接调用底层方法 实现和上面的类似
+        FileInputStream fileInputStream2 = new FileInputStream("./1.txt");
+        Files.copy(fileInputStream2, Paths.get("./3.txt"));
+    }
+}
+```
+
+### FileReader
+
+**字符输入流**
+
+```java
+import java.io.FileReader;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //读取单个字符
+        FileReader fileReader = new FileReader("./1.txt");
+        int c;
+        while ((c = fileReader.read()) != -1) {
+            System.out.print((char) c);
+        }
+        fileReader.close();
+        System.out.println();
+        //批量读取
+        FileReader fileReader2 = new FileReader("./1.txt");
+        char[] chars = new char[2];
+        int len;
+        while ((len = fileReader2.read(chars)) != -1) {
+            System.out.print(new String(chars, 0, len));
+        }
+        fileReader2.close();
+    }
+}
+```
+
+### FileWriter
+
+**字符输出流**
+
+```java
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件字符输出流对象 第二个参数表示追加 不写表示覆盖
+        FileWriter fileWriter = new FileWriter("./1.txt", false);
+        //通过字符串获取一个字符数组toCharArray
+        fileWriter.write("hello world 你好,世界".toCharArray());
+        //写入字符串 从0到字符串长度
+        fileWriter.write("\nhello java".toCharArray(), 0, "\nhello java".length());
+        //关闭字符输出流
+        fileWriter.close();
     }
 }
 ```
