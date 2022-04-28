@@ -3114,6 +3114,32 @@ public class Demo {
 }
 ```
 
+### Files
+
+**文件工具类**
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //读取，输入流，返回一个List集合
+        System.out.println(Files.readAllLines(Paths.get("./1.txt")));
+        //输出
+        Files.write(Paths.get("./1.txt"), "hello world 你好,世界".getBytes());
+        //拷贝
+        Files.copy(new FileInputStream("1.txt"), Paths.get("./2.txt"));
+        //删除
+        Files.delete(Paths.get("./2.txt"));
+        //移动 不能移动这个项目里的，会异常，已经在移动
+        Files.move(Paths.get("d:\\sxc\\1.txt"), Paths.get("./3.txt"));
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
