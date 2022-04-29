@@ -2950,20 +2950,29 @@ public class Demo {
 
 ### 体系图
 
+字节流可处理文本(读取乱码需要把读取的数组初始化大一点),音频,视频
+
+字符流可处理文本,效率高
+
 ```mermaid
-graph TB;
+graph LR;
     IO流 --通过字节传输-->字节流
-    IO流 --通过字符传输-->字符流
-    字节流 --> InputStream
-    InputStream --> FileInputStream文件输入流
-    InputStream --> BufferedInputStream缓冲字节输入流
-    InputStream --> ObjectInputStream对象字节输入流
-    字节流 --> OutputStream
-    OutputStream --> FileOutputStream文件输出流
-    字符流 --> Reader
-    Reader --> InputStreamReader
+    字节流 --> InputStream字节输入流
+    InputStream字节输入流 --重点--> BufferedInputStream字节输入流的包装类
+    InputStream字节输入流 --> FileInputStream文件输入流
+    InputStream字节输入流 --重点--> ObjectInputStream对象字节输入流
+    字节流 --> OutputStream字节输出流
+    OutputStream字节输出流 --重点--> BufferedOutputStream字节输出流的包装类
+    OutputStream字节输出流 --> FileOutputStream文件输出流
+    OutputStream字节输出流 --重点--> ObjectOutputStream对象字节输出流
+    字符流 --> Reader字符输入流
+    Reader字符输入流 --重点--> BufferedReader字符输入流的包装类
+    Reader字符输入流 --> InputStreamReader
     InputStreamReader --> FileReader字符输入流
-    字符流 --> Writer
+    字符流 --> Writer字符输出流
+    Writer字符输出流 --重点--> BufferedWriter字符输出流的包装类
+    Writer字符输出流 --> OutputStreamWriter
+    OutputStreamWriter --> FileWriter字符输出流
 ```
 
 ### FileInputStram
@@ -3062,6 +3071,67 @@ public class Demo {
 }
 ```
 
+### ObjectInputStream
+
+**对象类型输入流**[InputStream的包装类]
+
+### ObjectOutputStream
+
+**对象类型输出流**[OutputStream的包装类]
+
+```java
+import java.io.*;
+
+public class Demo {
+    public static void main(String[] args) throws IOException, ClassNotFoundException {
+        //创建一个对象输出流
+        ObjectOutputStream objectOutputStream = new ObjectOutputStream(new FileOutputStream("./1.txt"));
+        //保存基本数据类型
+        objectOutputStream.writeInt(5);
+        //保存对象 对象必须是实现Serializable
+        objectOutputStream.writeObject(new A("hello A"));
+        objectOutputStream.writeObject(new A("hello b"));
+        //关闭
+        objectOutputStream.close();
+
+        ObjectInputStream objectInputStream = new ObjectInputStream(new FileInputStream("./1.txt"));
+
+        //1.按写入的顺序读取
+        //System.out.println(objectInputStream.readInt());
+        //System.out.println(objectInputStream.readObject());
+        //System.out.println(objectInputStream.readObject());
+
+        //2.循环读取
+        System.out.println(objectInputStream.readInt());
+        while (true) {
+            try {
+                System.out.println(objectInputStream.readObject());
+            } catch (EOFException e) {
+                //达到末尾会抛出此异常
+                System.out.println(e.getMessage());
+                break;
+            }
+        }
+        objectInputStream.close();
+    }
+}
+
+class A implements Serializable {
+    public String name;
+
+    public A(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "A{" +
+                "name='" + name + '\'' +
+                '}';
+    }
+}
+```
+
 ### FileReader
 
 **字符输入流**
@@ -3106,10 +3176,62 @@ public class Demo {
         FileWriter fileWriter = new FileWriter("./1.txt", false);
         //通过字符串获取一个字符数组toCharArray
         fileWriter.write("hello world 你好,世界".toCharArray());
+        //直接写入字符串
+        fileWriter.write("\nhello java");
         //写入字符串 从0到字符串长度
-        fileWriter.write("\nhello java".toCharArray(), 0, "\nhello java".length());
+        fileWriter.write("\nhello 小明".toCharArray(), 0, "\nhello 小明".length());
         //关闭字符输出流
         fileWriter.close();
+    }
+}
+```
+
+### BufferedReader
+
+**缓冲字符输入流**[字符输入流的包装类,更高效]
+
+```java
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //缓冲字符输入流，是Reader的包装类，功能更强大
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("./1.txt"));
+        //一行一行读取 不会读取回车
+        String line = "";
+        while ((line = bufferedReader.readLine()) != null) {
+            System.out.println(line);
+        }
+        bufferedReader.close();
+    }
+}
+```
+
+### BufferedWriter
+
+**缓冲字符输出流**[字符输出流的包装类,更高效]
+
+```java
+import java.io.BufferedWriter;
+import java.io.FileWriter;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件字符输出流对象 第二个参数表示追加 不写表示覆盖
+        BufferedWriter bufferedWriter = new BufferedWriter(new FileWriter("./1.txt", false));
+        //通过字符串获取一个字符数组toCharArray
+        bufferedWriter.write("hello world 你好,世界".toCharArray());
+        //根据当前系统插入换行符
+        bufferedWriter.newLine();
+        //直接写入字符串
+        bufferedWriter.write("hello java");
+        //写入字符串 从0到字符串长度
+        bufferedWriter.write("\nhello 小明".toCharArray(), 0, "\nhello 小明".length());
+        //关闭字符输出流
+        bufferedWriter.close();
     }
 }
 ```
@@ -3126,6 +3248,10 @@ import java.nio.file.Paths;
 
 public class Demo {
     public static void main(String[] args) throws IOException {
+        //创建
+        if(!Files.exists(Paths.get("./1.txt"))){
+            Files.createFile(Paths.get("./1.txt"));
+        }
         //读取，输入流，返回一个List集合
         System.out.println(Files.readAllLines(Paths.get("./1.txt")));
         //输出
