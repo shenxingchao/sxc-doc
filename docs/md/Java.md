@@ -2481,10 +2481,7 @@ public class Demo {
 假如有一个当前目录有一个db.properties文件
 
 ```java
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
+import java.io.*;
 import java.util.Map;
 import java.util.Properties;
 
@@ -2492,30 +2489,37 @@ public class Demo {
     public static void main(String[] args) {
         Properties properties = new Properties();
         try {
+            //读取资源文件
             //创建输入流 BufferedInputStream 比 FileInputStream 读取资源效率高
             InputStream inputStream = new BufferedInputStream(new FileInputStream("db.properties"));
             //加载输入流到properties对象
             properties.load(inputStream);
             //遍历properties对象 obj=>key->value键值对
-            for (Map.Entry<Object, Object> obj:properties.entrySet()
-                 ) {
+            for (Map.Entry<Object, Object> obj : properties.entrySet()
+            ) {
                 System.out.println(obj);
+                System.out.println(obj.getKey());
+                System.out.println(obj.getValue());
+
+                //遍历方式二 使用打印流输出到屏幕 System.out继承了PrintStream;这里还可以用别的方式输出到文件
+                properties.list(System.out);
             }
+            //获取指定key的值
+            System.out.println(properties.getProperty("dbname"));
             //关闭输入流
             inputStream.close();
 
             //写入资源
             //创建输出流
-            FileOutputStream fileOutputStream = new FileOutputStream("db.properties", true);//true表示追加打开
+            BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("db.properties", false));//true表示追加打开
             //设置一个字段 2种方法都可以setProperty底层就是put方法
-            properties.put("password","123456");
+            properties.put("password", "123456");
             properties.setProperty("dbname", "new_db");
             //写入输出流
-            properties.store(fileOutputStream, "描述");
+            properties.store(bufferedOutputStream, "描述");
             //关闭输出流
-            fileOutputStream.close();
-
-        }catch (Exception e){
+            bufferedOutputStream.close();
+        } catch (Exception e) {
             //处理各种异常，文件不存在，等等。。这里简化
             System.out.println(e.getMessage());
         }
@@ -2967,12 +2971,12 @@ graph LR;
     OutputStream字节输出流 --重点--> ObjectOutputStream对象字节输出流
     字符流 --> Reader字符输入流
     Reader字符输入流 --重点--> BufferedReader字符输入流的包装类
-    Reader字符输入流 --> InputStreamReader
-    InputStreamReader --> FileReader字符输入流
+    Reader字符输入流 --> InputStreamReader字节转字符输入流
+    InputStreamReader字节转字符输入流 --> FileReader字符输入流
     字符流 --> Writer字符输出流
     Writer字符输出流 --重点--> BufferedWriter字符输出流的包装类
-    Writer字符输出流 --> OutputStreamWriter
-    OutputStreamWriter --> FileWriter字符输出流
+    Writer字符输出流 --> OutputStreamWriter字节转字符输出流
+    OutputStreamWriter字节转字符输出流 --> FileWriter字符输出流
 ```
 
 ### FileInputStram
@@ -3231,6 +3235,39 @@ public class Demo {
         //写入字符串 从0到字符串长度
         bufferedWriter.write("\nhello 小明".toCharArray(), 0, "\nhello 小明".length());
         //关闭字符输出流
+        bufferedWriter.close();
+    }
+}
+```
+
+### InputStreamReader
+
+**字节转字符输入流**
+
+可以将字节流转成字符流，并同时设置编码，可解决乱码问题
+
+### OutputStreamWriter
+
+**字节转字符输出流**
+
+可以将字节流转成字符流，并同时设置编码，可解决乱码问题
+
+```java
+import java.io.*;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //利用转换流 设置编码读取
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(new FileInputStream("./1.txt"), "GBK"));
+        String line = "";
+        while ((line = bufferedReader.readLine()) != null) {
+            System.out.println(line);
+        }
+        bufferedReader.close();
+
+        //设置编码写入
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("./1.txt"),"GBK"));
+        bufferedWriter.write("hello world 你好，世界");
         bufferedWriter.close();
     }
 }
