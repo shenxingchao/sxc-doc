@@ -3303,6 +3303,147 @@ public class Demo {
 }
 ```
 
+## Socket
+
+基于TCP通信
+
+### 字节流
+
+Server
+```java
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
+
+    public static void main(String[] args) throws IOException {
+        // 创建服务器
+        ServerSocket serverSocket = new ServerSocket(9999);
+        // 等待连接客户端返回
+        Socket socket = serverSocket.accept();
+        // 输入流 读取数据
+        InputStream inputStream = socket.getInputStream();
+        byte[] bytes = new byte[8192];
+        int len;
+        while ((len = inputStream.read(bytes)) != -1) {
+            System.out.print(new String(bytes, 0, len));
+        }
+        // 输出流 回发数据
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write("你好Client".getBytes());
+        // 输出后需要用结束标记标记我输出完了
+        socket.shutdownOutput();
+        // 关闭
+        inputStream.close();
+        outputStream.close();
+        serverSocket.close();
+    }
+
+}
+```
+
+Client
+```java
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+public class Client {
+    public static void main(String[] args) throws UnknownHostException, IOException {
+        // 初始化socket客户端 InetAddress获取本机Ip
+        Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+        // 或者Socket socket = new Socket("192.168.1.11", 9999);
+        // 输出流 发送数据
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write("你好Server".getBytes());
+        // 输出后需要用结束标记标记我输出完了（保持socket连接，并表示此次流到末尾了）
+        socket.shutdownOutput();
+        // 输入流 读取数据
+        InputStream inputStream = socket.getInputStream();
+        byte[] bytes = new byte[8192];
+        int len;
+        while ((len = inputStream.read(bytes)) != -1) {
+            System.out.print(new String(bytes, 0, len));
+        }
+        // 关闭
+        outputStream.close();
+        inputStream.close();
+        socket.close();
+    }
+}
+```
+
+
+### 字符流
+
+Server
+```java
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
+
+    public static void main(String[] args) throws IOException {
+        // 创建服务器
+        ServerSocket serverSocket = new ServerSocket(9999);
+        // 等待连接客户端返回
+        Socket socket = serverSocket.accept();
+        // 输入流 读取数据
+        InputStream inputStream = socket.getInputStream();
+        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(inputStream));
+        String line = "";
+        while ((line = bufferedReader.readLine()) != null) {
+            System.out.println(line);
+        }
+        // 关闭
+        inputStream.close();
+        bufferedReader.close();
+        serverSocket.close();
+    }
+
+}
+```
+
+Client
+```java
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.net.InetAddress;
+import java.net.Socket;
+import java.net.UnknownHostException;
+
+public class Client {
+    public static void main(String[] args) throws UnknownHostException, IOException {
+        // 初始化socket客户端 InetAddress获取本机Ip
+        Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+        // 或者Socket socket = new Socket("192.168.1.11", 9999);
+        /*****************字符流*****************/
+        OutputStream outputStream = socket.getOutputStream();
+        BufferedWriter bufferedWriter = new BufferedWriter(new OutputStreamWriter(outputStream));
+        bufferedWriter.write("你好呀字符流1\n");
+        bufferedWriter.write("你好呀字符流2");
+        bufferedWriter.flush();
+        socket.shutdownOutput();
+        // 关闭
+        outputStream.close();
+        bufferedWriter.close();
+        socket.close();
+    }
+}
+```
+
 ## 设计模式
 
 ### 单例模式
