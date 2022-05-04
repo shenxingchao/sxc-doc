@@ -3352,10 +3352,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
-    public static void main(String[] args) throws UnknownHostException, IOException {
+    public static void main(String[] args) throws IOException {
         // 初始化socket客户端 InetAddress获取本机Ip
         Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
         // 或者Socket socket = new Socket("192.168.1.11", 9999);
@@ -3378,6 +3377,92 @@ public class Client {
     }
 }
 ```
+
+**基于字节流的文件上传**
+
+Client
+```java
+import java.io.*;
+import java.net.InetAddress;
+import java.net.Socket;
+
+public class Client {
+    public static void main(String[] args) throws IOException {
+        // 初始化socket客户端
+        Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
+        // 输出流 发送数据
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
+        //创建一个文件输入流对象用于读取文件
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\doudou\\Desktop\\无标题.png"));
+        //字节数组流 存储文件
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] bytes = new byte[8192];
+        int len;
+        while ((len = bufferedInputStream.read(bytes)) != -1) {
+            byteArrayOutputStream.write(bytes, 0, len);
+        }
+        //发送字节数组
+        bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+        //关闭并通知写入完成
+        bufferedInputStream.close();
+        byteArrayOutputStream.close();
+        socket.shutdownOutput();
+        // 输入流 读取数据
+        InputStream inputStream = socket.getInputStream();
+        bytes = new byte[8192];
+        while ((len = inputStream.read(bytes)) != -1) {
+            System.out.print(new String(bytes, 0, len));
+        }
+        // 关闭
+        inputStream.close();
+        bufferedOutputStream.close();
+        socket.close();
+        System.out.println("客户端退出");
+    }
+}
+```
+
+Server
+```java
+import java.io.*;
+import java.net.ServerSocket;
+import java.net.Socket;
+
+public class Server {
+    public static void main(String[] args) throws IOException {
+        // 创建服务器
+        ServerSocket serverSocket = new ServerSocket(9999);
+        // 等待连接客户端返回
+        Socket socket = serverSocket.accept();
+        // 输入流 读取数据
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
+        // 文件输出流用于保存文件
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("./test.png", true));
+        //字节数组流 存储文件
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        byte[] bytes = new byte[8192];
+        int len;
+        while ((len = bufferedInputStream.read(bytes)) != -1) {
+            byteArrayOutputStream.write(bytes, 0, len);
+        }
+        //发送字节数组
+        bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+        // 输出流 回发数据
+        OutputStream outputStream = socket.getOutputStream();
+        outputStream.write("保存完毕".getBytes());
+        // 输出后需要用结束标记标记我输出完了
+        socket.shutdownOutput();
+        // 关闭
+        bufferedInputStream.close();
+        bufferedOutputStream.close();
+        byteArrayOutputStream.close();
+        outputStream.close();
+        serverSocket.close();
+        System.out.println("服务端退出");
+    }
+}
+```
+
 
 
 ### 字符流
@@ -3422,10 +3507,9 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.UnknownHostException;
 
 public class Client {
-    public static void main(String[] args) throws UnknownHostException, IOException {
+    public static void main(String[] args) throws IOException {
         // 初始化socket客户端 InetAddress获取本机Ip
         Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
         // 或者Socket socket = new Socket("192.168.1.11", 9999);
