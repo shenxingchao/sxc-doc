@@ -3305,9 +3305,9 @@ public class Demo {
 
 ## Socket
 
-基于TCP通信
+基于TCP或UDP通信
 
-### 字节流
+### TCP字节流
 
 Server
 ```java
@@ -3380,6 +3380,8 @@ public class Client {
 
 **基于字节流的文件上传**
 
+tips:边读边写也可以，这里的BufferedOutputStream就是缓冲流，必须要flush()才能写入成功
+
 Client
 ```java
 import java.io.*;
@@ -3403,6 +3405,7 @@ public class Client {
         }
         //发送字节数组
         bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+        bufferedOutputStream.flush();
         //关闭并通知写入完成
         bufferedInputStream.close();
         byteArrayOutputStream.close();
@@ -3447,6 +3450,7 @@ public class Server {
         }
         //发送字节数组
         bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+        bufferedOutputStream.flush();
         // 输出流 回发数据
         OutputStream outputStream = socket.getOutputStream();
         outputStream.write("保存完毕".getBytes());
@@ -3465,7 +3469,7 @@ public class Server {
 
 
 
-### 字符流
+### TCP字符流
 
 Server
 ```java
@@ -3524,6 +3528,60 @@ public class Client {
         outputStream.close();
         bufferedWriter.close();
         socket.close();
+    }
+}
+```
+
+### UDP
+
+Client
+
+```java
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+import java.net.InetAddress;
+
+public class B {
+    public static void main(String[] args) throws IOException {
+        //UDP socket对象
+        DatagramSocket datagramSocket = new DatagramSocket(9998);
+        //UDP 数据包
+        byte[] data = "hello udp".getBytes();
+        //创建发送数据对象
+        DatagramPacket datagramPacket = new DatagramPacket(data, data.length, InetAddress.getByName("192.168.56.1"), 9999);
+        //receive方法接收，赋值到datagramPacket
+        datagramSocket.send(datagramPacket);
+        //关闭
+        datagramSocket.close();
+        System.out.println("发送完毕");
+    }
+}
+```
+
+Server
+
+```java
+import java.io.IOException;
+import java.net.DatagramPacket;
+import java.net.DatagramSocket;
+
+public class A {
+    public static void main(String[] args) throws IOException {
+        //UDP socket对象
+        DatagramSocket datagramSocket = new DatagramSocket(9999);
+        //UDP 数据包64K
+        byte[] bytes = new byte[8192];
+        //创建接收数据对象
+        DatagramPacket datagramPacket = new DatagramPacket(bytes, bytes.length);
+        //receive方法接收，赋值到datagramPacket
+        datagramSocket.receive(datagramPacket);
+        //拆包
+        byte[] data = datagramPacket.getData();
+        System.out.println(new String(data,0,datagramPacket.getLength()));
+        //关闭
+        datagramSocket.close();
+        System.out.println("接收到数据退出");
     }
 }
 ```
