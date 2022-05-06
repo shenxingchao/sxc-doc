@@ -90,6 +90,12 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 自己去快捷键绑定  alt+insert(源代码操作) 用于快速生成构造方法 set get tostring等
 
+## IDEA
+
+ctrl+alt+t 包围代码
+
+iter 增强for循环
+
 ## api文档
 
 [https://www.matools.com/api/java8](https://www.matools.com/api/java8)
@@ -3394,19 +3400,19 @@ public class Client {
         Socket socket = new Socket(InetAddress.getLocalHost(), 9999);
         // 输出流 发送数据
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(socket.getOutputStream());
-        //创建一个文件输入流对象用于读取文件
+        // 创建一个文件输入流对象用于读取文件
         BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("C:\\Users\\doudou\\Desktop\\无标题.png"));
-        //字节数组流 存储文件
+        // 字节数组流 存储文件
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] bytes = new byte[8192];
         int len;
         while ((len = bufferedInputStream.read(bytes)) != -1) {
             byteArrayOutputStream.write(bytes, 0, len);
         }
-        //发送字节数组
+        // 发送字节数组
         bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
         bufferedOutputStream.flush();
-        //关闭并通知写入完成
+        // 关闭并通知写入完成
         bufferedInputStream.close();
         byteArrayOutputStream.close();
         socket.shutdownOutput();
@@ -3441,14 +3447,14 @@ public class Server {
         BufferedInputStream bufferedInputStream = new BufferedInputStream(socket.getInputStream());
         // 文件输出流用于保存文件
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("./test.png", true));
-        //字节数组流 存储文件
+        // 字节数组流 存储文件
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         byte[] bytes = new byte[8192];
         int len;
         while ((len = bufferedInputStream.read(bytes)) != -1) {
             byteArrayOutputStream.write(bytes, 0, len);
         }
-        //发送字节数组
+        // 写入文件流
         bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
         bufferedOutputStream.flush();
         // 输出流 回发数据
