@@ -39,6 +39,8 @@ public class HelloWorld {
 
 javac HelloWorld.java
 
+tips：乱码运行时后面加上 -encoding utf8
+
 ## 运行
 
 java HelloWorld
@@ -770,12 +772,12 @@ public class Demo {
 
 ### 访问修饰符
 
-| 访问修饰符     | 同类  | 同包  | 子类       | 不同包 |
-| --------- | --- | --- | -------- | --- |
-| public    | √   | √   | √        | √   |
-| protected | √   | √   | √        | ×   |
-| 默认（什么也不加） | √   | √   | 不同包× 同包√ | ×   |
-| private   | √   | ×   | ×        | ×   |
+| 访问修饰符         | 同类 | 同包 | 子类          | 不同包 |
+| ------------------ | ---- | ---- | ------------- | ------ |
+| public             | √    | √    | √             | √      |
+| protected          | √    | √    | √             | ×      |
+| 默认（什么也不加） | √    | √    | 不同包× 同包√ | ×      |
+| private            | √    | ×    | ×             | ×      |
 
 ### 封装
 
@@ -994,12 +996,12 @@ class Teacher extends Person {
 
 ### this和super关键字
 
-| 区别    | this                     | super                       |
-| ----- | ------------------------ | --------------------------- |
-| 访问属性  | 先访问本类中的属性，如果没有，则继续查找父类属性 | 直接访问父类属性，就近原则               |
-| 调用方法  | 先访问本类中的方法，如果没有，则继续查找父类方法 | 直接访问父类方法，就近原则               |
-| 调用构造器 | 调用本类构造器，放在构造器首行this()    | 调用父类构造器，必须放在子类构造器首行，super() |
-| 特殊    | 表示当前对象                   | 子类中访问父类对象                   |
+| 区别       | this                                             | super                                           |
+| ---------- | ------------------------------------------------ | ----------------------------------------------- |
+| 访问属性   | 先访问本类中的属性，如果没有，则继续查找父类属性 | 直接访问父类属性，就近原则                      |
+| 调用方法   | 先访问本类中的方法，如果没有，则继续查找父类方法 | 直接访问父类方法，就近原则                      |
+| 调用构造器 | 调用本类构造器，放在构造器首行this()             | 调用父类构造器，必须放在子类构造器首行，super() |
+| 特殊       | 表示当前对象                                     | 子类中访问父类对象                              |
 
 **关于构造器的坑**
 
@@ -2382,6 +2384,8 @@ public class Demo {
 
 是线程不安全的，key-value，效率高
 
+如果需要线程安全+高并发 用ConcurrentHashMap代替HashMap
+
 数据存放在内部类HashMap$Node节点的key,value中，然后底层还有一个entrySet里的table指向HashMap的table，这为了遍历方便
 
 **关于这个entrySet的测试**
@@ -3588,6 +3592,95 @@ public class A {
         //关闭
         datagramSocket.close();
         System.out.println("接收到数据退出");
+    }
+}
+```
+
+## 反射
+
+反射就类似于你可以通过镜子看到自己本身
+
+java中的反射 比如jvm运行先加载类文件.class，然后利用反射生成类的Class对象(反射对象,包含类的结构信息，这个Class对象只创建一次)存放在堆中，最后生成对象（这个对象可以是创建多次的）；通过这个对象，才可以去调用各种方法。
+
+### 类加载流程图
+
+```mermaid
+graph LR;
+    JVM --classLoader-反射-->堆内存Class对象
+    堆内存Class对象 --new-->对象1
+    堆内存Class对象 --new-->对象2
+    堆内存Class对象 --new-->对象n...
+```
+
+### 静态和动态加载
+
+```java
+public class Demo {
+    public static void main(String[] args) throws ClassNotFoundException {
+        //静态加载  加入类A不存在 则编译的时候就会报错
+        A a = new A();
+        // 动态加载
+        //运行阶段才会去加载类  编译的时候不会报错
+        Class<?> b = Class.forName("B");
+    }
+}
+
+class A {
+    public A() {
+    }
+}
+```
+
+### 基本使用
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+public class Demo {
+    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        //使用字符串加载类 返回Class类型对象
+        Class<?> cls = Class.forName("A");
+        //得到运行对象实例
+        Object obj = cls.newInstance();
+        //通过字符串得到方法对象实例
+        Method say = cls.getMethod("say");
+        //通过方法对象实例加载运行对象来调用方法
+        say.invoke(obj);//hello methods
+        //通过属性对象实例加载运行对象来获取属性(只能获取public属性)
+        Field field = cls.getField("name");
+        System.out.println(field.get(obj));//hello field
+        //设置值
+        field.set(obj, "change field value");
+        System.out.println(field.get(obj));//change field value
+        //返回无参构造器
+        Constructor constructor = cls.getConstructor();
+        System.out.println(constructor);//public A()
+        //返回有参构造器 传入形参的Class对象 基本数据类型通过.class 包装类通过.Type获取Class对象
+        Constructor constructor2 = cls.getConstructor(String.class);
+        System.out.println(constructor2);//public A(java.lang.String)
+        //关闭访问检查之后，可以优化利用反射调用方法的速度(调用速度稍微快一点)，下面这些都可以关闭
+        //另外关闭访问检查后 可以操作私有属性
+        say.setAccessible(true);
+        field.setAccessible(true);
+        constructor.setAccessible(true);
+    }
+}
+
+class A {
+    public String name = "hello field";
+
+    public A() {
+    }
+
+    public A(String name) {
+        this.name = name;
+    }
+
+    public void say() {
+        System.out.println("hello methods");
     }
 }
 ```
