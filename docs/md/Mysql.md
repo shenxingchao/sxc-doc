@@ -109,8 +109,27 @@ SHOW STATUS LIKE 'Uptime';
 1 row in set (0.00 sec)
 ```
 
+## 排序规则
+
+排序规格可以作用于整个数据库、表、字段，例如账号字段设计为utf8bin 验证码字段设计为utf8_general_ci
+
+utf8bin 区分大小写
+
+utf8_general_ci 不区分大小写
+
+utf8mb4 可存储4位的emoji表情
+
+## 基本数据类型
+
+tinyint 无需这设置大小，因为宽度为固定值 4（含一位符号位），取值范围是 -128 ~ 127 的整型数据。存储大小为1个字节，所以在建表的时候，无论是tinyint(100)还是tinyint(1),最终都是tinyint(4)，故无需设置其宽度
+
+float/double 不推荐，在计算SUM(column) 会丢失精度，直接用decimal
+
+varchar 最大长度21844，（65535-1-2）/3=21844  因为utf8是3个字节表示一位，65535是最大字节数；如果是GBK，2个字节表示1位，那就是（65535-1-2）/2；【前提是有且只有一个字段varchar;有多个varchar字段，或者或者有非空的字段，那所有varchar加起来的和也不等于21844，还会变小，没找到公式】
+
 ## 初始化数据
 创建数据库
+
 ```sql
 CREATE DATABASE dbname;
 USE dbname;
