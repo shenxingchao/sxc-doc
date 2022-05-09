@@ -1117,6 +1117,8 @@ class A {
 
 代码块的运行顺序
 
+tips：静态代码块可以放到静态属性之前，静态属性赋值会覆盖静态代码块的赋值
+
 ```java
 public class Demo {
     public static void main(String[] args) {
@@ -3317,6 +3319,8 @@ public class Demo {
 
 基于TCP或UDP通信
 
+[基于socket即时通信案例](https://github.com/shenxingchao/java-socket-demo)
+
 ### TCP字节流
 
 Server
@@ -3606,7 +3610,7 @@ java中的反射 比如jvm运行先加载类文件.class，然后利用反射生
 
 ```mermaid
 graph LR;
-    JVM --classLoader-反射-->堆内存Class对象
+    JVM加载Class文件 --classLoader-反射-->堆内存Class对象
     堆内存Class对象 --new-->对象1
     堆内存Class对象 --new-->对象2
     堆内存Class对象 --new-->对象n...
@@ -3631,7 +3635,7 @@ class A {
 }
 ```
 
-### 基本使用
+### 常用方法
 
 ```java
 import java.lang.reflect.Constructor;
@@ -3662,15 +3666,71 @@ public class Demo {
         Constructor constructor2 = cls.getConstructor(String.class);
         System.out.println(constructor2);//public A(java.lang.String)
         //关闭访问检查之后，可以优化利用反射调用方法的速度(调用速度稍微快一点)，下面这些都可以关闭
-        //另外关闭访问检查后 可以操作私有属性
+        //另外关闭访问检查后 可以操作私有属性 见反射爆破
         say.setAccessible(true);
         field.setAccessible(true);
         constructor.setAccessible(true);
+        /***获取类的结构方法***/
+        //获取类的全名 包括包名
+        System.out.println(cls.getName());//A
+        //获取简单类名
+        System.out.println(cls.getSimpleName());//A
+        //获取所有public属性 包含父类
+        for (Field clsField : cls.getFields()) {
+            System.out.println(clsField);//public java.lang.String A.name
+        }
+        //获取所有属性 包含父类及私有
+        for (Field declaredField : cls.getDeclaredFields()) {
+            System.out.println(declaredField);
+            // public java.lang.String A.name
+            // private int A.id
+            //获取属性名name id
+            System.out.println(declaredField.getName());
+            //获取属性的修饰符返回int值 1.public 2.private 4.protect 8.static 16.final
+            System.out.println(declaredField.getModifiers());
+            //回去属性对应类型的Class对象 class java.lang.String int
+            System.out.println(declaredField.getType());
+        }
+        //获取所有public方法 包含父类
+        for (Method method : cls.getMethods()) {
+            // System.out.println(method);
+            //public void A.say()
+            //及Object类的一些方法
+        }
+        //获取所有方法 包含父类及私有
+        for (Method declaredMethod : cls.getDeclaredMethods()) {
+            // System.out.println(declaredMethod);
+            // private void A.privateFn()
+            // public void A.say()
+            // 及Object类的一些方法
+            //他里面的用法和上面的cls.getDeclaredFields() 里面的用法是一样的，同样构造器也是有的
+            System.out.println(declaredMethod.getName());
+            System.out.println(declaredMethod.getModifiers());
+            //返回值类型
+            System.out.println(declaredMethod.getReturnType());
+            //方法形参类型
+            for (Class<?> parameterType : declaredMethod.getParameterTypes()) {
+                System.out.println(parameterType);
+            }
+        }
+        //获取public构造方法 不包含父类
+        cls.getConstructors();
+        //获取所有构造方法 不包含父类
+        cls.getDeclaredConstructors();
+        //获取包信息
+        System.out.println(cls.getPackage());//null
+        //返回父类的Class对象
+        System.out.println(cls.getSuperclass());//class java.lang.Object
+        //返回所有接口数组
+        cls.getInterfaces();
+        //返回注解数组
+        cls.getAnnotations();
     }
 }
 
 class A {
     public String name = "hello field";
+    private int id = 3;
 
     public A() {
     }
@@ -3681,6 +3741,96 @@ class A {
 
     public void say() {
         System.out.println("hello methods");
+    }
+
+    private void privateFn(int a) {
+        System.out.println("privateFn");
+    }
+}
+```
+
+### 反射爆破
+
+```java
+import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
+
+public class Demo {
+    public static void main(String[] args) throws ClassNotFoundException, IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException, NoSuchFieldException {
+        //使用字符串加载类 返回Class类型对象
+        Class<?> cls = Class.forName("A");
+        //得到运行对象实例
+        Object obj = cls.newInstance();
+        //有参构造器
+        Constructor<?> constructor = cls.getConstructor(String.class);
+        A a = (A) constructor.newInstance("HAHA");//A(String name)
+        //爆破构造器 可以使用私有的构造方法
+        constructor = cls.getDeclaredConstructor(int.class);
+        constructor.setAccessible(true);
+        a = (A) constructor.newInstance(10);//A(int id)
+        // 爆破属性 如果是静态属性 obj可以用null代替
+        Field id = cls.getDeclaredField("id");
+        id.setAccessible(true);
+        id.set(obj, 4);
+        System.out.println(id.get(obj));//4
+        //爆破方法
+        Method privateFn = cls.getDeclaredMethod("privateFn", int.class);
+        privateFn.setAccessible(true);
+        privateFn.invoke(obj, 4);//privateFn4
+    }
+}
+
+class A {
+    public String name = "hello field";
+    private int id = 3;
+
+    public A() {
+    }
+
+    public A(String name) {
+        this.name = name;
+        System.out.println("A(String name)");
+    }
+
+    private A(int id) {
+        this.id = id;
+        System.out.println("A(int id)");
+    }
+
+    public void say() {
+        System.out.println("hello methods");
+    }
+
+    private void privateFn(int a) {
+        System.out.println("privateFn" + a);
+    }
+}
+```
+
+### 使用案例
+
+使用反射创建文件
+
+```java
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+
+public class Demo {
+    public static void main(String[] args) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException, InstantiationException, IOException {
+        //使用字符串加载类 返回Class类型对象
+        Class<?> cls = Class.forName("java.io.File");
+        for (Constructor<?> constructor : cls.getConstructors()) {
+            System.out.println(constructor);
+        }
+        Constructor<?> constructor = cls.getConstructor(String.class);
+        File file = (File) constructor.newInstance("./1.txt");
+        if (file.createNewFile()) {
+            System.out.println(true);
+        }
     }
 }
 ```

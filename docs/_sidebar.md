@@ -272,6 +272,8 @@
 
   - [VsCode运行配置](/md/Java#vscode运行配置)
 
+  - [IDEA](/md/Java#idea)
+
   - [api文档](/md/Java#api文档)
 
   - [常用数据类型](/md/Java#常用数据类型)
@@ -292,7 +294,8 @@
 
     - [for循环打印99乘法表](/md/Java#for循环打印99乘法表)
 
-    - [while循环最好是用在不确定循环次数的时,也可计算0-100的和](/md/Java#while循环最好是用在不确定循环次数的时也可计算0-100的和)
+    - [while循环最好是用在不确定循环次数的时,也可计算0-100的和](/md/Java#while循环最好是用在不确定
+    循环次数的时也可计算0-100的和)
 
     - [break用法](/md/Java#break用法)
 
@@ -368,6 +371,14 @@
 
     - [包装类和String转换](/md/Java#包装类和string转换)
 
+  - [泛型](/md/Java#泛型)
+
+    - [泛型的好处](/md/Java#泛型的好处)
+
+    - [语法](/md/Java#语法)
+
+    - [泛型继承](/md/Java#泛型继承)
+
   - [集合](/md/Java#集合)
 
     - [体系图](/md/Java#体系图)
@@ -404,6 +415,64 @@
 
   - [迭代器](/md/Java#迭代器)
 
+  - [多线程](/md/Java#多线程)
+
+    - [线程创建](/md/Java#线程创建)
+
+    - [线程方法](/md/Java#线程方法)
+
+    - [守护线程](/md/Java#守护线程)
+
+    - [线程加锁synchronized](/md/Java#线程加锁synchronized)
+
+  - [IO](/md/Java#io)
+
+    - [文件管理](/md/Java#文件管理)
+
+    - [体系图](/md/Java#体系图-1)
+
+    - [FileInputStram](/md/Java#fileinputstram)
+
+    - [FileOutputStream](/md/Java#fileoutputstream)
+
+    - [ObjectInputStream](/md/Java#objectinputstream)
+
+    - [ObjectOutputStream](/md/Java#objectoutputstream)
+
+    - [FileReader](/md/Java#filereader)
+
+    - [FileWriter](/md/Java#filewriter)
+
+    - [BufferedReader](/md/Java#bufferedreader)
+
+    - [BufferedWriter](/md/Java#bufferedwriter)
+
+    - [InputStreamReader](/md/Java#inputstreamreader)
+
+    - [OutputStreamWriter](/md/Java#outputstreamwriter)
+
+    - [Files](/md/Java#files)
+
+  - [Socket](/md/Java#socket)
+
+    - [TCP字节流](/md/Java#tcp字节流)
+
+    - [TCP字符流](/md/Java#tcp字符流)
+
+    - [UDP](/md/Java#udp)
+
+  - [反射](/md/Java#反射)
+
+    - [类加载流程图](/md/Java#类加载流程图)
+
+    - [静态和动态加载](/md/Java#静态和动态加载)
+
+    - [常用方法](/md/Java#常用方法-3)
+
+    - [反射爆破](/md/Java#反射爆破)
+
+    - [使用案例](/md/Java#使用案例)
+
   - [设计模式](/md/Java#设计模式)
 
     - [单例模式](/md/Java#单例模式)
@@ -411,6 +480,8 @@
     - [抽象模板设计模式](/md/Java#抽象模板设计模式)
 
     - [工厂设计模式](/md/Java#工厂设计模式)
+
+    - [代理模式](/md/Java#代理模式)
 
   - [算法](/md/Java#算法)
 
@@ -453,6 +524,8 @@
     - [Instant](/md/Java#instant)
 
     - [System](/md/Java#system)
+
+  - [单元测试](/md/Java#单元测试)
 
 - [Linux](/md/Linux#linux)
   
