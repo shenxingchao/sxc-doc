@@ -1,14 +1,19 @@
 <h2>2022年规划</h2>  
-<p>找个好工作月薪8K（目前7K）</p>
+<p>[疫情不好找工作]找个好工作月薪8K（目前7K）</p>
 <p>php进阶(swoole)（1月）</p>
-<p>go基础（1月）</p>
-<p>[doing]java基础（1月）</p>
+<p>[pass没时间]go基础（1月）</p>
+<p>[80%]java基础（1月）</p>
 <p>typescript基础（1周）</p>
 <p>[√]Python进阶（sanic框架）（1月）</p>
 <p>[√]用flutter写一个音乐app（1月）</p>
 <p>用cocos creator重写多人纸牌游戏（1月）</p>
-<p>维护vite-element-ui\vue-element-visual-layout\vue3-visual-cms</p>
+<p>[目前学习java暂停了]维护vite-element-ui\vue-element-visual-layout\vue3-visual-cms</p>
 <p>维护noval-app项目</p>
+
+todo:
+
+flutter-kuwo-music添加自定义背景图\切换屏幕唤醒\以及添加到播放列表功能\优化歌词校正频率
+
 
 # 心灵鸡汤
 
