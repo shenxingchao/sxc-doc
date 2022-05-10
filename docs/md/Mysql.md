@@ -139,7 +139,7 @@ USE dbname;
 CREATE TABLE `user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
-  `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
+  `age` int(2) unsigned DEFAULT '0' COMMENT 'age',
   PRIMARY KEY (`id`),
   KEY `age_index` (`age`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
@@ -152,7 +152,7 @@ INSERT INTO `dbname`.`user` (`id`, `name`, `age`) VALUES (3, '李四', 2);
 CREATE TABLE `en_user` (
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
-  `age` int(255) unsigned NOT NULL DEFAULT '0' COMMENT 'age',
+  `age` int(2) unsigned NOT NULL DEFAULT '0' COMMENT 'age',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 INSERT INTO `dbname`.`en_user` (`id`, `name`, `age`) VALUES (1, 'zhangsan', 1);
@@ -537,6 +537,13 @@ SELECT id FROM `user` WHERE id BETWEEN 1 AND 2);
 2 rows in set (0.02 sec)
 ```
 
+多列子查询
+
+```sql
+SELECT*FROM `user` WHERE (id,name) IN (
+SELECT id,name FROM `user` WHERE id BETWEEN 1 AND 2);
+```
+
 ### EXISTS
 查询判断条件 不返回数据 只返回布尔类型
 如找出有地址的用户
@@ -642,10 +649,23 @@ SELECT * FROM `user` WHERE name = "张三" ORDER BY id;
 ```
 默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
 
+### 索引
+
+添加索引
+```sql
+CREATE INDEX `age_index` ON `user` (`age`) USING BTREE;
+ALTER TABLE `user` ADD KEY `age_index` (`age`) USING BTREE;
+```
+
+删除索引
+```sql
+DROP INDEX age_index ON `user`;
+```
+
 ### FULLTEXT
 全文索引
 语法 MATCH(列1,列2) AGAINST(搜索表达式1,搜索表达式2)
-mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html)
+mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html) [ElasticSearch](https://github.com/elastic/elasticsearch)
 新增索引 或者在navicat 新增索引下面的解析器里填 ngram
 ```sql
 ALTER TABLE `user_address` ADD FULLTEXT INDEX address ( `address` ) WITH PARSER ngram;
@@ -673,6 +693,7 @@ SELECT * FROM `user` WHERE name = "张三" AND age > 1;
 ```
 即可添加联合索引
 ```sql
+CREATE INDEX `name_age_index` ON `user` (`name`,`age`) USING BTREE;
 ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING BTREE;
 ```
 
@@ -818,6 +839,29 @@ SELECT SUBSTRING_INDEX(name,'n',1) AS ming FROM `en_user`;
 +----------+
 ```
 
+### REPLACE
+
+语法 REPLACE(str,search_str,replace_str)
+
+替换字符串
+
+```sql
+SELECT REPLACE(name,'张','李') FROM `user`;
+```
+
+输出
+
+```sql
++---------------------------+
+| REPLACE(name,'张','李')   |
++---------------------------+
+| 李三                      |
+| 李四                      |
+| 李四                      |
++---------------------------+
+3 rows in set (0.00 sec)
+```
+
 ### 日期函数
 | 函数名        | 描述                           |
 | ------------- | ------------------------------ |
@@ -934,6 +978,27 @@ SELECT COUNT(age) AS has_age_count FROM `user`;
 1 row in set (0.00 sec)
 ```
 
+### 控制语句IF
+
+语法 IF(条件，结果1，结果2)
+
+例如统计叫张三的和李四的人数
+
+```sql
+SELECT SUM(IF(name="张三",1,0)) AS '张三的人数',SUM(IF(name="李四",1,0)) AS '李四的人数'  FROM `user`;
+```
+
+输出
+
+```sql
++-----------------+-----------------+
+| 张三的人数      | 李四的人数      |
++-----------------+-----------------+
+|               1 |               2 |
++-----------------+-----------------+
+1 row in set (0.00 sec)
+```
+
 ## 新增
 ### INSERT
 语法 INSERT INTO table_name (字段1,字段2) VALUES ("值1","值2")
@@ -945,6 +1010,8 @@ INSERT INTO `user` (name,age) VALUES ("张三",4);
 ```sql
 Query OK, 1 row affected (0.06 sec)
 ```
+
+tips:假如是插入所有字段 则(字段1，字段2)可以省略
 
 ### LOW_PRIORITY
 优先级  
@@ -1006,18 +1073,22 @@ Query OK, 13 rows affected (0.15 sec)
 CREATE TABLE IF NOT EXISTS `user`(
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
   `name` varchar(255) NOT NULL DEFAULT '' COMMENT 'name',
-  `age` int(255) unsigned DEFAULT '0' COMMENT 'age',
+  `age` int(2) unsigned DEFAULT '0' COMMENT 'age',
   PRIMARY KEY (`id`),
   KEY `age_index` (`age`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
 ### ALTER
+
 语法 ALTER TABLE table_name 操作
-新增列
+
+新增列/修改列(ADD改为MODIFY)
+
 ```sql
 ALTER TABLE `user` ADD tel VARCHAR(13) NOT NULL DEFAULT '' COMMENT '电话';
 ```
+
 删除列
 ```sql
 ALTER TABLE `user` DROP tel;
@@ -1040,6 +1111,25 @@ ALTER TABLE `user_address` ADD CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFE
 TRUNCATE `user_address`;
 ```
 !> 有关联表的主表不能够被清空提示：Cannot truncate a table referenced in a foreign key constraint 
+
+##  事务
+
+语法
+
+```sql
+START TRANSACTION;
+    SQL语句
+    
+    SAVEPOINT point;//设置保存点不。不设置的话就是回退到开始位置
+
+    ROLLBACK TO point；//ROLLBACK
+
+    COMMIT;
+```
+
+事务有四种隔离级别  有多个事务同时进行的时候，操作同一张表，会有并发的问题
+
+多个事务之间要相互隔离 默认的级别就是隔离的所以不用改。
 
 ## 视图
 ### 创建视图
@@ -1341,13 +1431,23 @@ EXIT;
 11. 尽量避免使用 OR 用 UNION 代替
 12. 如果 GROUP BY 的结果不需要排序 那么显示的加上 GROUP BY NULL 会提高效率
 13. UNION 除非要消除重复行 不然用UNION ALL代替
-14. 尽量使用数字 如1，2 tinyintl类型 代表男女 字符串会降低查询和连接的性能
+14. 尽量使用数字 如1，2 tinyint类型 代表男女 字符串会降低查询和连接的性能
 
 ## 名词
 ### 主键
-确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成
+确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成（复合主键）
+### UNIQUE
+类似主键，表示唯一，区别是可以添加多个，如果一个字段没有指定NOT NULL，那么NULL可以是多个的
 ### 外键
-外键是某个表中的一列，它对应主表的主键值
+外键定义在从表，是某个主表中的一列，它对应主表的主键值(或者UNIQUE键值)
 ### BTREE
 索引方法 B树索引 平衡多路查找树
 
+### 索引
+主键索引是HashMap的数据结构(键值对)，索引只有 = 查询才会起效果，如果是 > 查询就会无效
+
+索引可以使查询速度变快，但是会影响增删改的速度（每次操作会重新构建二叉树），但是利大于弊，所以尽量加索引
+
+底层是二叉树
+
+[二叉树的演示indexing](https://www.cs.usfca.edu/~galles/visualization/Algorithms.html)

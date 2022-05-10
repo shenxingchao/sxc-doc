@@ -230,7 +230,7 @@ public class Demo {
 
 ## 循环
 
-### for循环计1~100的和
+### for循环计算1到100的和
 
 ```java
 public class SumNumber {
@@ -272,7 +272,7 @@ public class Demo {
 }
 ```
 
-### while循环最好是用在不确定循环次数的时,也可计算0-100的和
+### while循环最好是用在不确定循环次数的时,也可计算0到100的和
 
 ```java
 public class Demo {
@@ -2503,9 +2503,9 @@ public class Demo {
         try {
             //读取资源文件
             //创建输入流 BufferedInputStream 比 FileInputStream 读取资源效率高
-            InputStream inputStream = new BufferedInputStream(new FileInputStream("db.properties"));
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("db.properties"));
             //加载输入流到properties对象
-            properties.load(inputStream);
+            properties.load(bufferedInputStream);
             //遍历properties对象 obj=>key->value键值对
             for (Map.Entry<Object, Object> obj : properties.entrySet()
             ) {
@@ -2519,7 +2519,7 @@ public class Demo {
             //获取指定key的值
             System.out.println(properties.getProperty("dbname"));
             //关闭输入流
-            inputStream.close();
+            bufferedInputStream.close();
 
             //写入资源
             //创建输出流
