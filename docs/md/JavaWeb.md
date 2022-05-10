@@ -245,7 +245,7 @@ public class Demo {
         //执行sql查询 其他增删改使用executeUpdate
         ResultSet resultSet = preparedStatement.executeQuery();
         while (resultSet.next()) {
-            int id = resultSet.getInt(1);//也可以改成resultSet.getInt("id")
+            int id = resultSet.getInt(1);//也可以改成resultSet.getInt("id") 或者 Object id = resultSet.getObject("id")
             String name = resultSet.getString(2);
             int age = resultSet.getInt(3);
             System.out.println(id + "\t" + name + "\t" + age);//2	李四	1
