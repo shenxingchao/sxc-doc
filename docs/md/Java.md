@@ -3732,6 +3732,7 @@ class A {
     public String name = "hello field";
     private int id = 3;
 
+    //必须要有因为这样使用反射生成一个对象的时候，可以直接使用无参构造器拿到属性
     public A() {
     }
 

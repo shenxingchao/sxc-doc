@@ -4,12 +4,16 @@
 
 ### 添加jar包
 
+[jar包搜索](https://mvnrepository.com/)
+
 将jar包放在libs文件夹下，右键as library,选择项目即可
 
 删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
 
 
 ## JDBC
+
+基础的JDBC看看就行
 
 需要将mysql-connector-java.jar包导入,mysql5.7可以直接用8.0版本的，也支持
 
@@ -274,8 +278,12 @@ import java.sql.*;
 import java.util.Properties;
 
 public class JDBCUtil {
-    //连接
-    public static Connection connection;
+    //url
+    private static String url;
+    //用户名
+    private static String user;
+    //密码
+    private static String password;
 
     //静态代码块只会加载一次
     static {
@@ -288,8 +296,9 @@ public class JDBCUtil {
             properties.load(bufferedInputStream);
             //加载Driver时自动完成注册
             Class.forName(properties.getProperty("driver"));
-            //得到连接
-            connection = DriverManager.getConnection(properties.getProperty("url"), properties.getProperty("user"), properties.getProperty("password"));
+            url = properties.getProperty("url");
+            user = properties.getProperty("user");
+            password = properties.getProperty("password");
             //关闭流
             bufferedInputStream.close();
         } catch (Exception e) {
@@ -299,13 +308,26 @@ public class JDBCUtil {
     }
 
     /**
+     * 获取连接
+     *
+     * @return
+     */
+    public static Connection getConnection() {
+        try {
+            return DriverManager.getConnection(url, user, password);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
      * 关闭并释放资源
      *
      * @param resultSet         结果集
      * @param preparedStatement 预处理
-     * @param closeConnection   连接是否关闭
+     * @param connection        连接
      */
-    public static void close(ResultSet resultSet, PreparedStatement preparedStatement, Boolean closeConnection) {
+    public static void close(ResultSet resultSet, PreparedStatement preparedStatement, Connection connection) {
         //关闭连接
         try {
             if (resultSet != null) {
@@ -316,8 +338,8 @@ public class JDBCUtil {
                 //关闭预处理释放资源
                 preparedStatement.close();
             }
-            if (closeConnection != null && closeConnection) {
-                //关闭连接释放资源
+            if (connection != null) {
+                //关闭连接释放资源 这里是真的关闭连接
                 connection.close();
             }
         } catch (SQLException e) {
@@ -335,7 +357,7 @@ import java.sql.*;
 public class Demo {
     public static void main(String[] args) throws SQLException {
         //得到连接
-        Connection connection = JDBCUtil.connection;
+        Connection connection = JDBCUtil.getConnection();
         //预处理sql
         PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `user` where id = ?");
         preparedStatement.setInt(1, 2);
@@ -348,7 +370,7 @@ public class Demo {
             System.out.println(id + "\t" + name + "\t" + age);//2	李四	1
         }
         //关闭连接
-        JDBCUtil.close(resultSet, preparedStatement, true);
+        JDBCUtil.close(resultSet, preparedStatement, connection);
     }
 }
 ```
@@ -361,7 +383,7 @@ import java.sql.*;
 public class Demo {
     public static void main(String[] args) throws SQLException {
         //得到连接
-        Connection connection = JDBCUtil.connection;
+        Connection connection = JDBCUtil.getConnection();
         //设置为不提交,相当于开启事务
         connection.setAutoCommit(false);
         //预处理sql
@@ -385,7 +407,7 @@ public class Demo {
             throw new RuntimeException(e);
         }
         //关闭连接
-        JDBCUtil.close(null, preparedStatement, true);
+        JDBCUtil.close(null, preparedStatement, connection);
     }
 }
 ```
@@ -402,7 +424,7 @@ import java.sql.*;
 public class Demo {
     public static void main(String[] args) throws SQLException {
         //得到连接
-        Connection connection = JDBCUtil.connection;
+        Connection connection = JDBCUtil.getConnection();
         //预处理sql
         PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `user` (name,age) VALUES (?,?)");
         //添加批处理
@@ -416,7 +438,7 @@ public class Demo {
         //清空sql批处理
         preparedStatement.clearBatch();
         //关闭连接
-        JDBCUtil.close(null, preparedStatement, true);
+        JDBCUtil.close(null, preparedStatement, connection);
     }
 }
 ```
@@ -425,7 +447,7 @@ public class Demo {
 
 **c3p0**
 
-[下载地址](https://sourceforge.net/projects/c3p0/?source=navbar) 直接下载即可
+[下载地址](https://sourceforge.net/projects/c3p0/?source=navbar) 直接下载即可 [官网](https://www.mchange.com/projects/c3p0/)
 
 下载并将c3p0-0.9.5.5.jar包和mchange-commons-java-0.2.19.jar包添加到项目
 
@@ -540,6 +562,242 @@ public class Demo {
         Connection connection = comboPooledDataSource.getConnection();
         //关闭
         connection.close();
+    }
+}
+```
+
+**druid**
+
+阿里出品
+
+[下载地址](https://repo1.maven.org/maven2/com/alibaba/druid/)
+
+[文档](https://github.com/alibaba/druid/wiki/%E5%B8%B8%E8%A7%81%E9%97%AE%E9%A2%98)
+
+[配置](https://github.com/alibaba/druid/wiki/DruidDataSource%E9%85%8D%E7%BD%AE) 他是xml配置的。改成.properities即可
+
+druid.properties
+
+```properties
+#druid已经可以自动识别常用的驱动，可省略
+driverClassName=com.mysql.jdbc.Driver
+url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8
+username=root
+password=
+#初始化连接数
+initialSize=3
+#等待时间
+maxWait=6000
+#最大连接数
+maxActive=20
+#最小连接数
+minIdle=1
+```
+连接
+
+```java
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.util.Properties;
+import java.sql.*;
+
+public class Demo {
+    public static void main(String[] args) throws Exception {
+        //新建Properties对象
+        Properties properties = new Properties();
+        //获取文件输入流
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("druid.properties"));
+        //加载输入流到properties对象
+        properties.load(bufferedInputStream);
+        //关闭流
+        bufferedInputStream.close();
+        //使用properties创建
+        DataSource dataSource = DruidDataSourceFactory.createDataSource(properties);
+        //得到连接 同样也会有log信息
+        Connection connection = dataSource.getConnection();
+        //关闭
+        connection.close();
+    }
+}
+```
+
+工具类
+
+JDBCUtilByDruid
+
+```java
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.Properties;
+
+public class JDBCUtilByDruid {
+
+    private static DataSource dataSource;
+
+    //初始化数据源
+    static {
+        try {
+            //新建Properties对象
+            Properties properties = new Properties();
+            //获取文件输入流
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(new FileInputStream("druid.properties"));
+            //加载输入流到properties对象
+            properties.load(bufferedInputStream);
+            //关闭流
+            bufferedInputStream.close();
+            //使用properties创建
+            dataSource = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 得到连接
+     *
+     * @return
+     */
+    public static Connection getConnection() {
+        //得到连接 同样也会有log信息
+        try {
+            return dataSource.getConnection();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 关闭并释放资源
+     *
+     * @param resultSet         结果集
+     * @param preparedStatement 预处理
+     * @param connection        连接
+     */
+    public static void close(ResultSet resultSet, PreparedStatement preparedStatement, Connection connection) {
+        //关闭连接
+        try {
+            if (resultSet != null) {
+                //关闭结果集释放资源
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                //关闭预处理释放资源
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                //这里的关闭只是放回连接池，不是真正的关闭
+                connection.close();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+使用
+
+```java
+import java.sql.*;
+
+public class Demo {
+    public static void main(String[] args) throws Exception {
+        //得到连接 同样也会有log信息
+        Connection connection = JDBCUtilByDruid.getConnection();
+        //关闭
+        JDBCUtilByDruid.close(null, null, connection);
+    }
+}
+```
+
+### DBUtils
+
+apache封装的工具类 数据库ORM
+
+[下载](https://repo1.maven.org/maven2/commons-dbutils/commons-dbutils/)
+
+
+使用DBUtils+JDBCUtilByDruid工具类
+
+orm对象
+
+```java
+public class User {
+    private int id;
+    private String name;
+    private int age;
+
+    //可以直接使用无参构造器拿到属性
+    public User() {
+    }
+
+    public User(int id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+}
+```
+
+使用
+
+```java
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+
+import java.sql.*;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) throws Exception {
+        //得到连接 同样也会有log信息
+        Connection connection = JDBCUtilByDruid.getConnection();
+
+        //查询生成器
+        QueryRunner queryRunner = new QueryRunner();
+        //查询结果集
+        //new BeanListHandler 底层使用反射机制去获取属性(见反射 获取所有属性),然后放入User对象,最后将User对象放入ArrayList集合
+        //1是给sql语句中的?赋值的
+        List<User> query = queryRunner.query(connection, "SELECT * FROM `user` where id = ?", new BeanListHandler<>(User.class), 1);
+        for (User user : query) {
+            System.out.println(user.getId() + "\t" + user.getName() + "\t" + user.getAge());//1	张三	1
+        }
+        //关闭
+        JDBCUtilByDruid.close(null, null, connection);
     }
 }
 ```
