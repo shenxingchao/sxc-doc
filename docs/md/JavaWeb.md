@@ -777,7 +777,9 @@ public class User {
 
 ```java
 import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanHandler;
 import org.apache.commons.dbutils.handlers.BeanListHandler;
+import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 import java.sql.*;
 import java.util.List;
@@ -786,7 +788,6 @@ public class Demo {
     public static void main(String[] args) throws Exception {
         //得到连接 同样也会有log信息
         Connection connection = JDBCUtilByDruid.getConnection();
-
         //查询生成器
         QueryRunner queryRunner = new QueryRunner();
         //查询结果集
@@ -796,8 +797,135 @@ public class Demo {
         for (User user : query) {
             System.out.println(user.getId() + "\t" + user.getName() + "\t" + user.getAge());//1	张三	1
         }
+        //查询单行
+        User user = queryRunner.query(connection, "SELECT * FROM `user` where id = ?", new BeanHandler<>(User.class), 1);
+        System.out.println(user.getId() + "\t" + user.getName() + "\t" + user.getAge());//1	张三	1
+        //查询单列
+        Object obj = queryRunner.query(connection, "SELECT name FROM `user` where id = ?", new ScalarHandler(), 1);
+        System.out.println(obj);//张三
+        //增删改
+        int execute = queryRunner.execute(connection, "UPDATE `user` SET name=?,age = ? WHERE name = ? AND age = ?", "李五", 4, "李四", 2);
+        if (execute > 0) {
+            System.out.println("修改成功");
+        }
         //关闭
         JDBCUtilByDruid.close(null, null, connection);
+    }
+}
+```
+
+自己来封装一把数据库ORM反射，User类和Druid工具类用的上面的
+
+```java
+import java.lang.reflect.Field;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.util.ArrayList;
+
+public class DbUtil {
+    public static void main(String[] args) {
+        //得到连接 同样也会有log信息
+        Connection connection = JDBCUtilByDruid.getConnection();
+        //查询结果集
+        ArrayList<User> users = DbUtil.toArrayList(connection, "SELECT * FROM `user` where id = ?", User.class, 1);
+        for (User user : users) {
+            System.out.println(user.getId() + "\t" + user.getName() + "\t" + user.getAge());//1	张三	1
+        }
+        //关闭
+        JDBCUtilByDruid.close(null, null, connection);
+    }
+
+    /**
+     * 结果集转ArrayList
+     *
+     * @param connection 数据库连接
+     * @param sql        数据库sql语句
+     * @param type       Class对象
+     * @param params     参数赋值
+     * @param <T>        反射对象泛型
+     * @return ArrayList
+     */
+    private static <T> ArrayList<T> toArrayList(Connection connection, String sql, Class<T> type, Object... params) {
+        try {
+            //预处理sql
+            PreparedStatement preparedStatement = connection.prepareStatement(sql);
+            for (int i = 0; i < params.length; i++) {
+                preparedStatement.setObject(i + 1, params[i]);
+            }
+            //获取结果集
+            ResultSet resultSet = preparedStatement.executeQuery();
+            //通过反射对象获取所有属性
+            Field[] declaredFields = type.getDeclaredFields();
+            //构造字段名集合
+            ArrayList<T> list = new ArrayList<>();
+            //遍历结果集，存储到List
+            while (resultSet.next()) {
+                //循环放到每个字段上
+                T bean = type.newInstance();
+                for (Field declaredField : declaredFields) {
+                    //反射爆破
+                    declaredField.setAccessible(true);
+                    //获取类型
+                    Class<?> fieldType = declaredField.getType();
+                    //判断类型 并向下转型
+                    if (int.class.equals(fieldType)) {
+                        declaredField.set(bean, Integer.parseInt(String.valueOf(resultSet.getObject(declaredField.getName()))));
+                    } else if (String.class.equals(fieldType)) {
+                        declaredField.set(bean, String.valueOf(resultSet.getObject(declaredField.getName())));
+                    }
+                }
+                list.add(bean);
+            }
+            resultSet.close();
+            preparedStatement.close();
+            return list;
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+### DAO
+
+访问数据库数据的对象 data access object
+
+意思一下Dao封装，就是把上面的连接，执行sql,关闭连接，再封装一下，作为数据层M的基类，相当于thinkphp Model基类
+
+其他的表Model类基础这个Dao基类即可
+
+
+```java
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
+//model层基类
+public class BasicDao<T> {
+    private final QueryRunner queryRunner = new QueryRunner();
+
+    /**
+     * 查询结果集返回集合
+     *
+     * @param sql  sql语句
+     * @param type Class类对象
+     * @return List<T>
+     */
+    public List<T> queryList(String sql, Class<T> type, Object... params) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtilByDruid.getConnection();
+            return queryRunner.query(connection, sql, new BeanListHandler<T>(type), params);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            //关闭
+            JDBCUtilByDruid.close(null, null, connection);
+        }
     }
 }
 ```
