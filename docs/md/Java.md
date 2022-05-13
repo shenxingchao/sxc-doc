@@ -4997,6 +4997,22 @@ public class Demo {
 
 运行垃圾回收机制
 
+### UUID
+
+**randomUUID()**
+
+返回随机的UUID
+
+```java
+import java.util.UUID;
+
+public class Demo {
+    public static void main(String[] args) {
+        System.out.println(UUID.randomUUID());//29c8a3b7-cc8d-45c5-86e1-3afe845b5137
+    }
+}
+```
+
 ## 单元测试
 
 vscode java扩展已经自带了，加上 **@Test** 即可测试**public类**中的方法

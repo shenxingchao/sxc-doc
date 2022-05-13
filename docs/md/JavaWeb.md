@@ -10,6 +10,93 @@
 
 删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
 
+## 工具类
+
+### 高并发测试方法
+
+自己封装了一下
+
+```java
+//用于并发模拟n个用户同时执行一个方法
+public class ThreadConcurrentUtil {
+
+    //用接口的方式 用内部类或lambda实现这个方法
+    interface ThreadConcurrentInterface {
+        public void fn();
+    }
+
+    //该对象可以阻塞线程
+    private CyclicBarrier cyclicBarrier = null;
+    //并发数
+    private int n = 0;
+
+    /**
+     * @param n 并发数
+     */
+    public ThreadConcurrentUtil(int n) {
+        this.n = n;
+        cyclicBarrier = new CyclicBarrier(n);
+    }
+
+    /**
+     * 并发测试方法
+     *
+     * @param tThreadConcurrentInterface 用内部类或lambda实现这个方法
+     */
+    public void test(ThreadConcurrentInterface tThreadConcurrentInterface) {
+        ArrayList<Thread> list = new ArrayList<>();
+        for (int i = 0; i < n; i++) {
+            Thread thread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    System.out.println("线程开始时间：" + System.currentTimeMillis());
+                    //线程等待
+                    try {
+                        cyclicBarrier.await();
+                    } catch (InterruptedException | BrokenBarrierException e) {
+                        e.printStackTrace();
+                    }
+                    tThreadConcurrentInterface.fn();
+                }
+            });
+            list.add(thread);
+        }
+        for (Thread t : list) {
+            t.start();
+        }
+        try {
+            Thread.sleep(300);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    /**
+     * 使用方法
+     *
+     * @param args
+     */
+    public static void main(String[] args) {
+        new ThreadConcurrentUtil(10).test(new ThreadConcurrentInterface() {
+            @Override
+            public void fn() {
+                System.out.println("这里写是实际的测试内容");
+            }
+        });
+    }
+}
+```
+
+## 经典解决方案
+
+### ThreadLocal
+
+解决每个线程需要独享一个对象,或者是每个线程需要有一个全局变量的时候
+（静态变量会导致每个线程共用一个变量，可以用synchronized解决，但是不够完美；另外如果在线程里每次调用方法就创建一个对象，内存开销太大，所以这个时候就需要每个线程有一个隔离的属于自己的静态变量）
+
+使用案例见**DAO事务操作**，同一个线程中，多个模型类事务操作，需要使用同一个连接
+
+
 
 ## JDBC
 
@@ -925,6 +1012,174 @@ public class BasicDao<T> {
         } finally {
             //关闭
             JDBCUtilByDruid.close(null, null, connection);
+        }
+    }
+}
+```
+
+但是上面的类会有一个问题，如果要操作事务，不同的BasicDao子类（Model类），使用的connection不一样
+
+同一事务多DAO共享同一connection，必须在一个共同的外部类中(BasicDao)使用threadLocal保存connection
+
+```java
+import org.apache.commons.dbutils.QueryRunner;
+import org.apache.commons.dbutils.handlers.BeanListHandler;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.List;
+
+//model层基类
+public class BasicDao<T> {
+    //同一事务多DAO共享同一Connection，必须在一个共同的外部类中使用threadLocal保存Connection
+    public static ThreadLocal<Connection> threadLocal = new ThreadLocal<>();
+    //查询生成器
+    private final QueryRunner queryRunner = new QueryRunner();
+
+    /**
+     * 获取threadLocal里保存的连接
+     *
+     * @return
+     */
+    public static Connection getConnection() {
+        //从threadLocal拿，如果没有则设置一个
+        Connection connection = threadLocal.get();
+        if (connection == null) {
+            connection = JDBCUtilByDruid.getConnection();
+            threadLocal.set(connection);
+        }
+        return connection;
+    }
+
+    /**
+     * 开启事务 不关闭连接
+     */
+    public static void startTransaction() {
+        Connection connection = getConnection();
+        try {
+            connection.setAutoCommit(false);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 事务提交
+     */
+    public static void commit() {
+        Connection connection = getConnection();
+        try {
+            connection.commit();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 事务回滚
+     */
+    public static void rollback() {
+        Connection connection = getConnection();
+        try {
+            connection.rollback();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * 事务关闭
+     */
+    public static void closeTransaction() {
+        Connection connection = getConnection();
+        JDBCUtilByDruid.close(null, null, connection);
+        //一次事务完成，可以释放这个threadLocal对象了
+        threadLocal.remove();
+    }
+
+
+    /**
+     * 查询结果集返回集合
+     *
+     * @param sql  sql语句
+     * @param type Class类对象
+     * @return List<T>
+     */
+    public List<T> queryList(String sql, Class<T> type, Object... params) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtilByDruid.getConnection();
+            return queryRunner.query(connection, sql, new BeanListHandler<T>(type), params);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            //关闭
+            JDBCUtilByDruid.close(null, null, connection);
+        }
+    }
+
+    /**
+     * 普通insert方法
+     *
+     * @param sql
+     * @param params
+     * @return
+     */
+    public int insert(String sql, Object... params) {
+        Connection connection = null;
+        try {
+            connection = JDBCUtilByDruid.getConnection();
+            return queryRunner.update(connection, sql, params);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } finally {
+            //关闭
+            JDBCUtilByDruid.close(null, null, connection);
+        }
+    }
+
+    /**
+     * 事务insert方法
+     *
+     * @param sql
+     * @param params
+     * @return
+     */
+    public int insertByTransaction(String sql, Object... params) {
+        Connection connection = null;
+        try {
+            //事务这里就需要拿threadLocal里的连接了并且不能关闭
+            connection = getConnection();
+            System.out.println(connection.hashCode());//来打印是否使用了同一个连接
+            return queryRunner.update(connection, sql, params);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    //测试
+    public static void main(String[] args) {
+        //开启事务
+        BasicDao.startTransaction();
+
+        //创建2个Dao来模拟不同的dao
+        try {
+            BasicDao<User> userBasicDao1 = new BasicDao<>();
+            BasicDao<User> userBasicDao2 = new BasicDao<>();
+            //下面如果用insert方法，打印出来的connection hashCode会不一样
+            //并且这里第二条故意用错误的值插入，让第一条成功，第二条失败，可见第一条也回滚了
+            //如果用insert方法第一条是不会回滚的 (ps:ThreadLocal牛叉)
+            userBasicDao1.insert("INSERT INTO `user` (name,age) VALUES (?,?)", "张八", 1);
+            userBasicDao2.insert("INSERT INTO `user` (name,age) VALUES (?,?)", "张八", "二");
+            //事务提交
+            BasicDao.commit();
+        } catch (Exception e) {
+            //事务回滚
+            rollback();
+            throw new RuntimeException(e);
+        } finally {
+            //关闭事务
+            BasicDao.closeTransaction();
         }
     }
 }
