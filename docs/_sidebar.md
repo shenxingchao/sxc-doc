@@ -532,6 +532,14 @@
 
     - [添加jar包](/md/JavaWeb#添加jar包)
 
+  - [工具类](/md/JavaWeb#工具类)
+
+    - [高并发测试方法](/md/JavaWeb#高并发测试方法)
+
+  - [经典解决方案](/md/JavaWeb#经典解决方案)
+
+    - [ThreadLocal](/md/JavaWeb#threadlocal)
+
   - [JDBC](/md/JavaWeb#jdbc)
 
     - [步骤](/md/JavaWeb#步骤)
@@ -539,6 +547,28 @@
     - [连接方式](/md/JavaWeb#连接方式)
 
     - [预处理](/md/JavaWeb#预处理)
+
+    - [封装工具类及调用](/md/JavaWeb#封装工具类及调用)
+
+    - [事务](/md/JavaWeb#事务)
+
+    - [sql批处理](/md/JavaWeb#sql批处理)
+
+    - [连接池](/md/JavaWeb#连接池)
+
+    - [DBUtils](/md/JavaWeb#dbutils)
+
+    - [DAO](/md/JavaWeb#dao)
+
+  - [分层架构](/md/JavaWeb#分层架构)
+
+    - [DAO](/md/JavaWeb#dao-1)
+
+    - [Service](/md/JavaWeb#service)
+
+    - [Controller](/md/JavaWeb#controller)
+
+    - [View](/md/JavaWeb#view)
 
 - [Linux](/md/Linux#linux)
   

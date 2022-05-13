@@ -822,7 +822,11 @@ apache封装的工具类 数据库ORM
 
 使用DBUtils+JDBCUtilByDruid工具类
 
-orm对象
+**orm(对象关系映射)**
+
+*orm对象（javabean对象或者叫domain对象）*
+
+如果是多表，则orm对象的属性就是多张表结合就可以了；如果是重名，则使用别名就可以了;名称可以改为类似UserAddress
 
 ```java
 public class User {
@@ -962,10 +966,13 @@ public class DbUtil {
                     //获取类型
                     Class<?> fieldType = declaredField.getType();
                     //判断类型 并向下转型
-                    if (int.class.equals(fieldType)) {
-                        declaredField.set(bean, Integer.parseInt(String.valueOf(resultSet.getObject(declaredField.getName()))));
-                    } else if (String.class.equals(fieldType)) {
-                        declaredField.set(bean, String.valueOf(resultSet.getObject(declaredField.getName())));
+                    Object object = resultSet.getObject(declaredField.getName());
+                    Class<?> aClass = object.getClass();
+                    //这里数据库varchar查出来是java.lang.Long 类型
+                    if (aClass == Long.class) {
+                        declaredField.set(bean, Integer.parseInt(String.valueOf(object)));
+                    } else {
+                        declaredField.set(bean, String.valueOf(object));
                     }
                 }
                 list.add(bean);
@@ -1190,3 +1197,23 @@ public class BasicDao<T> {
     }
 }
 ```
+
+## 分层架构
+
+### DAO
+
+一般会有一个基类，只有原子性增删改查，开启关闭事务等
+
+将数据对象化，转为orm对象
+
+### Service
+
+业务逻辑层 业务逻辑，以及调用DAO层的一些方法来获取数据
+
+### Controller
+
+控制器层负责数据传输 接收前端数据或者返回数据给前端 也就是Api提供者
+
+### View
+
+基本不需要，前后端分离。。。
