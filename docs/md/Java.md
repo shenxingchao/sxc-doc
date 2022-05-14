@@ -4235,6 +4235,45 @@ public class Demo {
 [1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
 ```
 
+## 正则表达式
+
+创建正则表达式对象 java\\表示\ 这个和其他语言不一样的地方,其他类似于python
+
+```java
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Demo {
+    public static void main(String[] args) {
+        //内容
+        String content = "daSkjdD1234LK SADs12345adka打开s2拉klkl3d3萨扩大1221撒4554赖klkl";
+        //创建正则表达式对象 java\\表示\ 这个和其他语言不一样的地方
+        Pattern pattern = Pattern.compile("(\\d{4})(\\d)");
+        //匹配
+        Matcher matcher = pattern.matcher(content);
+        //循环查找 matcher.find() 根据表达式进行匹配将匹配到结果的开始索引index和结束索引+1（用来记录下一次匹配开始的未知）放入底层的groups
+        while (matcher.find()) {
+            //匹配结果 一对括号表示一组 group(0) 表示全部的匹配到结果和在一起  从group(1)开始表示每对()的内容
+            System.out.println(matcher.group(0));//12345
+            System.out.println(matcher.group(1));//1234
+            System.out.println(matcher.group(2));//5
+        }
+
+        //修饰符 ?i 表示后面的字符都不区分大小写 如果是单个字符则使用a((?i)s)k
+        //或者在第二参数使用 Pattern.CASE_INSENSITIVE
+        pattern = Pattern.compile("(?i)ask");
+        //匹配
+        matcher = pattern.matcher(content);
+        //循环查找
+        while (matcher.find()) {
+            //匹配结果
+            System.out.println(matcher.group(0));//aSk
+        }
+
+    }
+}
+```
+
 ## 内置类
 
 ### Scanner获取用户输入
