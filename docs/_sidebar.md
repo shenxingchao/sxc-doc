@@ -490,6 +490,8 @@
 
     - [插入排序](/md/Java#插入排序)
 
+  - [正则表达式](/md/Java#正则表达式)
+
   - [内置类](/md/Java#内置类)
 
     - [Scanner获取用户输入](/md/Java#scanner获取用户输入)
