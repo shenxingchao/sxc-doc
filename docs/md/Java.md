@@ -4237,7 +4237,33 @@ public class Demo {
 
 ## 正则表达式
 
-创建正则表达式对象 java\\表示\ 这个和其他语言不一样的地方,其他类似于python
+创建正则表达式对象 java\\(转义符号)表示\ 这个和其他语言不一样的地方,其他类似于python
+
+### 整体校验是否匹配
+
+```java
+import java.util.regex.Pattern;
+
+public class Demo {
+    public static void main(String[] args) {
+        String content = "https://www.bilibili.com/video/BV1fh411y7R8?p=894&&xxx=12";
+        String regExp = "^((?:https|http)://)([\\w-]+\\.)+([\\w-]+)(\\/[\\w?=&./-]*)?";
+
+        //Pattern.matches的底层是Matcher的matches方法
+        boolean matches = Pattern.matches(regExp, content);
+        if (matches) {
+            System.out.println("验证成功");
+        }
+
+        //String类的matches
+        if(content.matches(regExp)){
+            System.out.println("验证成功");
+        }
+    }
+}
+```
+
+### 匹配查找内容
 
 ```java
 import java.util.regex.Matcher;
@@ -4270,6 +4296,52 @@ public class Demo {
             System.out.println(matcher.group(0));//aSk
         }
 
+    }
+}
+```
+
+### 反向引用
+
+即可以引用分组 既可以再正则表示内部引用 也可以在外部引用
+
+```java
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class Demo {
+    public static void main(String[] args) {
+        //内容
+        String content = "daSkjdD1234LK SADs12345adka打开s2拉klkl3d3萨扩大1221撒4554赖klkl";
+        //创建正则表达式对象  \\2 \\1 表示反向引用  \\2表示第二对括号 \\1表示第一对括号 这样来匹配1221  3223这样的回文数
+        Pattern pattern = Pattern.compile("(\\d)(\\d)\\2\\1");
+        //匹配
+        Matcher matcher = pattern.matcher(content);
+        //循环查找
+        while (matcher.find()) {
+            //匹配结果
+            System.out.println(matcher.group(0));//1221  4554
+            System.out.println(matcher.group(1));//1  4
+            System.out.println(matcher.group(2));//2  5
+        }
+    }
+}
+```
+
+其他案例，去重
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        //内容
+        String content = "我..我要...学学学学....编程java!";
+        //剔除所有.
+        content = content.replaceAll("\\.", "");
+        System.out.println(content);//我我要学学学学编程java!
+        //  \\1用于正则表达式内部 $1对应的是\\1用于正则表达式外部
+        content = content.replaceAll("(.)\\1+", "$1");
+        System.out.println(content);//我要学编程java!
+        content = "我..我要...学学学学....编程java!";
+        System.out.println(content.replaceAll("\\.", "").replaceAll("(.)\\1+", "$1"));
     }
 }
 ```
