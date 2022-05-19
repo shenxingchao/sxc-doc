@@ -2859,6 +2859,57 @@ class B extends Thread {
 }
 ```
 
+### 线程池
+
+java自带线程池，容易出现oom(out of memory内存溢出,因为底层如果是无界队列或者线程无上线就会导致oom)，大公司慎用
+
+**基本使用**
+
+```java
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+public class Demo {
+    public static void main(String[] args) {
+        Runnable runnable = () -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName());
+        };
+        //等同于下面这个
+        //Runnable runnable = new Runnable() {
+        //    @Override
+        //    public void run() {
+        //        try {
+        //            Thread.sleep(1000);
+        //        } catch (InterruptedException e) {
+        //            e.printStackTrace();
+        //        }
+        //        System.out.println(Thread.currentThread().getName());
+        //    }
+        //};
+
+        // 创建线程池
+        // ExecutorService pools = Executors.newCachedThreadPool();//有线程加入就执行
+        // ExecutorService pools = Executors.newSingleThreadExecutor();//单线程，所有线程排队执行
+        //ExecutorService pools = Executors.newScheduledThreadPool(10);//指定线程同时执行的最大数量 支持定时执行
+        ExecutorService pools = Executors.newFixedThreadPool(10);//指定线程同时执行的最大数量,超过的等待
+        for (int i = 0; i < 40; i++) {
+            pools.submit(runnable);
+        }
+
+        //线程池不会主动销毁，需要自己销毁
+        //停止接收 已经执行的继续执行
+        //pools.shutdown();
+        //停止线程 且正在执行的终止(interrupted中断)
+        pools.shutdownNow();
+    }
+}
+```
+
 ## IO
 
 **Input输入流**，读取文件数据到程序
