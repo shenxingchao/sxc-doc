@@ -87,6 +87,31 @@ public class ThreadConcurrentUtil {
 }
 ```
 
+也可以用线程池
+
+```java
+import java.util.concurrent.*;
+
+public class Demo {
+    public static void main(String[] args) {
+        Runnable runnable = () -> {
+            System.out.println("线程开始时间：" + System.currentTimeMillis());
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        };
+
+        ExecutorService pools = Executors.newFixedThreadPool(1000);
+        //最大就70个，i大于70就异常
+        for (int i = 0; i < 700; i++) {
+            pools.submit(runnable);
+        }
+    }
+}
+```
+
 ## 经典解决方案
 
 ### ThreadLocal

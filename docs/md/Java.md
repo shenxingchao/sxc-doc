@@ -2547,7 +2547,9 @@ public class Demo {
 
 ## 迭代器
 
-使用方法 可用于迭代集合
+### 使用方法 
+
+可用于迭代集合
 
 ```java
 import java.util.ArrayList;
@@ -2572,6 +2574,58 @@ public class Demo {
     }
 }
 ```
+
+### 迭代删除元素
+
+其他语言也就这样
+
+```java
+import java.util.ArrayList;
+import java.util.Iterator;
+
+public class Demo {
+    public static void main(String[] args) {
+        ArrayList<String> arrayList = new ArrayList<>();
+        arrayList.add("小砾");
+        arrayList.add("天天");
+        arrayList.add("毛毛");
+        arrayList.add("毛毛");
+        arrayList.add("阿奇");
+        arrayList.add("毛毛");
+        arrayList.add("灰灰");
+
+        //三种方法
+        //1.每删除一个循环变量减一
+        for (int i = 0; i < arrayList.size(); i++) {
+            String s = arrayList.get(i);
+            if (s.equals("毛毛")) {
+                arrayList.remove(i);
+                i--;
+            }
+        }
+        //2.逆向遍历
+        for (int i = arrayList.size() - 1; i > 0; i--) {
+            String s = arrayList.get(i);
+            if (s.equals("毛毛")) {
+                arrayList.remove(i);
+            }
+        }
+        //3.迭代器删除
+        Iterator<String> iterator = arrayList.iterator();
+        while (iterator.hasNext()) {
+            String next = iterator.next();
+            if (next.equals("毛毛")) {
+                iterator.remove();
+            }
+        }
+        //4.lambda表达式，是上面的简化，真神
+        arrayList.removeIf(next -> next.equals("毛毛"));
+
+        System.out.println(arrayList);
+    }
+}
+```
+
 
 ## 多线程
 
@@ -2906,6 +2960,63 @@ public class Demo {
         //pools.shutdown();
         //停止线程 且正在执行的终止(interrupted中断)
         pools.shutdownNow();
+    }
+}
+```
+
+### 自定义线程池
+
+了解可以配置线程池大小和策略的参数即可
+
+```java
+import java.util.concurrent.*;
+
+public class Demo {
+    public static void main(String[] args) {
+        Runnable runnable = () -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println(Thread.currentThread().getName());
+        };
+
+        //创建自定义线程池,可以自己分配线程大小，策略
+        //5核心线程数
+        //20最大线程数，尽量设置大一点Integer.MAX_VALUE，防止提交的任务超出，
+        //超过60关闭
+        //超时单位秒
+        //数组有界队列 初始大小50 设置的大小最好是大于等于你所要提交的任务量，不然提交的任务到最大线程数会抛出RejectedExecutionException异常
+        //线程工厂对象 Executors.defaultThreadFactory()系统默认的线程工厂
+        //策略，这里直接用默认的策略
+        //ps:最大放70个 = 20 + 50
+        ExecutorService pools = new ThreadPoolExecutor(
+                5,
+                20,
+                60L,
+                TimeUnit.SECONDS,
+                new ArrayBlockingQueue<Runnable>(50),
+                //Executors.defaultThreadFactory(),//可以自己创建一个线程工厂对象 系统的线程名称pool-1-thread
+                //new ThreadFactory() { //自己实现一个线程工厂接口可以自定义线程名称
+                //    @Override
+                //    public Thread newThread(Runnable r) {
+                //        return new Thread(r, "自定义线程名称");
+                //    }
+                //},
+                //下面这几种表达式都是一样的
+                //(Runnable r) -> {
+                //    return new Thread(r);
+                //},
+                //(Runnable r) -> {
+                //    return new Thread(r);
+                //},
+                //Thread::new(),
+                new ThreadPoolExecutor.AbortPolicy());
+        //最大就70个，i大于70就异常
+        for (int i = 0; i < 70; i++) {
+            pools.submit(runnable);
+        }
     }
 }
 ```
