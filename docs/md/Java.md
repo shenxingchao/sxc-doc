@@ -3681,6 +3681,75 @@ public class Demo {
 }
 ```
 
+## NIO
+
+NIO提供了与标准IO不同的IO工作方式：
+
+Channels and Buffers(通道和缓冲区)：标准的IO基于字节流和字符流进行操作的，而NIO是基于通道(Channel)和缓冲区(Buffer)进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。
+
+tips：安卓USB读写串口遇到过，那个时候用uniapp native.js没有多线程会阻塞，所以没搞出来，遗憾，有机会用原始搞一下
+
+### Buffer
+
+缓冲区
+
+```java
+import java.nio.ByteBuffer;
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) {
+        //创建一个缓冲区用于读写数据
+        ByteBuffer byteBuffer = ByteBuffer.allocate(10);
+
+        //往buffer中添加数据
+        for (byte i = 0; i < byteBuffer.capacity(); i++) {
+            byteBuffer.put(i);
+        }
+
+        //buffer读写切换，之前为写数据，调用flip后切换为读
+        byteBuffer.flip();
+        //一起读
+        byte[] bytes = byteBuffer.array();
+        System.out.println(Arrays.toString(bytes));//[0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
+        //如果修改了bytes 则缓冲区的内被修改
+        bytes[0] = 1;
+        //循环读 这里第一位被手动修改了
+        while (byteBuffer.hasRemaining()){
+            System.out.println(byteBuffer.get());//1, 1, 2, 3, 4, 5, 6, 7, 8, 9
+        }
+    }
+}
+```
+
+### Channel
+
+通道
+
+```java
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //创建一个文件输出流
+        FileOutputStream fileOutputStream = new FileOutputStream("1.txt");
+        //通过文件输出流得到一个FileChannel
+        FileChannel fileChannel = fileOutputStream.getChannel();
+        //创建一个buffer并写入数据
+        ByteBuffer buffer = ByteBuffer.allocate(1024);
+        buffer.put("hello".getBytes());
+        buffer.flip();  //反转，让指针指向数组开头，反正之后才能读取buffer，不然还是写入
+
+        //将Buffer中数据写入FileChannel中 这里写入相当于读取buffer写入通道
+        fileChannel.write(buffer);
+        fileOutputStream.close();
+    }
+}
+```
+
 ## Socket
 
 基于TCP或UDP通信
