@@ -3144,6 +3144,8 @@ public class Demo {
 
 了解可以配置线程池大小和策略的参数即可
 
+线程工厂可以直接使用Google guava 工具类 提供的 ThreadFactoryBuilder或者Apache commons-lang3 提供的 BasicThreadFactory
+
 ```java
 import java.util.concurrent.*;
 
