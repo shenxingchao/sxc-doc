@@ -1400,6 +1400,182 @@ class Outer {
 }
 ```
 
+### 对象拷贝
+
+**浅拷贝**
+
+第一层是深拷贝，从第二层开始是浅拷贝
+
+对象实现Cloneable接口并实现clone方法，可以调用浅拷贝
+
+```java
+import java.util.Arrays;
+
+public class Demo {
+    public static void main(String[] args) throws CloneNotSupportedException {
+        //浅拷贝
+        Person person1 = new Person(18, new String[]{"lol", "red2"}, new Student(10));
+        Person person2 = (Person) person1.clone();
+        //基本数据类型是拷贝的是值(拷贝第一层，称之为浅拷贝)
+        person1.setAge(10);
+        System.out.println(person2.getAge());//18
+        //数组虽然是引用类型但是拷贝的也是值(拷贝第一层，称之为浅拷贝)
+        person1.setHobby(new String[]{"王者荣耀"});
+        System.out.println(Arrays.toString(person2.getHobby()));//[lol, red2]
+        //但如果属性还是对象，那个这个属性对象的属性则拷贝的是引用了(第二次拷贝的不是值了，是引用了)
+        person1.getStudent().setClassNo(20);
+        System.out.println(person2.getStudent().getClassNo());//20
+    }
+}
+
+class Student {
+    private int classNo;
+
+    public Student(int classNo) {
+        this.classNo = classNo;
+    }
+
+    public int getClassNo() {
+        return classNo;
+    }
+
+    public void setClassNo(int classNo) {
+        this.classNo = classNo;
+    }
+}
+
+class Person implements Cloneable {
+    private int age;
+    private String[] hobby;
+    private Student student;
+
+    public Person(int age, String[] hobby, Student student) {
+        this.age = age;
+        this.hobby = hobby;
+        this.student = student;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String[] getHobby() {
+        return hobby;
+    }
+
+    public void setHobby(String[] hobby) {
+        this.hobby = hobby;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+
+    @Override
+    protected Object clone() throws CloneNotSupportedException {
+        return super.clone();
+    }
+}
+```
+
+**深拷贝**
+
+通过io流的对象流的序列化和反序列化，实现深拷贝;拷贝的对象和其属性的对象都要实现Serializable接口
+
+```java
+import java.io.*;
+
+public class Demo {
+    public static void main(String[] args) {
+        //深拷贝
+        Person person1 = new Person(18, new String[]{"lol", "red2"}, new Student(10));
+        Person person2 = null;
+
+        try {
+            //对象写入对象流
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
+            objectOutputStream.writeObject(person1);
+            objectOutputStream.close();
+
+            //读入到新对象
+            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(byteArrayOutputStream.toByteArray());
+            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+            person2 = (Person) objectInputStream.readObject();
+            objectInputStream.close();
+
+            //深拷贝后设置值发现没改变
+            person1.getStudent().setClassNo(20);
+            System.out.println(person2.getStudent().getClassNo());//10
+        } catch (IOException | ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+//序列化可读写
+class Student implements Serializable {
+    private int classNo;
+
+    public Student(int classNo) {
+        this.classNo = classNo;
+    }
+
+    public int getClassNo() {
+        return classNo;
+    }
+
+    public void setClassNo(int classNo) {
+        this.classNo = classNo;
+    }
+}
+
+//序列化可读写
+class Person implements Serializable {
+    private int age;
+    private String[] hobby;
+    private Student student;
+
+    public Person(int age, String[] hobby, Student student) {
+        this.age = age;
+        this.hobby = hobby;
+        this.student = student;
+    }
+
+    public int getAge() {
+        return age;
+    }
+
+    public void setAge(int age) {
+        this.age = age;
+    }
+
+    public String[] getHobby() {
+        return hobby;
+    }
+
+    public void setHobby(String[] hobby) {
+        this.hobby = hobby;
+    }
+
+    public Student getStudent() {
+        return student;
+    }
+
+    public void setStudent(Student student) {
+        this.student = student;
+    }
+}
+```
+
 ## 枚举
 
 ### 定义
@@ -3249,6 +3425,34 @@ public class Demo {
 }
 ```
 
+**自动释放资源**
+
+实现了AutoCloseable可以简化代码，不写finally里的关闭流，让其主动释放资源，了解即可
+
+```java
+import java.io.FileInputStream;
+import java.io.IOException;
+
+public class Demo {
+    public static void main(String[] args) {
+        //实现了AutoCloseable 可以简化代码，不写finally里的关闭流，让其主动释放资源，了解即可
+        try (
+                //创建一个文件输入流对象
+                FileInputStream fileInputStream = new FileInputStream("./1.txt");
+                FileInputStream fileInputStream2 = new FileInputStream("./1.txt")
+        ) {
+            //一个字节一个字节的读
+            int read;
+            while ((read = fileInputStream.read()) != -1) {
+                System.out.print((char) read);
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+```
+
 ### ObjectInputStream
 
 **对象类型输入流**[InputStream的包装类]
@@ -4055,6 +4259,40 @@ class SingleInstance {
     public static synchronized SingleInstance getInstance() {
         if (instance == null) {
             instance = new SingleInstance();
+        }
+        return instance;
+    }
+}
+```
+
+**双重检查锁模式**
+
+```java
+public class Demo {
+    public static void main(String[] args) {
+        SingleInstance.getInstance();// 单例初始化了,只初始化一次
+        SingleInstance.getInstance();// 这句不输出了
+    }
+}
+
+class SingleInstance {
+    // 单例对象 volatile关键字 保证变量在各个线程中的可见性（A线程修改了B马上知道），和线程的有序性（执行是有序的）
+    private volatile static SingleInstance instance;
+
+    // 构造方法私有化 防止用户直接new初始化类
+    private SingleInstance() {
+        System.out.println("单例初始化了,只初始化一次");
+    }
+
+    // 获取单例，单例对象初始化
+    public static synchronized SingleInstance getInstance() {
+        if (instance == null) {
+            //第一次判断有没有创建，然后再synchronized加锁（因为synchronized比较消耗性能）
+            synchronized (SingleInstance.class) {
+                if (instance == null) { //第二次 假如多个线程竞争，A先拿到锁，创建，释放锁，然后B拿到锁进来判断空不创建
+                    instance = new SingleInstance();
+                }
+            }
         }
         return instance;
     }
