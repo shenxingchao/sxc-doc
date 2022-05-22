@@ -23,6 +23,55 @@ fun main() {
 
 kotlin基本数据类型有Byte、Short、Int、Long、Float、Double等，他们是一个类，在编译后会转成java基本数据类型byte,short,int,long,float,double
 
+### 类型转换
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val i = "99".toInt()
+    val a = 99.toString()
+    val b = 99.toDouble()
+    val c = 99.0.toInt()
+    val d = 99.toFloat()
+    val e = 99.0f.toInt()
+    println("$i $a $b $c $d $e")//99 99 99.0 99 99.0 99
+}
+```
+
+### 解构赋值
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //初始化数组方法
+    val list =  intArrayOf(1,2,3)
+    //解构赋值
+    val (a,b,c) = list
+    println("$a $b $c");//1 2 3
+}
+```
+
+### 循环
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //初始化数组方法
+    val list = intArrayOf(1, 2, 3)
+    //增强for循环
+    list.forEach {
+        println(it) //1 2 3
+    }
+    //for in
+    for (item in list){
+        println(item) //1 2 3
+    }
+}
+```
+
 ### range表达式
 
 ```kt
@@ -59,8 +108,8 @@ fun main() {
     val res = when (age) {
         1 -> println("1")
         2 -> println("2")
-        10, 20 -> println("10,20") // 10,20
-        in 21..30 -> print("21,30")
+        10, 20 -> println(">=10,<=20") // 10,20
+        in 21..30 -> print("21,30") //..可以用until代替  in 21 until  30 -> print("21,30")
         else -> {
             print("其他值")
         }
@@ -340,7 +389,7 @@ fun fn(value: String, name: String, age: Int): String {
 
 ### 空判断
 
-和flutter的dart语言类似
+和flutter的dart语言类似,也可以用if判断不为空后调用
 
 ```kt
 package com.org.kotlin
@@ -366,5 +415,65 @@ fun main() {
     val name4: String? = null
     //这个就是断言assert 保证不为空的情况下这样写
     println(name4!!.length) //kotlin.KotlinNullPointerException
+}
+```
+
+### 异常
+
+kotlin不会像java一样去检查异常，你可以手动调用一些检查的方法去检查异常
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //?如果为空则不处理?后面的
+    val name: String? = null
+
+    //被动抛出异常
+    try {
+        println(name!!.length)
+    } catch (e: Exception) {
+        println(e)//kotlin.KotlinNullPointerException
+    } finally {
+        println("finally")
+    }
+
+    //主动抛出异常
+    try {
+        name?.length ?: throw RuntimeException("变量为空了")
+    } catch (e: RuntimeException) {
+        println(e.message)//变量为空了
+    }
+
+    try {
+        //这一句主动检查异常，可以让下面的name不用加额外的判断符号
+        checkNotNull(name)
+        println(name.length)
+    } catch (e: IllegalStateException) {
+        println(e)//java.lang.IllegalStateException: Required value was null.
+    }
+}
+```
+
+### 字符串操作
+
+**正则替换**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    var name = "张三李四王五"
+    //正则替换 后面{}是lambda传值，可以迭代匹配到的每个元素 进行替换
+    name = name.replace(Regex("[三四五]")) {
+        if (it.value == "三") {
+            "四"
+        } else if (it.value == "四") {
+            "三"
+        } else {
+            it.value
+        }
+    }
+    println(name)//张四李三王五
 }
 ```
