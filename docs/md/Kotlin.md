@@ -677,6 +677,45 @@ class Person() {
 }
 ```
 
+### takeIf
+
+用于判断对象某个属性是否为空,或者用于某个变量检查后，再对对象进行处理
+
+如果代码块predicate里面返回为true，则返回这个对象本身，否则返回空
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val person: Person = Person("", 18)
+
+    //takeIf判断
+    val person2 = person.takeIf {
+        //it指代本身
+        it.name != "" //这里如果名字为空就是false返回null
+    }
+    println(person2) //null
+
+    //用于某个变量检查
+    val bool = true;
+    var person3 = person.takeIf { bool }?.apply {
+        person.name = "张三"
+    }
+    println(person3?.name)//张三
+
+    //上面的代码相当于
+    if (bool) {
+        person3 = person.apply {
+            person.name = "张三"
+        }
+    } else {
+        person3 = null
+    }
+}
+
+class Person(var name: String, var age: Int)
+```
+
 ## 集合
 
 ### List
@@ -1402,7 +1441,7 @@ fun main() {
 }
 
 //泛型类
-internal class Person<T>(var age: T?) {
+class Person<T>(var age: T?) {
     // 泛型方法返回值泛型+形参泛型
     fun <E> getAge(age: E): E {
         return age
@@ -1416,13 +1455,54 @@ internal class Person<T>(var age: T?) {
 package com.org.kotlin
 
 fun main() {
-    val person = Person<A>(null)
-    person.age = 18;
+    //只能传A类型或A类型的子类型
+    val person = Person(A())
+    person.a = B();
+    person.a = null;//对象传null也没报错..
+
+    //person.a = 18;//报错
 }
 
 open class A
+open class B : A()
 
-internal class Person<T : A>(var age: Int?) {}
+class Person<T : A>(var a: T?)
+```
+
+### 协变和逆变
+
+out和in操作符
+
+out只能被读取，不能修改 out在Kotlin中叫协变。
+
+in只能修改，不能读取 in在Kotlin中叫逆变
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //假如用第一个方法复制整个数组，我传入一个Int类型数组复制到Number数组就错了  Number是T的父类
+    val srcArr = arrayOf<Int>(1, 2, 3)
+    val destArr = Array<Number>(3) { 1 }
+    //copyFn(destArr,srcArr)//这行报错
+    copyFnOut(destArr, srcArr)
+    copyFnIn(destArr, srcArr)
+}
+
+//不使用操作符，传入了T=>Number   T=>Int 两个T不一致了
+fun <T> copyFn(destArr: Array<T>, srcArr: Array<T>) {
+    srcArr.forEachIndexed { index, item -> destArr[index] = item }
+}
+
+//使用协变操作符out T 此泛型只能被读取，不能修改了，srcArr所以取出来一定是T  相当于T=>Number   out T=>Number  协变把Int看成父类Number
+fun <T> copyFnOut(destArr: Array<T>, srcArr: Array<out T>) {
+    srcArr.forEachIndexed { index, item -> destArr[index] = item }
+}
+
+//使用逆变操作符in T 此泛型只能修改，不能读取 相当于 in T =>Int T=>Int  逆变把Number看成Int的子类了
+fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
+    srcArr.forEachIndexed { index, item -> destArr[index] = item }
+}
 ```
 
 ## kotlin安卓项目搭建
