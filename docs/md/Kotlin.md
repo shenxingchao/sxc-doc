@@ -1088,3 +1088,17 @@ class B() {
     }
 }
 ```
+
+## kotlin安卓项目搭建
+
+### idea环境搭建流程
+
+1. idea需要2022版本 旧版不能热更新代码 [破解流程](https://www.exception.site/article/29) [补丁](https://pan.baidu.com/s/1uYLHHKGIcWqSrl9Je9991g ) 提取码：1234
+2. idea需要下载kotlin和android插件 否则第三步出不来
+3. idea Project Structure =》SDKS=》添加android sdk根目录，设置好api构建版本 使用最新版本
+4. 模拟器或者真机adb连接上
+5. 真机无线调试方法:开发者模式-》点击无线调试出现弹窗-》 adb pair 配对地址：端口-》输入配对码-》然后在adb connect 无线调试界面的地址和端口号 [参考](https://blog.csdn.net/weixin_42089228/article/details/124362840)
+6. adb连上后，点击idea运行按钮即可，第二个按钮就是即时刷新
+7. 打开res->layout->main_activity.xml打开设计窗口可以拖动布局页面
+8. apk运行安装到手机出现  应用不能安装 在gradle.properties(项目根目录或者gradle全局配置目录 ~/.gradle/)文件中添加android.injected.testOnly=false
+9. 发布Build--》 Generate Signed Bundle / APK 连生成key都有
