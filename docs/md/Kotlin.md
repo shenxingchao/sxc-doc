@@ -131,6 +131,8 @@ fun main() {
 
 就是switch
 
+kotlin1.6开始需要强制穷举when所有情况
+
 ```kt
 package com.org.kotlin
 
@@ -1034,7 +1036,7 @@ open class B(name: String, age: Int) : A(name, age) {
 }
 ```
 
-### object
+### object单例和匿名内部类
 
 可用于单例和匿名内部类
 
@@ -1087,6 +1089,340 @@ class B() {
         a.fn()
     }
 }
+```
+
+### 伴生对象
+
+companion object
+
+字面意思 伴随对象产生而产生，直接用类名调用，就是静态static的意思
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //可以直接类名调用了
+    println(A.name)//张三
+    A.fn()//静态方法
+}
+
+class A {
+    //伴生对象 在这个代码块里面声明的为java中的静态变量
+    companion object {
+        var name = "张三"
+        var age = 18
+
+        fun fn() {
+            println("静态方法")
+        }
+    }
+}
+```
+
+### 内部类
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    A().getInnerFn()
+
+    //非静态内部类
+    A().Inner().fnInner()
+    //静态内部类
+    A.Inner2().fnInner()
+}
+
+class A {
+    var name = "张三"
+    var age = 18
+
+    //这里的相当于静态属性
+    companion object {
+        var classNo = "2班"
+    }
+
+    //内部类加inner去除编译后的static修饰符,否则只能访问静态属性
+    inner class Inner {
+        fun fnInner() {
+            println("内部类方法访问外部非静态属性$name $age")
+        }
+    }
+
+    //默认是静态内部类 编译后会加上static关键字
+    class Inner2 {
+        fun fnInner() {
+            println("内部类方法访问外部静态属性$classNo")
+        }
+    }
+
+    fun getInnerFn() {
+        Inner().fnInner()
+        Inner2().fnInner()
+    }
+}
+```
+
+### 数据类
+
+加上data关键字 就是orm类(数据库对象关系映射)
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //看下数据类和普通类的对比
+    //1.数据类型重写了toString()方法
+    println(UserNormal(1, "张三", 18).toString())//com.org.kotlin.UserNormal@610455d6
+    println(User(1, "张三", 18).toString())//User(userId=1, name=张三, age=18)
+    //2.数据类支持结构赋值
+    //普通类解构需要加component方法 不然报错
+    val (userId1, name1, age1) = UserNormal(1, "张三", 18);
+    println("$userId1 $name1 $age1")
+    //数据类自动添加了解构返回方法
+    val (userId2, name2, age2) = User(1, "张三", 18);
+    println("$userId2 $name2 $age2")
+    //3.支持对象copy 底层是new 一个主构造方法...
+    val user = User(1, "张三", 18).copy(userId = 10, name = "王五", age = 1)
+    println(user)//User(userId=10, name=王五, age=1)
+}
+
+class UserNormal(var userId: Int, var name: String, var age: Int) {
+
+    //这几个方法，只是为了演示普通类不能解构
+    operator fun component1(): Any {
+        return userId
+    }
+
+    operator fun component2(): Any {
+        return name
+    }
+
+    operator fun component3(): Any {
+        return age
+    }
+}
+
+//java bean就是orm类（数据库表关系对象）这么声明
+data class User(var userId: Int, var name: String, var age: Int)
+
+//多表
+data class UserAddress(var userId: Int, var name: String, var age: Int, var address: String)
+```
+
+### operator重载运算符
+
+既可以重载系统内置的运算符 > = < 等等，还可以用来对象的解构 见**数据类**部分
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //普通调用
+    println(A(3).plus(A(4)))
+
+    //将+号对应的运算符plus给重载了 就可以实现对象相加  其他的运算符也要一样
+    println(A(3) + A(4))
+}
+
+class A(var num: Int) {
+    //利用重载运算符 重载系统内置的加号 + 
+    operator fun plus(a: A): Int {
+        return this.num + a.num
+    }
+}
+```
+
+### 枚举类
+
+enum class
+
+比较java多了一个class关键字,强调他是一个类
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    println(A.RED);// RED
+    println(A.GREEN);// GREEN
+    println(B.RED);// RED
+    //枚举对象名称
+    println(A.RED.name)//RED
+    //枚举对象对应的编号
+    println(A.RED.ordinal)//0
+    //打印所有枚举
+    println(B.values().contentToString())//[RED, GREEN, BLUE]
+    // 将字符串转成已有枚举常量对象
+    println(B.valueOf("RED"));// RED
+}
+
+//属性私有化，防止外部更改
+enum class A(private var color: String) {
+    RED("红色"),
+    GREEN("绿色"),
+    BLUE("蓝色")
+}
+
+// 最简单的枚举类
+enum class B {
+    RED,
+    GREEN,
+    BLUE
+}
+```
+
+### 密封类
+
+枚举类的扩展，可代替枚举，主要用于when判断多个对象，不需要写else的情况
+
+主要因为他的子类可以创建多个，而枚举类是不行的（枚举类也不需要写else）
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //密封类不能被初始化,自己是抽象类
+    //Color();Sealed types cannot be instantiated
+
+    //一般用法
+    val a1 = if (Math.random() > 0.5) B() else C()
+    var res1 = when (a1) {
+        is B -> "B"
+        is C -> "C"
+        //强行写else
+        else -> "没有对象需要判断了"
+    }
+    //使用密封类后不需要写else了
+    val a2 = if (Math.random() > 0.5) Color2.Red("宝马") else Color2.Blue("奔驰")
+    var res2 = when (a2) {
+        is Color2.Blue -> a2.name
+        is Color2.Red -> a2.name
+        //不需要写else了
+    }
+}
+
+//用于when举例
+interface A {}
+class B : A {}
+class C : A {}
+
+interface Car {
+}
+
+//密封类可以继承。而枚举类不行
+sealed class Color : Car {
+    //object 让它变成单例 可以重用 这就和枚举一样了 一般不这么用 : Color()是继承父类的意思
+    object Red : Color()
+    object Blue : Color()
+}
+
+sealed class Color2 : Car {
+    //一般声明为class 可以创建多个子类实例
+    data class Red(var name: String) : Color2()
+    data class Blue(var name: String) : Color2()
+}
+```
+
+### 接口
+
+接口可以多实现，类是单继承
+
+接口中定义的未赋值变量和方法都要在实现类中实现
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    C("张三", 18).fnA()
+    C("李四", 19).fnA()
+    println(C("张三", 18).classNo)
+}
+
+interface A {
+    var name: String
+    val classNo: String
+        get() = "默认值只能这样赋值"
+
+    fun fnA()
+}
+
+interface B {
+    var age: Int
+    fun fnB()
+}
+
+open class D
+
+//接口可以多实现，类是单继承
+class C(override var name: String, override var age: Int) : A, B, D() {
+    override fun fnA() {
+        println("实现A接口方法")
+    }
+
+    override fun fnB() {
+        println("实现B接口方法")
+    }
+}
+```
+
+### 抽象类
+
+```kt
+package com.org.kotlin
+
+fun main() {
+}
+
+abstract class A {
+    abstract fun fn()
+    fun fnA() {
+        println("抽象类A的方法")
+    }
+}
+
+class B : A() {
+    override fun fn() {
+        println("实现抽象类A的方法")
+    }
+}
+```
+
+### 泛型
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val person = Person<Int>(null)
+    //表明泛型是Int
+    person.age = 18;
+    //下面的是String就报错了
+    //person.age = "20"
+    // 需要传泛型里的类型<Int>
+}
+
+//泛型类
+internal class Person<T>(var age: T?) {
+    // 泛型方法返回值泛型+形参泛型
+    fun <E> getAge(age: E): E {
+        return age
+    }
+}
+```
+
+**泛型继承**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val person = Person<A>(null)
+    person.age = 18;
+}
+
+open class A
+
+internal class Person<T : A>(var age: Int?) {}
 ```
 
 ## kotlin安卓项目搭建
