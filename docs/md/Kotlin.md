@@ -364,7 +364,7 @@ fun main() {
 }
 ```
 
-### 函数参数和内联关键字和函数引用
+### 函数参数和inline内联关键字和函数引用
 
 ```kt
 package com.org.kotlin
@@ -432,6 +432,55 @@ fun fn2(name: String, age: Int): String {
 fun fn(value: String, name: String, age: Int): String {
     println(value)
     return fn2(name, age)
+}
+```
+
+### 扩展函数
+
+实现一个let来举例说明扩展函数，任何类型都是可以加扩展函数的
+
+**通俗点就是可以用.的方法调用**
+
+**扩展函数支持链式调用,就可以实现db.select{xxx}.field{xxx}类似的功能了**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val s = "张三".let {
+        println(it)
+        "我是返回值1"
+    }
+    println(s)
+
+    val s1 = "张三".myLet {
+        println(it)
+        "我是返回值2"
+    }
+    println(s1)
+
+    val bool = "张三".myLet {
+        if (it == "张三")
+            "是的"
+        else
+            "不是"
+    }.myLet {
+        it == "是的"
+    }
+
+    println(bool)
+}
+
+
+//1.inline提高效率
+//2.输入类型I 任意类型 如输入"张三".
+//3.myLet扩展函数名
+//4.传参lambda转化为代码块{}
+//5.输出this就是输入参数I本身
+//6.输出类型O根据lambda返回值类型确定类型 return lambda(this) 就是lambda函数转换成代码块{}的返回值，代码块的最后一行，返回任意类型
+inline fun <I, O> I.myLet(lambda: (I) -> O): O {
+    println(this is I)//true
+    return lambda(this)
 }
 ```
 
@@ -936,9 +985,27 @@ kotlin没有多个数据的元组
 
 二个数据泛型元组
 
+```kt
+package com.org.kotlin
+
+fun main() {
+    val pair = Pair(1, 2);
+    val pair1 = Pair("name", "张三");
+}
+```
+
 ### Triple
 
 三个数据泛型元组
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val pair = Triple(1, 2, "third");
+    val pair1 = Triple("name", "张三", 18);
+}
+```
 
 ## 面向对象
 
@@ -1513,6 +1580,12 @@ out和in操作符
 out只能被读取，不能修改 out在Kotlin中叫协变。
 
 in只能修改，不能读取 in在Kotlin中叫逆变
+
+也可以定义一个父子类(B:A) 在函数参数多态中 去验证
+
+协变 子类可以传给父类 类似java <? extend A>
+
+逆变 父类可以传给子类 类似java <? super B>
 
 ```kt
 package com.org.kotlin
