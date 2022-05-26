@@ -1513,8 +1513,200 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
 2. idea需要下载kotlin和android插件 否则第三步出不来
 3. idea Project Structure =》SDKS=》添加android sdk根目录，设置好api构建版本 使用最新版本
 4. 模拟器或者真机adb连接上
-5. 真机无线调试方法:开发者模式-》点击无线调试出现弹窗-》 adb pair 配对地址：端口-》输入配对码-》然后在adb connect 无线调试界面的地址和端口号 [参考](https://blog.csdn.net/weixin_42089228/article/details/124362840)
+5. 真机无线调试方法:开发者模式-》点击无线调试出现弹窗-》 adb pair 配对地址：端口-》输入配对码(只需配对一次)-》然后在adb connect 无线调试界面的地址和端口号 [参考](https://blog.csdn.net/weixin_42089228/article/details/124362840)
 6. adb连上后，点击idea运行按钮即可，第二个按钮就是即时刷新
 7. 打开res->layout->main_activity.xml打开设计窗口可以拖动布局页面
 8. apk运行安装到手机出现  应用不能安装 在gradle.properties(项目根目录或者gradle全局配置目录 ~/.gradle/)文件中添加android.injected.testOnly=false
 9. 发布Build--》 Generate Signed Bundle / APK 连生成key都有
+
+## JetpackCompose
+
+android函数声明式UI框架，和flutter类似就是了
+
+### 创建
+
+Idea-File-New-Project-Android-Empty Compose Activity
+
+### 注解
+
+@Composable 
+
+使函数成为可组合函数,就是加上这个注解就是一个UI组件了
+
+@Preview(showBackground = true,...)
+
+加上这个注解 这个组件就可以在设计窗口，加在@Composable上方
+
+### 修饰符
+
+修改size\padding\wifth\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用
+
+### 设置activity内容
+
+```kt
+setContent {
+    各种且套组件
+    ...
+}
+```
+
+### Text组件
+
+```kt
+Text("张三", color = MaterialTheme.colors.primary, style = MaterialTheme.typography.h1)
+```
+
+### Colum组件
+
+```kt
+//对齐方式
+Column(verticalArrangement = Arrangement.SpaceBetween) {
+    Text(text = "张三")
+    Text(text = "李四")
+}
+```
+
+
+### Image
+
+图片放到res/drawable和R.drawable.test的test名称一样就可以了...
+
+```kt
+Image(
+    painter = painterResource(R.drawable.test),
+    contentDescription = "Contact profile picture",
+    modifier = Modifier.size(20.dp).clip(CircleShape)//裁剪
+)
+```
+
+### Row
+
+```kt
+//边距，对齐方式水平，对齐方式垂直
+Row(modifier = Modifier.padding(start = 0.5.dp), horizontalArrangement = Arrangement.SpaceBetween, verticalAlignment = Alignment.CenterVertically) {
+    Text("张三")
+    Text("李四")
+}
+```
+
+### Spacer
+
+空白间距
+
+```kt
+//水平间距
+Spacer(modifier = Modifier.width(8.dp))
+//垂直间距
+Spacer(modifier = Modifier.height(4.dp))
+```
+
+### Surface
+
+在容器表面覆盖一层
+
+```kt
+//遮罩大小，阴影深度，遮罩颜色
+Surface(shape = MaterialTheme.shapes.small, elevation = 4.dp, color = MaterialTheme.colors.primary)
+```
+
+### LazyColumn
+
+长列表,性能更好
+
+[案例来自](https://developer.android.google.cn/jetpack/compose/tutorial) LazyColumn 包含一个 items 子项。它接受 List 作为参数，并且其 lambda 会收到我们命名为 message 的参数（可以随意为其命名），它是 Message 的实例。简而言之，系统会针对提供的 List 的每个项调用此 lambda
+
+```kt
+@Composable
+fun CardList(messages: MutableList<Message>) {
+    LazyColumn {
+        items(messages) { message ->
+            Card(message)
+        }
+    }
+}
+```
+
+### 简单的状态管理
+
+案例，控制一个列表项展开与合并
+
+```kt
+class MainActivity : ComponentActivity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            DefaultPreview(
+            )
+        }
+    }
+}
+
+data class Message(val name: String, val age: Int)
+
+@Composable
+fun CardList(messages: MutableList<Message>) {
+    LazyColumn {
+        items(messages) { message ->
+            Card(message)
+        }
+    }
+}
+
+@Composable
+fun Card(msg: Message) {
+    Row(
+        modifier = Modifier.padding(start = 0.5.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Text(
+            "张三",
+            color = MaterialTheme.colors.primary,
+            style = MaterialTheme.typography.subtitle1,
+        )
+        Image(
+            painter = painterResource(R.drawable.test),
+            contentDescription = "Contact profile picture",
+            modifier = Modifier
+                .size(40.dp)
+                .clip(RectangleShape)
+                .border(1.5.dp, MaterialTheme.colors.secondary, RectangleShape)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+
+        //创建一个状态 需要通过remember
+        var isExpanded by remember { mutableStateOf(false) }
+        //状态控制颜色变化并添加动画
+        val surfaceColor by animateColorAsState(
+            if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
+        )
+
+        Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.clickable {
+            isExpanded = !isExpanded
+        }) {
+
+            Text(text = "Hello ${msg.name}!")
+            Spacer(modifier = Modifier.height(4.dp))
+            if(isExpanded){
+                Surface(shape = MaterialTheme.shapes.small, elevation = 4.dp, color = surfaceColor) {
+                    Text(text = "Hello ${msg.age}!")
+                }
+            }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    OtgTheme {
+        Surface(color = MaterialTheme.colors.surface) {
+            val list = mutableListOf<Message>()
+            val message = Message("张三4", 18)
+            list.add(message);
+            list.add(message);
+            CardList(list)
+        }
+    }
+}
+```
