@@ -564,6 +564,31 @@ fun main() {
 }
 ```
 
+### zip
+
+合并可迭代对象的每个位置的元素为一个二元元组
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf<Int>(1, 2, 3)
+    val list1 = listOf<String>("张三", "李四", "王五")
+    val list2 = listOf<String>("10", "20", "30")
+
+
+    val zip: List<Pair<Pair<Int, String>, String>> = list.zip(list1).zip(list2)
+    zip.forEachIndexed { index, item ->
+        println("$item $index")
+    }
+    /*
+    ((1, 张三), 10) 0
+    ((2, 李四), 20) 1
+    ((3, 王五), 30) 2
+     */
+}
+```
+
 ## 作用域函数
 
 ### let
@@ -902,6 +927,18 @@ fun main() {
     }
 }
 ```
+
+## 元组
+
+kotlin没有多个数据的元组
+
+### Pair
+
+二个数据泛型元组
+
+### Triple
+
+三个数据泛型元组
 
 ## 面向对象
 
