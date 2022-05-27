@@ -144,7 +144,7 @@ fun main() {
         1 -> println("1")
         2 -> println("2")
         10, 20 -> println(">=10,<=20") // 10,20
-        in 21..30 -> print("21,30") //..可以用until代替  in 21 until  30 -> print("21,30")
+        in 21..30 -> print("21,30") //..可以用until代替  in 21 until  30 -> print("21,30"),类似的还有downTo 
         else -> {
             print("其他值")
         }
@@ -215,13 +215,16 @@ package com.org.kotlin
 fun main() {
     //?如果为空则不处理?后面的
     val name1: String? = null
+    //if-not-null 缩写
     println(name1?.length) //null
 
     //?如果为空，则执行?:后面的处理方式
+    //if-not-null-else 缩写
     val name2: String? = null
     println(name2?.length ?: "name2为空") //name2为空
 
     //?如果不为空，则执行let后面的方法体
+    //if not null 执行代码
     val name3: String? = "张三"
     println(name3?.let {
         //it指像name3
@@ -271,6 +274,59 @@ fun main() {
         println(e)//java.lang.IllegalStateException: Required value was null.
     }
 }
+```
+
+### kotlin注解
+
+**@file:JvmName**
+
+```kt
+//这行加到开头，可以改变kt文件编译后的类名
+@file:JvmName("User")
+```
+
+**@JvmStatic
+
+```kt
+package com.org.kotlin
+
+fun main() {
+}
+
+class A {
+    companion object {
+        //编译成java后是私有的，如果java代码想要调用，则需要加一个注解
+        @JvmField
+        val name = "张三"
+
+        //编译成java后是私有的
+        @JvmStatic
+        fun fn() {
+            println("方法")
+        }
+    }
+}
+```
+
+### is操作符
+
+判断对象，并在该判断后的方法体内自动推断类型
+
+```kt
+fun main() {
+    val str: Any = "哈哈"
+    if (str is String) {//不仅是这个if里面，在整个main函数都已经明确类型
+        println(str.length)
+    }
+}
+```
+
+### 将代码标记为未完成
+
+添加此方法，执行到此会报异常
+
+```kt
+TODO()
 ```
 
 ## 函数
@@ -361,6 +417,25 @@ fun main() {
         println("$name $age")
     }
     println(fn5("孙七", 18))//孙七 18  kotlin.Unit 可以看到返回空
+}
+```
+
+### .()语法糖
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val fn1: String.(Int) -> String = {
+        println(this)
+        println(it)
+        this.repeat(it)
+    }
+    val fn2: (String, Int) -> String = { str, num ->
+        println(str)
+        println(num)
+        str.repeat(num)
+    }
 }
 ```
 
@@ -481,6 +556,29 @@ fun main() {
 inline fun <I, O> I.myLet(lambda: (I) -> O): O {
     println(this is I)//true
     return lambda(this)
+}
+```
+
+### 中缀表达式
+
+函数可以省略· 并且可以链式调用
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //内置的中缀表达式函数 将1和10组合成二元元组
+    println(1 to 10)//(1, 10)
+    //将表达式
+    println("张三".fn("李四"))//张三和李四
+    //简化成
+    println("张三" fn "李四")//张三和李四
+    println("张三" fn 18 fn "李四" fn 20 fn "王五" fn 3)//张三和18和李四和20和王五和3
+}
+
+//infix 中缀表达式 可以让函数省略.调用,I,O 可以输入任何类型
+infix fun <I, O> I.fn(param: O): String {
+    return this.toString() + "和" + param.toString()
 }
 ```
 
@@ -613,6 +711,17 @@ fun main() {
 }
 ```
 
+**检测元素是否在可迭代对象中**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf<String>("张三", "李四", "王五")
+    println("张三" in list)
+}
+```
+
 ### zip
 
 合并可迭代对象的每个位置的元素为一个二元元组
@@ -642,7 +751,21 @@ fun main() {
 
 ### let
 
-见空判断let使用方法，一般用于简化 判断不为空后执行代码这个操作
+一般用于简化 判断不为空后执行代码这个操作
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    //?如果不为空，则执行let后面的方法体
+    val name3: String? = "张三"
+    println(name3?.let {
+        //it指像name3
+        println(it.length)//2
+        it //可以写返回值
+    })//张三
+}
+```
 
 ### apply
 
@@ -751,6 +874,223 @@ class Person() {
 }
 ```
 
+## 高阶函数
+
+### map
+
+map可以讲一个可迭代对象的每个元素处理后返回，相当于forEach遍历并处理后返回
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf<String>("张三", "李四", "王五")
+    //map最后一行是返回值
+    //map可以讲一个可迭代对象的每个元素处理后返回 相当于forEach遍历并处理后返回
+    val map = list.map {
+        it + "是学生"
+    }.map {
+        "$it，在学生上课"
+    }
+    println(map)//[张三是学生，在学生上课, 李四是学生，在学生上课, 王五是学生，在学生上课]
+}
+```
+
+### any
+
+查找元素在可迭代对象中是否大于等于1,返回布尔值
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf("张三", "李四", "王五")
+    //查找元素在可迭代对象中是否大于等于1,返回布尔值
+    val bool = list.any {
+        it == "张三"
+    }
+    println(bool)//true
+}
+```
+
+### all
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf("张三", "李四", "王五")
+    //查找所有元素在可迭代对象中是否满足条件，返回布尔值
+    val bool = list.all {
+        it.length == 2
+    }
+    println(bool)//true
+}
+```
+
+### any
+
+查找元素在可迭代对象中是否不存在,不存在返回true
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf("张三", "李四", "王五")
+    //查找元素在可迭代对象中是否不存在
+    val bool = list.none{
+        it == "赵四"
+    }
+    println(bool)//true
+}
+```
+
+### count
+
+统计元素在可迭代对象的次数
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list = listOf("张三", "李四", "王五")
+    //统计元素在可迭代对象的次数
+    val count = list.count {
+        it == "张三"
+    }
+    println(count)//1
+}
+```
+
+### groupBy
+
+分组统计 只适用于数组 分为聚合和不聚合
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val mutableList = mutableListOf<Person>()
+    mutableList.add(Person("张三", 18))
+    mutableList.add(Person("李四", 18))
+    mutableList.add(Person("王五", 19))
+
+    //按年龄分组 如果重复 it用最后一个重复的
+    val associateByList = mutableList.associateBy {
+        it.age
+    }//{18=Person(name=李四, age=18), 19=Person(name=王五, age=19)}
+    println(associateByList)
+    //按年龄分组 组使用list存储
+    val groupList = mutableList.groupBy {
+        it.age
+    }//{18=[Person(name=张三, age=18), Person(name=李四, age=18)], 19=[Person(name=王五, age=19)]}
+    println(groupList)
+    //按年龄分组后并统计
+    val groupList2 = mutableList.groupBy {
+        it.age
+    }.map {
+        it.key to it.value.size
+    }//[(18, 2), (19, 1)]
+    println(groupList2)
+
+}
+
+data class Person(val name: String, val age: Int)
+```
+
+### partition
+
+分组并拆分成2个集合
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val mutableList = mutableListOf<Person>()
+    mutableList.add(Person("张三", 18))
+    mutableList.add(Person("李四", 18))
+    mutableList.add(Person("王五", 19))
+
+    //按条件分组后结构成2个可迭代对象
+    val (prevList, nextList) = mutableList.partition {
+        it.age == 19
+    }
+    println(prevList)//[Person(name=王五, age=19)]
+    println(nextList)//[Person(name=张三, age=18), Person(name=李四, age=18)]
+}
+
+data class Person(val name: String, val age: Int)
+```
+
+### sortedBy
+
+排序
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val mutableList = mutableListOf<Person>()
+    mutableList.add(Person("张三", 18))
+    mutableList.add(Person("李四", 18))
+    mutableList.add(Person("王五", 19))
+    //按年龄倒序排序  也可以直接用sortedByDescending倒序排序
+    val sortedList = mutableList.sortedBy {
+        //-号表示倒序
+        -it.age
+    }
+    println(sortedList)//[Person(name=王五, age=19), Person(name=张三, age=18), Person(name=李四, age=18)]
+}
+
+data class Person(val name: String, val age: Int)
+```
+
+### getOrElse
+
+检验下标为index的元素存不存在，存在则返回本身，不存在则执行后面的代码
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val mutableList = mutableListOf<Person>()
+    mutableList.add(Person("张三", 18))
+    mutableList.add(Person("李四", 18))
+    mutableList.add(Person("王五", 19))
+
+    //检验下标为index的元素存不存在，存在则返回本身，不存在则执行后面的代码
+    val isExit = mutableList.getOrElse(4) {
+        println("不存在")
+        //这里直接返回false
+        false
+    }
+    println(isExit)//false
+}
+
+data class Person(val name: String, val age: Int)
+```
+
+### flatMap
+
+将二维数组中的每个集合拆成一维数组
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val list1 = listOf("张三", "李四")
+    val list2 = listOf("王五", "赵六")
+    val listQR = listOf(list1, list2)
+    println(listQR)//[[张三, 李四], [王五, 赵六]]
+    //两种用法是一样的
+    val list = listQR.flatMap { it }
+    //val list = listQR.flatten()
+    println(list)//[张三, 李四, 王五, 赵六]
+}
+```
+
+
+
 ### takeIf
 
 用于判断对象某个属性是否为空,或者用于某个变量检查后，再对对象进行处理
@@ -788,6 +1128,46 @@ fun main() {
 }
 
 class Person(var name: String, var age: Int)
+```
+
+### RxJava
+
+接收任意的值，并对其处理，可实现监听一个观察者监听者
+
+RxJava就是观察者，他的扩展函数就是监听者
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    fn {
+        //最后一行是返回值
+        "张三"
+        //第一个fn返回的是Rxjava(action()) 这个对象
+    }.fn1 {
+        //然后这里使用Rxjava(action())对象扩展方法fn1
+        println(this)
+    }.fn2 {
+        //第二种用it  lambda: (I) -> O 这里的I
+        println(it)
+    }
+}
+
+//RxJava操作符中转站类
+class Rxjava<I>(var value: I) {
+    init {
+        println(value) //这里传进来张三
+    }
+}
+
+//然后对这个类进行扩展操作即可 传入一个Rxjava<I>对象
+//I.()的意思是 (I) 就是一种lambda的写法
+inline fun <I, O> Rxjava<I>.fn1(lambda: I.() -> O) = Rxjava(lambda(value))
+
+inline fun <I, O> Rxjava<I>.fn2(lambda: (I) -> O) = Rxjava(lambda(value))
+
+//这样的表达式可以用来监视变量 lambda()是创建一个lambda会返回{}里的最后一行
+inline fun <O> fn(lambda: () -> O) = Rxjava(lambda())
 ```
 
 ## 集合
@@ -1614,6 +1994,157 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
     srcArr.forEachIndexed { index, item -> destArr[index] = item }
 }
 ```
+
+## 协程
+
+### 添加库
+
+这个还不确定
+
+[也可下载jar包android](https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-android/1.6.1/)
+[也可下载jar包core](https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.6.1/)
+
+```kt
+dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+}
+```
+
+## 设计模式
+
+### 单例
+
+饿汉式
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    SingleInstance.instance // 单例初始化了,只初始化一次
+    SingleInstance.instance // 这句不输出了
+}
+
+class SingleInstance private constructor() {
+    // 构造方法私有化 防止用户直接new初始化类
+    init {
+        println("单例初始化了,只初始化一次")
+    }
+
+    companion object {
+        // 获取单例
+        // 单例对象初始化
+        val instance = SingleInstance()
+    }
+}
+```
+
+或者直接
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    SingleInstance // 单例初始化了,只初始化一次
+    SingleInstance // 这句不输出了
+}
+
+object SingleInstance{
+    init {
+        println("单例初始化了,只初始化一次")
+    }
+}
+```
+
+**懒汉式**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    SingleInstance.instance // 单例初始化了,只初始化一次
+    SingleInstance.instance // 这句不输出了
+}
+
+class SingleInstance private constructor() {
+    // 构造方法私有化 防止用户直接new初始化类
+    init {
+        println("单例初始化了,只初始化一次")
+    }
+
+    companion object {
+        // 获取单例，单例对象初始化
+        // 单例对象
+        @get:Synchronized
+        var instance: SingleInstance? = null
+            get() {
+                if (field == null) {
+                    field = SingleInstance()
+                }
+                return field
+            }
+            private set
+    }
+}
+```
+
+**双重锁机制**
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    SingleInstance.instance // 单例初始化了,只初始化一次
+    SingleInstance.instance // 这句不输出了
+}
+
+class SingleInstance private constructor() {
+    // 构造方法私有化 防止用户直接new初始化类
+    init {
+        println("单例初始化了,只初始化一次")
+    }
+
+    companion object {
+        val instance: SingleInstance by lazy(mode = LazyThreadSafetyMode.SYNCHRONIZED) {
+            SingleInstance()
+        }
+    }
+}
+```
+
+### 代理模式by
+
+by关键字就是java中的代理模式
+
+kotlin有类代理和属性代理
+
+**by lazy**
+
+by lazy区别于lateinit ，属性代理是使用时初始化（先写好初始化代码）  lateinit使用前初始化（使用前赋值）
+
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val a = A()
+    println(a.name)//注释这行代码发现不初始化，所以是懒加载
+    a.hobby = "lol"
+    println(a.hobby)
+}
+
+class A {
+    val name: String by lazy {
+        println("使用时初始化了")
+        "张三"
+    }
+    lateinit var hobby: String;
+}
+```
+
+**by observable**
+
+相当于vue watch监视一个属性，没啥亮点
 
 ## kotlin安卓项目搭建
 
