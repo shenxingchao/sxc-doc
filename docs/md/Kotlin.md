@@ -1997,18 +1997,463 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
 
 ## 协程
 
+类似于线程，对线程进行了优化，更加轻量，协程比JVM线程的资源消耗更少
+
+测试协程需要创建android app并在gradle里面添加依赖
+
 ### 添加库
 
-这个还不确定
+[kotlinx.coroutines 官方库](https://github.com/Kotlin/kotlinx.coroutines/blob/master/README.md#using-in-your-projects)
 
-[也可下载jar包android](https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-android/1.6.1/)
-[也可下载jar包core](https://repo1.maven.org/maven2/org/jetbrains/kotlinx/kotlinx-coroutines-core/1.6.1/)
+app的build.gradle 添加
 
 ```kt
 dependencies {
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.0")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.0")
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
 }
+```
+
+### 第一个协程
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+//运行协程需要放在runBlocking里面 叫做CoroutineScope协程作用域
+fun main() = runBlocking {
+    //launch启动一个协程
+    launch { fn() }
+    println("我先执行")
+}
+
+//一个协程函数需要声明suspend
+suspend fun fn() {
+    delay(5000)
+    println("协程执行完毕")
+}
+```
+
+### 线程等待和线程挂起
+
+线程等待**runBlocking**
+
+线程挂起**coroutineScope**
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+//运行协程需要放在runBlocking里面 叫做CoroutineScope协程作用域
+fun main() = runBlocking {
+    fn()
+    println("我被阻塞了")
+}
+
+//一个协程函数需要声明suspend  coroutineScope 独立的协程作用域类似于runBlocking
+//runBlocking方法阻塞当前线程等待用于普通函数(不需要加suspend关键字)，而coroutineScope用于挂起函数(suspend关键字函数)
+suspend fun fn() = coroutineScope {
+    //launch启动一个协程 可以启动多个并行执行（同时执行）
+    launch {
+        delay(5000)
+        println("协程执行完毕")
+    }
+    //和上面的协程并发执行了
+    println("我先执行")
+}
+```
+
+### 协程等待
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+
+fun main() = runBlocking {
+    fn()
+}
+
+suspend fun fn() = coroutineScope {
+    //launch启动一个协程 可以启动多个并行执行（同时执行）
+    val task = launch {
+        delay(5000)
+        println("协程执行完毕")
+    }
+    println("我先执行")
+    //等待任务执行
+    task.join()
+    println("我被阻塞了")
+}
+```
+
+### async和await
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+fun main() = runBlocking {
+    fn()
+}
+
+suspend fun fn() = coroutineScope {
+    //launch启动一个协程 可以启动多个并行执行（同时执行）
+    val task = async {
+        delay(5000)
+        println("协程执行完毕")
+    }
+    println("我先执行")
+    //等待任务执行
+    task.await()
+    println("我被阻塞了")
+}
+```
+
+并发请求得到返回值
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+import kotlin.system.measureTimeMillis
+
+
+fun main() = runBlocking {
+    val time = measureTimeMillis {
+        //直接这样同步顺序执行
+        println("执行getFn1")
+        val i = getFn1()
+        println("执行getFn2")
+        val j = getFn2()
+    }
+    println(time)//4023 花费4秒
+
+    val time2 = measureTimeMillis {
+        //异步并发执行 async
+        //async函数有一个lazy参数 start = CoroutineStart.LAZY 可以延迟启动
+        //可以手动调用start启动或者是在使用.await时启动他
+        val i = async {
+            println("执行getFn1")
+            getFn1()
+        }
+        val j = async {
+            println("执行getFn2")
+            getFn2()
+        }
+        println(i.await() + j.await())
+    }
+    println(time2)//2045 花费2秒
+}
+
+suspend fun getFn1(): Int {
+    delay(2000)
+    return 10;
+}
+
+suspend fun getFn2(): Int {
+    delay(2000)
+    return 10;
+}
+```
+
+### 协程通道通信
+
+用于协程间共享数据
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
+
+
+fun main() = runBlocking {
+    fn()
+}
+
+suspend fun fn() = coroutineScope {
+    val channel = Channel<String>()
+    launch {
+        delay(2000)
+        //发送
+        channel.send("协程A执行完毕")
+    }
+    launch {
+        delay(2000)
+        //发送
+        channel.send("协程B执行完毕")
+    }
+    //开一个协程用于接收信息
+    launch {
+        while (true) {
+            //等待阻塞接收
+            val receive = channel.receive()
+            println("接收信息 $receive")
+        }
+    }
+    println("我先执行")
+}
+```
+
+### 取消协程
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+
+fun main() = runBlocking {
+    fn()
+}
+
+suspend fun fn() = coroutineScope {
+    val task = launch {
+        delay(2000)
+        //就是this.isActive 是协程作用域的属性 CoroutineScope.isActive
+        if (isActive) {
+            //发送
+            println("我被取消了,不会执行")
+        }
+    }
+    //手动取消了 安全取消需要协程域执行的代码放在isActive里面
+    task.cancel()
+    //取消后会立即执行后面的代码，这个时候已经执行的协程代码可能还在执行，并未停止，这个时候可以用cancelAndJoin()代替 就是先取消，然后等待，可以保证已经执行的任务完成，保证代码的健壮性。
+    println("取消完毕")
+}
+```
+
+### 自动取消协程
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+
+fun main() = runBlocking {
+    fn()
+}
+
+suspend fun fn() = coroutineScope {
+    //设置超时1秒，自动取消withTimeout这个会异常CancellationException
+    //withTimeoutOrNull取消不会报异常，返回null，执行完毕返回最后一行
+    val result = withTimeoutOrNull(1000) {
+        delay(2000)
+        //就是this.isActive 是协程作用域的属性 CoroutineScope.isActive
+        if (isActive) {
+            //发送
+            println("执行任务")
+        }
+        "执行完毕，没有超时"
+    }
+    println(result)//null
+}
+```
+
+### 协程参数（上下文对象）
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+fun main(): Unit = runBlocking {
+    launch { // 父协程的上下文，主 runBlocking 协程
+        println("我后执行")
+        delay(5000)
+    }
+    println("主线程执行1")
+    launch(Dispatchers.Unconfined) { // 非受限的 - 将和主线程一起工作
+        println("我先执行")
+        delay(5000)
+    }
+    println("主线程执行2")
+
+    //主线程执行1
+    //我先执行
+    //主线程执行2
+    //我后执行
+    //结论
+    //launch(Dispatchers.Unconfined)会按顺序执行，
+    //launch会等到主线程执行完毕才开始
+}
+```
+
+### 子协程
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+fun main(): Unit = runBlocking {
+    launch { // 父协程的上下文，主 runBlocking 协程
+        println("父协程启动")
+        launch {
+            println("子协程启动")
+            delay(5000)
+            //子协程
+            println("子协程执行完毕")
+        }
+        delay(10000)
+        println("父协程执行完毕")
+    }
+    println("主线程执行完毕")
+
+    //主线程执行完毕
+    //父协程启动
+    //子协程启动
+    //子协程执行完毕
+    //父协程执行完毕
+    //结论，注意一点，子线程是顺序执行的，不会等到父协程执行完毕才开始
+    //和主线程执行完毕，再启动父协程不一样
+}
+```
+
+### 协程命名
+
+CoroutineName
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+fun main(): Unit = runBlocking(CoroutineName("主runBlocking协程")) {
+    launch(CoroutineName("父协程启动")) {
+        var sonJob = async(CoroutineName("子协程启动")) {
+            delay(3000)
+            //子协程
+            println("子协程执行完毕")
+        }
+        delay(10000)
+        println("父协程执行完毕")
+    }
+}
+```
+
+### 作用域
+
+一般安装使用主线程作用域即可，全局的作用域是跟随应用生命周期的
+
+```kt
+class MyAndroidActivity {
+    private val scope = MainScope() //等同于CoroutineScope(Dispatchers.Main + SupervisorJob()）
+
+    override fun onDestroy() {
+        super.onDestroy()
+        scope.cancel()
+    }
+}
+```
+
+### 流flow
+
+就是类似于监听变量
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.flow
+
+fun main() = runBlocking {
+    flow {
+        delay(100)
+        println("执行了")
+        emit("回调值") // emit next value
+    }.collect{
+        //相当于监听者,开启监听上面的代码才会被执行
+        //监听到值
+        println(it)
+    }
+}
+```
+
+直接监听变量
+
+asFlow
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.asFlow
+
+fun main() = runBlocking {
+    arrayOf("张三","李四").asFlow().collect {
+        println(it)
+    }
+}
+```
+
+## json库
+
+### 依赖
+
+build
+
+```
+buildscript {
+    dependencies {
+        ...
+        classpath "org.jetbrains.kotlin:kotlin-serialization:1.6.21"
+        ...
+    }
+}
+
+```
+
+app
+
+```
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization'
+}
+...
+dependencies {
+    ...
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3"
+}
+```
+
+### 使用
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.decodeFromString
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+fun main() {
+    val mutableList = mutableListOf<Person>()
+    mutableList.add(Person("张三", 18))
+    mutableList.add(Person("李四", 18))
+    mutableList.add(Person("王五", 19))
+
+    val jsonStr = Json.encodeToString(mutableList)
+    println(jsonStr)//[{"name":"张三","age":18},{"name":"李四","age":18},{"name":"王五","age":19}]
+    val mutableList2 = Json.decodeFromString<Person>("""{"name":"张三","age":18}""")
+    println(mutableList2)//Person(name=张三, age=18)
+}
+
+@Serializable
+data class Person(val name: String, val age: Int)
 ```
 
 ## 设计模式
@@ -2156,9 +2601,47 @@ class A {
 4. 模拟器或者真机adb连接上
 5. 真机无线调试方法:开发者模式-》点击无线调试出现弹窗-》 adb pair 配对地址：端口-》输入配对码(只需配对一次)-》然后在adb connect 无线调试界面的地址和端口号 [参考](https://blog.csdn.net/weixin_42089228/article/details/124362840)
 6. adb连上后，点击idea运行按钮即可，第二个按钮就是即时刷新
-7. 打开res->layout->main_activity.xml打开设计窗口可以拖动布局页面
+7. 布局现在不用学xml了，不学！
 8. apk运行安装到手机出现  应用不能安装 在gradle.properties(项目根目录或者gradle全局配置目录 ~/.gradle/)文件中添加android.injected.testOnly=false
 9. 发布Build--》 Generate Signed Bundle / APK 连生成key都有
+
+### build:gradle
+
+[镜像库](https://developer.aliyun.com/mvn/guide)
+
+```
+buildscript {
+    ...
+    repositories {
+        //google()
+        //mavenCentral()
+        maven { url('https://maven.aliyun.com/repository/central') }//mavenCentral()
+        maven { url('https://maven.aliyun.com/repository/public') }//jcenter()
+        maven { url('https://maven.aliyun.com/repository/google') }//google()
+    }
+    ...
+}
+```
+
+### 一些问题
+
+**添加main函数无法运行**
+
+解决办法，把app.gradle SDK改成30即可
+
+```
+android {
+    compileSdk 30
+
+    defaultConfig {
+        ...
+        targetSdk 30
+        ...
+    }
+}
+```
+
+
 
 ## JetpackCompose
 
