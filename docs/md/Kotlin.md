@@ -2168,6 +2168,12 @@ suspend fun getFn2(): Int {
 }
 ```
 
+### async还是launch
+
+launch可启动新协程而不将结果返回给调用方。任何被视为“一劳永逸”的工作都可以使用 launch 来启动
+
+async会启动一个新的协程，并允许您使用一个名为 await 的挂起函数返回结果
+
 ### 协程通道通信
 
 用于协程间共享数据
@@ -2289,6 +2295,55 @@ fun main(): Unit = runBlocking {
     //结论
     //launch(Dispatchers.Unconfined)会按顺序执行，
     //launch会等到主线程执行完毕才开始
+}
+```
+
+### withContext
+
+指定协程的运行线程 
+
+Dispatchers.Main  
+
+Dispatchers.Unconfined 
+
+Dispatchers.IO 
+
+Dispatchers.Defualt
+
+```kt
+package com.example.kotlin_android_demo
+
+import kotlinx.coroutines.*
+
+fun main(): Unit = runBlocking {
+    var res = async {
+        println("线程调度Main" + Thread.currentThread().name)
+        delay(1000)
+    }
+    println("主线程1")
+    withContext(Dispatchers.Default) {
+        println("线程调度Default" + Thread.currentThread().name)
+        delay(1000)
+    }
+    println("主线程2")
+    withContext(Dispatchers.Unconfined) {
+        println("线程调度Unconfined" + Thread.currentThread().name)
+        delay(1000)
+    }
+    println("主线程3")
+    withContext(Dispatchers.IO) {
+        println("线程调度IO" + Thread.currentThread().name)
+        delay(1000)
+    }
+    println("主线程4")
+    //主线程1
+    //线程调度Mainmain
+    //线程调度DefaultDefaultDispatcher-worker-1
+    //主线程2
+    //线程调度Unconfinedmain
+    //主线程3
+    //线程调度IODefaultDispatcher-worker-1
+    //主线程4
 }
 ```
 
@@ -2647,6 +2702,10 @@ android {
 
 android函数声明式UI框架，和flutter类似就是了
 
+### material组件文档
+
+[material组件文档](https://material.io/components)
+
 ### 创建
 
 Idea-File-New-Project-Android-Empty Compose Activity
@@ -2665,6 +2724,17 @@ Idea-File-New-Project-Android-Empty Compose Activity
 
 修改size\padding\wifth\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用
 
+### 空修饰符
+
+封装组件可能会用到
+
+```kt
+@Composable
+fun PhotographerCard(modifier: Modifier = Modifier) {
+    Row(modifier) { ... }
+}
+```
+
 ### 设置activity内容
 
 ```kt
@@ -2677,10 +2747,45 @@ setContent {
 ### Text组件
 
 ```kt
-Text("张三", color = MaterialTheme.colors.primary, style = MaterialTheme.typography.h1)
+Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.primary, maxLines = 2, style = MaterialTheme.typography.h1)
 ```
 
-### Colum组件
+### Button
+
+按钮组件，内部提供一个插槽，内容都放在内部
+
+```kt
+@Composable
+fun DemoComponent() {
+    Button(onClick = {}) {
+        Text("普通按钮")
+    }
+    TextButton(onClick = {}) {
+        Text("纯文字按钮")
+    }
+    OutlinedButton(onClick = {}){
+        Text("线框按钮")
+    }
+}
+```
+
+### Icon
+
+[图标库](http://google.github.io/material-design-icons/)
+
+app.gradle
+
+```
+implementation "androidx.compose.material:material-icons-extended:$compose_version"
+```
+
+```kt
+Icon(Icons.Filled.ArrowBack, contentDescription = null)
+```
+
+### Colum
+
+列
 
 ```kt
 //对齐方式
@@ -2704,6 +2809,8 @@ Image(
 ```
 
 ### Row
+
+行
 
 ```kt
 //边距，对齐方式水平，对齐方式垂直
@@ -2729,8 +2836,86 @@ Spacer(modifier = Modifier.height(4.dp))
 在容器表面覆盖一层
 
 ```kt
-//遮罩大小，阴影深度，遮罩颜色
+//遮罩大小，阴影深度，遮罩颜色 shape = CircleShape
 Surface(shape = MaterialTheme.shapes.small, elevation = 4.dp, color = MaterialTheme.colors.primary)
+```
+
+### TopAppBar
+
+顶部导航栏
+
+```kt
+@Composable
+fun DemoComponent() {
+    TopAppBar(
+        title = {
+            Text(text = "Page title", maxLines = 2)
+        },
+        navigationIcon = {
+            IconButton(onClick = {}){
+                Text(text = "图标")
+            }
+        }
+    )
+}
+```
+
+### scaffold
+
+脚手架
+
+```kt
+@Composable
+fun DemoComponent() {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "标题", maxLines = 2)
+                },
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                    }
+                },
+                //右侧操作栏
+                actions = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.Done, contentDescription = null)
+                    }
+                }
+            )
+        },
+        bottomBar = {
+            BottomNavigation {
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                    selected = true,
+                    onClick = {})
+                BottomNavigationItem(
+                    icon = { Icon(Icons.Filled.Person, contentDescription = null) },
+                    selected = false,
+                    onClick = {})
+            }
+        }
+    ) { innerPadding ->
+        //innerPadding 内容边距 PaddingValues(start=0.0.dp, top=0.0.dp, end=0.0.dp, bottom=0.0.dp
+        BodyContent(Modifier.padding(innerPadding))
+    }
+}
+
+@Composable
+private fun BodyContent(modifier: Modifier = Modifier) {
+    Column(modifier = Modifier.padding(8.dp)) {
+        Text(text = "正文内容")
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    DemoComponent()
+}
 ```
 
 ### LazyColumn
@@ -2746,6 +2931,39 @@ fun CardList(messages: MutableList<Message>) {
         items(messages) { message ->
             Card(message)
         }
+    }
+}
+```
+
+### click
+
+组件添加点击事件
+
+```kt
+@Composable
+fun DemoComponent() {
+    //如果要点击到内边距，则click需要加在内边距前面
+    Text("张三", Modifier.clickable(onClick = {}).padding(20.dp))
+}
+```
+
+### 自定义插槽
+
+类似vue插槽，利用尾随lambda实现，就是最后一项是lambda表达式
+
+```kt
+@Composable
+fun DemoComponent(content: @Composable () -> Unit) {
+    Button(onClick = {}) {
+        content()//注意这里的括号
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    DemoComponent {
+        Text("插槽内容")
     }
 }
 ```
@@ -2823,13 +3041,55 @@ fun Card(msg: Message) {
 @Preview(showBackground = true)
 @Composable
 fun DefaultPreview() {
-    OtgTheme {
-        Surface(color = MaterialTheme.colors.surface) {
-            val list = mutableListOf<Message>()
-            val message = Message("张三4", 18)
-            list.add(message);
-            list.add(message);
-            CardList(list)
+    val list = mutableListOf<Message>()
+    val message = Message("张三4", 18)
+    list.add(message);
+    list.add(message);
+    CardList(list)
+}
+```
+
+### 局部状态作用域
+
+compositionLocalOf
+
+可以让其在所有子层组件及嵌套组件共享变量,且作用域外的值不会受到影响,并且只能在CompositionLocalProvider
+改变变量的值
+
+如果有个数据需要在一个组件嵌套中层层传递，就用这个
+
+类似于值变化的用compositionLocalOf，不会经常变化是用staticCompositionLocalOf
+
+```kt
+...
+//在外层定义一个类似于全局变量，然后可以在任何嵌套层调用，就不需要层层传递了
+val localName = compositionLocalOf {
+    // 设置默认值
+    "红色"
+}
+
+@Composable
+fun OutComponent() {
+    Text(localName.current)
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    Column {
+        Text("主题", fontSize = 30.sp, fontWeight = FontWeight.Bold)
+        Text("当前主题", fontSize = 14.sp)
+        //CompositionLocalProvider可以让其在所有子层组件及嵌套组件共享变量
+        CompositionLocalProvider(localName provides "蓝色") {
+            Text(localName.current)//蓝色
+            //不然在这里要传递这个参数，有了这个就不需要传下去了
+            OutComponent()//蓝色
+        }
+        //外部的值并没有刷新
+        Text(localName.current)//红色
+        CompositionLocalProvider { //重新创建一个作用域，里面的还是默认的
+            Text(localName.current)//红色
+            OutComponent()//红色
         }
     }
 }
