@@ -3417,3 +3417,78 @@ fun DefaultPreview() {
     }
 }
 ```
+
+
+```kt
+//文字数据类
+data class Article(var id: Int, var title: String)
+
+//相当于一个article store
+class ArticleViewModel : ViewModel() {
+    //存储在store的状态变量  类型是LiveData
+    var articleList = mutableStateListOf<Article>()
+        private set
+
+    fun addItem(item: Article) {
+        articleList.add(item)
+    }
+
+    fun removeItem(item: Article) {
+        articleList.remove(item)
+    }
+}
+
+
+class MainActivity : ComponentActivity() {
+    //获取一个store实例
+    private val articleViewModel by viewModels<ArticleViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            Surface {
+                DemoComponent(articleViewModel)
+            }
+        }
+    }
+}
+
+//主结构
+@Composable
+fun DemoComponent(articleViewModel: ArticleViewModel) {
+    ArticleListComponent(
+        articleViewModel.articleList,
+        onAddItem = articleViewModel::addItem,
+        onRemoveItem = articleViewModel::removeItem
+    )
+}
+
+
+//列表组件
+@Composable
+fun ArticleListComponent(
+    items: List<Article>,
+    onAddItem: (Article) -> Unit,
+    onRemoveItem: (Article) -> Unit
+) {
+    //渲染
+    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
+        LazyColumn {
+            items(items.size) {
+                val (id, title) = items[it];
+                Row {
+                    Text(text = "$id $title")
+                    Button(onClick = {
+                        onRemoveItem(items[it])
+                    }) { Text("删除") }
+                }
+
+            }
+        }
+        Button(onClick = {
+            val id = (Math.random() * 100).toInt();
+            onAddItem(Article(id, "标题文字"))
+        }) { Text("添加新闻") }
+    }
+}
+```
