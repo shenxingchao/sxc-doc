@@ -90,17 +90,26 @@ package com.org.kotlin
 fun main() {
     //初始化数组方法
     val list = intArrayOf(1, 2, 3)
-    //增强for循环
-    list.forEach {
-        println(it) //1 2 3
-    }
     //for in
     for (item in list) {
         println(item) //1 2 3
     }
+    //增强for循环
+    list.forEach {
+        println(it) //1 2 3
+    }
     //有下标的forEach
     list.forEachIndexed { index, item ->
         println("$index $item")
+    }
+    //使用索引遍历 indices返回0..2
+    for (index in list.indices) {
+        println(list[index])
+    }
+    //迭代器
+    val iterator = list.iterator()
+    while (iterator.hasNext()) {
+        println(iterator.next())
     }
 }
 ```
@@ -1442,7 +1451,9 @@ class B(var name: String, var age: Int) {
 }
 ```
 
-**成员变量延迟初始化手动赋值lateinit**
+### 成员变量延迟初始化手动赋值lateinit
+
+只能用于引用类型String等，不能用于Int等基础类型，且不能为null
 
 ```kt
 package com.org.kotlin
@@ -1460,7 +1471,9 @@ class A(var name: String, var age: Int) {
 }
 ```
 
-**成员变量延迟初始化，自动赋值by lazy**
+### 成员变量延迟初始化自动赋值bylazy
+
+和懒汉很像
 
 ```kt
 package com.org.kotlin
@@ -1951,6 +1964,32 @@ open class A
 open class B : A()
 
 class Person<T : A>(var a: T?)
+```
+
+**泛型优化reified**
+
+使用reified关键字修饰泛型T，可拿到T对象的反射类
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    fn("张三")
+}
+
+//使用reified关键字修饰泛型T，可拿到T对象的反射类 Type.class，不然拿不到
+inline fun <reified T> fn(obj: T) =
+    when (T::class) {
+        String::class -> {
+            println("String")
+        }
+        Int::class -> {
+            println("Int")
+        }
+        else -> {
+            println("其他类型")
+        }
+    }
 ```
 
 ### 协变和逆变
@@ -2682,7 +2721,7 @@ buildscript {
 
 **添加main函数无法运行**
 
-解决办法，把app.gradle SDK改成30即可
+解决办法，把app的build.gradle SDK改成30即可
 
 ```
 android {
@@ -2702,9 +2741,88 @@ android {
 
 android函数声明式UI框架，和flutter类似就是了
 
+### DSL手写声明式组件
+
+理解了这个再了解内置组件就容易多啦
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    AppBar("标题") {
+        Text("内容") {
+        }
+    }
+    Text("内容") {
+    }
+    ItemList {
+        items(10) {
+            Text("内容 $it") {
+            }
+        }
+    }
+    CustomComponent {
+        Text("自定义插槽内容") {
+        }
+    }
+}
+
+//下面的注解是来自compose源代码，复制的
+@MustBeDocumented
+@Retention(AnnotationRetention.BINARY)
+@Target(
+    AnnotationTarget.FUNCTION,
+    AnnotationTarget.TYPE,
+    AnnotationTarget.TYPE_PARAMETER,
+    AnnotationTarget.PROPERTY_GETTER
+)
+annotation class Composable
+
+//每个组件的作用域
+interface Scope
+object AppBarScope : Scope
+object TextScope : Scope
+object ItemListScope : Scope {
+    //这是一个DLS方法
+    inline fun items(num: Int, content: @Composable ItemListItemScope.(it: Int) -> Unit) {
+        for (i in 0..num) {
+            content(ItemListItemScope, i)
+        }
+    }
+}
+object ItemListItemScope : Scope
+
+@Composable
+fun AppBar(title: String = "", lambda: @Composable AppBarScope.() -> Unit) {
+    println(title)
+    lambda(AppBarScope)
+}
+
+@Composable
+fun Text(text: String = "", lambda: @Composable TextScope.() -> Unit) {
+    println(text)
+    lambda(TextScope)
+}
+
+@Composable
+fun ItemList(lambda: @Composable ItemListScope.() -> Unit) {
+    println("列表项")
+    lambda(ItemListScope)
+}
+
+@Composable
+fun CustomComponent(content: @Composable Scope.() -> Unit) {
+    Text("自定义组件") {
+        content()
+    }
+}
+```
+
 ### material组件文档
 
 [material组件文档](https://material.io/components)
+
+[实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
 
 ### 创建
 
@@ -2722,7 +2840,34 @@ Idea-File-New-Project-Android-Empty Compose Activity
 
 ### 修饰符
 
-修改size\padding\wifth\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用
+修改size\padding\width\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用。需要注意的是先后顺序很重要
+
+```text
+wrapContentWidth/wrapContentHeight 内容根据父容器定位
+background 背景色
+border 边框
+padding 外边距或者是内边距
+width 宽 传入IntrinsicSize.Min可以强制限制子元素宽
+height 高 传入IntrinsicSize.Min可以强制限制子元素高
+size 尺寸大小
+```
+
+```kt
+@Composable
+fun DemoComponent() {
+    Button(
+        modifier = Modifier
+            .padding(10.dp)
+            .background(Color.Red)
+            //第一个相当于margin
+            .padding(10.dp)
+            .border(1.dp, Color.Green),
+            //第二个相当于padding
+        onClick = {}) {
+        Text("按钮")
+    }
+}
+```
 
 ### 空修饰符
 
@@ -2773,7 +2918,7 @@ fun DemoComponent() {
 
 [图标库](http://google.github.io/material-design-icons/)
 
-app.gradle
+app的build.gradle
 
 ```
 implementation "androidx.compose.material:material-icons-extended:$compose_version"
@@ -2795,6 +2940,25 @@ Column(verticalArrangement = Arrangement.SpaceBetween) {
 }
 ```
 
+### Box
+
+堆叠布局及宽度100%或者高度100%或者填满
+
+```kt
+@Composable
+fun DemoComponent() {
+    //堆叠布局
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        //填满父级
+        Surface(modifier = Modifier.fillMaxSize(), color = Color.Red) { }
+        //横向填满
+        Surface(modifier = Modifier.fillMaxWidth().height(10.0.dp), color = Color.Green) { }
+        //纵向填满
+        Surface(modifier = Modifier.fillMaxHeight().width(10.0.dp), color = Color.Blue) { }
+    }
+}
+```
+
 
 ### Image
 
@@ -2806,6 +2970,38 @@ Image(
     contentDescription = "Contact profile picture",
     modifier = Modifier.size(20.dp).clip(CircleShape)//裁剪
 )
+```
+
+**加载网络图片**
+
+首先需要添加网络权限
+
+```xml
+<!-- AndroidManifest.xml -->
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.example.kotlin_android_demo">
+    <uses-permission android:name="android.permission.INTERNET" />
+...
+```
+
+app的build.gradle添加编译依赖
+
+https://github.com/coil-kt/coil
+
+```
+implementation "io.coil-kt:coil-compose:2.1.0"
+```
+
+```kt
+@Composable
+fun DemoComponent() {
+    AsyncImage(
+        model = "http://www.ay1.cc/img?w=640&h=640&c=f60f60",
+        placeholder = painterResource(R.drawable.test),
+        contentDescription = null,
+        modifier = Modifier.size(100.dp),
+    )
+}
 ```
 
 ### Row
@@ -2857,6 +3053,37 @@ fun DemoComponent() {
             }
         }
     )
+}
+```
+
+### BottomNavigation
+
+底部路由导航栏
+
+```kt
+@Composable
+fun DemoComponent() {
+    //局部状态，用于记录当前点击的索引...
+    var selectedItem by remember { mutableStateOf(0) }
+
+    class NavigationItem(var label: String, var icon: ImageVector)
+
+    val navigationItems = listOf<NavigationItem>(
+        NavigationItem("首页", Icons.Filled.Home),
+        NavigationItem("我的", Icons.Filled.Person),
+    )
+
+    BottomNavigation {
+        navigationItems.forEachIndexed { index, item ->
+            BottomNavigationItem(
+                icon = { Icon(item.icon, contentDescription = null) },
+                label = { Text(item.label) },
+                selected = selectedItem == index,
+                onClick = {
+                    selectedItem = index
+                })
+        }
+    }
 }
 ```
 
@@ -2930,6 +3157,86 @@ fun CardList(messages: MutableList<Message>) {
     LazyColumn {
         items(messages) { message ->
             Card(message)
+        }
+    }
+}
+```
+
+### scroll
+
+页面内容可滚动
+
+```kt
+@Composable
+fun DemoComponent() {
+    val scrollState = rememberScrollState()
+    Column(modifier = Modifier.verticalScroll(scrollState).fillMaxWidth()) {
+        repeat(100) {
+            Text("列表内容 $it")
+        }
+    }
+}
+```
+
+**LazyColumn控制滚动位置**
+
+```kt
+@Composable
+fun DemoComponent() {
+    Column {
+        val listSize = 100
+        val scrollState = rememberLazyListState()
+        val coroutineScope = rememberCoroutineScope()
+        Button(onClick = {
+            coroutineScope.launch {
+                // 0 is the first item index
+                scrollState.animateScrollToItem(0)
+            }
+        }) {
+            Text("回到顶部")
+        }
+        Button(onClick = {
+            coroutineScope.launch {
+                // listSize - 1 is the last index of the list
+                scrollState.animateScrollToItem(listSize - 1)
+            }
+        }) {
+            Text("滚动到底部")
+        }
+        LazyColumn(state = scrollState) {
+            items(100) {
+                Text("item $it")
+            }
+        }
+    }
+}
+```
+
+**Column控制滚动位置**
+
+```kt
+@Composable
+fun DemoComponent() {
+    val scrollState = rememberScrollState()
+    val coroutineScope = rememberCoroutineScope()
+    Column(modifier = Modifier.verticalScroll(scrollState).fillMaxWidth()) {
+        Button(onClick = {
+            coroutineScope.launch {
+                scrollState.animateScrollTo(3000)
+            }
+        }) {
+            Text("滚动到底部")
+        }
+        repeat(100) {
+            Text("列表内容 $it", modifier = Modifier.height(30.dp))
+        }
+        Button(onClick = {
+            coroutineScope.launch {
+                // 0 is the first item index
+                scrollState.scrollTo(0)
+            }
+        }) {
+            Text("回到顶部")
         }
     }
 }
@@ -3046,6 +3353,22 @@ fun DefaultPreview() {
     list.add(message);
     list.add(message);
     CardList(list)
+}
+```
+
+### 组件内使用协程
+
+rememberCoroutineScope.launch
+
+这个协程方法，不用导入kotlin协程包...
+
+```kt
+@Composable
+fun DemoComponent() {
+    val scope = rememberCoroutineScope()
+    scope.launch {
+        println("组件内启动一个协程")
+    }
 }
 ```
 
