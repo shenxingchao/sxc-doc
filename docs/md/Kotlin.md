@@ -448,6 +448,35 @@ fun main() {
 }
 ```
 
+### ::语法糖
+
+函数引用或者变量引用
+
+```kt
+package com.org.kotlin
+
+fun main() {
+    val a = A("张三", 18)
+    //a::fn是函数引用
+    println(a::name)
+    fn(a, a::fn)
+}
+
+class A(var name: String, var age: Int) {
+    fun fn(): String {
+        return "成员方法"
+    }
+}
+
+/**
+ * methodFn这里是函数传参
+ */
+fun fn(a: A, methodFn: () -> String) {
+    println(a.fn())//普通调用
+    println(methodFn())//通过函数引用调用
+}
+```
+
 ### 函数参数和inline内联关键字和函数引用
 
 ```kt
@@ -1004,7 +1033,7 @@ fun main() {
 
 }
 
-data class Person(val name: String, val age: Int)
+data class Person(var name: String, var age: Int)
 ```
 
 ### partition
@@ -1028,7 +1057,7 @@ fun main() {
     println(nextList)//[Person(name=张三, age=18), Person(name=李四, age=18)]
 }
 
-data class Person(val name: String, val age: Int)
+data class Person(var name: String, var age: Int)
 ```
 
 ### sortedBy
@@ -1051,7 +1080,7 @@ fun main() {
     println(sortedList)//[Person(name=王五, age=19), Person(name=张三, age=18), Person(name=李四, age=18)]
 }
 
-data class Person(val name: String, val age: Int)
+data class Person(var name: String, var age: Int)
 ```
 
 ### getOrElse
@@ -1076,7 +1105,7 @@ fun main() {
     println(isExit)//false
 }
 
-data class Person(val name: String, val age: Int)
+data class Person(var name: String, var age: Int)
 ```
 
 ### flatMap
@@ -2547,7 +2576,7 @@ fun main() {
 }
 
 @Serializable
-data class Person(val name: String, val age: Int)
+data class Person(var name: String, var age: Int)
 ```
 
 ## 设计模式
@@ -2818,6 +2847,28 @@ fun CustomComponent(content: @Composable Scope.() -> Unit) {
 }
 ```
 
+### slot
+
+lambda尾随实现插槽功能
+
+```kt
+@Composable
+fun DemoComponent(title: String = "", slot: @Composable () -> Unit) {
+    Column {
+        Text(title)
+        slot()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    DemoComponent(title = "组件名称") {
+        Text("插槽内容")
+    }
+}
+```
+
 ### material组件文档
 
 [material组件文档](https://material.io/components)
@@ -2850,6 +2901,7 @@ padding 外边距或者是内边距
 width 宽 传入IntrinsicSize.Min可以强制限制子元素宽
 height 高 传入IntrinsicSize.Min可以强制限制子元素高
 size 尺寸大小
+clip(RoundedCornerShape(20.dp) 裁剪
 ```
 
 ```kt
@@ -2890,6 +2942,8 @@ setContent {
 ```
 
 ### Text组件
+
+style可以在主题文件里预先定义好全局的样式风格，然后拿过来用就行了
 
 ```kt
 Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.primary, maxLines = 2, style = MaterialTheme.typography.h1)
@@ -3029,11 +3083,11 @@ Spacer(modifier = Modifier.height(4.dp))
 
 ### Surface
 
-在容器表面覆盖一层
+在容器表面覆盖一层,也可用来占位
 
 ```kt
-//遮罩大小，阴影深度，遮罩颜色 shape = CircleShape
-Surface(shape = MaterialTheme.shapes.small, elevation = 4.dp, color = MaterialTheme.colors.primary)
+//遮罩大小，形状（MaterialTheme.shapes.small是Shape.kt预先定义好的圆角的..[指定圆角：RoundedCornerShape(10.dp)；指定形状：CircleShape]）阴影深度，背景颜色
+Surface(modifier = Modifier.size(40.dp), shape = MaterialTheme.shapes.small, elevation = 4.dp, color = MaterialTheme.colors.primary)
 ```
 
 ### TopAppBar
@@ -3254,6 +3308,10 @@ fun DemoComponent() {
 }
 ```
 
+### flex布局
+
+使用Row Cloumn即可实现，另外需要注意的是flex:1使用Modifier.weight(1f)实现即可
+
 ### 自定义插槽
 
 类似vue插槽，利用尾随lambda实现，就是最后一项是lambda表达式
@@ -3290,7 +3348,7 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-data class Message(val name: String, val age: Int)
+data class Message(var name: String, var age: Int)
 
 @Composable
 fun CardList(messages: MutableList<Message>) {
@@ -3356,6 +3414,151 @@ fun DefaultPreview() {
 }
 ```
 
+### MutableState
+
+局部状态管理的几种方式 一般使用第三种即可 带set和get
+
+```kt
+val state = remember { mutableStateOf(deafult) }
+val (value,setValue) = remember { mutableStateOf(deafult) }
+val value by remenber { mutableStateOf(deafult) }
+```
+
+实现输入框输入文字双向绑定，案例
+
+```kt
+@Composable
+fun DemoComponent() {
+    var text by remember { mutableStateOf("张三") }
+    Column {
+        Text(text)
+        TextField(value = text, onValueChange = {
+            text = it
+        })
+    }
+}
+```
+
+### ViewModel全局状态管理
+
+以一个文章列表添加删除显示为例
+
+需要的依赖用于状态管理
+
+app的build.gradle
+
+```
+implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
+implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
+implementation 'androidx.activity:activity-ktx:1.4.0'
+```
+
+```kt
+//文字数据类
+data class Article(var id: Int, var title: String, var content: String)
+
+//相当于一个article store
+class ArticleViewModel : ViewModel() {
+    //存储在store的状态变量  类型是LiveData
+    var articleList = mutableStateListOf<Article>()
+        //私有化setter 就不能使用articleViewModel.articleList = mutableStateListOf<Article>(Article(1,"标题","内容"))来赋值了
+        private set
+
+    //来个页面标题
+    var title = mutableStateOf<String>("默认页面标题")
+
+    fun addItem(item: Article) {
+        articleList.add(item)
+    }
+
+    fun removeItem(item: Article) {
+        articleList.remove(item)
+    }
+}
+
+
+class MainActivity : ComponentActivity() {
+    //获取一个store实例
+    private val articleViewModel by viewModels<ArticleViewModel>()
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = {
+                            Text(text = articleViewModel.title.value, maxLines = 2)
+                        }
+                    )
+                },
+            ) {
+                Surface {
+                    DemoComponent(articleViewModel)
+                }
+            }
+        }
+    }
+}
+
+//主结构
+@Composable
+fun DemoComponent(articleViewModel: ArticleViewModel) {
+    ArticleListComponent(
+        articleViewModel.articleList,
+        onAddItem = articleViewModel::addItem,
+        onRemoveItem = articleViewModel::removeItem
+    )
+}
+
+
+//列表组件
+@Composable
+fun ArticleListComponent(
+    items: List<Article>,
+    onAddItem: (Article) -> Unit,
+    onRemoveItem: (Article) -> Unit
+) {
+    //渲染
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
+        LazyColumn(modifier = Modifier.padding(bottom = 60.dp).fillMaxSize()) {
+            items(items.size) {
+                val (id, title, content) = items[it];
+                //创建一个状态 key是id 类似于vue对循环中的当前记录添加一个是否显示的状态
+                var isExpanded by remember(id) { mutableStateOf(false) }
+                Column {
+                    Row(modifier = Modifier.fillMaxWidth().clickable {
+                        isExpanded = !isExpanded
+                    }, horizontalArrangement = Arrangement.SpaceBetween) {
+                        Text(text = "$id $title")
+                        Button(onClick = {
+                            onRemoveItem(items[it])
+                        }) { Text("删除") }
+                    }
+                    if (isExpanded) {
+                        Text(content, maxLines = 2, overflow = TextOverflow.Ellipsis)
+                    }
+                }
+            }
+        }
+        BottomBar(onAddItem)
+    }
+}
+
+@Composable
+private fun BottomBar(onAddItem: (Article) -> Unit) {
+    Button(modifier = Modifier.height(60.dp).background(Color.Transparent), onClick = {
+        val id = (Math.random() * 100).toInt();
+        onAddItem(
+            Article(
+                id, "标题文字", "文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容" +
+                        "文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容"
+            )
+        )
+    }) { Text("添加新闻") }
+}
+```
+
 ### 组件内使用协程
 
 rememberCoroutineScope.launch
@@ -3414,81 +3617,6 @@ fun DefaultPreview() {
             Text(localName.current)//红色
             OutComponent()//红色
         }
-    }
-}
-```
-
-
-```kt
-//文字数据类
-data class Article(var id: Int, var title: String)
-
-//相当于一个article store
-class ArticleViewModel : ViewModel() {
-    //存储在store的状态变量  类型是LiveData
-    var articleList = mutableStateListOf<Article>()
-        private set
-
-    fun addItem(item: Article) {
-        articleList.add(item)
-    }
-
-    fun removeItem(item: Article) {
-        articleList.remove(item)
-    }
-}
-
-
-class MainActivity : ComponentActivity() {
-    //获取一个store实例
-    private val articleViewModel by viewModels<ArticleViewModel>()
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            Surface {
-                DemoComponent(articleViewModel)
-            }
-        }
-    }
-}
-
-//主结构
-@Composable
-fun DemoComponent(articleViewModel: ArticleViewModel) {
-    ArticleListComponent(
-        articleViewModel.articleList,
-        onAddItem = articleViewModel::addItem,
-        onRemoveItem = articleViewModel::removeItem
-    )
-}
-
-
-//列表组件
-@Composable
-fun ArticleListComponent(
-    items: List<Article>,
-    onAddItem: (Article) -> Unit,
-    onRemoveItem: (Article) -> Unit
-) {
-    //渲染
-    Column(modifier = Modifier.fillMaxSize(), verticalArrangement = Arrangement.SpaceBetween) {
-        LazyColumn {
-            items(items.size) {
-                val (id, title) = items[it];
-                Row {
-                    Text(text = "$id $title")
-                    Button(onClick = {
-                        onRemoveItem(items[it])
-                    }) { Text("删除") }
-                }
-
-            }
-        }
-        Button(onClick = {
-            val id = (Math.random() * 100).toInt();
-            onAddItem(Article(id, "标题文字"))
-        }) { Text("添加新闻") }
     }
 }
 ```
