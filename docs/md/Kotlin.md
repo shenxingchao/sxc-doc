@@ -3435,6 +3435,10 @@ fun DefaultPreview() {
 
 remember在屏幕旋转时会丢失状态,使用rememberSaveable代替即可
 
+tips:遇到```ype 'TypeVariable(T)' has no method 'getValue(Nothing?, KProperty<*>)' and thus it cannot serve as a delegate```
+
+导入```import androidx.compose.runtime.*```即可
+
 ```kt
 val state = remember { mutableStateOf(deafult) }
 val (value,setValue) = remember { mutableStateOf(deafult) }
@@ -3696,7 +3700,21 @@ fun DemoComponent() {
 
 直接用AnimatedVisibility 代替if即可
 
+实验性api 都要加上@ExperimentalAnimationApi注解
+
 ```kt
+@ExperimentalAnimationApi
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContent {
+            DefaultPreview()
+        }
+    }
+}
+
+@ExperimentalAnimationApi
 @Composable
 fun DemoComponent() {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -3706,7 +3724,7 @@ fun DemoComponent() {
             isExpanded = !isExpanded
         }) {
             Text(
-                if (isExpanded == true) {
+                if (isExpanded) {
                     "隐藏"
                 } else {
                     "显示"
@@ -3718,25 +3736,31 @@ fun DemoComponent() {
             visible = isExpanded,
             //进入动画 这里可能需要自己调，不是重点
             enter = slideInVertically(
-                initialOffsetY = { it ->
+                initialOffsetY = {
                     -it
-                },
-                animationSpec = tween(
-                    durationMillis = 150, easing = LinearOutSlowInEasing
+                }, animationSpec = tween(
+                    durationMillis = 3000, easing = LinearOutSlowInEasing
                 )
             ),
             //退出动画
             exit = slideOutVertically(
-                targetOffsetY = { it ->
+                targetOffsetY = {
                     -it
-                },
-                animationSpec = tween(
-                    durationMillis = 250, easing = FastOutLinearInEasing
+                }, animationSpec = tween(
+                    durationMillis = 300, easing = FastOutLinearInEasing
                 )
             )
         ) {
             Surface(modifier = Modifier.fillMaxWidth().height(100.dp), color = Color.Red) { }
         }
     }
+}
+
+
+@ExperimentalAnimationApi
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    DemoComponent()
 }
 ```
