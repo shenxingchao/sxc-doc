@@ -2871,7 +2871,7 @@ fun DefaultPreview() {
 
 ### material组件文档
 
-[material组件文档](https://material.io/components)
+[material组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material/package-summary#overview)
 
 [实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
 
@@ -2970,7 +2970,7 @@ fun DemoComponent() {
 
 ### Icon
 
-[图标库](http://google.github.io/material-design-icons/)
+[material-icons图标库搜索](https://joe1900.github.io/MDI/)
 
 app的build.gradle
 
@@ -3079,6 +3079,21 @@ Row(modifier = Modifier.padding(start = 0.5.dp), horizontalArrangement = Arrange
 Spacer(modifier = Modifier.width(8.dp))
 //垂直间距
 Spacer(modifier = Modifier.height(4.dp))
+```
+
+### TextField
+
+输入框
+
+```kt
+@Composable
+fun DemoComponent() {
+    Column {
+        TextField(value = "张三", onValueChange = {})
+        //一般用下面这个有边框的
+        OutlinedTextField(value = "张三", onValueChange = {})
+    }
+}
 ```
 
 ### Surface
@@ -3418,6 +3433,8 @@ fun DefaultPreview() {
 
 局部状态管理的几种方式 一般使用第三种即可 带set和get
 
+remember在屏幕旋转时会丢失状态,使用rememberSaveable代替即可
+
 ```kt
 val state = remember { mutableStateOf(deafult) }
 val (value,setValue) = remember { mutableStateOf(deafult) }
@@ -3563,6 +3580,8 @@ private fun BottomBar(onAddItem: (Article) -> Unit) {
 
 rememberCoroutineScope.launch
 
+用于 网络请求\IO读写\弹窗\滚动控制\动画 所有可能阻塞主线程的情况
+
 这个协程方法，不用导入kotlin协程包...
 
 ```kt
@@ -3578,6 +3597,8 @@ fun DemoComponent() {
 ### 局部状态作用域
 
 compositionLocalOf
+
+自带的主题设置方式就是使用的CompositionLocalProvider
 
 可以让其在所有子层组件及嵌套组件共享变量,且作用域外的值不会受到影响,并且只能在CompositionLocalProvider
 改变变量的值
@@ -3616,6 +3637,105 @@ fun DefaultPreview() {
         CompositionLocalProvider { //重新创建一个作用域，里面的还是默认的
             Text(localName.current)//红色
             OutComponent()//红色
+        }
+    }
+}
+```
+
+### 动画
+
+**简单值动画**
+
+就是单个值改变的动画
+
+下面是一个切换tab栏改变正文背景颜色
+
+animateColorAsState 颜色动画状态
+
+animateSizeAsState 尺寸动画状态
+
+...其他点出来即可
+
+```kt
+@Composable
+fun DemoComponent() {
+    var tabIndexState by remember { mutableStateOf(0) }
+    val titles = listOf("选项1", "选项2", "选项3")
+    val backgroundColor by animateColorAsState(
+        when (tabIndexState) {
+            0 -> MaterialTheme.colors.primary
+            1 -> MaterialTheme.colors.secondary
+            2 -> MaterialTheme.colors.background
+            else -> {
+                MaterialTheme.colors.background
+            }
+        }
+    )
+    Column {
+        TabRow(selectedTabIndex = tabIndexState) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = tabIndexState == index,
+                    onClick = { tabIndexState = index }
+                )
+            }
+        }
+        Surface(modifier = Modifier.fillMaxSize(),color = backgroundColor) {
+            when (tabIndexState) {
+                0 -> Text("选项1")
+                1 -> Text("选项2")
+                2 -> Text("选项3")
+            }
+        }
+    }
+}
+```
+
+**显示隐藏动画**
+
+直接用AnimatedVisibility 代替if即可
+
+```kt
+@Composable
+fun DemoComponent() {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Column {
+        Button(onClick = {
+            isExpanded = !isExpanded
+        }) {
+            Text(
+                if (isExpanded == true) {
+                    "隐藏"
+                } else {
+                    "显示"
+                }
+            )
+        }
+        //直接用AnimatedVisibility 代替if即可
+        AnimatedVisibility(
+            visible = isExpanded,
+            //进入动画 这里可能需要自己调，不是重点
+            enter = slideInVertically(
+                initialOffsetY = { it ->
+                    -it
+                },
+                animationSpec = tween(
+                    durationMillis = 150, easing = LinearOutSlowInEasing
+                )
+            ),
+            //退出动画
+            exit = slideOutVertically(
+                targetOffsetY = { it ->
+                    -it
+                },
+                animationSpec = tween(
+                    durationMillis = 250, easing = FastOutLinearInEasing
+                )
+            )
+        ) {
+            Surface(modifier = Modifier.fillMaxWidth().height(100.dp), color = Color.Red) { }
         }
     }
 }
