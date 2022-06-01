@@ -2932,6 +2932,19 @@ fun PhotographerCard(modifier: Modifier = Modifier) {
 }
 ```
 
+### 修饰符合并
+
+和链式调用其实一样，只不过多了一个作用域可以在里面执行别的逻辑
+
+```kt
+@Composable
+fun DemoComponent() {
+    Text(text = "标题标题", modifier = Modifier.composed {
+        background(Color.Red).size(50.dp)
+    })
+}
+```
+
 ### 设置activity内容
 
 ```kt
@@ -3584,7 +3597,7 @@ private fun BottomBar(onAddItem: (Article) -> Unit) {
 
 rememberCoroutineScope.launch
 
-用于 网络请求\IO读写\弹窗\滚动控制\动画 所有可能阻塞主线程的情况
+用于 网络请求\IO读写\弹窗\滚动控制\动画\触摸 所有可能阻塞主线程的情况
 
 这个协程方法，不用导入kotlin协程包...
 
@@ -3646,9 +3659,7 @@ fun DefaultPreview() {
 }
 ```
 
-### 动画
-
-**简单值动画**
+### 单值动画
 
 就是单个值改变的动画
 
@@ -3696,7 +3707,59 @@ fun DemoComponent() {
 }
 ```
 
-**显示隐藏动画**
+### 尺寸大小变化动画
+
+animateContentSize
+
+给大小变化的外部添加点击事件，给大小变化的容器添加animateContentSize()修饰
+
+```kt
+@Composable
+fun DemoComponent() {
+    var isExpanded by rememberSaveable { mutableStateOf(false) }
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .clickable {
+                isExpanded = !isExpanded
+            },
+        color = Color.Red
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .animateContentSize()
+        ) {
+            Text(
+                if (isExpanded) {
+                    "隐藏"
+                } else {
+                    "显示"
+                }
+            )
+            if (isExpanded) {
+                Surface(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(100.dp),
+                    color = Color.Red
+                ) { }
+            }
+        }
+    }
+}
+
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    DemoComponent()
+}
+```
+
+### 显示隐藏动画
 
 直接用AnimatedVisibility 代替if即可
 
@@ -3762,5 +3825,366 @@ fun DemoComponent() {
 @Composable
 fun DefaultPreview() {
     DemoComponent()
+}
+```
+
+### 多值动画
+
+有多个值一起改变的动画
+
+下面是一个tab选项卡指示器移动且背景颜色更改的动画
+
+```kt
+@Composable
+fun DemoComponent() {
+    var tabIndexState by remember { mutableStateOf(0) }
+    val titles = listOf("选项1", "选项2", "选项3")
+    //Transition对象
+    val transition = updateTransition(targetState = tabIndexState, label = "选项卡指示器切换动画Transition")
+    //颜色动画状态
+    val backgroundColor by transition.animateColor(label = "指示器边框颜色动画状态") {
+        when (tabIndexState) {
+            0 -> MaterialTheme.colors.primary
+            1 -> MaterialTheme.colors.secondary
+            2 -> MaterialTheme.colors.background
+            else -> {
+                MaterialTheme.colors.background
+            }
+        }
+    }
+    Column {
+        TabRow(
+            selectedTabIndex = tabIndexState,
+            backgroundColor = backgroundColor,
+            indicator = {
+                //[TabPosition(left=0.0.dp, right=145.45454.dp, width=145.45454.dp)
+                    tabPosition ->
+                val indicatorLeft by transition.animateDp(
+                    //自定义运动快慢
+                    transitionSpec = {
+                        //左边到右边慢  右边到左边快
+                        if (0 isTransitioningTo 2) {
+                            //stiffness: Float速度快慢
+                            spring(stiffness = Spring.StiffnessVeryLow)
+                        } else {
+                            spring(stiffness = Spring.StiffnessMedium)
+                        }
+                    },
+                    label = "指示器左边位置动画"
+                ) {
+                    tabPosition[tabIndexState].left
+                }
+                val indicatorRight by transition.animateDp(
+                    //自定义运动快慢
+                    transitionSpec = {
+                        //左边到右边快  右边到左边慢
+                        if (0 isTransitioningTo 2) {
+                            spring(stiffness = Spring.StiffnessMedium)
+                        } else {
+                            spring(stiffness = Spring.StiffnessVeryLow)
+                        }
+                    },
+                    label = "指示器右边位置动画"
+                ) {
+                    tabPosition[tabIndexState].right
+                }
+                //拿到这两个值然后添加指示器组件
+                Box(
+                    modifier = Modifier
+                        //填满整行 并放置到开始位置
+                        .fillMaxSize()
+                        .wrapContentSize(align = Alignment.CenterStart)
+                        //偏移属性
+                        .offset(indicatorLeft)
+                        //宽度
+                        .width(indicatorRight - indicatorLeft)
+                        //高度填满，不然没内容
+                        .fillMaxHeight()
+                        //边框+圆角
+                        .border(width = 1.dp, color = Color.Red, shape = RoundedCornerShape(4.dp))
+                )
+            }
+        ) {
+            titles.forEachIndexed { index, title ->
+                Tab(
+                    text = { Text(title) },
+                    selected = tabIndexState == index,
+                    onClick = { tabIndexState = index }
+                )
+            }
+        }
+        Surface(modifier = Modifier.fillMaxSize()) {
+            when (tabIndexState) {
+                0 -> Text("选项1")
+                1 -> Text("选项2")
+                2 -> Text("选项3")
+            }
+        }
+    }
+}
+```
+
+### 无限循环动画
+
+```kt
+@Composable
+fun DemoComponent() {
+    //无限循环动画对象
+    val infiniteTransition = rememberInfiniteTransition()
+    val color by infiniteTransition.animateColor(
+        //初始颜色
+        initialValue = Color.Red,
+        //结束颜色
+        targetValue = Color.Blue,
+        //动画规则
+        animationSpec = infiniteRepeatable(
+            //keyframes 帧动画 还有其他的 tween 在AnimationSpec接口
+            animation = keyframes {
+                //持续时间
+                durationMillis = 5000
+                //延时
+                delayMillis = 1000
+                //下面这句话的意思是在第3000毫秒时刻为绿色，相当于插帧
+                Color.Green at 2500
+            },
+            //循环模式 反向
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    val size by infiniteTransition.animateValue(
+        //初始颜色
+        initialValue = 50.dp,
+        //结束颜色
+        targetValue = 100.dp,
+        typeConverter = TwoWayConverter(
+            convertToVector = {
+                //dp 转 AnimationVector对象  这里只有一个值所以是1D，这个变化的值可以是对象
+                AnimationVector1D(it.value)
+            },
+            convertFromVector = {
+                //AnimationVector对象 转dp
+                it.value.dp
+            }
+        ),
+        //动画规则
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 5000,
+                delayMillis = 1000,
+                easing = LinearEasing
+            ),
+            //循环模式 反向
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    Surface(
+        modifier = Modifier.size(size),
+        shape = RoundedCornerShape(10.dp),
+        color = color
+    ) { }
+}
+```
+
+**上面的优化版**
+
+这里不知道为什么颜色会不停闪动，还没修复，这种动画不要加颜色，非常的垃圾，会闪烁
+
+```kt
+//非常注意这里color是Long类型，因为animateValue改变的是值不是对象Color就是对象了 Dp也是
+data class AnimScaleColor(var color: Long = 0xFFFF0000, var size: Float = 50f)
+
+@Composable
+fun DemoComponent() {
+
+    //无限循环动画对象
+    val infiniteTransition = rememberInfiniteTransition()
+    val animScaleColor by infiniteTransition.animateValue(
+        //初始颜色
+        initialValue = AnimScaleColor(0xFFFF0000, 50f),
+        //结束颜色
+        targetValue = AnimScaleColor(0xFF0000FF, 100f),
+        //类型转换
+        typeConverter = TwoWayConverter(
+            convertToVector = {
+                AnimationVector2D(it.color.toFloat(), it.size)
+            },
+            convertFromVector = {
+                AnimScaleColor(it.v1.toLong(), it.v2)
+            }
+        ),
+        //动画规则
+        animationSpec = infiniteRepeatable(
+            animation = tween(
+                durationMillis = 2000,
+                easing = LinearEasing
+            ),
+            //循环模式 反向
+            repeatMode = RepeatMode.Reverse
+        )
+    )
+    Surface(
+        modifier = Modifier.size(animScaleColor.size.dp),
+        shape = RoundedCornerShape(10.dp),
+        color = Color(animScaleColor.color)
+    ) { }
+}
+```
+
+### 滑动删除动画
+
+看看就行，基本用不到
+
+```kt
+@Composable
+fun DemoComponent() {
+    Surface(
+        color = Color.Red,
+        //pointerInput作用于可以接收触摸事件 相当于在这个元素上开启监听了
+        //Unit "滑动删除key" 随便是啥反正是key
+        //composed 只是为了有一个代码块去定义一些变量
+        modifier = Modifier.composed {
+            //用来记录控件滑动偏移量
+            val offsetX = remember { Animatable(0f) }
+            //创建一个协程域监听触摸事件
+            val cScope = rememberCoroutineScope()
+            pointerInput(Unit) {
+                //用于计算多拽后的目标位置
+                val decay = splineBasedDecay<Float>(this)
+                //开启协程监听手势变化
+                cScope.launch {
+                    while (true) {
+                        //阻塞获取按下事件
+                        val pointerId = awaitPointerEventScope {
+                            //第一次按下
+                            awaitFirstDown().id
+                        }
+                        //中断之前的所有滑动动画,重新监听
+                        offsetX.stop()
+                        //用于记录拖拽的速度
+                        val velocityTracker = VelocityTracker()
+                        //阻塞获取拖动事件
+                        awaitPointerEventScope {
+                            //使用上面按下的Id去拖动
+                            horizontalDrag(pointerId) {
+                                //记录拖拽后的偏移位置
+                                val horizontalDragOffset = offsetX.value + it.positionChange().x
+                                //启动协程去设置偏移量状态
+                                launch {
+                                    //snapTo对齐到的意思 是一个挂起函数需要放在协程域当中
+                                    offsetX.snapTo(horizontalDragOffset)
+                                }
+                                //记录拖拽速度
+                                velocityTracker.addPosition(it.uptimeMillis, it.position)
+
+                                it.consumePositionChange()
+                            }
+                        }
+                        //获取到拖拽的水平方向上的速度
+                        val velocity = velocityTracker.calculateVelocity().x
+                        //计算出拖拽后可以滑动到的最终位置
+                        val targetOffsetX = decay.calculateTargetValue(offsetX.value, velocity)
+                        //限制拖拽的边界 这个边界值也是有问题的
+                        offsetX.updateBounds(
+                            lowerBound = -size.width.toFloat(),
+                            upperBound = size.width.toFloat()
+                        )
+                        //启动一个协程用于判断现在拖动后的偏移位置
+                        launch {
+                            //拖拽后可能是否能画出边界
+                            if (targetOffsetX.absoluteValue <= size.width) {
+                                //不能
+                                offsetX.animateTo(targetValue = 0f, initialVelocity = velocity)
+                            } else {
+                                //能，则直接滑动到最终位置
+                                offsetX.animateDecay(velocity, decay)
+                                println("删除动画执行结束，移除元素")
+                            }
+                        }
+                    }
+                }
+            }.fillMaxWidth().height(100.dp).offset(offsetX.value.dp, 0.dp)
+        }) {}
+}
+```
+
+### 路由导航
+
+依赖
+
+```
+implementation 'androidx.navigation:navigation-compose:2.4.0'
+```
+
+```kt
+//定义路由列表 密封类，类似枚举
+sealed class Screen(val route: String, val label: String, var icon: ImageVector) {
+    object HomeComponent : Screen("HomeComponent", "首页", Icons.Filled.Home)
+    object UserComponent : Screen("UserComponent", "我的", Icons.Filled.Person)
+}
+
+@Composable
+fun DemoComponent() {
+    //导航控制器状态对象
+    val navController = rememberNavController()
+    //创建导航栏列表
+    val navigationItems = listOf<Screen>(
+        Screen.HomeComponent,
+        Screen.UserComponent
+    )
+
+    Scaffold(
+        //底部导航
+        bottomBar = {
+            BottomNavigation {
+                //获取到当前导航的节点状态
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                //获取到当前导航的节点对象
+                val currentDestination = navBackStackEntry?.destination
+                //显示导航
+                navigationItems.forEachIndexed { index, screen ->
+                    BottomNavigationItem(
+                        icon = { Icon(screen.icon, contentDescription = null) },
+                        label = { Text(screen.label) },
+                        //hierarchy 可以处理路由嵌套的情况
+                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                        onClick = {
+                            //点击切换到导航
+                            navController.navigate(screen.route) {
+                                //清除所有之前的路由
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                //避免重复点击相同路由 反复加入
+                                launchSingleTop = true
+                                //重新选择之前的路由，缓存了。
+                                restoreState = true
+                            }
+                        })
+                }
+            }
+        }) {
+        //根据导航控制器，返回不同的导航
+        NavHost(navController = navController, startDestination = Screen.HomeComponent.route) {
+            composable(Screen.HomeComponent.route) { HomeComponent(navController) }
+            composable(Screen.UserComponent.route) { UserComponent(navController) }
+        }
+    }
+}
+
+//主页  navController 参数保证每个屏幕都能使用导航
+@Composable
+fun HomeComponent(navController: NavController) {
+    Column {
+        Text("主页")
+    }
+}
+
+
+//个人中心
+@Composable
+fun UserComponent(navController: NavController) {
+    Column {
+        Text("个人中心")
+    }
 }
 ```
