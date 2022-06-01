@@ -2893,6 +2893,8 @@ Idea-File-New-Project-Android-Empty Compose Activity
 
 修改size\padding\width\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用。需要注意的是先后顺序很重要
 
+[所有修饰符文档](https://developer.android.google.cn/jetpack/compose/modifiers-list#Actions)
+
 ```text
 wrapContentWidth/wrapContentHeight 内容根据父容器定位
 background 背景色
@@ -4117,9 +4119,13 @@ implementation 'androidx.navigation:navigation-compose:2.4.0'
 
 ```kt
 //定义路由列表 密封类，类似枚举
-sealed class Screen(val route: String, val label: String, var icon: ImageVector) {
+sealed class Screen(val route: String, val label: String, var icon: ImageVector?) {
+    //底部导航栏路由
     object HomeComponent : Screen("HomeComponent", "首页", Icons.Filled.Home)
     object UserComponent : Screen("UserComponent", "我的", Icons.Filled.Person)
+
+    //带参数的路由
+    object ArticleComponent : Screen("Article/ArticleDetail/{articleId}", "文章详情", null)
 }
 
 @Composable
@@ -4127,39 +4133,55 @@ fun DemoComponent() {
     //导航控制器状态对象
     val navController = rememberNavController()
     //创建导航栏列表
-    val navigationItems = listOf<Screen>(
+    val navigationItems = listOf(
         Screen.HomeComponent,
         Screen.UserComponent
     )
-
+    //获取到当前导航的节点状态
+    val navBackStackEntry by navController.currentBackStackEntryAsState()
+    //获取到当前导航的节点对象
+    val currentDestination = navBackStackEntry?.destination
     Scaffold(
+        topBar = {
+            navigationItems.forEach { screen ->
+                if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
+                    TopAppBar(
+                        title = {
+                            Text(text = screen.label, maxLines = 2)
+                        }
+                    )
+                }
+            }
+        },
         //底部导航
         bottomBar = {
-            BottomNavigation {
-                //获取到当前导航的节点状态
-                val navBackStackEntry by navController.currentBackStackEntryAsState()
-                //获取到当前导航的节点对象
-                val currentDestination = navBackStackEntry?.destination
-                //显示导航
-                navigationItems.forEachIndexed { index, screen ->
-                    BottomNavigationItem(
-                        icon = { Icon(screen.icon, contentDescription = null) },
-                        label = { Text(screen.label) },
-                        //hierarchy 可以处理路由嵌套的情况
-                        selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
-                        onClick = {
-                            //点击切换到导航
-                            navController.navigate(screen.route) {
-                                //清除所有之前的路由
-                                popUpTo(navController.graph.findStartDestination().id) {
-                                    saveState = true
-                                }
-                                //避免重复点击相同路由 反复加入
-                                launchSingleTop = true
-                                //重新选择之前的路由，缓存了。
-                                restoreState = true
+            //显示导航
+            navigationItems.forEach { screen ->
+                if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
+                    BottomNavigation {
+                        run {
+                            navigationItems.forEach { screen ->
+                                BottomNavigationItem(
+                                    icon = { Icon(screen.icon!!, contentDescription = null) },
+                                    label = { Text(screen.label) },
+                                    //hierarchy 可以处理路由嵌套的情况
+                                    selected = currentDestination.hierarchy.any { it.route == screen.route },
+                                    onClick = {
+                                        //点击切换到导航
+                                        navController.navigate(screen.route) {
+                                            //清除所有之前的路由
+                                            popUpTo(navController.graph.findStartDestination().id) {
+                                                saveState = true
+                                            }
+                                            //避免重复点击相同路由 反复加入
+                                            launchSingleTop = true
+                                            //重新选择之前的路由，缓存了。
+                                            restoreState = true
+                                        }
+                                    })
                             }
-                        })
+                        }
+                    }
                 }
             }
         }) {
@@ -4167,24 +4189,47 @@ fun DemoComponent() {
         NavHost(navController = navController, startDestination = Screen.HomeComponent.route) {
             composable(Screen.HomeComponent.route) { HomeComponent(navController) }
             composable(Screen.UserComponent.route) { UserComponent(navController) }
+            composable(Screen.ArticleComponent.route) { ArticleComponent(navController) }
         }
     }
 }
 
 //主页  navController 参数保证每个屏幕都能使用导航
 @Composable
-fun HomeComponent(navController: NavController) {
+fun HomeComponent(navController: NavHostController) {
     Column {
         Text("主页")
+        Text("假设这是一个文章标题", modifier = Modifier.clickable {
+            //跳转到文章详情
+            navController.navigate("Article/ArticleDetail/" + 3)
+        })
     }
 }
 
-
 //个人中心
 @Composable
-fun UserComponent(navController: NavController) {
+fun UserComponent(navController: NavHostController) {
     Column {
         Text("个人中心")
     }
 }
+
+//文章详情
+@Composable
+fun ArticleComponent(navController: NavHostController) {
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "文章详情", maxLines = 2)
+                }
+            )
+        },
+    ) {
+        Column {
+            Text("文章详情")
+        }
+    }
+}
+
 ```
