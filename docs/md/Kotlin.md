@@ -4373,3 +4373,136 @@ fun ArticleDetailComponent(navController: NavHostController) {
     }
 }
 ```
+
+### 状态栏
+
+依赖
+
+```
+//用于设置状态栏
+implementation 'com.google.accompanist:accompanist-systemuicontroller:0.23.1'
+//用于获取状态栏高度 沉浸式状态栏需要
+implementation 'com.google.accompanist:accompanist-insets:0.23.1'
+```
+
+**设置导航栏颜色**
+
+```kt
+@Composable
+fun DemoComponent1() {
+    //系统UI设置控制器
+    val systemUiController = rememberSystemUiController()
+    //使用白色图标
+    val useDarkIcons = false
+    //背景颜色
+    val backgroundColor = MaterialTheme.colors.primarySurface
+    //设置效果
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = backgroundColor,
+            darkIcons = useDarkIcons
+        )
+    }
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(text = "Page title", maxLines = 2)
+                },
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Text(text = "图标")
+                    }
+                }
+            )
+        },
+    ) {
+        LazyColumn(modifier = Modifier.fillMaxSize()) {
+            items(100) {
+                Text("item $it")
+            }
+        }
+    }
+}
+```
+
+**沉浸式状态栏**
+
+遇到大坑，官方的修饰符没有，且第三方组件里使用还要包裹一层，另外如果有底部导航栏，会挡住内容，还得加上底部导航栏高度
+
+MainActivity开启沉浸式状态栏 一般如果是图片的话已经可以了,如果顶部是文字，还得加上状态栏高度
+
+```kt
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        //设置沉浸式状态栏
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+        //设置沉浸式状态栏
+        super.onCreate(savedInstanceState)
+        setContent {
+            DefaultPreview()
+        }
+    }
+}
+```
+
+主屏幕设置状态栏颜色，以及兼容问题
+
+```kt
+@Composable
+fun DemoComponent() {
+    //系统UI设置控制器
+    val systemUiController = rememberSystemUiController()
+    //使用白色图标
+    val useDarkIcons = true
+    //背景颜色
+    val backgroundColor = Color.Transparent
+    //设置效果
+    SideEffect {
+        systemUiController.setSystemBarsColor(
+            color = backgroundColor,
+            darkIcons = useDarkIcons
+        )
+    }
+    //得用这个ProvideWindowInsets 不然statusBarsHeight()不生效
+    ProvideWindowInsets {
+        Scaffold(bottomBar = {
+            BottomNavigation {
+                BottomNavigationItem(
+                    icon = {},
+                    label = { Text("底部导航栏") },
+                    selected = true,
+                    onClick = {})
+            }
+        }) {
+            //paddingValues这个值就是底部导航栏的值
+                paddingValues ->
+            val scrollState = rememberScrollState()
+            //.padding(paddingValues) 即可解决底部挡住问题
+            Column(modifier = Modifier.verticalScroll(scrollState).fillMaxWidth().padding(paddingValues)) {
+                Spacer(
+                    //设置状态栏高度
+                    modifier = Modifier.statusBarsHeight()
+                        .fillMaxWidth().background(MaterialTheme.colors.primarySurface)
+                )
+                TopAppBar(
+                    title = {
+                        Text(text = "Page title", maxLines = 2)
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {}) {
+                            Text(text = "图标")
+                        }
+                    }
+                )
+                repeat(100) {
+                    Text("列表内容 $it")
+                }
+
+                //Spacer(modifier = Modifier.navigationBarsHeight(56.dp))
+            }
+        }
+    }
+}
+```
