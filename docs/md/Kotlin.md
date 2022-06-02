@@ -4119,20 +4119,25 @@ implementation 'androidx.navigation:navigation-compose:2.4.0'
 
 ```kt
 //定义路由列表 密封类，类似枚举
-sealed class Screen(val route: String, val label: String, var icon: ImageVector?) {
+sealed class Screen(val route: String, val label: String, var icon: ImageVector? = null) {
     //底部导航栏路由
-    object HomeComponent : Screen("HomeComponent", "首页", Icons.Filled.Home)
-    object UserComponent : Screen("UserComponent", "我的", Icons.Filled.Person)
+    object HomeComponent : Screen("Home", "首页", Icons.Filled.Home)
+    object UserComponent : Screen("User", "我的", Icons.Filled.Person)
 
-    //带参数的路由
-    object ArticleComponent : Screen("Article/ArticleDetail/{articleId}", "文章详情", null)
+    //对象传参
+    object UserDetailComponent : Screen("User/UserDetail/{userObj}", "我的")
+
+    //带参数的路由 如果要传递数据类对象 那需要将数据类序列化，并转json传参，接收参数处decode
+    object ArticleListComponent : Screen("Article/ArticleList/{articleCatId}", "文章列表")
+    object ArticleDetailComponent : Screen("Article/ArticleDetail/{articleId}", "文章详情")
 }
 
+@Serializable
+data class Person(var name: String, var age: Int)
+
+//底部导航栏组件
 @Composable
-fun DemoComponent() {
-    //导航控制器状态对象
-    val navController = rememberNavController()
-    //创建导航栏列表
+fun BottomBar(navController: NavHostController) {
     val navigationItems = listOf(
         Screen.HomeComponent,
         Screen.UserComponent
@@ -4141,55 +4146,91 @@ fun DemoComponent() {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     //获取到当前导航的节点对象
     val currentDestination = navBackStackEntry?.destination
-    Scaffold(
-        topBar = {
+    //显示导航
+    BottomNavigation {
+        run {
             navigationItems.forEach { screen ->
-                if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
-                    TopAppBar(
-                        title = {
-                            Text(text = screen.label, maxLines = 2)
+                BottomNavigationItem(
+                    icon = { Icon(screen.icon!!, contentDescription = null) },
+                    label = { Text(screen.label) },
+                    //hierarchy 可以处理路由嵌套的情况
+                    selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
+                    onClick = {
+                        //点击切换到导航
+                        navController.navigate(screen.route) {
+                            //清除启动路由外的所有路由
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            //避免重复点击相同路由 反复加入
+                            launchSingleTop = true
+                            //重新选择之前的路由，缓存了。
+                            restoreState = true
                         }
-                    )
+                    })
+            }
+        }
+    }
+}
+
+//自定义AppBar组件 标题是居中的
+@Composable
+fun AppBar(
+    navController: NavHostController,
+    title: String = "",
+    showBackIcon: Boolean = false,
+    rowScope: @Composable (() -> Unit)? = null
+) {
+    TopAppBar(
+        navigationIcon = {
+            if (showBackIcon) {
+                IconButton(onClick = {
+                    navController.popBackStack()
+                }) {
+                    Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
             }
         },
-        //底部导航
-        bottomBar = {
-            //显示导航
-            navigationItems.forEach { screen ->
-                if (currentDestination?.hierarchy?.any { it.route == screen.route } == true) {
-                    BottomNavigation {
-                        run {
-                            navigationItems.forEach { screen ->
-                                BottomNavigationItem(
-                                    icon = { Icon(screen.icon!!, contentDescription = null) },
-                                    label = { Text(screen.label) },
-                                    //hierarchy 可以处理路由嵌套的情况
-                                    selected = currentDestination.hierarchy.any { it.route == screen.route },
-                                    onClick = {
-                                        //点击切换到导航
-                                        navController.navigate(screen.route) {
-                                            //清除所有之前的路由
-                                            popUpTo(navController.graph.findStartDestination().id) {
-                                                saveState = true
-                                            }
-                                            //避免重复点击相同路由 反复加入
-                                            launchSingleTop = true
-                                            //重新选择之前的路由，缓存了。
-                                            restoreState = true
-                                        }
-                                    })
-                            }
-                        }
-                    }
-                }
+        title = {
+            Row(
+                modifier = Modifier.fillMaxSize(),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = title,
+                    maxLines = 2,
+                    textAlign = TextAlign.Center,
+                    overflow = TextOverflow.Ellipsis
+                )
             }
-        }) {
+        },
+        //右侧操作栏
+        actions = {
+            if (rowScope == null) {
+                Spacer(
+                    Modifier.fillMaxHeight()
+                        .width(72.dp - 4.dp)
+                )
+            } else {
+                rowScope()
+            }
+        }
+    )
+}
+
+@Composable
+fun DemoComponent() {
+    //导航控制器状态对象
+    val navController = rememberNavController()
+    Scaffold {
         //根据导航控制器，返回不同的导航
         NavHost(navController = navController, startDestination = Screen.HomeComponent.route) {
             composable(Screen.HomeComponent.route) { HomeComponent(navController) }
             composable(Screen.UserComponent.route) { UserComponent(navController) }
-            composable(Screen.ArticleComponent.route) { ArticleComponent(navController) }
+            composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
+            composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
+            composable(Screen.ArticleDetailComponent.route) { ArticleDetailComponent(navController) }
         }
     }
 }
@@ -4197,39 +4238,138 @@ fun DemoComponent() {
 //主页  navController 参数保证每个屏幕都能使用导航
 @Composable
 fun HomeComponent(navController: NavHostController) {
-    Column {
-        Text("主页")
-        Text("假设这是一个文章标题", modifier = Modifier.clickable {
-            //跳转到文章详情
-            navController.navigate("Article/ArticleDetail/" + 3)
-        })
+    Scaffold(
+        topBar = {
+            AppBar(
+                navController = navController,
+                title = Screen.HomeComponent.label
+            )
+        },
+        //底部导航
+        bottomBar = {
+            //创建导航栏列表
+            BottomBar(navController)
+        }
+    ) {
+        Column {
+            Text("主页")
+            Text("跳转到文章列表", modifier = Modifier.clickable {
+                //跳转到文章列表
+                navController.navigate(Screen.ArticleListComponent.route)
+            })
+        }
     }
 }
 
 //个人中心
 @Composable
 fun UserComponent(navController: NavHostController) {
-    Column {
-        Text("个人中心")
+    Scaffold(
+        //底部导航
+        bottomBar = {
+            //创建导航栏列表
+            BottomBar(navController)
+        }
+    ) {
+        Column {
+            Text("个人中心")
+            Text("对象传参跳转", modifier = Modifier.clickable {
+                //跳转到用户详情
+                navController.navigate("User/UserDetail/" + Json.encodeToString(Person("张三", 18)))
+            })
+        }
+    }
+}
+
+//用户详情
+@Composable
+fun UserDetailComponent(navController: NavHostController) {
+    //获取用户详情
+    val userObjStr = navController.currentBackStackEntry?.arguments?.get("userObj")
+    val userObj: Person? = userObjStr?.let {
+        Json.decodeFromString<Person>(userObjStr as String)
+    }
+
+    Scaffold(
+        topBar = {
+            AppBar(
+                navController = navController,
+                title = Screen.UserDetailComponent.label,
+                showBackIcon = true
+            )
+        },
+    ) {
+        Column {
+            Text("用户详情" + userObj?.name)
+        }
+    }
+}
+
+//文章列表
+@Composable
+fun ArticleListComponent(navController: NavHostController) {
+    Scaffold(
+        topBar = {
+            AppBar(
+                navController = navController,
+                title = Screen.ArticleListComponent.label,
+                showBackIcon = true
+            )
+        },
+    ) {
+        Column {
+            Text("文字列表")
+            Text("跳转到文章详情", modifier = Modifier.clickable {
+                //跳转到文章列表
+                navController.navigate("Article/ArticleDetail/333")
+            })
+        }
     }
 }
 
 //文章详情
 @Composable
-fun ArticleComponent(navController: NavHostController) {
+fun ArticleDetailComponent(navController: NavHostController) {
+    //获取详情
+    val id = navController.currentBackStackEntry?.arguments?.get("articleId").apply {}
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(text = "文章详情", maxLines = 2)
-                }
-            )
+            AppBar(
+                navController = navController,
+                title = Screen.ArticleDetailComponent.label,
+                showBackIcon = true,
+                rowScope = {
+                    IconButton(onClick = {}) {
+                        Icon(Icons.Filled.Done, contentDescription = null)
+                    }
+                })
         },
     ) {
         Column {
-            Text("文章详情")
+            Text("文章详情id：$id")
+            Text("跳到指定页面,并移除堆栈指定路由之上的所有路由(用的不多)", modifier = Modifier.clickable {
+                //跳转到首页
+                navController.navigate(Screen.HomeComponent.route) {
+                    //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
+                    popUpTo(Screen.ArticleListComponent.route)
+                }
+            })
+            Text("跳到指定页面,并移除堆栈指定路由之上的所有路由,包括指定路由(可用，相当于移除所有路由，只保留一个路由)", modifier = Modifier.clickable {
+                //跳转到首页
+                navController.navigate(Screen.HomeComponent.route) {
+                    //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
+                    popUpTo(Screen.HomeComponent.route) {
+                        inclusive = true
+                    }
+                }
+            })
+            Text("重复点击同一个路由，避免多个重复路由在顶部(可用)", modifier = Modifier.clickable {
+                //跳转到首页
+                navController.navigate("Article/ArticleDetail/333") {
+                    launchSingleTop = true
+                }
+            })
         }
     }
 }
-
 ```
