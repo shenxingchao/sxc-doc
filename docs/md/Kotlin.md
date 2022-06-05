@@ -2684,7 +2684,9 @@ class SingleInstance private constructor() {
 
 by关键字就是java中的代理模式
 
-kotlin有类代理和属性代理
+kotlin有接口代理和属性代理
+
+接口代理和java一样，属性代理是通过代理类的set和get方法去设置
 
 **by lazy**
 
@@ -3613,6 +3615,12 @@ fun DemoComponent() {
 }
 ```
 
+### 生命周期
+
+**LaunchedEffect**
+
+组件首次加载的时候调用的协程，类似mounted，一些http请求就可以放在这里执行咯
+
 ### 局部状态作用域
 
 compositionLocalOf
@@ -4111,6 +4119,8 @@ fun DemoComponent() {
 
 ### 路由导航
 
+如果自定义AppBar要放搜索框，直接使用插槽的TopAppBar即可，就是没标题的那个
+
 依赖
 
 ```
@@ -4484,7 +4494,15 @@ fun DemoComponent() {
                 Spacer(
                     //设置状态栏高度
                     modifier = Modifier.statusBarsHeight()
-                        .fillMaxWidth().background(MaterialTheme.colors.primarySurface)
+                        .fillMaxWidth().background(
+                            //渐变色
+                            brush = Brush.linearGradient(
+                                colors = listOf(
+                                    colors.primary,
+                                    colors.primaryVariant,
+                                )
+                            )
+                        )
                 )
                 TopAppBar(
                     title = {
@@ -4494,7 +4512,19 @@ fun DemoComponent() {
                         IconButton(onClick = {}) {
                             Text(text = "图标")
                         }
-                    }
+                    },
+                    //渐变色
+                    modifier = Modifier.background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                colors.primary,
+                                colors.primaryVariant,
+                            )
+                        )
+                    ),
+                    backgroundColor = Color.Transparent,
+                    contentColor = Color.White,
+                    elevation = 0.dp
                 )
                 repeat(100) {
                     Text("列表内容 $it")
