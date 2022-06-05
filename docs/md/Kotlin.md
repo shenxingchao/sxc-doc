@@ -4415,75 +4415,60 @@ fun DemoComponent() {
             //下面的是水平滑动的写法 这里是定义的全局的
             //当前页面进入动画
             enterTransition = {
-                slideInHorizontally(
-                    //目的偏移量
-                    initialOffsetX = { fullWidth -> fullWidth },
-                    //动画规则
-                    animationSpec = tween(500)
-                )
+                //initialState targetState 是作用域的内置属性
+                when (initialState.destination.route + "To" + targetState.destination.route) {
+                    //这里是某些不需要动画的导航处理
+                    "HomeToUser" -> EnterTransition.None
+                    "UserToHome" -> EnterTransition.None
+                    //下面这个是全局的
+                    else -> slideInHorizontally(
+                        //目的偏移量
+                        initialOffsetX = { fullWidth -> fullWidth },
+                        //动画规则
+                        animationSpec = tween(500)
+                    )
+                }
             },
             //当前页面退出动画
             exitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> -fullWidth },
-                    animationSpec = tween(500)
-                )
+                when (initialState.destination.route + "To" + targetState.destination.route) {
+                    "HomeToUser" -> ExitTransition.None
+                    "UserToHome" -> ExitTransition.None
+                    else ->
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(500)
+                        )
+                }
             },
             //目标页面进入
             popEnterTransition = {
-                slideInHorizontally(
-                    initialOffsetX = { fullWidth -> -fullWidth },
-                    animationSpec = tween(500)
-                )
+                when (initialState.destination.route + "To" + targetState.destination.route) {
+                    "HomeToUser" -> EnterTransition.None
+                    "UserToHome" -> EnterTransition.None
+                    else ->
+                        slideInHorizontally(
+                            initialOffsetX = { fullWidth -> -fullWidth },
+                            animationSpec = tween(500)
+                        )
+                }
             },
             //目标页面退出
             popExitTransition = {
-                slideOutHorizontally(
-                    targetOffsetX = { fullWidth -> fullWidth },
-                    animationSpec = tween(500)
-                )
+                when (initialState.destination.route + "To" + targetState.destination.route) {
+                    "HomeToUser" -> ExitTransition.None
+                    "UserToHome" -> ExitTransition.None
+                    else ->
+                        slideOutHorizontally(
+                            targetOffsetX = { fullWidth -> fullWidth },
+                            animationSpec = tween(500)
+                        )
+                }
             }
         ) {
             //动画导航替换composable
-            composable(
-                Screen.HomeComponent.route,
-                //这里是某些不需要动画的导航处理
-                enterTransition = {
-                    when (initialState.destination.route) {
-                        //如果是首页到用户页不要导航则使用EnterTransition.None
-                        "User" -> EnterTransition.None
-                        //null的话就用父级里面的动画了 就是全局的
-                        else -> null
-                    }
-                },
-                exitTransition = {
-                    when (initialState.destination.route) {
-                        //如果是首页到用户页不要导航则使用EnterTransition.None
-                        "User" -> ExitTransition.None
-                        //null的话就用父级里面的动画了 就是全局的
-                        else -> null
-                    }
-                }
-            ) { HomeComponent(navController) }
-            composable(
-                Screen.UserComponent.route,
-                //这里是某些不需要动画的导航处理
-                enterTransition = {
-                    when (initialState.destination.route) {
-                        //如果是首页到用户页不要导航则使用EnterTransition.None
-                        "Home" -> EnterTransition.None
-                        //null的话就用父级里面的动画了 就是全局的
-                        else -> null
-                    }
-                },
-                exitTransition = {
-                    when (initialState.destination.route) {
-                        //如果是首页到用户页不要导航则使用EnterTransition.None
-                        "User" -> ExitTransition.None
-                        //null的话就用父级里面的动画了 就是全局的
-                        else -> null
-                    }
-                }) { UserComponent(navController) }
+            composable(Screen.HomeComponent.route) { HomeComponent(navController) }
+            composable(Screen.UserComponent.route) { UserComponent(navController) }
             composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
             composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
             composable(Screen.ArticleDetailComponent.route) { ArticleDetailComponent(navController) }
