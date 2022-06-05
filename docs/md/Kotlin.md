@@ -3621,6 +3621,10 @@ fun DemoComponent() {
 
 组件首次加载的时候调用的协程，类似mounted，一些http请求就可以放在这里执行咯
 
+**DisposableEffect**
+
+如果需要在退出的时候进行处理，如计时器取消，关闭链接等，可以在这个协程域中进行
+
 ### 局部状态作用域
 
 compositionLocalOf
@@ -4532,6 +4536,74 @@ fun DemoComponent() {
 
                 //Spacer(modifier = Modifier.navigationBarsHeight(56.dp))
             }
+        }
+    }
+}
+```
+
+### 轮播图
+
+依赖
+
+```
+implementation "com.google.accompanist:accompanist-pager:0.23.1"
+```
+
+```kt
+@ExperimentalPagerApi
+@Composable
+fun DemoComponent() {
+
+    val pagerState1 = rememberPagerState()
+    val coroutineScope = rememberCoroutineScope()
+
+    val list = listOf("1", "2", "3", "4");
+    val pagerState2 = rememberPagerState()
+
+    Column {
+        HorizontalPager(count = list.size, state = pagerState1) { page ->
+            Text(
+                text = "Page:" + list[page],
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        HorizontalPager(count = list.size, state = pagerState2) { page ->
+            Text(
+                text = "Page:" + list[page],
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+    }
+
+
+    //计时器实现
+    DisposableEffect(Unit) {
+
+        val timer = Timer()
+        timer.schedule(object : TimerTask() {
+            override fun run() {
+                coroutineScope.launch {
+                    pagerState1.animateScrollToPage(if (pagerState1.currentPage + 1 == list.size) 0 else pagerState1.currentPage + 1)
+                }
+            }
+        }, 2000, 2000)
+        onDispose {
+            timer.cancel()
+        }
+    }
+
+    //死循环实现
+    DisposableEffect(Unit){
+        var loop = true;
+        coroutineScope.launch {
+            while (loop) {
+                delay(2000)
+                pagerState2.animateScrollToPage(if (pagerState2.currentPage + 1 == list.size) 0 else pagerState2.currentPage + 1)
+            }
+        }
+
+        onDispose {
+            loop = false
         }
     }
 }
