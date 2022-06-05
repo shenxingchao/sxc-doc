@@ -4388,6 +4388,110 @@ fun ArticleDetailComponent(navController: NavHostController) {
 }
 ```
 
+**路由动画**
+
+这里面发现一个Bug，就是某些不需要动画的导航，快速切换的时候还是会发生动画，是个官方Bug
+
+依赖
+
+```
+implementation "com.google.accompanist:accompanist-navigation-animation 0.23.1"
+```
+
+```kt
+//下面这三个替换的类
+import com.google.accompanist.navigation.animation.AnimatedNavHost
+import com.google.accompanist.navigation.animation.composable
+import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+
+@ExperimentalAnimationApi
+@Composable
+fun DemoComponent() {
+    //动画导航替换rememberAnimatedNavController
+    val navController = rememberAnimatedNavController()
+    Scaffold {
+        //动画导航替换AnimatedNavHost
+        AnimatedNavHost(navController = navController, startDestination = Screen.HomeComponent.route,
+            //下面的是水平滑动的写法 这里是定义的全局的
+            //当前页面进入动画
+            enterTransition = {
+                slideInHorizontally(
+                    //目的偏移量
+                    initialOffsetX = { fullWidth -> fullWidth },
+                    //动画规则
+                    animationSpec = tween(500)
+                )
+            },
+            //当前页面退出动画
+            exitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(500)
+                )
+            },
+            //目标页面进入
+            popEnterTransition = {
+                slideInHorizontally(
+                    initialOffsetX = { fullWidth -> -fullWidth },
+                    animationSpec = tween(500)
+                )
+            },
+            //目标页面退出
+            popExitTransition = {
+                slideOutHorizontally(
+                    targetOffsetX = { fullWidth -> fullWidth },
+                    animationSpec = tween(500)
+                )
+            }
+        ) {
+            //动画导航替换composable
+            composable(
+                Screen.HomeComponent.route,
+                //这里是某些不需要动画的导航处理
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        //如果是首页到用户页不要导航则使用EnterTransition.None
+                        "User" -> EnterTransition.None
+                        //null的话就用父级里面的动画了 就是全局的
+                        else -> null
+                    }
+                },
+                exitTransition = {
+                    when (initialState.destination.route) {
+                        //如果是首页到用户页不要导航则使用EnterTransition.None
+                        "User" -> ExitTransition.None
+                        //null的话就用父级里面的动画了 就是全局的
+                        else -> null
+                    }
+                }
+            ) { HomeComponent(navController) }
+            composable(
+                Screen.UserComponent.route,
+                //这里是某些不需要动画的导航处理
+                enterTransition = {
+                    when (initialState.destination.route) {
+                        //如果是首页到用户页不要导航则使用EnterTransition.None
+                        "Home" -> EnterTransition.None
+                        //null的话就用父级里面的动画了 就是全局的
+                        else -> null
+                    }
+                },
+                exitTransition = {
+                    when (initialState.destination.route) {
+                        //如果是首页到用户页不要导航则使用EnterTransition.None
+                        "User" -> ExitTransition.None
+                        //null的话就用父级里面的动画了 就是全局的
+                        else -> null
+                    }
+                }) { UserComponent(navController) }
+            composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
+            composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
+            composable(Screen.ArticleDetailComponent.route) { ArticleDetailComponent(navController) }
+        }
+    }
+}
+```
+
 ### 状态栏
 
 依赖
@@ -4578,7 +4682,7 @@ fun DemoComponent() {
 
     //计时器实现
     DisposableEffect(Unit) {
-
+        //一个定时器类
         val timer = Timer()
         timer.schedule(object : TimerTask() {
             override fun run() {
