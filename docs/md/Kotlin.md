@@ -2537,7 +2537,14 @@ buildscript {
         ...
     }
 }
+```
 
+高版本gradle使用
+
+```
+plugins {
+    id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.21'
+}
 ```
 
 app
@@ -2718,7 +2725,7 @@ class A {
 
 ## kotlin安卓项目搭建
 
-### idea环境搭建流程
+### idea环境搭建流程(废弃，太旧了)
 
 1. idea需要2022版本 旧版不能热更新代码 [破解流程](https://www.exception.site/article/29) [补丁](https://pan.baidu.com/s/1uYLHHKGIcWqSrl9Je9991g ) 提取码：1234
 2. idea需要下载kotlin和android插件 否则第三步出不来
@@ -2733,6 +2740,8 @@ class A {
 ### build:gradle
 
 [镜像库](https://developer.aliyun.com/mvn/guide)
+
+compose项目好像不用加
 
 ```
 buildscript {
@@ -2771,6 +2780,18 @@ android {
 ## JetpackCompose
 
 android函数声明式UI框架，和flutter类似就是了
+
+### 创建项目 
+
+使用最新版androidStudio
+
+1. [下载](https://developer.android.google.cn/studio)
+2. new Project 选择Empty Compose Activity([Material3](https://developer.android.google.cn/jetpack/androidx/releases/compose-material3#kts))  等待依赖库下载完毕
+3. 修改项目根目录build里[compose版本1.2.0-beta01](https://developer.android.google.cn/jetpack/androidx/releases/compose)，直接用最新的 kotlin版本直接最新1.6.21
+4. 配置注释搜索space
+5. 配置字体大小主题 白色 14 16
+6. 配置自动导入Auto Import kotlin 选中第一个
+7. 配置格式化快键键Keymap 搜索format
 
 ### DSL手写声明式组件
 
@@ -2875,9 +2896,11 @@ fun DefaultPreview() {
 
 [material组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material/package-summary#overview)
 
+[material3组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material3/package-summary#materialtheme) 后面的案例都用这个演示
+
 [实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
 
-### 创建
+### 创建(旧)
 
 Idea-File-New-Project-Android-Empty Compose Activity
 
@@ -2899,7 +2922,7 @@ Idea-File-New-Project-Android-Empty Compose Activity
 
 ```text
 wrapContentWidth/wrapContentHeight 内容根据父容器定位
-background 背景色
+background 背景色 慎用，一般用Surface设置颜色
 border 边框
 padding 外边距或者是内边距
 width 宽 传入IntrinsicSize.Min可以强制限制子元素宽
@@ -2936,7 +2959,7 @@ fun PhotographerCard(modifier: Modifier = Modifier) {
 }
 ```
 
-### 修饰符合并
+### 修饰符合并(不推荐了)
 
 和链式调用其实一样，只不过多了一个作用域可以在里面执行别的逻辑
 
@@ -2958,12 +2981,12 @@ setContent {
 }
 ```
 
-### Text组件
+### Text
 
 style可以在主题文件里预先定义好全局的样式风格，然后拿过来用就行了
 
 ```kt
-Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colors.primary, maxLines = 2, style = MaterialTheme.typography.h1)
+Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, maxLines = 2, style = MaterialTheme.typography.labelLarge)
 ```
 
 ### Button
@@ -2971,8 +2994,7 @@ Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialT
 按钮组件，内部提供一个插槽，内容都放在内部
 
 ```kt
-@Composable
-fun DemoComponent() {
+Column {
     Button(onClick = {}) {
         Text("普通按钮")
     }
@@ -3016,17 +3038,14 @@ Column(verticalArrangement = Arrangement.SpaceBetween) {
 堆叠布局及宽度100%或者高度100%或者填满
 
 ```kt
-@Composable
-fun DemoComponent() {
-    //堆叠布局
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-        //填满父级
-        Surface(modifier = Modifier.fillMaxSize(), color = Color.Red) { }
-        //横向填满
-        Surface(modifier = Modifier.fillMaxWidth().height(10.0.dp), color = Color.Green) { }
-        //纵向填满
-        Surface(modifier = Modifier.fillMaxHeight().width(10.0.dp), color = Color.Blue) { }
-    }
+//堆叠布局
+Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+    //填满父级
+    Surface(modifier = Modifier.fillMaxSize(), color = Color.Red) { }
+    //横向填满
+    Surface(modifier = Modifier.fillMaxWidth().height(10.0.dp), color = Color.Green) { }
+    //纵向填满
+    Surface(modifier = Modifier.fillMaxHeight().width(10.0.dp), color = Color.Blue) { }
 }
 ```
 
@@ -3066,6 +3085,7 @@ implementation "io.coil-kt:coil-compose:2.1.0"
 ```kt
 @Composable
 fun DemoComponent() {
+    //加载不出来是因为设置了代理没开fiddler...
     AsyncImage(
         model = "http://www.ay1.cc/img?w=640&h=640&c=f60f60",
         placeholder = painterResource(R.drawable.test),
@@ -3119,7 +3139,12 @@ fun DemoComponent() {
 
 ```kt
 //遮罩大小，形状（MaterialTheme.shapes.small是Shape.kt预先定义好的圆角的..[指定圆角：RoundedCornerShape(10.dp)；指定形状：CircleShape]）阴影深度，背景颜色
-Surface(modifier = Modifier.size(40.dp), shape = MaterialTheme.shapes.small, elevation = 4.dp, color = MaterialTheme.colors.primary)
+Surface(
+    modifier = Modifier.size(40.dp),
+    shape = MaterialTheme.shapes.small,
+    shadowElevation = 4.dp,
+    color = MaterialTheme.colorScheme.primary
+) {}
 ```
 
 ### TopAppBar
@@ -3127,24 +3152,30 @@ Surface(modifier = Modifier.size(40.dp), shape = MaterialTheme.shapes.small, ele
 顶部导航栏
 
 ```kt
-@Composable
-fun DemoComponent() {
-    TopAppBar(
-        title = {
-            Text(text = "Page title", maxLines = 2)
-        },
-        navigationIcon = {
-            IconButton(onClick = {}){
-                Text(text = "图标")
-            }
+SmallTopAppBar(
+    title = {
+        Text(text = "Page title", maxLines = 2)
+    },
+    navigationIcon = {
+        IconButton(onClick = {}) {
+            Text(text = "图标")
         }
+    },
+    colors = TopAppBarDefaults.smallTopAppBarColors(
+        containerColor = MaterialTheme.colorScheme.primary,
+        titleContentColor = MaterialTheme.colorScheme.surface,
+        navigationIconContentColor = MaterialTheme.colorScheme.surface,
+        actionIconContentColor = MaterialTheme.colorScheme.surface,
+        scrolledContainerColor = MaterialTheme.colorScheme.surface,
     )
-}
+)
 ```
 
-### BottomNavigation
+### NavigationBar
 
 底部路由导航栏
+
+这个导航栏高度固定死了，不太好用，如果要自定义高度，最好是自己搞个Row
 
 ```kt
 @Composable
@@ -3159,11 +3190,38 @@ fun DemoComponent() {
         NavigationItem("我的", Icons.Filled.Person),
     )
 
-    BottomNavigation {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.surface,
+        modifier = Modifier
+            .height(70.dp)
+    ) {
         navigationItems.forEachIndexed { index, item ->
-            BottomNavigationItem(
-                icon = { Icon(item.icon, contentDescription = null) },
-                label = { Text(item.label) },
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        item.icon,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .padding(bottom = 40.dp)
+                            .size(30.dp)
+                    )
+                },
+                colors = NavigationBarItemDefaults.colors(
+                    //隐藏指示器颜色
+                    indicatorColor = MaterialTheme.colorScheme.primary,
+                    selectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedIconColor = Color.LightGray,
+                    unselectedTextColor = Color.LightGray
+                ),
+                label = {
+                    Text(
+                        item.label,
+                        modifier = Modifier
+                            .padding(top = 10.dp)
+                    )
+                },
                 selected = selectedItem == index,
                 onClick = {
                     selectedItem = index
@@ -3178,19 +3236,27 @@ fun DemoComponent() {
 脚手架
 
 ```kt
+@ExperimentalMaterial3Api
 @Composable
 fun DemoComponent() {
     Scaffold(
         topBar = {
-            TopAppBar(
+            SmallTopAppBar(
                 title = {
-                    Text(text = "标题", maxLines = 2)
+                    Text(text = "Page title", maxLines = 2)
                 },
                 navigationIcon = {
                     IconButton(onClick = {}) {
-                        Icon(Icons.Filled.ArrowBack, contentDescription = null)
+                        Text(text = "图标")
                     }
                 },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.surface,
+                    actionIconContentColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                ),
                 //右侧操作栏
                 actions = {
                     IconButton(onClick = {}) {
@@ -3200,13 +3266,32 @@ fun DemoComponent() {
             )
         },
         bottomBar = {
-            BottomNavigation {
-                BottomNavigationItem(
+            NavigationBar(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.surface,
+            ) {
+                NavigationBarItem(
                     icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                    colors = NavigationBarItemDefaults.colors(
+                        //隐藏指示器颜色
+                        indicatorColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        unselectedIconColor = Color.LightGray,
+                        unselectedTextColor = Color.LightGray
+                    ),
                     selected = true,
                     onClick = {})
-                BottomNavigationItem(
+                NavigationBarItem(
                     icon = { Icon(Icons.Filled.Person, contentDescription = null) },
+                    colors = NavigationBarItemDefaults.colors(
+                        //隐藏指示器颜色
+                        indicatorColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        unselectedIconColor = Color.LightGray,
+                        unselectedTextColor = Color.LightGray
+                    ),
                     selected = false,
                     onClick = {})
             }
@@ -3215,19 +3300,6 @@ fun DemoComponent() {
         //innerPadding 内容边距 PaddingValues(start=0.0.dp, top=0.0.dp, end=0.0.dp, bottom=0.0.dp
         BodyContent(Modifier.padding(innerPadding))
     }
-}
-
-@Composable
-private fun BodyContent(modifier: Modifier = Modifier) {
-    Column(modifier = Modifier.padding(8.dp)) {
-        Text(text = "正文内容")
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    DemoComponent()
 }
 ```
 
@@ -3238,13 +3310,25 @@ fun DefaultPreview() {
 [案例来自](https://developer.android.google.cn/jetpack/compose/tutorial) LazyColumn 包含一个 items 子项。它接受 List 作为参数，并且其 lambda 会收到我们命名为 message 的参数（可以随意为其命名），它是 Message 的实例。简而言之，系统会针对提供的 List 的每个项调用此 lambda
 
 ```kt
+data class Message(var name: String, var age: Int)
+
 @Composable
 fun CardList(messages: MutableList<Message>) {
     LazyColumn {
-        items(messages) { message ->
-            Card(message)
+        items(messages.size) { index ->
+            Text(messages[index].name + messages[index].age)
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    val list = mutableListOf<Message>()
+    val message = Message("张三4", 18)
+    list.add(message);
+    list.add(message);
+    CardList(list)
 }
 ```
 
@@ -3300,6 +3384,8 @@ fun DemoComponent() {
 
 **Column控制滚动位置**
 
+这里滚动的像素还没计算出来
+
 ```kt
 @Composable
 fun DemoComponent() {
@@ -3344,6 +3430,20 @@ fun DemoComponent() {
 
 使用Row Cloumn即可实现，另外需要注意的是flex:1使用Modifier.weight(1f)实现即可
 
+```kt
+Row(horizontalArrangement = Arrangement.SpaceBetween) {
+    Text(text = "left")
+    Surface(
+        modifier = Modifier
+            .weight(1f)
+            .height(40.dp),
+        color = Color.Red
+    ) {
+    }
+    Text(text = "right")
+}
+```
+
 ### 自定义插槽
 
 类似vue插槽，利用尾随lambda实现，就是最后一项是lambda表达式
@@ -3370,23 +3470,13 @@ fun DefaultPreview() {
 案例，控制一个列表项展开与合并
 
 ```kt
-class MainActivity : ComponentActivity() {
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            DefaultPreview(
-            )
-        }
-    }
-}
-
 data class Message(var name: String, var age: Int)
 
 @Composable
 fun CardList(messages: MutableList<Message>) {
     LazyColumn {
-        items(messages) { message ->
-            Card(message)
+        items(messages.size) { index ->
+            Card(messages[index])
         }
     }
 }
@@ -3400,8 +3490,8 @@ fun Card(msg: Message) {
     ) {
         Text(
             "张三",
-            color = MaterialTheme.colors.primary,
-            style = MaterialTheme.typography.subtitle1,
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.titleSmall,
         )
         Image(
             painter = painterResource(R.drawable.test),
@@ -3409,7 +3499,7 @@ fun Card(msg: Message) {
             modifier = Modifier
                 .size(40.dp)
                 .clip(RectangleShape)
-                .border(1.5.dp, MaterialTheme.colors.secondary, RectangleShape)
+                .border(1.5.dp, MaterialTheme.colorScheme.secondary, RectangleShape)
         )
         Spacer(modifier = Modifier.width(8.dp))
 
@@ -3417,7 +3507,7 @@ fun Card(msg: Message) {
         var isExpanded by remember { mutableStateOf(false) }
         //状态控制颜色变化并添加动画
         val surfaceColor by animateColorAsState(
-            if (isExpanded) MaterialTheme.colors.primary else MaterialTheme.colors.surface,
+            if (isExpanded) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
         )
 
         Column(verticalArrangement = Arrangement.SpaceBetween, modifier = Modifier.clickable {
@@ -3426,8 +3516,12 @@ fun Card(msg: Message) {
 
             Text(text = "Hello ${msg.name}!")
             Spacer(modifier = Modifier.height(4.dp))
-            if(isExpanded){
-                Surface(shape = MaterialTheme.shapes.small, elevation = 4.dp, color = surfaceColor) {
+            if (isExpanded) {
+                Surface(
+                    shape = MaterialTheme.shapes.small,
+                    shadowElevation = 4.dp,
+                    color = surfaceColor
+                ) {
                     Text(text = "Hello ${msg.age}!")
                 }
             }
@@ -3457,9 +3551,12 @@ tips:遇到```ype 'TypeVariable(T)' has no method 'getValue(Nothing?, KProperty<
 导入```import androidx.compose.runtime.*```即可
 
 ```kt
-val state = remember { mutableStateOf(deafult) }
-val (value,setValue) = remember { mutableStateOf(deafult) }
-val value by remenber { mutableStateOf(deafult) }
+val state = rememberSaveable { mutableStateOf(1) }
+val (str, setStr) = rememberSaveable { mutableStateOf("二") }
+val bool by rememberSaveable { mutableStateOf(false) }
+val list = mutableListOf<String>()
+val map = mutableMapOf<String,Int>()
+val set = mutableSetOf<String>()
 ```
 
 实现输入框输入文字双向绑定，案例
@@ -3514,7 +3611,7 @@ class ArticleViewModel : ViewModel() {
     }
 }
 
-
+@ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
     //获取一个store实例
     private val articleViewModel by viewModels<ArticleViewModel>()
@@ -3524,14 +3621,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             Scaffold(
                 topBar = {
-                    TopAppBar(
+                    SmallTopAppBar(
                         title = {
                             Text(text = articleViewModel.title.value, maxLines = 2)
                         }
                     )
                 },
-            ) {
-                Surface {
+            ) { innerPadding ->
+                Surface(modifier = Modifier.padding(innerPadding)) {
                     DemoComponent(articleViewModel)
                 }
             }
@@ -3609,13 +3706,23 @@ rememberCoroutineScope.launch
 @Composable
 fun DemoComponent() {
     val scope = rememberCoroutineScope()
-    scope.launch {
-        println("组件内启动一个协程")
+
+    //scope.launch必须在类似LaunchedEffect 附带效应里启动
+    LaunchedEffect(Unit){
+        scope.launch {
+            println("组件内启动一个协程")
+        }
     }
 }
 ```
 
 ### 生命周期
+
+[案例](https://developer.android.google.cn/topic/libraries/architecture/lifecycle)
+
+### 副作用
+
+其实就是任何状态的变更，都会触发一些列的函数和vue生命周期钩子差不多的意思
 
 **LaunchedEffect**
 
@@ -3624,6 +3731,78 @@ fun DemoComponent() {
 **DisposableEffect**
 
 如果需要在退出的时候进行处理，如计时器取消，关闭链接等，可以在这个协程域中进行
+
+**SideEffect**
+
+不需要添加参数，且不需要处理关闭连接等操作时使用，compose函数每次执行都会调用该方法（加载完成后），相当于update，如果需要与外部共享状态State的时候使用
+
+```kt
+@Composable
+fun DemoComponent() {
+    var show by remember {
+        mutableStateOf(true)
+    }
+    var size by remember {
+        mutableStateOf(20.0f)
+    }
+    Column {
+        Button(onClick = {
+            show = !show
+        }) {
+            Text(text = if (show) "隐藏" else "显示")
+        }
+        Button(onClick = {
+            size = (Math.random() * 50).toFloat()
+        }) {
+            Text(text = "修改大小，触发组件重组，调用SideEffect")
+        }
+        if (show) {
+            DemoEffect(size)
+        }
+    }
+}
+
+@Composable
+fun DemoEffect(size: Float) {
+    var name by remember {
+        mutableStateOf("张三")
+    }
+    val scope = rememberCoroutineScope()
+
+    Button(onClick = {
+        scope.launch {
+            println("点击中的网络api请求")
+        }
+        //我在这里改变person为了SideEffect监听到组件更新
+        name = "张" + (Math.random() * 999).toInt()
+    }) {
+        Text(text = name, fontSize = size.sp)
+    }
+
+    LaunchedEffect(Unit) {
+        scope.launch {
+            println("调用LaunchedEffect网络api请求")
+        }
+    }
+
+    DisposableEffect(Unit) {
+        var loop = true;
+        scope.launch {
+            while (loop) {
+                delay(2000)
+            }
+        }
+        onDispose {
+            loop = false
+            println("调用onDispose")
+        }
+    }
+
+    SideEffect {
+        println("调用SideEffect")
+    }
+}
+```
 
 ### 局部状态作用域
 
@@ -3777,21 +3956,9 @@ fun DefaultPreview() {
 
 直接用AnimatedVisibility 代替if即可
 
-实验性api 都要加上@ExperimentalAnimationApi注解
+实验性api 都要加上@ExperimentalAnimationApi注解（最新版不需要了）
 
 ```kt
-@ExperimentalAnimationApi
-class MainActivity : ComponentActivity() {
-
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContent {
-            DefaultPreview()
-        }
-    }
-}
-
-@ExperimentalAnimationApi
 @Composable
 fun DemoComponent() {
     var isExpanded by rememberSaveable { mutableStateOf(false) }
@@ -3832,14 +3999,6 @@ fun DemoComponent() {
         }
     }
 }
-
-
-@ExperimentalAnimationApi
-@Preview(showBackground = true)
-@Composable
-fun DefaultPreview() {
-    DemoComponent()
-}
 ```
 
 ### 多值动画
@@ -3857,19 +4016,20 @@ fun DemoComponent() {
     val transition = updateTransition(targetState = tabIndexState, label = "选项卡指示器切换动画Transition")
     //颜色动画状态
     val backgroundColor by transition.animateColor(label = "指示器边框颜色动画状态") {
-        when (tabIndexState) {
-            0 -> MaterialTheme.colors.primary
-            1 -> MaterialTheme.colors.secondary
-            2 -> MaterialTheme.colors.background
+        when (it) {
+            0 -> MaterialTheme.colorScheme.primary
+            1 -> MaterialTheme.colorScheme.secondary
+            2 -> MaterialTheme.colorScheme.background
             else -> {
-                MaterialTheme.colors.background
+                MaterialTheme.colorScheme.background
             }
         }
     }
     Column {
         TabRow(
             selectedTabIndex = tabIndexState,
-            backgroundColor = backgroundColor,
+            containerColor = backgroundColor,
+            contentColor = Color.Black,
             indicator = {
                 //[TabPosition(left=0.0.dp, right=145.45454.dp, width=145.45454.dp)
                     tabPosition ->
@@ -3886,7 +4046,7 @@ fun DemoComponent() {
                     },
                     label = "指示器左边位置动画"
                 ) {
-                    tabPosition[tabIndexState].left
+                    tabPosition[it].left
                 }
                 val indicatorRight by transition.animateDp(
                     //自定义运动快慢
@@ -3900,7 +4060,7 @@ fun DemoComponent() {
                     },
                     label = "指示器右边位置动画"
                 ) {
-                    tabPosition[tabIndexState].right
+                    tabPosition[it].right
                 }
                 //拿到这两个值然后添加指示器组件
                 Box(
@@ -4161,12 +4321,23 @@ fun BottomBar(navController: NavHostController) {
     //获取到当前导航的节点对象
     val currentDestination = navBackStackEntry?.destination
     //显示导航
-    BottomNavigation {
+    NavigationBar(
+        containerColor = MaterialTheme.colorScheme.primary,
+        contentColor = MaterialTheme.colorScheme.surface,
+    ) {
         run {
             navigationItems.forEach { screen ->
-                BottomNavigationItem(
+                NavigationBarItem(
                     icon = { Icon(screen.icon!!, contentDescription = null) },
                     label = { Text(screen.label) },
+                    colors = NavigationBarItemDefaults.colors(
+                        //隐藏指示器颜色
+                        indicatorColor = MaterialTheme.colorScheme.primary,
+                        selectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        unselectedIconColor = Color.LightGray,
+                        unselectedTextColor = Color.LightGray
+                    ),
                     //hierarchy 可以处理路由嵌套的情况
                     selected = currentDestination?.hierarchy?.any { it.route == screen.route } == true,
                     onClick = {
@@ -4195,7 +4366,14 @@ fun AppBar(
     showBackIcon: Boolean = false,
     rowScope: @Composable (() -> Unit)? = null
 ) {
-    TopAppBar(
+    SmallTopAppBar(
+        colors = TopAppBarDefaults.smallTopAppBarColors(
+            containerColor = MaterialTheme.colorScheme.primary,
+            titleContentColor = MaterialTheme.colorScheme.surface,
+            navigationIconContentColor = MaterialTheme.colorScheme.surface,
+            actionIconContentColor = MaterialTheme.colorScheme.surface,
+            scrolledContainerColor = MaterialTheme.colorScheme.surface,
+        ),
         navigationIcon = {
             if (showBackIcon) {
                 IconButton(onClick = {
@@ -4203,6 +4381,12 @@ fun AppBar(
                 }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
+            }else{
+                Spacer(
+                    Modifier
+                        .fillMaxHeight()
+                        .width(72.dp - 4.dp)
+                )
             }
         },
         title = {
@@ -4223,7 +4407,8 @@ fun AppBar(
         actions = {
             if (rowScope == null) {
                 Spacer(
-                    Modifier.fillMaxHeight()
+                    Modifier
+                        .fillMaxHeight()
                         .width(72.dp - 4.dp)
                 )
             } else {
@@ -4233,23 +4418,31 @@ fun AppBar(
     )
 }
 
+@ExperimentalMaterial3Api
 @Composable
 fun DemoComponent() {
     //导航控制器状态对象
     val navController = rememberNavController()
     Scaffold {
-        //根据导航控制器，返回不同的导航
-        NavHost(navController = navController, startDestination = Screen.HomeComponent.route) {
-            composable(Screen.HomeComponent.route) { HomeComponent(navController) }
-            composable(Screen.UserComponent.route) { UserComponent(navController) }
-            composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
-            composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
-            composable(Screen.ArticleDetailComponent.route) { ArticleDetailComponent(navController) }
+        Surface(modifier = Modifier.padding(it)) {
+            //根据导航控制器，返回不同的导航
+            NavHost(navController = navController, startDestination = Screen.HomeComponent.route) {
+                composable(Screen.HomeComponent.route) { HomeComponent(navController) }
+                composable(Screen.UserComponent.route) { UserComponent(navController) }
+                composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
+                composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
+                composable(Screen.ArticleDetailComponent.route) {
+                    ArticleDetailComponent(
+                        navController
+                    )
+                }
+            }
         }
     }
 }
 
 //主页  navController 参数保证每个屏幕都能使用导航
+@ExperimentalMaterial3Api
 @Composable
 fun HomeComponent(navController: NavHostController) {
     Scaffold(
@@ -4265,17 +4458,20 @@ fun HomeComponent(navController: NavHostController) {
             BottomBar(navController)
         }
     ) {
-        Column {
-            Text("主页")
-            Text("跳转到文章列表", modifier = Modifier.clickable {
-                //跳转到文章列表
-                navController.navigate(Screen.ArticleListComponent.route)
-            })
+        Surface(modifier = Modifier.padding(it)) {
+            Column {
+                Text("主页")
+                Text("跳转到文章列表", modifier = Modifier.clickable {
+                    //跳转到文章列表
+                    navController.navigate(Screen.ArticleListComponent.route)
+                })
+            }
         }
     }
 }
 
 //个人中心
+@ExperimentalMaterial3Api
 @Composable
 fun UserComponent(navController: NavHostController) {
     Scaffold(
@@ -4285,17 +4481,27 @@ fun UserComponent(navController: NavHostController) {
             BottomBar(navController)
         }
     ) {
-        Column {
-            Text("个人中心")
-            Text("对象传参跳转", modifier = Modifier.clickable {
-                //跳转到用户详情
-                navController.navigate("User/UserDetail/" + Json.encodeToString(Person("张三", 18)))
-            })
+        Surface(modifier = Modifier.padding(it)) {
+            Column {
+                Text("个人中心")
+                Text("对象传参跳转", modifier = Modifier.clickable {
+                    //跳转到用户详情
+                    navController.navigate(
+                        "User/UserDetail/" + Json.encodeToString(
+                            Person(
+                                "张三",
+                                18
+                            )
+                        )
+                    )
+                })
+            }
         }
     }
 }
 
 //用户详情
+@ExperimentalMaterial3Api
 @Composable
 fun UserDetailComponent(navController: NavHostController) {
     //获取用户详情
@@ -4313,13 +4519,16 @@ fun UserDetailComponent(navController: NavHostController) {
             )
         },
     ) {
-        Column {
-            Text("用户详情" + userObj?.name)
+        Surface(modifier = Modifier.padding(it)) {
+            Column {
+                Text("用户详情" + userObj?.name)
+            }
         }
     }
 }
 
 //文章列表
+@ExperimentalMaterial3Api
 @Composable
 fun ArticleListComponent(navController: NavHostController) {
     Scaffold(
@@ -4331,17 +4540,20 @@ fun ArticleListComponent(navController: NavHostController) {
             )
         },
     ) {
-        Column {
-            Text("文字列表")
-            Text("跳转到文章详情", modifier = Modifier.clickable {
-                //跳转到文章列表
-                navController.navigate("Article/ArticleDetail/333")
-            })
+        Surface(modifier = Modifier.padding(it)) {
+            Column {
+                Text("文字列表")
+                Text("跳转到文章详情", modifier = Modifier.clickable {
+                    //跳转到文章列表
+                    navController.navigate("Article/ArticleDetail/333")
+                })
+            }
         }
     }
 }
 
 //文章详情
+@ExperimentalMaterial3Api
 @Composable
 fun ArticleDetailComponent(navController: NavHostController) {
     //获取详情
@@ -4359,30 +4571,34 @@ fun ArticleDetailComponent(navController: NavHostController) {
                 })
         },
     ) {
-        Column {
-            Text("文章详情id：$id")
-            Text("跳到指定页面,并移除堆栈指定路由之上的所有路由(用的不多)", modifier = Modifier.clickable {
-                //跳转到首页
-                navController.navigate(Screen.HomeComponent.route) {
-                    //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
-                    popUpTo(Screen.ArticleListComponent.route)
-                }
-            })
-            Text("跳到指定页面,并移除堆栈指定路由之上的所有路由,包括指定路由(可用，相当于移除所有路由，只保留一个路由)", modifier = Modifier.clickable {
-                //跳转到首页
-                navController.navigate(Screen.HomeComponent.route) {
-                    //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
-                    popUpTo(Screen.HomeComponent.route) {
-                        inclusive = true
+        Surface(modifier = Modifier.padding(it)) {
+            Column {
+                Text("文章详情id：$id")
+                Text("跳到指定页面,并移除堆栈指定路由之上的所有路由(用的不多)", modifier = Modifier.clickable {
+                    //跳转到首页
+                    navController.navigate(Screen.HomeComponent.route) {
+                        //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
+                        popUpTo(Screen.ArticleListComponent.route)
                     }
-                }
-            })
-            Text("重复点击同一个路由，避免多个重复路由在顶部(可用)", modifier = Modifier.clickable {
-                //跳转到首页
-                navController.navigate("Article/ArticleDetail/333") {
-                    launchSingleTop = true
-                }
-            })
+                })
+                Text(
+                    "跳到指定页面,并移除堆栈指定路由之上的所有路由,包括指定路由(可用，相当于移除所有路由，只保留一个路由)",
+                    modifier = Modifier.clickable {
+                        //跳转到首页
+                        navController.navigate(Screen.HomeComponent.route) {
+                            //移除文章列表上的所有路由，这里移除了文章详情，跳到到首页返回后只能返回到文章列表
+                            popUpTo(Screen.HomeComponent.route) {
+                                inclusive = true
+                            }
+                        }
+                    })
+                Text("重复点击同一个路由，避免多个重复路由在顶部(可用)", modifier = Modifier.clickable {
+                    //跳转到首页
+                    navController.navigate("Article/ArticleDetail/333") {
+                        launchSingleTop = true
+                    }
+                })
+            }
         }
     }
 }
@@ -4390,12 +4606,10 @@ fun ArticleDetailComponent(navController: NavHostController) {
 
 **路由动画**
 
-这里面发现一个Bug，就是某些不需要动画的导航，快速切换的时候还是会发生动画，是个官方Bug
-
 依赖
 
 ```
-implementation "com.google.accompanist:accompanist-navigation-animation 0.23.1"
+implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.10-beta'
 ```
 
 ```kt
@@ -4405,73 +4619,79 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 
 @ExperimentalAnimationApi
+@ExperimentalMaterial3Api
 @Composable
 fun DemoComponent() {
     //动画导航替换rememberAnimatedNavController
     val navController = rememberAnimatedNavController()
     Scaffold {
-        //动画导航替换AnimatedNavHost
-        AnimatedNavHost(navController = navController, startDestination = Screen.HomeComponent.route,
-            //下面的是水平滑动的写法 这里是定义的全局的
-            //当前页面进入动画
-            enterTransition = {
-                //initialState targetState 是作用域的内置属性
-                when (initialState.destination.route + "To" + targetState.destination.route) {
-                    //这里是某些不需要动画的导航处理
-                    "HomeToUser" -> EnterTransition.None
-                    "UserToHome" -> EnterTransition.None
-                    //下面这个是全局的
-                    else -> slideInHorizontally(
-                        //目的偏移量
-                        initialOffsetX = { fullWidth -> fullWidth },
-                        //动画规则
-                        animationSpec = tween(500)
+        Surface(modifier = Modifier.padding(it)) {
+            //动画导航替换AnimatedNavHost
+            AnimatedNavHost(navController = navController, startDestination = Screen.HomeComponent.route,
+                //下面的是水平滑动的写法 这里是定义的全局的
+                //当前页面进入动画
+                enterTransition = {
+                    //initialState targetState 是作用域的内置属性
+                    when (initialState.destination.route + "To" + targetState.destination.route) {
+                        //这里是某些不需要动画的导航处理
+                        "HomeToUser" -> EnterTransition.None
+                        "UserToHome" -> EnterTransition.None
+                        //下面这个是全局的
+                        else -> slideInHorizontally(
+                            //目的偏移量
+                            initialOffsetX = { fullWidth -> fullWidth },
+                            //动画规则
+                            animationSpec = tween(500)
+                        )
+                    }
+                },
+                //当前页面退出动画
+                exitTransition = {
+                    when (initialState.destination.route + "To" + targetState.destination.route) {
+                        "HomeToUser" -> ExitTransition.None
+                        "UserToHome" -> ExitTransition.None
+                        else ->
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> -fullWidth },
+                                animationSpec = tween(500)
+                            )
+                    }
+                },
+                //目标页面进入
+                popEnterTransition = {
+                    when (initialState.destination.route + "To" + targetState.destination.route) {
+                        "HomeToUser" -> EnterTransition.None
+                        "UserToHome" -> EnterTransition.None
+                        else ->
+                            slideInHorizontally(
+                                initialOffsetX = { fullWidth -> -fullWidth },
+                                animationSpec = tween(500)
+                            )
+                    }
+                },
+                //目标页面退出
+                popExitTransition = {
+                    when (initialState.destination.route + "To" + targetState.destination.route) {
+                        "HomeToUser" -> ExitTransition.None
+                        "UserToHome" -> ExitTransition.None
+                        else ->
+                            slideOutHorizontally(
+                                targetOffsetX = { fullWidth -> fullWidth },
+                                animationSpec = tween(500)
+                            )
+                    }
+                }) {
+                //动画导航替换composable
+                composable(Screen.HomeComponent.route) { HomeComponent(navController) }
+                composable(Screen.UserComponent.route) { UserComponent(navController) }
+                composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
+                composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
+                composable(Screen.ArticleDetailComponent.route) {
+                    ArticleDetailComponent(
+                        navController
                     )
                 }
-            },
-            //当前页面退出动画
-            exitTransition = {
-                when (initialState.destination.route + "To" + targetState.destination.route) {
-                    "HomeToUser" -> ExitTransition.None
-                    "UserToHome" -> ExitTransition.None
-                    else ->
-                        slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> -fullWidth },
-                            animationSpec = tween(500)
-                        )
-                }
-            },
-            //目标页面进入
-            popEnterTransition = {
-                when (initialState.destination.route + "To" + targetState.destination.route) {
-                    "HomeToUser" -> EnterTransition.None
-                    "UserToHome" -> EnterTransition.None
-                    else ->
-                        slideInHorizontally(
-                            initialOffsetX = { fullWidth -> -fullWidth },
-                            animationSpec = tween(500)
-                        )
-                }
-            },
-            //目标页面退出
-            popExitTransition = {
-                when (initialState.destination.route + "To" + targetState.destination.route) {
-                    "HomeToUser" -> ExitTransition.None
-                    "UserToHome" -> ExitTransition.None
-                    else ->
-                        slideOutHorizontally(
-                            targetOffsetX = { fullWidth -> fullWidth },
-                            animationSpec = tween(500)
-                        )
-                }
             }
-        ) {
-            //动画导航替换composable
-            composable(Screen.HomeComponent.route) { HomeComponent(navController) }
-            composable(Screen.UserComponent.route) { UserComponent(navController) }
-            composable(Screen.UserDetailComponent.route) { UserDetailComponent(navController) }
-            composable(Screen.ArticleListComponent.route) { ArticleListComponent(navController) }
-            composable(Screen.ArticleDetailComponent.route) { ArticleDetailComponent(navController) }
         }
     }
 }
@@ -4483,22 +4703,23 @@ fun DemoComponent() {
 
 ```
 //用于设置状态栏
-implementation 'com.google.accompanist:accompanist-systemuicontroller:0.23.1'
-//用于获取状态栏高度 沉浸式状态栏需要
+implementation 'com.google.accompanist:accompanist-systemuicontroller:0.24.10-beta'
+//用于获取状态栏高度 沉浸式状态栏需要(废弃啊，已经支持了，不需要下面这个了)
 implementation 'com.google.accompanist:accompanist-insets:0.23.1'
 ```
 
 **设置导航栏颜色**
 
 ```kt
+@ExperimentalMaterial3Api
 @Composable
-fun DemoComponent1() {
+fun DemoComponent() {
     //系统UI设置控制器
     val systemUiController = rememberSystemUiController()
     //使用白色图标
     val useDarkIcons = false
     //背景颜色
-    val backgroundColor = MaterialTheme.colors.primarySurface
+    val backgroundColor = MaterialTheme.colorScheme.secondary
     //设置效果
     SideEffect {
         systemUiController.setSystemBarsColor(
@@ -4508,7 +4729,7 @@ fun DemoComponent1() {
     }
     Scaffold(
         topBar = {
-            TopAppBar(
+            SmallTopAppBar(
                 title = {
                     Text(text = "Page title", maxLines = 2)
                 },
@@ -4520,9 +4741,11 @@ fun DemoComponent1() {
             )
         },
     ) {
-        LazyColumn(modifier = Modifier.fillMaxSize()) {
-            items(100) {
-                Text("item $it")
+        Surface(modifier = Modifier.padding(it)) {
+            LazyColumn(modifier = Modifier.fillMaxSize()) {
+                items(100) {
+                    Text("item $it")
+                }
             }
         }
     }
@@ -4553,6 +4776,7 @@ class MainActivity : ComponentActivity() {
 主屏幕设置状态栏颜色，以及兼容问题
 
 ```kt
+@ExperimentalMaterial3Api
 @Composable
 fun DemoComponent() {
     //系统UI设置控制器
@@ -4568,62 +4792,78 @@ fun DemoComponent() {
             darkIcons = useDarkIcons
         )
     }
-    //得用这个ProvideWindowInsets 不然statusBarsHeight()不生效
-    ProvideWindowInsets {
-        Scaffold(bottomBar = {
-            BottomNavigation {
-                BottomNavigationItem(
-                    icon = {},
-                    label = { Text("底部导航栏") },
-                    selected = true,
-                    onClick = {})
-            }
-        }) {
-            //paddingValues这个值就是底部导航栏的值
-                paddingValues ->
-            val scrollState = rememberScrollState()
-            //.padding(paddingValues) 即可解决底部挡住问题
-            Column(modifier = Modifier.verticalScroll(scrollState).fillMaxWidth().padding(paddingValues)) {
-                Spacer(
-                    //设置状态栏高度
-                    modifier = Modifier.statusBarsHeight()
-                        .fillMaxWidth().background(
-                            //渐变色
-                            brush = Brush.linearGradient(
-                                colors = listOf(
-                                    colors.primary,
-                                    colors.primaryVariant,
-                                )
-                            )
-                        )
-                )
-                TopAppBar(
-                    title = {
-                        Text(text = "Page title", maxLines = 2)
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {}) {
-                            Text(text = "图标")
-                        }
-                    },
-                    //渐变色
-                    modifier = Modifier.background(
+    Scaffold(bottomBar = {
+        NavigationBar(
+            containerColor = MaterialTheme.colorScheme.primary,
+            contentColor = MaterialTheme.colorScheme.surface,
+        ) {
+            NavigationBarItem(
+                icon = { Icon(Icons.Filled.Home, contentDescription = null) },
+                colors = NavigationBarItemDefaults.colors(
+                    //隐藏指示器颜色
+                    indicatorColor = MaterialTheme.colorScheme.primary,
+                    selectedIconColor = Color.White,
+                    selectedTextColor = Color.White,
+                    unselectedIconColor = Color.LightGray,
+                    unselectedTextColor = Color.LightGray
+                ),
+                label = { Text("底部导航栏") },
+                selected = true,
+                onClick = {})
+        }
+    }) { paddingValues ->
+        val scrollState = rememberScrollState()
+        //.padding(paddingValues) 即可解决底部挡住问题
+        Column(
+            modifier = Modifier
+                .verticalScroll(scrollState)
+                .fillMaxWidth()
+                .padding(paddingValues)
+        ) {
+            Spacer(
+                //设置状态栏高度
+                modifier = Modifier
+                    .windowInsetsTopHeight(WindowInsets.statusBars)
+                    .fillMaxWidth()
+                    .background(
+                        //渐变色
                         brush = Brush.linearGradient(
                             colors = listOf(
-                                colors.primary,
-                                colors.primaryVariant,
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary,
+                            )
+                        )
+                    )
+            )
+            SmallTopAppBar(
+                title = {
+                    Text(text = "Page title", maxLines = 2)
+                },
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Text(text = "图标")
+                    }
+                },
+                colors = TopAppBarDefaults.smallTopAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.surface,
+                    actionIconContentColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                ),
+                //渐变色
+                modifier = Modifier
+                    .background(
+                        brush = Brush.linearGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.primary,
+                                MaterialTheme.colorScheme.secondary,
                             )
                         )
                     ),
-                    backgroundColor = Color.Transparent,
-                    contentColor = Color.White,
-                    elevation = 0.dp
-                )
-                repeat(100) {
-                    Text("列表内容 $it")
-                }
-
-                //Spacer(modifier = Modifier.navigationBarsHeight(56.dp))
+            )
+            repeat(100) {
+                Text("列表内容 $it")
             }
         }
     }
@@ -4635,14 +4875,13 @@ fun DemoComponent() {
 依赖
 
 ```
-implementation "com.google.accompanist:accompanist-pager:0.23.1"
+implementation 'com.google.accompanist:accompanist-pager:0.24.10-beta'
 ```
 
 ```kt
 @ExperimentalPagerApi
 @Composable
 fun DemoComponent() {
-
     val pagerState1 = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
 
@@ -4694,6 +4933,137 @@ fun DemoComponent() {
         onDispose {
             loop = false
         }
+    }
+}
+```
+
+### 主题
+
+主题色定义在ui.theme下的Color.kt文件下
+
+onPrimary就是一个颜色，意思就是 背景色紫色，在紫色上显示就会是白色
+
+onSurface 意思就是背景色白色，在白色上显示就会色黑色
+
+```kt
+@Composable
+fun DemoComponent() {
+    Column() {
+        Surface(
+            modifier = Modifier.fillMaxWidth(),
+            color = MaterialTheme.colorScheme.primaryContainer //淡紫色
+        ) {
+            Column() {
+                Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字")//文字黑色 背景淡紫色
+                Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.surface)//文字白色
+                Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onPrimary)//文字白色
+                Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onPrimaryContainer)//文字紫色
+                Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onSurface)//文字黑色
+                Button(onClick = { /*TODO*/ }) {
+                    Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字") //文字白色 背景紫色
+                }
+            }
+        }
+        Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字")//文字黑色
+        Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.surface)//文字白色
+        Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onPrimary)//文字白色
+        Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onPrimaryContainer)//文字紫色
+        Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字", color = MaterialTheme.colorScheme.onSurface)//文字黑色
+        Button(onClick = { /*TODO*/ }) {
+            Text(text = "示例文字示例文字示例文字示例文字示例文字示例文字示例文字") //文字白色 背景紫色
+        }
+    }
+}
+```
+
+### 本地存储
+
+[DataStore](https://developer.android.google.cn/topic/libraries/architecture/datastore#kotlin)
+
+```
+implementation "androidx.datastore:datastore-preferences:1.0.0"
+```
+
+```kt
+class LocalStorage(private val context: Context) {
+    //伴生对象 就是静态的意思
+    companion object {
+        //对Context类做扩展
+        val Context.localStorage by preferencesDataStore("localStorage")
+
+        //定义键值常量 比如我要存储一个歌曲列表
+        val SONG_LIST = stringPreferencesKey("User")
+    }
+
+    //设置值
+    suspend fun setLocalStorage(key: Preferences.Key<String>, str: String) =
+        context.localStorage.edit {
+            it[key] = str
+        }
+
+    //获取值
+    suspend fun getLocalStorage(key: Preferences.Key<String>) = context.localStorage.data.map {
+        it[key] ?: ""
+    }.first()
+}
+
+@ExperimentalPagerApi
+@ExperimentalAnimationApi
+@Composable
+fun DemoComponent() {
+
+    val scope = rememberCoroutineScope()
+    //获取上下文对象
+    val context = LocalContext.current
+
+    Column {
+        Button(onClick = {
+            val list = listOf("歌曲1", "歌曲2", "歌曲3")
+            scope.launch {
+                LocalStorage(context).setLocalStorage(
+                    LocalStorage.SONG_LIST,
+                    Json.encodeToString(list)
+                )
+            }
+        }) {
+            Text(text = "设置")
+        }
+        Button(onClick = {
+            scope.launch {
+                val list = Json.decodeFromString<List<String>>(
+                    LocalStorage(context).getLocalStorage(
+                        LocalStorage.SONG_LIST
+                    )
+                )
+                println(list.toString())//[歌曲1, 歌曲2, 歌曲3]
+            }
+        }) {
+            Text(text = "获取值")
+        }
+    }
+}
+```
+
+### 网络
+
+[Retrofit](https://square.github.io/retrofit/)
+
+```
+implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // 必要依赖，解析json字符
+```
+
+```kt
+object HttpUtils {
+    //初始化
+    val retrofit: Retrofit = Retrofit.Builder()
+        .baseUrl("https://api.github.com/")
+        .addConverterFactory(GsonConverterFactory.create())
+        .build();
+
+    //获取实例
+    fun <T> createService(clazz: Class<T>) {
+        val service = retrofit.create(clazz::class.java)
     }
 }
 ```
