@@ -2781,18 +2781,6 @@ android {
 
 android函数声明式UI框架，和flutter类似就是了
 
-### 创建项目 
-
-使用最新版androidStudio
-
-1. [下载](https://developer.android.google.cn/studio)
-2. new Project 选择Empty Compose Activity([Material3](https://developer.android.google.cn/jetpack/androidx/releases/compose-material3#kts))  等待依赖库下载完毕
-3. 修改项目根目录build里[compose版本1.2.0-beta01](https://developer.android.google.cn/jetpack/androidx/releases/compose)，直接用最新的 kotlin版本直接最新1.6.21
-4. 配置注释搜索space
-5. 配置字体大小主题 白色 14 16
-6. 配置自动导入Auto Import kotlin 选中第一个
-7. 配置格式化快键键Keymap 搜索format
-
 ### DSL手写声明式组件
 
 理解了这个再了解内置组件就容易多啦
@@ -2870,6 +2858,30 @@ fun CustomComponent(content: @Composable Scope.() -> Unit) {
 }
 ```
 
+### material组件文档
+
+[material组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material/package-summary#overview)
+
+[material3组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material3/package-summary#materialtheme) 后面的案例都用这个演示
+
+[实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
+
+### Idea创建（旧）
+
+Idea-File-New-Project-Android-Empty Compose Activity
+
+### 创建项目 
+
+使用最新版androidStudio
+
+1. [下载](https://developer.android.google.cn/studio)
+2. new Project 选择Empty Compose Activity([Material3](https://developer.android.google.cn/jetpack/androidx/releases/compose-material3#kts))  等待依赖库下载完毕
+3. 修改项目根目录build里[compose版本1.2.0-beta01](https://developer.android.google.cn/jetpack/androidx/releases/compose)，直接用最新的 kotlin版本直接最新1.6.21
+4. 配置注释搜索space
+5. 配置字体大小主题 白色 14 16
+6. 配置自动导入Auto Import kotlin 选中第一个
+7. 配置格式化快键键Keymap 搜索format
+
 ### slot
 
 lambda尾随实现插槽功能
@@ -2891,18 +2903,6 @@ fun DefaultPreview() {
     }
 }
 ```
-
-### material组件文档
-
-[material组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material/package-summary#overview)
-
-[material3组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material3/package-summary#materialtheme) 后面的案例都用这个演示
-
-[实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
-
-### 创建(旧)
-
-Idea-File-New-Project-Android-Empty Compose Activity
 
 ### 注解
 
@@ -5048,22 +5048,102 @@ fun DemoComponent() {
 
 [Retrofit](https://square.github.io/retrofit/)
 
+依赖
+
 ```
 implementation 'com.squareup.retrofit2:retrofit:2.9.0'
 implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // 必要依赖，解析json字符
 ```
 
+权限
+```
+<uses-permission android:name="android.permission.INTERNET"/>
+```
+
+工具类
+
 ```kt
+//不需要双重锁机制，这样多简单
 object HttpUtils {
     //初始化
-    val retrofit: Retrofit = Retrofit.Builder()
-        .baseUrl("https://api.github.com/")
-        .addConverterFactory(GsonConverterFactory.create())
-        .build();
+    val retrofit: Retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("http://noval.o8o8o8.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
 
-    //获取实例
-    fun <T> createService(clazz: Class<T>) {
-        val service = retrofit.create(clazz::class.java)
+    //创建实例方法
+    fun <T> createHttp(clazz: Class<T>): T {
+        return retrofit.create(clazz)
+    }
+}
+
+//http接口请求，实际单独放一个文件
+interface BookApi {
+
+    //GET请求格式就是这样子
+    @GET("Book/getBookListByBook")
+    suspend fun getBookListByBook(
+        @Query("book_name") book_name: String,
+        @Query("page") page: Int,
+        @Query("pageSize") pageSize: Int,
+    ): Book
+
+    //拿到实例
+    companion object {
+        val instance: BookApi by lazy {
+            HttpUtils.createHttp(BookApi::class.java)
+        }
+    }
+}
+```
+
+数据类，通过插件JsonToDataClass kotlin生成
+
+```kt
+import com.google.gson.annotations.SerializedName
+
+data class Book(
+    @SerializedName("code")
+    val code: Int,
+    @SerializedName("data")
+    val `data`: List<Data>,
+    @SerializedName("message")
+    val message: String
+) {
+    data class Data(
+        @SerializedName("author")
+        val author: String,
+        @SerializedName("book_name")
+        val bookName: String,
+        @SerializedName("category_name")
+        val categoryName: String,
+        @SerializedName("chapter_count")
+        val chapterCount: Int,
+        @SerializedName("chapter_detail")
+        val chapterDetail: String,
+        @SerializedName("chapter_detail_count")
+        val chapterDetailCount: Int,
+        @SerializedName("id")
+        val id: Int,
+        @SerializedName("image_url")
+        val imageUrl: String,
+        @SerializedName("update_time")
+        val updateTime: Int
+    )
+}
+```
+
+使用
+
+```kt
+@Preview(showBackground = true)
+@Composable
+fun DefaultPreview() {
+    LaunchedEffect(Unit) {
+        val bookListByBook = BookApi.instance.getBookListByBook("1", 1, 10)
+        println(bookListByBook)
     }
 }
 ```
