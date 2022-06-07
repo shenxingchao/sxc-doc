@@ -5134,8 +5134,6 @@ interface BookApi {
 Response.kt
 
 ```kt
-import com.google.gson.annotations.SerializedName
-
 data class Response<T>(
     @SerializedName("code")
     val code: Int,
@@ -5237,9 +5235,83 @@ class BaseApplication : Application() {
 ...
 ```
 
-然后任何地方都可以调用
+封装Toast
+
+需要kotlin协程库
+
+```
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2"
+implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
+```
+
 ```kt
-Looper.prepare();//多加的两行是为了再协程中调用，不然无法使用
-Toast.makeText(BaseApplication.context, "string", Toast.LENGTH_LONG).show();
-Looper.loop();//以及这行
+fun showToast(msg: String) {
+    CoroutineScope(Dispatchers.Main).launch {
+        if (Looper.myLooper() == null)
+            Looper.prepare();//多加的两行是为了再协程中调用，不然无法使用
+        Toast.makeText(BaseApplication.context, msg, Toast.LENGTH_LONG).show();
+        Looper.loop();//以及这行
+    }
+}
+```
+
+### 下拉刷新
+
+依赖
+
+```
+implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
+```
+
+使用
+
+实际这些都放到ViewModel里去控制，这里只是演示，而且isRefreshing在getBookList不可变....
+
+```kt
+@Composable
+fun DemoComponent() {
+    val data = remember {
+        mutableStateListOf<Book>()
+    }
+
+
+    //是否正在刷新
+    var isRefreshing by remember {
+        mutableStateOf(false)
+    }
+
+    var page = 1;
+
+    LaunchedEffect(Unit) {
+        //发送请求
+        getBookList(data, page, isRefreshing)
+    }
+
+    //刷新组件
+    SwipeRefresh(
+        state = rememberSwipeRefreshState(isRefreshing),
+        onRefresh = {
+            isRefreshing = true
+            page = 1
+            getBookList(data, page, isRefreshing)
+        },
+        //自定义指示器
+        indicator = { state, trigger ->
+            SwipeRefreshIndicator(
+                state = state,
+                refreshTriggerDistance = trigger,
+                scale = true,
+                backgroundColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.surface,
+                shape = CutCornerShape(4.dp)
+            )
+        }
+    ) {
+        LazyColumn {
+            items(data.size) { index ->
+                Text(data[index].bookName)
+            }
+        }
+    }
+}
 ```
