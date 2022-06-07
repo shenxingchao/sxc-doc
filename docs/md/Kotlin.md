@@ -5205,3 +5205,41 @@ fun DemoComponent() {
     }
 }
 ```
+
+
+### 全局Context和Toast
+
+建一个类继承Application以获取全局Context
+
+BaseApplication.kt
+
+```kt
+class BaseApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+        context = this
+    }
+
+    companion object {
+        lateinit var context: BaseApplication
+            private set
+    }
+}
+```
+
+然后在AndroidManifest.xml里添加
+
+```
+...
+<application
+        android:name=".BaseApplication"
+        ....
+...
+```
+
+然后任何地方都可以调用
+```kt
+Looper.prepare();//多加的两行是为了再协程中调用，不然无法使用
+Toast.makeText(BaseApplication.context, "string", Toast.LENGTH_LONG).show();
+Looper.loop();//以及这行
+```
