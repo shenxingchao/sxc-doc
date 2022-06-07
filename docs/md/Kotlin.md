@@ -5060,13 +5060,13 @@ implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // 必要依赖，�
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
-工具类
+工具类HttpUtils.kt
 
 ```kt
 //不需要双重锁机制，这样多简单
 object HttpUtils {
     //初始化
-    val retrofit: Retrofit by lazy {
+    private val retrofit: Retrofit by lazy {
         Retrofit.Builder()
             .baseUrl("http://noval.o8o8o8.com/")
             .addConverterFactory(GsonConverterFactory.create())
@@ -5077,8 +5077,38 @@ object HttpUtils {
     fun <T> createHttp(clazz: Class<T>): T {
         return retrofit.create(clazz)
     }
-}
 
+    //协程扩展函数增加全局处理请求
+    fun <T> request(
+        getResponse: suspend CoroutineScope.() -> Response<T>,//方法执行作用域 加上suspend才是一个协程方法 CoroutineScope.就是协程作用域
+        success: (T?) -> Unit, //成功响应
+        error: (String) -> Unit = {} //失败响应 赋默认值 可以不传
+    ) {
+        //使用IO协程来进行网络通信
+        CoroutineScope(Dispatchers.IO).launch {
+            //设置超时时间5秒 自动取消协程 这个函数好啊
+            withTimeoutOrNull(5000) {
+                try {
+                    val response = getResponse()
+                    if (response.code != 20000) {
+                        error(response.message)
+                    } else {
+                        success(response.data)
+                    }
+                } catch (e: RuntimeException) {
+                    error("网络请求异常" + e.message)
+                } finally {
+                    this.cancel()
+                }
+            }
+        }
+    }
+}
+```
+
+接口类BookApi.kt
+
+```kt
 //http接口请求，实际单独放一个文件
 interface BookApi {
 
@@ -5088,7 +5118,7 @@ interface BookApi {
         @Query("book_name") book_name: String,
         @Query("page") page: Int,
         @Query("pageSize") pageSize: Int,
-    ): Book
+    ): Response<MutableList<Book>>
 
     //拿到实例
     companion object {
@@ -5099,51 +5129,79 @@ interface BookApi {
 }
 ```
 
-数据类，通过插件JsonToDataClass kotlin生成
+数据类，通过插件JsonToDataClass kotlin生成  拆分生成，不要合并
+
+Response.kt
 
 ```kt
 import com.google.gson.annotations.SerializedName
 
-data class Book(
+data class Response<T>(
     @SerializedName("code")
     val code: Int,
     @SerializedName("data")
-    val `data`: List<Data>,
+    val `data`: T,
     @SerializedName("message")
     val message: String
-) {
-    data class Data(
-        @SerializedName("author")
-        val author: String,
-        @SerializedName("book_name")
-        val bookName: String,
-        @SerializedName("category_name")
-        val categoryName: String,
-        @SerializedName("chapter_count")
-        val chapterCount: Int,
-        @SerializedName("chapter_detail")
-        val chapterDetail: String,
-        @SerializedName("chapter_detail_count")
-        val chapterDetailCount: Int,
-        @SerializedName("id")
-        val id: Int,
-        @SerializedName("image_url")
-        val imageUrl: String,
-        @SerializedName("update_time")
-        val updateTime: Int
-    )
-}
+)
+```
+
+Book.kt
+
+```kt
+data class Book(
+    @SerializedName("author")
+    val author: String,
+    @SerializedName("book_name")
+    val bookName: String,
+    @SerializedName("category_name")
+    val categoryName: String,
+    @SerializedName("chapter_count")
+    val chapterCount: Int,
+    @SerializedName("chapter_detail")
+    val chapterDetail: String,
+    @SerializedName("chapter_detail_count")
+    val chapterDetailCount: Int,
+    @SerializedName("id")
+    val id: Int,
+    @SerializedName("image_url")
+    val imageUrl: String,
+    @SerializedName("update_time")
+    val updateTime: Int
+)
 ```
 
 使用
 
 ```kt
-@Preview(showBackground = true)
 @Composable
-fun DefaultPreview() {
+fun DemoComponent() {
+    val data = remember {
+        mutableStateListOf<Book>()
+    }
+
     LaunchedEffect(Unit) {
-        val bookListByBook = BookApi.instance.getBookListByBook("1", 1, 10)
-        println(bookListByBook)
+        //发送请求
+        HttpUtils.request(
+            getResponse = {
+                BookApi.instance.getBookListByBook("1", 1, 10)
+            },
+            success = {
+                //回调数据
+                it?.let {
+                    data.addAll(it)
+                }
+            },
+            error = {
+                println(it)
+            },
+        )
+    }
+
+    LazyColumn {
+        items(data.size) { index ->
+            Text(data[index].bookName)
+        }
     }
 }
 ```
