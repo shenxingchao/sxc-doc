@@ -3339,6 +3339,55 @@ fun DefaultPreview() {
 }
 ```
 
+### stickyHeader
+
+粘性头部,滚动到顶部时，吸附到顶部
+
+```kt
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DemoComponent() {
+    var tabIndexState by remember { mutableStateOf(0) }
+    val titles = listOf("选项1", "选项2", "选项3")
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxWidth()
+    ) {
+        item {
+            Surface(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp), color = Color.Red
+            ) {
+            }
+        }
+        stickyHeader() {
+            TabRow(selectedTabIndex = tabIndexState) {
+                titles.forEachIndexed { index, title ->
+                    Tab(
+                        text = { Text(title) },
+                        selected = tabIndexState == index,
+                        onClick = { tabIndexState = index }
+                    )
+                }
+            }
+        }
+        when (tabIndexState) {
+            0 ->
+                items(100) {
+                    Text(text = "列表1")
+                }
+            1 -> items(100) {
+                Text(text = "列表2")
+            }
+            2 -> items(100) {
+                Text(text = "列表3")
+            }
+        }
+    }
+}
+```
+
 ### scroll
 
 页面内容可滚动
@@ -5492,6 +5541,58 @@ fun DemoComponent() {
 }
 ```
 
+### placeholder
+
+占位符 实验性修饰符
+
+visible 绑定占位符显示状态
+
+依赖
+
+```
+implementation "com.google.accompanist:accompanist-placeholder-material:0.24.10-beta"
+```
+
+```kt
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+fun DemoComponent() {
+    val list = remember {
+        mutableStateListOf<String>()
+    }
+    var isLoadFinish by remember {
+        mutableStateOf(false)
+    }
+
+    val scope = rememberCoroutineScope()
+    LaunchedEffect(Unit) {
+        scope.launch {
+            delay(2000)
+            for (i in 1..5) {
+                list.add("网络请求内容$i")
+            }
+            isLoadFinish = true
+        }
+    }
+
+    LazyColumn {
+        val count = if (isLoadFinish) list.size else 5
+        items(count) { index ->
+            Text(
+                text = if (isLoadFinish) list[index] else "加载中",
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+                    .placeholder(
+                        visible = list.size == 0,
+                        highlight = PlaceholderHighlight.shimmer()
+                    )
+            )
+        }
+    }
+}
+```
+
 ### 依赖总结
 
 ```
@@ -5531,4 +5632,6 @@ implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
 implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
 //折叠AppBar
 implementation "me.onebone:toolbar-compose:2.3.3"
+//占位符placeholder
+implementation "com.google.accompanist:accompanist-placeholder-material:0.24.10-beta"
 ```

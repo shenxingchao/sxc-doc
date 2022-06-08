@@ -826,6 +826,8 @@
 
     - [LazyColumn](/md/Kotlin#lazycolumn)
 
+    - [stickyHeader](/md/Kotlin#stickyHeader)
+
     - [scroll](/md/Kotlin#scroll)
 
     - [click](/md/Kotlin#click)
@@ -877,6 +879,8 @@
     - [下拉刷新和上拉加载](/md/Kotlin#下拉刷新和上拉加载)
 
     - [折叠AppBar](/md/Kotlin#折叠appbar)
+
+    - [placeholder](/md/Kotlin#placeholder)
 
     - [依赖总结](/md/Kotlin#依赖总结)
 
