@@ -7,7 +7,7 @@
 ```kt
 package com.org.kotlin
 //常量
-const val PI = 3.1415;
+const val PI = 3.1415
 
 fun main() {
     //可变类型变量
@@ -74,11 +74,11 @@ fun main() {
     val list = intArrayOf(1, 2, 3)
     //解构赋值
     val (a, b, c) = list
-    println("$a $b $c");//1 2 3
+    println("$a $b $c")//1 2 3
 
     //解构赋值指定位置
     val (_, d, _) = list
-    println("$d");//2
+    println("$d")//2
 }
 ```
 
@@ -350,7 +350,7 @@ fun main() {
     println(fnName4(null))//null
     println(fnName(name = "张三"))//给指定的参数传值,叫具名参数传值
     println(fnVarArg("张三", "8岁", "男"))//8岁 男 张三
-    fnVoid("张三");//无返回值
+    fnVoid("张三")//无返回值
 }
 
 //不写private默认public
@@ -360,7 +360,7 @@ private fun fnName(name: String): String {
 
 //上面的函数编译成java后是这样的
 //private static final String fnName(String name) {
-//    return name;
+//    return name
 //}
 
 //=号赋值 返回类型确定的话，可省略返回值类型
@@ -661,8 +661,8 @@ package com.org.kotlin
 
 fun main() {
     //定义任意类型变量
-    var a: Any = 3;
-    a = "三";
+    var a: Any = 3
+    a = "三"
 
     //定义任意类型返回值
     val fn: (String, Int) -> Any = { name: String, age: Int ->
@@ -904,8 +904,8 @@ fun main() {
 }
 
 class Person() {
-    var name: String = "";
-    var age: Int = 0;
+    var name: String = ""
+    var age: Int = 0
     override fun toString(): String {
         return "Person(name='$name', age=$age)"
     }
@@ -1149,7 +1149,7 @@ fun main() {
     println(person2) //null
 
     //用于某个变量检查
-    val bool = true;
+    val bool = true
     var person3 = person.takeIf { bool }?.apply {
         person.name = "张三"
     }
@@ -1225,7 +1225,7 @@ fun main() {
     //防止越界
     println(list.getOrNull(100))//null
     //增
-    list = list.plus("4");
+    list = list.plus("4")
     //删除值等于
     list = list.minus("2")
     //删除值等于
@@ -1256,7 +1256,7 @@ fun main() {
     //防止越界
     println(list.getOrNull(100))//null
     //增
-    list.add("4");
+    list.add("4")
     //删除值等于
     list.remove("2")
     //删除值等于
@@ -1341,8 +1341,8 @@ fun main() {
     //可变map xx to xx =》键值对
     val map2 = mutableMapOf<String, Any>("hobby" to "lol", "address" to "SH")
     //增
-    map2["name"] = "张三";
-    map2["age"] = 15;
+    map2["name"] = "张三"
+    map2["age"] = 15
     //操作符添加
     map2 += "name" to "李四"
 
@@ -1407,8 +1407,8 @@ kotlin没有多个数据的元组
 package com.org.kotlin
 
 fun main() {
-    val pair = Pair(1, 2);
-    val pair1 = Pair("name", "张三");
+    val pair = Pair(1, 2)
+    val pair1 = Pair("name", "张三")
 }
 ```
 
@@ -1420,8 +1420,8 @@ fun main() {
 package com.org.kotlin
 
 fun main() {
-    val pair = Triple(1, 2, "third");
-    val pair1 = Triple("name", "张三", 18);
+    val pair = Triple(1, 2, "third")
+    val pair1 = Triple("name", "张三", 18)
 }
 ```
 
@@ -1565,13 +1565,13 @@ fun main() {
     val a: A = B("张三", 18)
     a.fn()//子类重写父类方法
     a.parentFn()//父类方法
-    //a.sonFn();//报错，自动遗失父类没有的方法
+    //a.sonFn()//报错，自动遗失父类没有的方法
     //向下转型
     val b: Any = B("张三", 18)
     //判断类型后执行 is 就是java里的instanceof
     if (b is B) {
         b.fn()//子类重写父类方法
-        b.sonFn();//子类方法
+        b.sonFn()//子类方法
     }
     //或者强转后执行
     (b as B).fn()
@@ -1742,10 +1742,10 @@ fun main() {
     println(User(1, "张三", 18).toString())//User(userId=1, name=张三, age=18)
     //2.数据类支持结构赋值
     //普通类解构需要加component方法 不然报错
-    val (userId1, name1, age1) = UserNormal(1, "张三", 18);
+    val (userId1, name1, age1) = UserNormal(1, "张三", 18)
     println("$userId1 $name1 $age1")
     //数据类自动添加了解构返回方法
-    val (userId2, name2, age2) = User(1, "张三", 18);
+    val (userId2, name2, age2) = User(1, "张三", 18)
     println("$userId2 $name2 $age2")
     //3.支持对象copy 底层是new 一个主构造方法...
     val user = User(1, "张三", 18).copy(userId = 10, name = "王五", age = 1)
@@ -1808,9 +1808,9 @@ enum class
 package com.org.kotlin
 
 fun main() {
-    println(A.RED);// RED
-    println(A.GREEN);// GREEN
-    println(B.RED);// RED
+    println(A.RED)// RED
+    println(A.GREEN)// GREEN
+    println(B.RED)// RED
     //枚举对象名称
     println(A.RED.name)//RED
     //枚举对象对应的编号
@@ -1818,7 +1818,7 @@ fun main() {
     //打印所有枚举
     println(B.values().contentToString())//[RED, GREEN, BLUE]
     // 将字符串转成已有枚举常量对象
-    println(B.valueOf("RED"));// RED
+    println(B.valueOf("RED"))// RED
 }
 
 //属性私有化，防止外部更改
@@ -1847,7 +1847,7 @@ package com.org.kotlin
 
 fun main() {
     //密封类不能被初始化,自己是抽象类
-    //Color();Sealed types cannot be instantiated
+    //Color()//Sealed types cannot be instantiated
 
     //一般用法
     val a1 = if (Math.random() > 0.5) B() else C()
@@ -1960,7 +1960,7 @@ package com.org.kotlin
 fun main() {
     val person = Person<Int>(null)
     //表明泛型是Int
-    person.age = 18;
+    person.age = 18
     //下面的是String就报错了
     //person.age = "20"
     // 需要传泛型里的类型<Int>
@@ -1983,10 +1983,10 @@ package com.org.kotlin
 fun main() {
     //只能传A类型或A类型的子类型
     val person = Person(A())
-    person.a = B();
-    person.a = null;//对象传null也没报错..
+    person.a = B()
+    person.a = null//对象传null也没报错..
 
-    //person.a = 18;//报错
+    //person.a = 18//报错
 }
 
 open class A
@@ -2227,12 +2227,12 @@ fun main() = runBlocking {
 
 suspend fun getFn1(): Int {
     delay(2000)
-    return 10;
+    return 10
 }
 
 suspend fun getFn2(): Int {
     delay(2000)
-    return 10;
+    return 10
 }
 ```
 
@@ -2715,7 +2715,7 @@ class A {
         println("使用时初始化了")
         "张三"
     }
-    lateinit var hobby: String;
+    lateinit var hobby: String
 }
 ```
 
@@ -3326,8 +3326,8 @@ fun CardList(messages: MutableList<Message>) {
 fun DefaultPreview() {
     val list = mutableListOf<Message>()
     val message = Message("张三4", 18)
-    list.add(message);
-    list.add(message);
+    list.add(message)
+    list.add(message)
     CardList(list)
 }
 ```
@@ -3534,8 +3534,8 @@ fun Card(msg: Message) {
 fun DefaultPreview() {
     val list = mutableListOf<Message>()
     val message = Message("张三4", 18)
-    list.add(message);
-    list.add(message);
+    list.add(message)
+    list.add(message)
     CardList(list)
 }
 ```
@@ -3578,42 +3578,21 @@ fun DemoComponent() {
 
 以一个文章列表添加删除显示为例
 
-需要的依赖用于状态管理
+[需要的依赖用于状态管理](https://developer.android.google.cn/jetpack/compose/state#viewmodels-source-of-truth)
 
 app的build.gradle
 
 ```
-implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.0'
-implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.0'
-implementation 'androidx.activity:activity-ktx:1.4.0'
+implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+implementation 'androidx.activity:activity-compose:1.4.0'
 ```
 
 ```kt
-//文字数据类
-data class Article(var id: Int, var title: String, var content: String)
-
-//相当于一个article store
-class ArticleViewModel : ViewModel() {
-    //存储在store的状态变量  类型是LiveData
-    var articleList = mutableStateListOf<Article>()
-        //私有化setter 就不能使用articleViewModel.articleList = mutableStateListOf<Article>(Article(1,"标题","内容"))来赋值了
-        private set
-
-    //来个页面标题
-    var title = mutableStateOf<String>("默认页面标题")
-
-    fun addItem(item: Article) {
-        articleList.add(item)
-    }
-
-    fun removeItem(item: Article) {
-        articleList.remove(item)
-    }
-}
-
 @ExperimentalMaterial3Api
 class MainActivity : ComponentActivity() {
-    //获取一个store实例
+    //获取一个store实例 一般不需要这么获取了
+    //直接使用 articleViewModel: ArticleViewModel = viewModel()
     private val articleViewModel by viewModels<ArticleViewModel>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -3636,9 +3615,31 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+//文字数据类
+data class Article(var id: Int, var title: String, var content: String)
+
+//相当于一个article store
+class ArticleViewModel : ViewModel() {
+    //存储在store的状态变量  类型是LiveData
+    var articleList = mutableStateListOf<Article>()
+        //私有化setter 就不能使用articleViewModel.articleList = mutableStateListOf<Article>(Article(1,"标题","内容"))来赋值了
+        private set
+
+    //来个页面标题
+    var title = mutableStateOf<String>("默认页面标题")
+
+    fun addItem(item: Article) {
+        articleList.add(item)
+    }
+
+    fun removeItem(item: Article) {
+        articleList.remove(item)
+    }
+}
+
 //主结构
 @Composable
-fun DemoComponent(articleViewModel: ArticleViewModel) {
+fun DemoComponent(articleViewModel: ArticleViewModel = viewModel()) {
     ArticleListComponent(
         articleViewModel.articleList,
         onAddItem = articleViewModel::addItem,
@@ -3656,15 +3657,19 @@ fun ArticleListComponent(
 ) {
     //渲染
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomCenter) {
-        LazyColumn(modifier = Modifier.padding(bottom = 60.dp).fillMaxSize()) {
+        LazyColumn(modifier = Modifier
+            .padding(bottom = 60.dp)
+            .fillMaxSize()) {
             items(items.size) {
-                val (id, title, content) = items[it];
+                val (id, title, content) = items[it]
                 //创建一个状态 key是id 类似于vue对循环中的当前记录添加一个是否显示的状态
                 var isExpanded by remember(id) { mutableStateOf(false) }
                 Column {
-                    Row(modifier = Modifier.fillMaxWidth().clickable {
-                        isExpanded = !isExpanded
-                    }, horizontalArrangement = Arrangement.SpaceBetween) {
+                    Row(modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            isExpanded = !isExpanded
+                        }, horizontalArrangement = Arrangement.SpaceBetween) {
                         Text(text = "$id $title")
                         Button(onClick = {
                             onRemoveItem(items[it])
@@ -3682,8 +3687,10 @@ fun ArticleListComponent(
 
 @Composable
 private fun BottomBar(onAddItem: (Article) -> Unit) {
-    Button(modifier = Modifier.height(60.dp).background(Color.Transparent), onClick = {
-        val id = (Math.random() * 100).toInt();
+    Button(modifier = Modifier
+        .height(60.dp)
+        .background(Color.Transparent), onClick = {
+        val id = (Math.random() * 100).toInt()
         onAddItem(
             Article(
                 id, "标题文字", "文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容文章详细内容" +
@@ -3691,6 +3698,13 @@ private fun BottomBar(onAddItem: (Article) -> Unit) {
             )
         )
     }) { Text("添加新闻") }
+}
+
+
+@Composable
+@Preview
+fun DefaultPreview() {
+    DemoComponent()
 }
 ```
 
@@ -3786,7 +3800,7 @@ fun DemoEffect(size: Float) {
     }
 
     DisposableEffect(Unit) {
-        var loop = true;
+        var loop = true
         scope.launch {
             while (loop) {
                 delay(2000)
@@ -4885,7 +4899,7 @@ fun DemoComponent() {
     val pagerState1 = rememberPagerState()
     val coroutineScope = rememberCoroutineScope()
 
-    val list = listOf("1", "2", "3", "4");
+    val list = listOf("1", "2", "3", "4")
     val pagerState2 = rememberPagerState()
 
     Column {
@@ -4922,7 +4936,7 @@ fun DemoComponent() {
 
     //死循环实现
     DisposableEffect(Unit){
-        var loop = true;
+        var loop = true
         coroutineScope.launch {
             while (loop) {
                 delay(2000)
@@ -5248,16 +5262,16 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
 fun showToast(msg: String) {
     CoroutineScope(Dispatchers.Main).launch {
         if (Looper.myLooper() == null)
-            Looper.prepare();//多加的两行是为了再协程中调用，不然无法使用
-        Toast.makeText(BaseApplication.context, msg, Toast.LENGTH_LONG).show();
-        Looper.loop();//以及这行
+            Looper.prepare()//多加的两行是为了再协程中调用，不然无法使用
+        Toast.makeText(BaseApplication.context, msg, Toast.LENGTH_LONG).show()
+        Looper.loop()//以及这行
     }
 }
 ```
 
-### 下拉刷新
+### 下拉刷新和上拉加载
 
-依赖
+下拉刷新的依赖
 
 ```
 implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
@@ -5265,35 +5279,69 @@ implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
 
 使用
 
-实际这些都放到ViewModel里去控制，这里只是演示，而且isRefreshing在getBookList不可变....
+实际这些都放到ViewModel里去控制，这里只是演示
 
 ```kt
+//有状态组件
 @Composable
 fun DemoComponent() {
+    //数据
     val data = remember {
         mutableStateListOf<Book>()
     }
-
 
     //是否正在刷新
     var isRefreshing by remember {
         mutableStateOf(false)
     }
 
-    var page = 1;
-
-    LaunchedEffect(Unit) {
-        //发送请求
-        getBookList(data, page, isRefreshing)
+    //当前页
+    var page by remember {
+        mutableStateOf(0)
     }
 
-    //刷新组件
+    //加载状态
+    val loadState = rememberLazyListState(1, 2)
+    //加载状态派生状态 实际可以把这个写到LazyState状态的扩展函数中，这样就不用每次写下面这二段了，这里只是记录一下写在一起的写法
+    val onReachBottom by remember {
+        derivedStateOf {
+            //到底了
+            loadState.firstVisibleItemIndex + loadState.layoutInfo.visibleItemsInfo.size == loadState.layoutInfo.totalItemsCount
+        }
+    }
+    //监听这个是否到底部的状态
+    LaunchedEffect(onReachBottom) {
+        if(onReachBottom){
+            //下一页
+            page += 1
+            //发送请求
+            getBookList(data, page) {}
+        }
+    }
+
+    //抽成无状态组件
+    StateLessWidget(isRefreshing, data, loadState) {
+        //这里是刷新完的回调函数作用域
+        isRefreshing = true
+        page = 1
+        getBookList(data, page) {
+            isRefreshing = false
+        }
+    }
+}
+
+@Composable
+private fun StateLessWidget(
+    isRefreshing: Boolean,
+    data: SnapshotStateList<Book>,
+    loadState: LazyListState,
+    callback: () -> Unit
+) {
+    //下拉刷新组件
     SwipeRefresh(
         state = rememberSwipeRefreshState(isRefreshing),
         onRefresh = {
-            isRefreshing = true
-            page = 1
-            getBookList(data, page, isRefreshing)
+            callback()
         },
         //自定义指示器
         indicator = { state, trigger ->
@@ -5307,11 +5355,86 @@ fun DemoComponent() {
             )
         }
     ) {
-        LazyColumn {
+        LazyColumn(
+            state = loadState,
+            modifier = Modifier.fillMaxWidth()
+        ) {
             items(data.size) { index ->
-                Text(data[index].bookName)
+                Text(data[index].bookName, modifier = Modifier.height(150.dp))
             }
         }
     }
+}
+
+//获取列表数据
+private fun getBookList(data: SnapshotStateList<Book>, page: Int, callback: () -> Unit) {
+    HttpUtils.request(
+        getResponse = {
+            //模拟一下延时
+            delay(1000)
+            BookApi.instance.getBookListByBook("1", page, 10)
+        },
+        success = {
+            if (page == 1) {
+                //如果是首次加载，则清空数据
+                data.clear()
+            }
+            //解构
+            it?.let {
+                data.addAll(it)
+            }
+            println(it)
+            //回调表示请求完毕
+            callback()
+        },
+        error = {
+            println(it)
+            //回调表示请求完毕
+            callback()
+        },
+    )
+}
+
+@Composable
+@Preview
+fun DefaultPreview() {
+    DemoComponent()
+}
+```
+
+**封装成扩展函数**
+
+```kt
+@Composable
+fun LazyListState.OnReachBottom(callback: () -> Unit) {
+    //加载状态派生状态 实际可以把这个写到LazyState状态的扩展函数中，这样就不用每次写下面这二段了，这里只是记录一下写在一起的写法
+    val onReachBottom by remember {
+        derivedStateOf {
+            //初始如果为0，则直接返回true
+            if (this.layoutInfo.totalItemsCount == 0) {
+                return@derivedStateOf true
+            }
+            //到底了
+            this.firstVisibleItemIndex + this.layoutInfo.visibleItemsInfo.size == this.layoutInfo.totalItemsCount
+        }
+    }
+    //监听这个是否到底部的状态
+    LaunchedEffect(onReachBottom) {
+        println(onReachBottom)
+        if (onReachBottom) {
+            callback()
+        }
+    }
+}
+```
+
+使用
+
+```kt
+loadState.OnReachBottom {
+    //下一页
+    page += 1
+    //发送请求
+    getBookList(data, page) {}
 }
 ```
