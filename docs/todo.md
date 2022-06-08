@@ -3,9 +3,9 @@
 <p>php进阶(swoole)（1月）</p>
 <p>[pass没时间]go基础（1月）</p>
 <p>[√]java基础（1.5月）</p>
-<p>[暂停，因安卓学习]javaWeb</p>
+<p>[doing]javaWeb</p>
 <p>[√]kotlin基础（0.5月）</p>
-<p>[doing]kotlin安卓框架JetpackCompose</p>
+<p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
 <p>typescript基础（1周）</p>
 <p>[√]Python进阶（sanic框架）（1月）</p>
 <p>[√]用flutter写一个音乐app（1月）</p>

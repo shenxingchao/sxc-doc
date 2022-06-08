@@ -1,4 +1,4 @@
-# KotLin
+# Kotlin
 
 ## 基础
 
@@ -3149,10 +3149,17 @@ Surface(
 
 ### TopAppBar
 
-顶部导航栏
+顶部导航栏 
+
+CenterAlignedTopAppBar 一般用这个就可以了
+
+SmallTopAppBar
+
+等
+
 
 ```kt
-SmallTopAppBar(
+CenterAlignedTopAppBar(
     title = {
         Text(text = "Page title", maxLines = 2)
     },
@@ -3161,7 +3168,7 @@ SmallTopAppBar(
             Text(text = "图标")
         }
     },
-    colors = TopAppBarDefaults.smallTopAppBarColors(
+    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
         containerColor = MaterialTheme.colorScheme.primary,
         titleContentColor = MaterialTheme.colorScheme.surface,
         navigationIconContentColor = MaterialTheme.colorScheme.surface,
@@ -3241,7 +3248,7 @@ fun DemoComponent() {
 fun DemoComponent() {
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(text = "Page title", maxLines = 2)
                 },
@@ -3250,7 +3257,7 @@ fun DemoComponent() {
                         Text(text = "图标")
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primary,
                     titleContentColor = MaterialTheme.colorScheme.surface,
                     navigationIconContentColor = MaterialTheme.colorScheme.surface,
@@ -3600,7 +3607,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             Scaffold(
                 topBar = {
-                    SmallTopAppBar(
+                    CenterAlignedTopAppBar(
                         title = {
                             Text(text = articleViewModel.title.value, maxLines = 2)
                         }
@@ -4372,7 +4379,7 @@ fun BottomBar(navController: NavHostController) {
     }
 }
 
-//自定义AppBar组件 标题是居中的
+//自定义AppBar组件 标题是居中的 可以直接使用现成的CenterAlignedTopAppBar组件
 @Composable
 fun AppBar(
     navController: NavHostController,
@@ -4380,8 +4387,8 @@ fun AppBar(
     showBackIcon: Boolean = false,
     rowScope: @Composable (() -> Unit)? = null
 ) {
-    SmallTopAppBar(
-        colors = TopAppBarDefaults.smallTopAppBarColors(
+    CenterAlignedTopAppBar(
+        colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primary,
             titleContentColor = MaterialTheme.colorScheme.surface,
             navigationIconContentColor = MaterialTheme.colorScheme.surface,
@@ -4395,37 +4402,18 @@ fun AppBar(
                 }) {
                     Icon(Icons.Filled.ArrowBack, contentDescription = null)
                 }
-            }else{
-                Spacer(
-                    Modifier
-                        .fillMaxHeight()
-                        .width(72.dp - 4.dp)
-                )
             }
         },
         title = {
-            Row(
-                modifier = Modifier.fillMaxSize(),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Text(
-                    text = title,
-                    maxLines = 2,
-                    textAlign = TextAlign.Center,
-                    overflow = TextOverflow.Ellipsis
-                )
-            }
+            Text(
+                text = title,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
         },
         //右侧操作栏
         actions = {
-            if (rowScope == null) {
-                Spacer(
-                    Modifier
-                        .fillMaxHeight()
-                        .width(72.dp - 4.dp)
-                )
-            } else {
+            if (rowScope != null) {
                 rowScope()
             }
         }
@@ -4743,7 +4731,7 @@ fun DemoComponent() {
     }
     Scaffold(
         topBar = {
-            SmallTopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(text = "Page title", maxLines = 2)
                 },
@@ -4849,7 +4837,7 @@ fun DemoComponent() {
                         )
                     )
             )
-            SmallTopAppBar(
+            CenterAlignedTopAppBar(
                 title = {
                     Text(text = "Page title", maxLines = 2)
                 },
@@ -4858,7 +4846,7 @@ fun DemoComponent() {
                         Text(text = "图标")
                     }
                 },
-                colors = TopAppBarDefaults.smallTopAppBarColors(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
                     containerColor = Color.Transparent,
                     titleContentColor = MaterialTheme.colorScheme.surface,
                     navigationIconContentColor = MaterialTheme.colorScheme.surface,
@@ -5437,4 +5425,110 @@ loadState.OnReachBottom {
     //发送请求
     getBookList(data, page) {}
 }
+```
+
+### 折叠AppBar
+
+这里直接用现成的，不要加太多特效，会卡的
+
+[依赖](https://github.com/onebone/compose-collapsing-toolbar)
+
+```
+implementation "me.onebone:toolbar-compose:2.3.3"
+```
+
+使用
+
+```kt
+@Composable
+fun DemoComponent() {
+    val state = rememberCollapsingToolbarScaffoldState()
+    CollapsingToolbarScaffold(
+        modifier = Modifier.fillMaxSize(),
+        scrollStrategy = ScrollStrategy.ExitUntilCollapsed,
+        state = state,
+        enabled = true,
+        toolbarModifier = Modifier.background(MaterialTheme.colorScheme.primary),
+        toolbar = {
+            Box(contentAlignment = Alignment.TopStart) {
+                Image(
+                    painter = painterResource(id = R.drawable.test),
+                    modifier = Modifier
+                        .parallax(0.5f)
+                        .height(300.dp)
+                        .graphicsLayer {
+                            //动态改变透明度
+                            alpha = state.toolbarState.progress
+                        },
+                    contentScale = ContentScale.Crop,
+                    contentDescription = null
+                )
+            }
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(text = "Page title", maxLines = 2)
+                },
+                navigationIcon = {
+                    IconButton(onClick = {}) {
+                        Text(text = "图标")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = Color.Transparent,
+                    titleContentColor = MaterialTheme.colorScheme.surface,
+                    navigationIconContentColor = MaterialTheme.colorScheme.surface,
+                    actionIconContentColor = MaterialTheme.colorScheme.surface,
+                    scrolledContainerColor = MaterialTheme.colorScheme.surface,
+                )
+            )
+        }
+    ) {
+        LazyColumn(Modifier.fillMaxWidth()) {
+            items(100) {
+                Text(it.toString())
+            }
+        }
+    }
+}
+```
+
+### 依赖总结
+
+```
+//compose版本
+compose_version = '1.2.0-beta01'
+//kotlin版本
+id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
+//material3
+implementation 'androidx.compose.material3:material3:1.0.0-alpha11'
+//图标
+implementation "androidx.compose.material:material-icons-extended:$compose_version"
+//图片加载
+implementation "io.coil-kt:coil-compose:2.1.0"
+//ViewModel状态管理
+implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
+implementation 'androidx.lifecycle:lifecycle-viewmodel-compose:2.4.1'
+implementation 'androidx.activity:activity-compose:1.4.0'
+//路由导航
+implementation 'androidx.navigation:navigation-compose:2.4.0'
+//json格式化 project下的build     
+id 'org.jetbrains.kotlin.plugin.serialization' version '1.6.21' ///json格式化 app下build 
+plugins{id 'org.jetbrains.kotlin.plugin.serialization'}
+implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.3.3"
+//路由动画
+implementation 'com.google.accompanist:accompanist-navigation-animation:0.24.10-beta'
+//状态栏
+implementation 'com.google.accompanist:accompanist-systemuicontroller:0.24.10-beta'
+//轮播图ViewPager
+implementation 'com.google.accompanist:accompanist-pager:0.24.10-beta'
+//本地存储
+implementation "androidx.datastore:datastore-preferences:1.0.0"
+//网络
+implementation 'com.squareup.retrofit2:retrofit:2.9.0'
+//解析json字符串
+implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+//下拉刷新
+implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
+//折叠AppBar
+implementation "me.onebone:toolbar-compose:2.3.3"
 ```

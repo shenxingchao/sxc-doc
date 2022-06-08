@@ -3,13 +3,13 @@
   height: 1rem;
 }
 .sidebar-nav > ul > li {
-  font-size: 14px;
+  font-size: 16px;
 }
 .sidebar-nav > ul > li a {
-  font-size: 100%;
+  font-size: 14px;
 }
 .sidebar-nav > ul > li > ul li {
-  font-size: 90%;
+  font-size: 14px;
 }
 .sidebar-nav > ul > li > ul .active > a {
   border-right: 0.3rem solid #27ae60;
@@ -35,7 +35,7 @@
   transition: all 0.2s;
   width: 0.6rem;
   height: 0.6rem;
-  fill: #777777;
+  fill: #555555;
 }
 .icon-arrow-down {
   transform: rotate(90deg);
