@@ -2069,6 +2069,8 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
 
 测试协程需要创建android app并在gradle里面添加依赖
 
+**协程是运行在线程之上的,可在不同线程间调度**
+
 ### 添加库
 
 [kotlinx.coroutines 官方库](https://github.com/Kotlin/kotlinx.coroutines/blob/master/README.md#using-in-your-projects)
@@ -2098,12 +2100,14 @@ fun main() = runBlocking {
     println("我先执行")
 }
 
-//一个协程函数需要声明suspend
+//一个挂起函数需要声明suspend（只是提示作用，真正的开启协程在协程作用域里） 在他的lambda里面可以启动多个并发协程
 suspend fun fn() {
     delay(5000)
     println("协程执行完毕")
 }
 ```
+
+tips:挂起函数的本质就是切线程，协程的本质就是在线程上的一层封装
 
 ### 线程等待和线程挂起
 
@@ -2370,13 +2374,25 @@ fun main(): Unit = runBlocking {
 
 指定协程的运行线程 
 
-Dispatchers.Main  
+**withContext 在一个lanuch或者是async里面 只是用来切换上下文的**
 
-Dispatchers.Unconfined 
+**一般的协程Context 由两部分组成**
 
-Dispatchers.IO 
+Job() + Dispatchers.Main 子协程异常会导致父协程结束
 
-Dispatchers.Defualt
+SupervisorJob() + Dispatchers.Main 子协程异常不会导致父协程结束，一般是这个
+
+tips:包括andoird里的MainScope，ViewModle的viewModelScope
+
+**下面是4种调度器**
+
+Dispatchers.Main  UI线程，UI绘制，动画，都是在这里面
+
+Dispatchers.Unconfined 基本不用
+
+Dispatchers.IO 网络通信,socket一些耗时操作都在这里面
+
+Dispatchers.Defualt  和IO共享线程池， 用来计算型任务（涉及到循环n次的计算）
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2881,6 +2897,7 @@ Idea-File-New-Project-Android-Empty Compose Activity
 5. 配置字体大小主题 白色 14 16
 6. 配置自动导入Auto Import kotlin 选中第一个
 7. 配置格式化快键键Keymap 搜索format
+8. 配置跳转编辑快键键Keymap 搜索navigate
 
 ### slot
 
@@ -3630,6 +3647,8 @@ fun DemoComponent() {
 }
 ```
 
+tips:=号方式的set get需要加.value获取  而by就已经帮你封装好set/get了
+
 ### ViewModel全局状态管理
 
 以一个文章列表添加删除显示为例
@@ -3763,6 +3782,63 @@ fun DefaultPreview() {
     DemoComponent()
 }
 ```
+
+**路由导航配合ViewModel**
+
+有两种方法
+
+第一种使用CompositionLocalProvider定义全局LocalViewModelStoreOwner,看viewModel()源码就知道他用的就是这个LocalViewModelStoreOwner.current，相当于把拿到了外面覆盖了参数上的
+
+在路由导航组件里加上
+```kt
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@Composable
+fun NavigationComponent() {
+    ......
+    //全局viewModel所有者  
+    //LocalViewModelStoreOwner.current这个是系统内置的
+    val viewModelStoreOwner = checkNotNull(LocalViewModelStoreOwner.current) {
+        "No ViewModelStoreOwner was provided via LocalViewModelStoreOwner"
+    }
+    ......
+    Scaffold { paddingValues ->
+        Surface(
+            modifier = Modifier.padding(paddingValues)
+        ) {
+            AnimatedNavHost(navController = navController,
+                startDestination = Screen.HomeScreen.route,
+                .....
+               ) {
+                composable(Screen.HomeScreen.route) {
+                    //提供一个全局变量  使用共同的ViewModel所有者
+                    CompositionLocalProvider(
+                        LocalViewModelStoreOwner provides viewModelStoreOwner
+                    ) {
+                        HomeScreen(navController)
+                    }
+                }
+                composable(Screen.UserScreen.route) {
+                    //提供一个全局变量  使用共同的ViewModel所有者
+                    CompositionLocalProvider(
+                        LocalViewModelStoreOwner provides viewModelStoreOwner
+                    ) {
+                        UserScreen(navController)
+                    }
+                }
+
+            }
+
+        }
+    }
+}
+```
+
+第二种方法,这个直接用的当前Activity的Context作为key了，但是麻烦，每个都要传
+
+```kt
+vm: XXXViewModel = viewModel(viewModelStoreOwner = LocalContext.current as ComponentActivity)
+```
+
 
 ### 组件内使用协程
 
@@ -5281,12 +5357,14 @@ class BaseApplication : Application() {
 ```
 ...
 <application
-        android:name=".BaseApplication"
+        android:name="com.xxx.xxx.BaseApplication"
         ....
 ...
 ```
 
-封装Toast
+**封装Toast**
+
+目前会报警告，还未解决
 
 需要kotlin协程库
 
@@ -5296,12 +5374,21 @@ implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
 ```
 
 ```kt
+//任意位置显示Toast弹窗
 fun showToast(msg: String) {
-    CoroutineScope(Dispatchers.Main).launch {
-        if (Looper.myLooper() == null)
-            Looper.prepare()//多加的两行是为了再协程中调用，不然无法使用
-        Toast.makeText(BaseApplication.context, msg, Toast.LENGTH_LONG).show()
-        Looper.loop()//以及这行
+    MainScope().launch {
+        var myLooper = Looper.myLooper()
+        if (myLooper == null) {
+            Looper.prepare()//多加的两行是为了在协程中调用，不然无法使用
+            myLooper = Looper.myLooper()
+        }
+        val toast = Toast.makeText(BaseApplication.context, msg, Toast.LENGTH_LONG)
+        toast.setGravity(Gravity.CENTER, 0, 0)
+        toast.show()
+        if (myLooper != null) {
+            Looper.loop()//以及这行
+            myLooper.quit()
+        }
     }
 }
 ```
