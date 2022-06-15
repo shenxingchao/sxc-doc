@@ -2341,7 +2341,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### 协程参数（上下文对象）
+### 非受限的协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2741,7 +2741,7 @@ class A {
 
 ## kotlin安卓项目搭建
 
-### idea环境搭建流程(废弃，太旧了)
+### idea环境搭建流程
 
 1. idea需要2022版本 旧版不能热更新代码 [破解流程](https://www.exception.site/article/29) [补丁](https://pan.baidu.com/s/1uYLHHKGIcWqSrl9Je9991g ) 提取码：1234
 2. idea需要下载kotlin和android插件 否则第三步出不来
@@ -2882,11 +2882,11 @@ fun CustomComponent(content: @Composable Scope.() -> Unit) {
 
 [实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
 
-### Idea创建（旧）
+### Idea创建
 
 Idea-File-New-Project-Android-Empty Compose Activity
 
-### 创建项目 
+### As创建项目 
 
 使用最新版androidStudio
 
@@ -2973,19 +2973,6 @@ fun DemoComponent() {
 @Composable
 fun PhotographerCard(modifier: Modifier = Modifier) {
     Row(modifier) { ... }
-}
-```
-
-### 修饰符合并(不推荐了)
-
-和链式调用其实一样，只不过多了一个作用域可以在里面执行别的逻辑
-
-```kt
-@Composable
-fun DemoComponent() {
-    Text(text = "标题标题", modifier = Modifier.composed {
-        background(Color.Red).size(50.dp)
-    })
 }
 ```
 
@@ -5680,11 +5667,40 @@ fun DemoComponent() {
 }
 ```
 
+### 日期选择插件
+
+[第三方插件](https://github.com/boguszpawlowski/ComposeCalendar)
+
+```
+//日期选择插件
+implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.5.1"
+```
+
+基本使用,实际使用放到dialog中显示即可
+
+```kt
+@Composable
+fun MainScreen() {
+    val calendarState = rememberSelectableCalendarState()
+
+    Column(
+        Modifier.verticalScroll(rememberScrollState())
+    ) {
+        SelectableCalendar(calendarState = calendarState)
+        Button(onClick = {
+            println(calendarState.selectionState.selection[0])
+        }) {
+            Text(text = "确定")
+        }
+    }
+}
+```
+
 ### 依赖总结
 
 ```
 //compose版本
-compose_version = '1.2.0-beta01'
+compose_version = '1.2.0-beta03'
 //kotlin版本
 id 'org.jetbrains.kotlin.android' version '1.6.21' apply false
 //material3
@@ -5721,4 +5737,6 @@ implementation "com.google.accompanist:accompanist-swiperefresh:0.24.10-beta"
 implementation "me.onebone:toolbar-compose:2.3.3"
 //占位符placeholder
 implementation "com.google.accompanist:accompanist-placeholder-material:0.24.10-beta"
+//日期选择插件
+implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.5.1"
 ```

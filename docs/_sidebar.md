@@ -572,7 +572,7 @@
 
     - [View](/md/JavaWeb#view)
 
-- [Kotlin](/md/Kotlin#Kotlin)
+- [Kotlin](/md/Kotlin#kotlin)
 
   - [基础](/md/Kotlin#基础)
 
@@ -616,7 +616,8 @@
 
     - [::语法糖](/md/Kotlin#语法糖-1)
 
-    - [函数参数和inline内联关键字和函数引用](/md/Kotlin#函数参数和inline内联关键字和函数引用)
+    - [函数参数和inline内联关键字和函数引用](/md/Kotlin#函数参数和inline内联关键字
+    和函数引用)
 
     - [函数作为返回值](/md/Kotlin#函数作为返回值)
 
@@ -694,9 +695,11 @@
 
     - [类](/md/Kotlin#类)
 
-    - [成员变量延迟初始化手动赋值lateinit](/md/Kotlin#成员变量延迟初始化手动赋值lateinit)
+    - [成员变量延迟初始化手动赋值lateinit](/md/Kotlin#成员变量延迟初始化手动赋值
+    lateinit)
 
-    - [成员变量延迟初始化自动赋值bylazy](/md/Kotlin#成员变量延迟初始化自动赋值bylazy)
+    - [成员变量延迟初始化自动赋值bylazy](/md/Kotlin#成员变量延迟初始化自动赋值
+    bylazy)
 
     - [继承和重写](/md/Kotlin#继承和重写)
 
@@ -744,7 +747,7 @@
 
     - [自动取消协程](/md/Kotlin#自动取消协程)
 
-    - [协程参数（上下文对象）](/md/Kotlin#协程参数上下文对象)
+    - [非受限的协程](/md/Kotlin#非受限的协程)
 
     - [withContext](/md/Kotlin#withcontext)
 
@@ -770,7 +773,7 @@
 
   - [kotlin安卓项目搭建](/md/Kotlin#kotlin安卓项目搭建)
 
-    - [idea环境搭建流程(废弃，太旧了)](/md/Kotlin#idea环境搭建流程废弃太旧了)
+    - [idea环境搭建流程](/md/Kotlin#idea环境搭建流程)
 
     - [build:gradle](/md/Kotlin#buildgradle)
 
@@ -782,9 +785,9 @@
 
     - [material组件文档](/md/Kotlin#material组件文档)
 
-    - [Idea创建（旧）](/md/Kotlin#idea创建旧)
+    - [Idea创建](/md/Kotlin#idea创建)
 
-    - [创建项目](/md/Kotlin#创建项目)
+    - [As创建项目](/md/Kotlin#as创建项目)
 
     - [slot](/md/Kotlin#slot)
 
@@ -793,8 +796,6 @@
     - [修饰符](/md/Kotlin#修饰符)
 
     - [空修饰符](/md/Kotlin#空修饰符)
-
-    - [修饰符合并(不推荐了)](/md/Kotlin#修饰符合并不推荐了)
 
     - [设置activity内容](/md/Kotlin#设置activity内容)
 
@@ -826,7 +827,7 @@
 
     - [LazyColumn](/md/Kotlin#lazycolumn)
 
-    - [stickyHeader](/md/Kotlin#stickyHeader)
+    - [stickyHeader](/md/Kotlin#stickyheader)
 
     - [scroll](/md/Kotlin#scroll)
 
@@ -881,6 +882,8 @@
     - [折叠AppBar](/md/Kotlin#折叠appbar)
 
     - [placeholder](/md/Kotlin#placeholder)
+
+    - [日期选择插件](/md/Kotlin#日期选择插件)
 
     - [依赖总结](/md/Kotlin#依赖总结)
 
