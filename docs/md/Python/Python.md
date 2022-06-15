@@ -1,10 +1,10 @@
 # Python
-## 文档地址
+# 文档地址
 [地址](https://docs.python.org/zh-cn/3/)
 [在线调试地址](http://pythontutor.com/)
 
-## 环境搭建
-### windows10 python3.9.4环境搭建
+# 环境搭建
+## windows10 python3.9.4环境搭建
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 1. Python官网下载安装文件 [下载地址](https://www.python.org/downloads/windows/)
@@ -50,7 +50,7 @@
 }
 ``` 
 
-### linux安装python
+## linux安装python
 1. wget https://www.python.org/ftp/python/3.9.10/Python-3.9.10.tar 最好直接windows下载完放到/usr/local/src/目录下比较快
 2. 解压文件
    ```powershell
@@ -79,9 +79,9 @@
    pyython3 -V
    ```
 
-## python100天入门笔记
+# python100天入门笔记
 
-### 第一个python脚本
+## 第一个python脚本
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 编写如下代码，保存为hello.py
@@ -98,14 +98,16 @@ py hello.py
 ```
 输出 hello,world！
 
-### 注释
+## 注释
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
-#### 行注释 用#
+行注释 用#
+
 ```py
 #我是行注释
 ```
-#### 块注释 用""" """或''' '''包含起来
+块注释 用""" """或''' '''包含起来
+
 ```py
 """
 print("双引号块注释")
@@ -115,7 +117,7 @@ print("单引号块注释")
 '''
 ```
 
-### 变量定义
+## 变量定义
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 1. 整型
@@ -162,7 +164,7 @@ print(a + b)
 ```
 [类型转换](#类型转换)
 
-### 运算符
+## 运算符
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 | 运算符                                                         | 描述                           |
@@ -195,7 +197,7 @@ if "llo" in str:
     print(True)
 ```
 
-### 代码折行
+## 代码折行
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 一行代码太长？用\来让代码折行
@@ -207,7 +209,7 @@ b:
     print("代码折行用\ ")
 ```
 
-### 条件语句
+## 条件语句
 <p align="left" style="color:#777777;">发布日期：2021-04-16</p>
 
 ```py
@@ -222,7 +224,7 @@ else:
 ```
 ?> 非! 在python用not表示
 
-###  循环
+##  循环
 <p align="left" style="color:#777777;">发布日期：2021-04-16</p>
 
 [这里](https://docs.python.org/zh-cn/3/tutorial/controlflow.html#for-statements)
@@ -309,10 +311,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### 函数
+## 函数
 <p align="left" style="color:#777777;">发布日期：2021-04-19</p>
 
-#### 最基础的函数定义 参数和返回值
+### 最基础的函数定义 参数和返回值
 ```py
 def sum(a, b):
     """
@@ -331,7 +333,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 可选参数
+### 可选参数
 不确定参数个数的情况下可以使用
 ```py
 def sum(*args):
@@ -381,7 +383,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 正确的main函数书写方法
+### 正确的main函数书写方法
 ```py
 def main():
     # Todo: Add your code here
@@ -393,7 +395,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 装饰器函数（高级特性）
+### 装饰器函数（高级特性）
 ```py
 # 导入装饰器模块
 from functools import wraps
@@ -444,7 +446,7 @@ a_function_requiring_decoration()
 print(a_function_requiring_decoration.__name__)  # a_function_requiring_decoration
 ```
 
-#### 类装饰器
+### 类装饰器
 ```py
 from functools import wraps
 from time import time
@@ -481,7 +483,7 @@ def a_function_requiring_decoration(name="你好我是原函数参数"):
 a_function_requiring_decoration()
 ```
 
-### 模块
+## 模块
 <p align="left" style="color:#777777;">发布日期：2021-04-20</p>
 
 假如有一个函数库fn.py
@@ -524,10 +526,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### 字符串
+## 字符串
 <p align="left" style="color:#777777;">发布日期：2021-04-21</p>
 
-#### 字符串切片操作
+### 字符串切片操作
 !> 切片操作索引都是从0开始的,切片操作基本表达式：object[start_index : end_index : step]  
 step的正负号决定方向,start_index开始位置,end_index结束位置
 
@@ -556,7 +558,7 @@ print(str[-3::1])  # 输出rld
 ```
 
 
-#### 字符串函数操作
+### 字符串函数操作
 ```py
 str = "hello world"
 # 通过内置函数len计算字符串的长度
@@ -595,9 +597,9 @@ str = " hello world "
 print(str.strip())  # 输出hello world
 ```
 
-### 列表
+## 列表
 
-#### 列表基本操作
+### 列表基本操作
 <p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
 ```py
@@ -624,7 +626,7 @@ for index, item in enumerate(arr):
 ```
 !> 一般用emunerate遍历就可以了
 
-#### 列表操作方法
+### 列表操作方法
 ```py
 # 定义一个列表
 arr = [1, 2, 3]
@@ -680,7 +682,7 @@ arr = []
 print(arr2)  # 输出[1, 2, 3] arr2的引用内存空间没被清空
 ```
 
-#### 列表切片和拷贝
+### 列表切片和拷贝
 ```py
 arr = [1, 2, 3]
 # 输出指定范围内的元素 不包含最后一个，和字符串切片相同
@@ -711,7 +713,7 @@ copys = copy.deepcopy(arr)
 print(copys)
 ```
 
-#### 浅拷贝和深拷贝实战
+### 浅拷贝和深拷贝实战
 ```py
 import copy
 
@@ -746,10 +748,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### 元组
+## 元组
 <p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
-#### 基本操作
+### 基本操作
 ```py
 tup = ("hello", 1, True)
 # 打印元组
@@ -770,10 +772,10 @@ tup = tuple(arr)
 print(tup)  # 输出('hello tuple', 1, True)
 ```
 
-### 集合
+## 集合
 <p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
-#### 集合创建
+### 集合创建
 ```py
 sets = {1, 2, 3, 1, 2, 3}
 # 利用集合去重
@@ -787,7 +789,7 @@ print(sets)  # 输出{1,2,3}
 ```
 !>推导式语法，{返回的实际数据处理 + for循环 }
 
-#### 基本操作
+### 基本操作
 ```py
 sets = {1, 2, 3}
 # 集合末尾添加一项
@@ -820,7 +822,7 @@ set1, set2 = {1, 2, 3}, {1, 2, 3, 4}
 print(set1 <= set2)  # 输出True
 ```
 
-### 字典
+## 字典
 <p align="left" style="color:#777777;">发布日期：2021-04-22</p>
 
 ```py
@@ -864,9 +866,9 @@ dictionary = dict(zip(arr1, arr2))  # 以arr1值为键名 arr2值为键值创建
 print(dictionary)  # 输出{1: 4, 2: 5, 3: 6}
 ```
 
-### 类
+## 类
 
-#### 创建类
+### 创建类
 <p align="left" style="color:#777777;">发布日期：2021-04-23</p>
 
 ```py
@@ -921,7 +923,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 私有属性 get set装饰器
+### 私有属性 get set装饰器
 <p align="left" style="color:#777777;">发布日期：2021-04-23</p>
 
 ```py
@@ -969,7 +971,7 @@ if __name__ == "__main__":
 ```
 !> 注意get装饰器必须在set装饰器之前,不然会出错
 
-#### 静态方法装饰器
+### 静态方法装饰器
 ```py
 class Person:
     def __init__(self, name, age):
@@ -1001,7 +1003,7 @@ if __name__ == "__main__":
   调用：类和实例对象都可以调用
 
 
-#### 类方法装饰器
+### 类方法装饰器
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1052,7 +1054,7 @@ if __name__ == "__main__":
 !>定义：使用装饰器@classmethod。第一个参数必须是当前类对象，该参数名一般约定为“cls”，通过它来传递类的属性和方法（不能传实例的属性和方法）  
   调用：类和实例对象都可以调用
 
-#### 继承和多态
+### 继承和多态
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1114,7 +1116,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 多继承
+### 多继承
 ```py
 class D:
     def printA(self):
@@ -1158,7 +1160,7 @@ c.printA()
 # ->最后打印A2
 ```
 
-#### 抽象类和抽象方法
+### 抽象类和抽象方法
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1202,7 +1204,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 接口类
+### 接口类
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 接口类和抽象类大致相同
@@ -1210,7 +1212,7 @@ if __name__ == "__main__":
 2. 接口类只有方法，抽象类可以有方法和属性
 3. 接口类的方法实现为空，具体有子类去实现，抽象类可以写一些方法去做基础实现，供子类参考
 
-#### 常见魔术方法
+### 常见魔术方法
 ```py
 # 这是一个装饰器，你只需要实现 __eq__ 方法和其他任意一个方法如__lt__就可以推导出所有的 __ge__, __le__, __gt__
 from functools import total_ordering
@@ -1314,8 +1316,8 @@ if __name__ == "__main__":
     main()
 ```
 
-### 文件和异常处理
-#### 打开文件并读取内容，并处理打开文件的异常
+## 文件和异常处理
+### 打开文件并读取内容，并处理打开文件的异常
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1347,7 +1349,7 @@ if __name__ == "__main__":
 ```
 !> 一般还是用with···as···方便
 
-#### 读写文件操作
+### 读写文件操作
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1374,7 +1376,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 读写json文件及序列化和反序列化
+### 读写json文件及序列化和反序列化
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 ```py
@@ -1420,7 +1422,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 上下文对象
+## 上下文对象
 <p align="left" style="color:#777777;">发布日期：2021-04-25</p>
 
 **用法**
@@ -1489,8 +1491,8 @@ with DBCM('localhost', '8080') as db_client:
     ....
 ```
 
-### 正则表达式
-#### 常用表达式符号
+## 正则表达式
+### 常用表达式符号
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 | 符号               | 解释                                   | 示例                | 说明                                                                            |
@@ -1531,7 +1533,7 @@ with DBCM('localhost', '8080') as db_client:
 | {M,N}?             | 重复M到N次，但尽可能少重复             |                     |                                                                                 |
 | {M,}?              | 重复M次以上，但尽可能少重复            |                     |                                                                                 |
 
-#### re函数使用方法
+### re函数使用方法
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 ```py
@@ -1631,9 +1633,9 @@ if __name__ == "__main__":
     main()
 ```
 
-### 多进程和多线程
+## 多进程和多线程
 
-#### 多进程
+### 多进程
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 **基本案例**
@@ -1785,7 +1787,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 多线程
+### 多线程
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 **基本案例**
@@ -1885,9 +1887,9 @@ if __name__ == "__main__":
 ```
 !> 这里注意 多线程和多进程最大的不同在于，多进程中，同一个变量，各自有一份拷贝存在于每个进程中，互不影响，而多线程中，所有变量都由所有线程共享，所以，任何一个变量都可以被任何一个线程修改，因此，线程之间共享数据最大的危险在于多个线程同时改一个变量，把内容给改乱了
 
-### 网络请求
+## 网络请求
 
-#### requests库
+### requests库
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 **基本案例**
@@ -2003,8 +2005,8 @@ with requests.get(
             f.write(chunk)
 ```
 
-### 异步IO
-#### asyncio 和 async/await
+## 异步IO
+### asyncio 和 async/await
 
 同步
 ```py
@@ -2168,9 +2170,9 @@ if __name__ == "__main__":
 老板发现，现在已经有了很多条生产线，并且每条生产线上已经有很多工人了（即程序是多进程的，每个进程中又有多个线程），为了再次提高效率，老板想了个损招，规定：如果某个员工在上班时临时没事或者再等待某些条件（比如等待另一个工人生产完谋道工序 之后他才能再次工作） ，那么这个员工就利用这个时间去做其它的事情，那么也就是说：如果一个线程等待某些条件，可以充分利用这个时间去做其它事情，其实这就是：协程方式  
 原文链接：https://blog.csdn.net/weixin_42589922/article/details/81088748
 
-### 图片处理
+## 图片处理
 
-#### 常用操作
+### 常用操作
 <p align="left" style="color:#777777;">发布日期：2021-04-26</p>
 
 ```py
@@ -2209,7 +2211,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### excel基础操作
+## excel基础操作
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
 ```py
@@ -2362,7 +2364,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 推导式语法
+## 推导式语法
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
 ```py
@@ -2398,10 +2400,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### 生成器
+## 生成器
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
-#### 生成器基本执行流程
+### 生成器基本执行流程
 ```py
 def createGenerator():
     """
@@ -2441,7 +2443,7 @@ if __name__ == "__main__":
 ```
 !>生成器用完一次后即被释放,大列表都可以用生成器去创建
 
-#### 用生成器生成无限序列
+### 用生成器生成无限序列
 ```py
 def createGenerator():
     """
@@ -2470,7 +2472,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 生成器深入理解与应用
+### 生成器深入理解与应用
 ```py
 from time import time
 
@@ -2525,8 +2527,8 @@ if __name__ == "__main__":
     main()
 ```
 
-### 数据库
-#### pymysql
+## 数据库
+### pymysql
 ```py
 import pymysql
 
@@ -3029,7 +3031,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### sqlite3
+### sqlite3
 测试的表格如下  
 ![calc](../../images/sqlite3_table_user.png)  
 
@@ -3498,9 +3500,9 @@ if __name__ == "__main__":
     main()
 ```
 
-### 内置模块
+## 内置模块
 
-#### random随机数
+### random随机数
 ```py
 import random
 
@@ -3531,7 +3533,7 @@ if __name__ == "__main__":
 !> randint产生的随机数包含左右边界，randrange只包含左边界，且randrange可以设定步长  
 shuffle会改变原数据源 sample不会
 
-#### Math数学方法
+### Math数学方法
 数学方法很多,没有的参照[这里](https://docs.python.org/zh-cn/3/library/math.html)
 ```py
 import math
@@ -3564,7 +3566,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### os操作系统
+### os操作系统
 基本是操作文件和执行shell命令有用
 ```py
 import os
@@ -3611,7 +3613,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 日期和时间
+### 日期和时间
 ```py
 # 导入日期处理库
 from datetime import datetime as dt
@@ -3647,7 +3649,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 加密模块
+### 加密模块
 ```py
 # 各种hash算法 如md5 sha1
 import hashlib
@@ -3675,7 +3677,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 堆模块排序
+### 堆模块排序
 
 **堆的定义 第i个数总是大于第i/2处的元素**
 
@@ -3743,7 +3745,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 迭代工具
+### 迭代工具
 ```py
 # 导入迭代工具模块
 import itertools
@@ -3832,7 +3834,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 集合
+### 集合
 
 ```py
 from collections import deque, Counter
@@ -3865,7 +3867,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 定时器功能实现
+### 定时器功能实现
 ```py
 from threading import Timer
 
@@ -3887,10 +3889,10 @@ if __name__ == "__main__":
     main()
 ```
 
-### 内置函数
+## 内置函数
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
-#### type()
+### type()
 检查变量
 ```py
 a = 3
@@ -3898,14 +3900,14 @@ print(type(a))
 ```
 输出<class 'int'>
 
-#### 类型转换
+### 类型转换
 - int()：将一个数值或字符串转换成整数，可以指定进制。
 - float()：将一个字符串转换成浮点数。
 - str()：将指定的对象转换成字符串形式，可以指定编码。
 - chr()：将整数转换成该编码对应的字符串（一个字符）。
 - ord()：将字符串（一个字符）转换成对应的编码（整数）。
 
-#### 输入和输出函数
+### 输入和输出函数
 输入input("请输入：")
 输出print("输出")
 ```py
@@ -3916,7 +3918,7 @@ d = float(input("d="))
 print("您输入了：a=%d,b=%d,c=%s,d=%f,a+b=%d" % (a, b, c, d, a + b))  # 占位符替换
 print(
     f"您输入了：a={a},b={b},c={c},d={d:.3f},a+b={a+b}"
-)  ## print(f"")里的f是格式化format的意思   :.3f表示保留三位
+)  # print(f"")里的f是格式化format的意思   :.3f表示保留三位
 ```
 上面的例子包含了input和print的用法，还有占位符%,输出字符f的用法,推荐f用法，简单高效
 输出
@@ -3925,7 +3927,7 @@ print(
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
 
-#### 计算长度
+### 计算长度
 ```py
 str = "hello world"
 arr = [1, 2, 3, 4]
@@ -3933,7 +3935,7 @@ print(len(str))  # 输出11
 print(len(arr))  # 输出4
 ```
 
-#### map函数
+### map函数
 ```py
 from functools import reduce
 
@@ -3964,7 +3966,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### reduce累加器,累乘器
+### reduce累加器,累乘器
 ```py
 from functools import reduce
 
@@ -3985,7 +3987,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### filter过滤器
+### filter过滤器
 ```py
 def main():
     lists = [item for item in range(100)]
@@ -4001,7 +4003,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### sorted排序
+### sorted排序
 ```py
 import random
 
@@ -4036,31 +4038,31 @@ if __name__ == "__main__":
     main()
 ```
 
-### pip
+## pip
 <p align="left" style="color:#777777;">发布日期：2021-04-15</p>
 
 ***pip*** python工具库安装工具
-#### 查看版本号
+### 查看版本号
 ```
 pip -V
 ```
 
-#### 查看已经安装的第三方库
+### 查看已经安装的第三方库
 ```
 pip list
 ```
 
-#### 查看可以更新的库
+### 查看可以更新的库
 ```
 pip list --outdated --trusted-host mirrors.aliyun.com
 ```
 
-#### 更新库命令
+### 更新库命令
 ```powershell
 pip install --upgrade 库名称
 ```
 
-#### 切换安装源
+### 切换安装源
 echo %APPDATA% 路径下创建pip文件夹
 创建pip.ini文件
 内容
@@ -4071,7 +4073,7 @@ index-url=http://mirrors.aliyun.com/pypi/simple/
 trusted-host=mirrors.aliyun.com
 ```
 
-#### pip升级
+### pip升级
 ```powershell
 pip install --upgrade pip
 ```
@@ -4082,7 +4084,7 @@ python -m pip install --upgrade pip
 ```
 [找到其来源](https://docs.python.org/3/library/ensurepip.html#command-line-interface)
 
-#### 代码格式化库black
+### 代码格式化库black
 ```powershell
 pip install black
 ```
@@ -4096,9 +4098,9 @@ vscode格式化配置
 }
 ```
 
-### 别人遇到的坑
+## 别人遇到的坑
 
-#### 嵌套列表的坑
+### 嵌套列表的坑
 <p align="left" style="color:#777777;">发布日期：2021-04-27</p>
 
 ```py
@@ -4136,9 +4138,9 @@ if __name__ == "__main__":
     main()
 ```
 
-### 爬虫
+## 爬虫
 
-#### beautifulsoup4
+### beautifulsoup4
 - 安装
     ```powershell
     pip install beautifulsoup4
@@ -4172,7 +4174,7 @@ if __name__ == "__main__":
         main()
     ```
 
-#### 爬取当当网top500书籍
+### 爬取当当网top500书籍
 ```py
 # 导入网络请求库
 import requests
@@ -4282,7 +4284,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 爬取人才网所有职位
+### 爬取人才网所有职位
 ```py
 # 导入网络请求库
 import requests
@@ -4435,7 +4437,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 爬取小说网站所有小说  并存入数据库 同步请求方式
+### 爬取小说网站所有小说  并存入数据库 同步请求方式
 实际请求地址为https://quanxiaoshuo.com
 ```py
 # 导入网络请求库
@@ -4609,7 +4611,7 @@ if __name__ == "__main__":
     main()
 ```
 
-####  爬取指定名称的小说封面图
+###  爬取指定名称的小说封面图
 ```py
 # 导入网络请求库
 import requests
@@ -4727,7 +4729,7 @@ SELECT sum(chapter_detail_count) AS chapter_detail_count_all,book_id FROM (
 SELECT CHAR_LENGTH(chapter_detail) AS chapter_detail_count,book_id FROM book_chapter WHERE book_id BETWEEN 642 AND 646) AS bc GROUP BY book_id
 ```
 
-#### 爬取小说的描述
+### 爬取小说的描述
 ```py
 # 导入网络请求库
 import requests
@@ -4842,7 +4844,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 爬取小说网站所有小说 异步请求方式
+### 爬取小说网站所有小说 异步请求方式
 这种方式太快了，直接搞崩了
 ```py
 # 异步io
@@ -5057,7 +5059,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 爬取m3u8视频，批量合并爬取的视频为mp4
+### 爬取m3u8视频，批量合并爬取的视频为mp4
 ```py
 # 导入网络请求库
 import requests
@@ -5158,7 +5160,7 @@ if __name__ == "__main__":
 ```
 !>这里的base_url_list 需要自己去找或者利用各种ajax拦截获取,我这里破解不了97看片网的链接sign，所以是一个一个找的
 
-### numpy
+## numpy
 ```py
 import numpy as np
 
@@ -5290,8 +5292,8 @@ if __name__ == "__main__":
     main()
 ```
 
-### pandas
-#### pandas两种对象及图表结合
+## pandas
+### pandas两种对象及图表结合
 ```py
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -5400,7 +5402,7 @@ series.plot()
 plt.show()
 ```
 
-#### pandas和excel交互
+### pandas和excel交互
 ```py
 import matplotlib.pyplot as plt
 import pandas as pd
@@ -5447,7 +5449,7 @@ plt.show()
 dtfame.to_excel("./2.xlsx")
 ```
 
-### matplotlib
+## matplotlib
 ```py
 """
 所有案例参考自https://matplotlib.org/stable/gallery/index.html
@@ -5614,13 +5616,13 @@ axes.set_title("年度业绩表")
 plt.show()
 ```
 
-### 自动化测试工具selenium
-#### 安装
+## 自动化测试工具selenium
+### 安装
 ```powershell
 pip install selenium
 ```
 
-#### 安装谷歌驱动
+### 安装谷歌驱动
 找到自己的谷歌浏览器版本
 浏览器地址栏输入
 ```
@@ -5633,7 +5635,7 @@ chrome://version/
 D:\chromedriver
 ```
 
-#### 基本用法
+### 基本用法
 ```py
 # 导入了 web 驱动模块
 from selenium import webdriver
@@ -5682,10 +5684,10 @@ driver.page_source
 driver = webdriver.Chrome(options=chrome_options, executable_path="./chromedriver.exe")
 ```
 
-#### 官方文档
+### 官方文档
 [地址](https://www.selenium.dev/documentation/en/)
 
-#### 利用selenium爬取b站数据
+### 利用selenium爬取b站数据
 ```py
 # 导入了 web 驱动模块
 from selenium import webdriver
@@ -5792,7 +5794,7 @@ selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_pac
 """
 ```
 
-#### 爬取ajax数据
+### 爬取ajax数据
 - 安装
 
 ```powershell
@@ -5861,7 +5863,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 利用selenium爬取视频
+### 利用selenium爬取视频
 有些地址是需要破解的，这里举出不需要破解的
 ```py
 # 导入了 web 驱动模块
@@ -6048,7 +6050,7 @@ if __name__ == "__main__":
 pip install pycryptodome --no-binary :all: 
 ```
 
-#### selenium京东秒杀
+### selenium京东秒杀
 ```py
 # 导入了 web 驱动模块
 from selenium import webdriver
@@ -6182,7 +6184,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 自动化测试工具playwright
+## 自动化测试工具playwright
 
 1. 安装
    ```powershell
@@ -6196,35 +6198,35 @@ if __name__ == "__main__":
 3. 文档地址
    [使用](https://playwright.dev/python/docs/intro/) [api](https://playwright.dev/python/docs/api/class-page)
 
-### 移动端自动化工具appium
-#### 安装服务端
+## 移动端自动化工具appium
+### 安装服务端
 ```powershell
 npm install -g appium
 ```
-#### 开启
+### 开启
 ```powershell
 appium
 ```
 
-#### 安装python客户端
+### 安装python客户端
 ```powershell
 pip install Appium-Python-Client
 ```
 
 !> 其他安卓环境参考App开发那块
 
-#### 连接夜神模拟器
+### 连接夜神模拟器
 ```powershell
 abd connect 127.0.0.1:62001
 ```
 
-#### 检测环境是否安装完成
+### 检测环境是否安装完成
 ```powershell
 npm install -g appium-doctor
 appium-doctor # 有警告无所谓不影响使用
 ```
 
-#### 获取必要的参数
+### 获取必要的参数
 1. 获取设备名称
    ```powershell
    adb devices
@@ -6240,7 +6242,7 @@ appium-doctor # 有警告无所谓不影响使用
    adb shell getprop ro.build.version.release #7.1.2
    ```
 
-#### 启动app
+### 启动app
 ```py
 from appium import webdriver
 
@@ -6257,7 +6259,7 @@ desired_caps = {
 driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
 ```
 
-#### 获取app内元素
+### 获取app内元素
 使用安卓adk目录下的uiautomatorviewer
 位置androidsdk\tools\bin\uiautomatorviewer.bat,双击打开  
 出现错误，关闭bat下面命令后重新打开:  
@@ -6266,7 +6268,7 @@ adb root
 ```
 不行的话重启模拟器，真机的话打开手机开发者权限，将USB调试按钮重新启动就好了
 
-#### 完整示例
+### 完整示例
 ```py
 # appium python驱动
 from appium import webdriver
@@ -6381,7 +6383,7 @@ if __name__ == "__main__":
     main()
 ```
 
-#### 淘宝自动领喵币(真机，模拟器不行，有检测)
+### 淘宝自动领喵币(真机，模拟器不行，有检测)
 ```py
 # appium python驱动
 from appium import webdriver
@@ -6503,7 +6505,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### 更牛逼的跨平台自动化测试工具airtest
+## 更牛逼的跨平台自动化测试工具airtest
 下载 [airtestIDE](https://airtest.netease.com/)
 1. 确保adb连接手机或模拟器
 2. 然后打开IDE——>connect
@@ -6514,14 +6516,14 @@ if __name__ == "__main__":
    "D:\AirtestIDE\AirtestIDE" runner "C:\xxx\taobao.air"  --device android://127.0.0.1:5037/设备名
    ```
 
-### pyinstaller打包python脚本
+## pyinstaller打包python脚本
 
-#### 安装
+### 安装
 ```powershell
 pip install pyinstaller
 ```
 
-#### 使用
+### 使用
 ```powershell
 pyinstaller -F filename.py
 ```
@@ -6539,21 +6541,21 @@ pyinstaller -F filename.py
 
 !>打包的python文件要有main()入口函数
 
-### python图表pyecharts
+## python图表pyecharts
 
-#### 安装
+### 安装
 ```powershell
 pip install pyecharts
 ```
-#### 使用
+### 使用
 [文档地址](https://pyecharts.org/#/zh-cn/quickstart)
 
 
-### 桌面软件自动化
-#### 安装
+## 桌面软件自动化
+### 安装
 需要pywinauto、win32gui、pyautogui
 
-#### 实例 自动发送文字 按ENTER键发送
+### 实例 自动发送文字 按ENTER键发送
 例如输入
 请输入进程号：22744
 请输入窗口名：微信
@@ -6663,7 +6665,7 @@ Application(backend="win32").connect(process=21564)
 """
 ```
 
-### 键盘鼠标控制
+## 键盘鼠标控制
 1. autohotkey
 ```py
     """
@@ -6788,14 +6790,14 @@ Application(backend="win32").connect(process=21564)
 
 
 
-## Sanic
+# Sanic
 支持异步请求的web框架
-### 安装
+## 安装
 ```powershell
 pip install sanic
 ```
 
-### 开启服务器
+## 开启服务器
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6813,7 +6815,7 @@ async def index(request):
 ```
 运行 sanic server.app
 
-### 调式模式热重载
+## 调式模式热重载
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6843,7 +6845,7 @@ if __name__ == "__main__":
 运行 python server.py
 
 
-### 全局配置方式
+## 全局配置方式
 ```py
 app = Sanic("App")
 
@@ -6856,7 +6858,7 @@ config = {"APP_NAME": "webapp"}
 app.config.update(config)
 ```
 
-### 全局对象挂载方式
+## 全局对象挂载方式
 ```py
 app = Sanic("App")
 
@@ -6871,7 +6873,7 @@ app.ctx.db = Database()
 ```
 
 
-### 获取参数
+## 获取参数
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6896,7 +6898,7 @@ async def index(request: Request) -> HTTPResponse:
     return text("hello world!")
 ```
 
-### 获取body数据
+## 获取body数据
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6926,7 +6928,7 @@ async def index(request: Request) -> HTTPResponse:
     return text("hello world!")
 ```
 
-### 响应response
+## 响应response
 ```py
 from sanic import Sanic
 from sanic.response import text,json,html
@@ -6947,7 +6949,7 @@ async def index(request: Request) -> HTTPResponse:
     return html("<h1>hello world!</h1>")
 ```
 
-### 请求或响应中间件存储数据使用方法
+## 请求或响应中间件存储数据使用方法
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -6986,7 +6988,7 @@ async def headerToken(request: Request, response: HTTPResponse):
 ```
 !> 要注意如果有多个响应中间件，会按逆序执行
 
-### 请求头信息
+## 请求头信息
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -7013,7 +7015,7 @@ async def index(request: Request) -> HTTPResponse:
     return text("hello world!")
 ```
 
-### 路由
+## 路由
 **使用函数添加路由**
 ```py
 from sanic import Sanic
@@ -7107,7 +7109,7 @@ async def handleCallback(request: Request, str: str) -> HTTPResponse:
     return text(str)
 ```
 
-### 挂载入口文件index.html及多入口
+## 挂载入口文件index.html及多入口
 ```py
 from sanic import Sanic
 from sanic.response import text, redirect
@@ -7122,7 +7124,7 @@ app.static("/admin", "./admin.html", name="admin")
 ```
 
 
-### 服务器启动生命周期
+## 服务器启动生命周期
 !> 可以在启动时初始化一些必要的配置和实例
 
 ```py
@@ -7192,7 +7194,7 @@ def index(request: Request) -> HTTPResponse:
     return text("hello world!")
 ```
 
-### 后台运行脚本
+## 后台运行脚本
 ```py
 import asyncio
 from sanic import Sanic
@@ -7222,7 +7224,7 @@ app.add_task(exexTask())
 app.run()
 ```
 
-### 视图同一路由分发不同类型的请求
+## 视图同一路由分发不同类型的请求
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -7253,7 +7255,7 @@ class IndexController(HTTPMethodView):
 app.add_route(IndexController.as_view(), "/<str>")
 ```
 
-### websocket
+## websocket
 ```html
 <!DOCTYPE html>
 <html lang="en">
@@ -7302,7 +7304,7 @@ async def websocketFn(request: Request, ws: socket) -> None:
 ```
 [在线聊天室案例](http://sanic-demo.o8o8o8.com/)
 
-### api接口版本管理
+## api接口版本管理
 ```py
 from sanic import Sanic
 from sanic.response import text
@@ -7342,8 +7344,8 @@ async def index(request: Request) -> HTTPResponse:
 !> 前缀version_prefix可省略
 
 
-### 蓝图组件
-#### 创建和注册蓝图
+## 蓝图组件
+### 创建和注册蓝图
 ```py
 from sanic import Sanic, Blueprint
 from sanic.response import text
@@ -7377,7 +7379,7 @@ if __name__ == "__main__":
 ```
 
 
-### 蓝图组
+## 蓝图组
 假如有目录如下  
 ```
 |--api  
@@ -7497,7 +7499,7 @@ if __name__ == "__main__":
     main()
 ```
 
-### jwt
+## jwt
 **`server.py`**
 ```py
 from sanic import Sanic
@@ -7627,7 +7629,7 @@ def protected():
     return decorator
 ```
 
-### sqlalchemy和aiomysql配合使用
+## sqlalchemy和aiomysql配合使用
 1. 安装
    ```powershell
    pip install sqlalchemy
@@ -7874,7 +7876,7 @@ def protected():
         main()
     ```
 
-### cors扩展
+## cors扩展
 [cors](https://sanic.dev/zh/plugins/sanic-ext/http/cors.html#%E8%B7%A8%E5%9F%9F%E4%BF%9D%E6%8A%A4-cors-protection)  
 直接安装sanic-ext,在导入sanic时会自动导入,默认启用了cors保护  
 
@@ -7896,7 +7898,7 @@ async def cors(request: Request, response: HTTPResponse):
     response.headers.update({"Access-Control-Allow-Origin": "*"})
 ```
 
-### linux部署
+## linux部署
 1. 安装python3环境（前面有）
 2. 安装sanic
    ```powershell

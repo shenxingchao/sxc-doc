@@ -1,6 +1,6 @@
 # Php
-## 环境搭建
-### wnmp搭建
+# 环境搭建
+## wnmp搭建
 <p align="left" style="color:#777777;">发布日期：2020-05-08</p>
 
 !>安装根目录这里都设为F:\Ul\  替换为自己的安装目录即可
@@ -158,10 +158,10 @@
 !>windows下项目目录命名为tp前缀会打不开
 
 * * *
-### lnmp搭建
+## lnmp搭建
 <p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
 
-#### 一．准备
+### 准备
 1. 下载putty工具  
 2. yum -y update（升级所有软件包）  
 3. df –lh（查看磁盘空间）  
@@ -174,7 +174,7 @@
     - 否则安装  
         yum install gcc gcc-c++
 
-#### 二．安装nginx
+### 安装nginx
 1. 安装nginx依赖包  
     - nginx的Rewrite模块和HTTP核心模块会使用到PCRE正则表达式语法  
         yum -y install pcre pcre-devel
@@ -246,7 +246,7 @@
     - 查看80端口是否开放成功  
         firewall-cmd --zone=public --query-port=80/tcp
 
-#### 三.安装Mysql
+### 安装Mysql
 1. 卸载已有mysql  
     - 查看是否已安装mysql  
         rpm -qa mysql
@@ -341,7 +341,7 @@
     在查看一次端口即可  
     yum update导致mysql服务不能启动，解决办法mv /etc/my.cnf /etc/my.cnf.bak  
 
-#### 四.安装PHP
+### 安装PHP
 1. 安装php依赖包  
 yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcurl libcurl-devel libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel gmp gmp-devel libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel
 2. 下载php包并解压  
@@ -389,7 +389,7 @@ yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcur
     查看是否启动成功：  
     ps aux | grep php-fpm  
 
-#### 五．安装PHP7.4.13
+### 安装PHP7.4.13
 __统一下载路径cd /usr/local/src__
 1. 前置1安装re2c 不然编译会报错 PHP （语法分析器re2c）  
     Wget https://github.com/skvadrik/re2c/releases/download/1.0.2/re2c-1.0.2.tar.gz  
@@ -505,7 +505,7 @@ __统一下载路径cd /usr/local/src__
     - 重启  
         systemctl restart php7-fpm  
 
-#### 六.安装PHP8.0.1
+### 安装PHP8.0.1
 __统一下载路径cd /usr/local/src__  
 1. 和php7一样的前置条件安装  
 2. 下载php包并解压  
@@ -583,7 +583,7 @@ __统一下载路径cd /usr/local/src__
 
 !>jit_buffer_size设置过大会报错
 
-#### 七.常用
+### 常用
 - nginx  
     启动 systemctl start nginx.service  
     停止 systemctl stop nginx.service  
@@ -617,8 +617,8 @@ __统一下载路径cd /usr/local/src__
 
 !> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后性能提升的原因，因为不需要重新编译php脚本了
 
-## 扩展
-### linux为php添加redis扩展
+# 扩展
+## linux为php添加redis扩展
 <p align="left" style="color:#777777;">发布日期：2020-07-23</p>
 
 1. cd /usr/local/src  
@@ -633,8 +633,8 @@ __统一下载路径cd /usr/local/src__
     /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
 10. systemctl restart php-fpm  
 
-## 算法
-### PHP之抽奖概率算法
+# 算法
+## PHP之抽奖概率算法
 <p align="left" style="color:#777777;">发布日期：2019-03-27</p>
 
 无论是任何抽奖的小游戏，例如转盘，九宫格，砸金蛋，刮刮卡，都是基于抽奖算法来抽奖，都可以基于同一种抽奖算法。无非就是前端的展现形式不一样。目前只看到过一种，附上。
@@ -662,19 +662,19 @@ function getRand($proArr){
 转盘抽奖：http://www.thinkphp.cn/code/1153.html  
 
 
-## thinkphp6后端框架
+# thinkphp6后端框架
 此步骤所有文件参考原项目即可 http://demo.o8o8o8.com/vue-admin-thinkphp6/#/
 
-### composer
+## composer
 [composer安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481)
 
-### 创建项目
+## 创建项目
 切换到网站根目录运行
 ```powershell
 composer create-project topthink/think demo
 ```
 
-### 更新框架
+## 更新框架
 切换到应用根目录
 ```powershell
 composer update topthink/framework
@@ -682,7 +682,7 @@ composer update topthink/framework
 
 !> 运行出现No input file specified 可能是nginx root目录配置的有问题 最好用\\双斜杠去表示\就不会出问题了
 
-### 配置域名绑定模块
+## 配置域名绑定模块
 配置/config/app.php(上线需要更改的一块)
 ```php
 <?
@@ -693,7 +693,7 @@ return [
 ]
 ```
 
-### 配置路由
+## 配置路由
 /config/route.php
 ```php
 <?php
@@ -711,14 +711,14 @@ return [
 ]
 ```
 
-### 新建模块
+## 新建模块
 /app/admin
 
-### 配置数据库连接
+## 配置数据库连接
 /app/admin/config/database.php 和/.env配置文件(上线需要更改的一块)
 !> 上线还要重启php8 不然数据库连不上出现localhsot no Password错误,很坑
 
-### 配置路由中间件
+## 配置路由中间件
 /app/admin/config/route.php 配置路由中间件设置跨域规则。如果要鉴权的也可以在这里设置priority优先中间件，设置方法参考以前的项目
 ```php
 <?php
@@ -755,12 +755,12 @@ class Cors {
 }
 ```
 
-### 多应用模式
+## 多应用模式
 需要安装think-multi-app 不然无法访问，默认是单应用模式
 ```powershell
 composer require topthink/think-multi-app
 ```
 
-### 新建路由
+## 新建路由
 新建app\admin\route\route.php 
 路由文件随便起怎么起，只要在这下面都会加载

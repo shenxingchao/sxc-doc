@@ -1,7 +1,7 @@
 # Web服务器
-## apcahe
-## nginx
-### Nginx开启gzip压缩
+# apcahe
+# nginx
+## Nginx开启gzip压缩
 <p align="left" style="color:#777777;">发布日期：2019-04-01</p>
 
 开启gzip压缩，可以大大减少请求文件的大小，加快网页的访问速度
@@ -29,7 +29,7 @@ server {
 Content-Encoding: gzip
 那便是开启了，而且文件的SIZE和你上传的文件大小变小了很多
 
-### Nginx配置php可访问
+## Nginx配置php可访问
 <p align="left" style="color:#777777;">发布日期：2019-04-01</p>
 
 - 配置包括__访问.php文件__  
@@ -74,7 +74,7 @@ server {
 }
 ```
 
-### Nginx配置Https
+## Nginx配置Https
 <p align="left" style="color:#777777;">发布日期：2019-04-02</p>
 现在很多网站都开启了https,而且例如开发微信小程序,也需要https，
 那么记录一下https nginx的配置方式  
@@ -134,7 +134,7 @@ https://buy.cloud.tencent.com/ssl
 
 !>这里需要stop之后重新start 也是需要注意的
 
-### Nginx配置反向代理服务器
+## Nginx配置反向代理服务器
 爬虫的时候很有用  
 例如我想爬一个www.a.com的网站 那么我可以这么设置  
 nginx配置文件  

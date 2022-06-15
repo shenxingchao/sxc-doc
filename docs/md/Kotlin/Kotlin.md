@@ -1,8 +1,8 @@
 # Kotlin
 
-## 基础
+# 基础
 
-### 变量 常量
+## 变量 常量
 
 ```kt
 package com.org.kotlin
@@ -19,11 +19,11 @@ fun main() {
 }
 ```
 
-### 基本数据类型
+## 基本数据类型
 
 kotlin基本数据类型有Byte、Short、Int、Long、Float、Double等，他们是一个类，在编译后会转成java基本数据类型byte,short,int,long,float,double
 
-### 类型转换
+## 类型转换
 
 ```kt
 package com.org.kotlin
@@ -39,7 +39,7 @@ fun main() {
 }
 ```
 
-### 数组
+## 数组
 
 ```kt
 package com.org.kotlin
@@ -64,7 +64,7 @@ class A() {
 }
 ```
 
-### 解构赋值
+## 解构赋值
 
 ```kt
 package com.org.kotlin
@@ -82,7 +82,7 @@ fun main() {
 }
 ```
 
-### 遍历
+## 遍历
 
 ```kt
 package com.org.kotlin
@@ -114,7 +114,7 @@ fun main() {
 }
 ```
 
-### range表达式
+## range表达式
 
 ```kt
 package com.org.kotlin
@@ -136,7 +136,7 @@ fun main() {
 }
 ```
 
-### when表达式
+## when表达式
 
 就是switch
 
@@ -163,7 +163,7 @@ fun main() {
 }
 ```
 
-### Unit类代替void返回值
+## Unit类代替void返回值
 
 为空的话返回了Unit对象
 
@@ -178,7 +178,7 @@ fun main() {
 }
 ```
 
-### 字符串模板
+## 字符串模板
 
 ```kt
 package com.org.kotlin
@@ -191,7 +191,7 @@ fun main() {
 }
 ```
 
-### 三目运算符
+## 三目运算符
 
 ```kt
 package com.org.kotlin
@@ -214,7 +214,7 @@ fun main() {
 }
 ```
 
-### 空判断
+## 空判断
 
 和flutter的dart语言类似,也可以用if判断不为空后调用
 
@@ -248,7 +248,7 @@ fun main() {
 }
 ```
 
-### 异常
+## 异常
 
 kotlin不会像java一样去检查异常，你可以手动调用一些检查的方法去检查异常
 
@@ -285,7 +285,7 @@ fun main() {
 }
 ```
 
-### kotlin注解
+## kotlin注解
 
 **@file:JvmName**
 
@@ -317,7 +317,7 @@ class A {
 }
 ```
 
-### is操作符
+## is操作符
 
 判断对象，并在该判断后的方法体内自动推断类型
 
@@ -330,7 +330,7 @@ fun main() {
 }
 ```
 
-### 将代码标记为未完成
+## 将代码标记为未完成
 
 添加此方法，执行到此会报异常
 
@@ -338,7 +338,7 @@ fun main() {
 TODO()
 ```
 
-## 函数
+# 函数
 
 ```kt
 package com.org.kotlin
@@ -388,7 +388,7 @@ fun fnVoid(name: String): Unit {
 }
 ```
 
-### 匿名函数Lambda
+## 匿名函数Lambda
 
 匿名函数就是Lambda
 
@@ -429,7 +429,7 @@ fun main() {
 }
 ```
 
-### .()语法糖
+## .()语法糖
 
 ```kt
 package com.org.kotlin
@@ -448,7 +448,7 @@ fun main() {
 }
 ```
 
-### ::语法糖
+## ::语法糖
 
 函数引用或者变量引用
 
@@ -477,7 +477,7 @@ fun fn(a: A, methodFn: () -> String) {
 }
 ```
 
-### 函数参数和inline内联关键字和函数引用
+## 函数参数和inline内联关键字和函数引用
 
 ```kt
 package com.org.kotlin
@@ -506,7 +506,7 @@ public inline fun fn(name: String, interfaceFn: (String) -> Unit) {
 }
 ```
 
-### 函数作为返回值
+## 函数作为返回值
 
 **匿名函数作为返回值**
 
@@ -548,7 +548,7 @@ fun fn(value: String, name: String, age: Int): String {
 }
 ```
 
-### 扩展函数
+## 扩展函数
 
 实现一个let来举例说明扩展函数，任何类型都是可以加扩展函数的
 
@@ -597,7 +597,7 @@ inline fun <I, O> I.myLet(lambda: (I) -> O): O {
 }
 ```
 
-### 中缀表达式
+## 中缀表达式
 
 函数可以省略· 并且可以链式调用
 
@@ -620,9 +620,9 @@ infix fun <I, O> I.fn(param: O): String {
 }
 ```
 
-## 特殊类类型
+# 特殊类类型
 
-### Nothing
+## Nothing
 
 无法正常返回的方法就返回 Nothing
 
@@ -652,7 +652,7 @@ fun fn(): Nothing {
 }
 ```
 
-### 任意类型Any
+## 任意类型Any
 
 超类 相当于 java中的Object
 
@@ -677,9 +677,9 @@ fun main() {
 }
 ```
 
-## 内置api
+# 内置api
 
-### 字符串操作
+## 字符串操作
 
 **正则替换**
 
@@ -702,7 +702,7 @@ fun main() {
 }
 ```
 
-### Filter过滤
+## Filter过滤
 
 **过滤删除**
 
@@ -760,7 +760,7 @@ fun main() {
 }
 ```
 
-### zip
+## zip
 
 合并可迭代对象的每个位置的元素为一个二元元组
 
@@ -785,9 +785,9 @@ fun main() {
 }
 ```
 
-## 作用域函数
+# 作用域函数
 
-### let
+## let
 
 一般用于简化 判断不为空后执行代码这个操作
 
@@ -805,7 +805,7 @@ fun main() {
 }
 ```
 
-### apply
+## apply
 
 apply⼀般⽤于⼀个对象实例初始化的时候，需要对对象中的属性进⾏赋值
 
@@ -836,7 +836,7 @@ class Person(var name: String?, var age: Int?) {
 }
 ```
 
-### run
+## run
 
 ```kt
 package com.org.kotlin
@@ -858,7 +858,7 @@ fun main() {
 }
 ```
 
-### also
+## also
 
 also和apply一样返回他本身，类似于java需要把值赋给一个值后判断的这种用also
 
@@ -882,7 +882,7 @@ fun main() {
 }
 ```
 
-### with
+## with
 
 省略对象变量名调用方法
 
@@ -912,9 +912,9 @@ class Person() {
 }
 ```
 
-## 高阶函数
+# 高阶函数
 
-### map
+## map
 
 map可以讲一个可迭代对象的每个元素处理后返回，相当于forEach遍历并处理后返回
 
@@ -934,7 +934,7 @@ fun main() {
 }
 ```
 
-### any
+## any
 
 查找元素在可迭代对象中是否大于等于1,返回布尔值
 
@@ -951,7 +951,7 @@ fun main() {
 }
 ```
 
-### all
+## all
 
 ```kt
 package com.org.kotlin
@@ -966,7 +966,7 @@ fun main() {
 }
 ```
 
-### any
+## any
 
 查找元素在可迭代对象中是否不存在,不存在返回true
 
@@ -983,7 +983,7 @@ fun main() {
 }
 ```
 
-### count
+## count
 
 统计元素在可迭代对象的次数
 
@@ -1000,7 +1000,7 @@ fun main() {
 }
 ```
 
-### groupBy
+## groupBy
 
 分组统计 只适用于数组 分为聚合和不聚合
 
@@ -1036,7 +1036,7 @@ fun main() {
 data class Person(var name: String, var age: Int)
 ```
 
-### partition
+## partition
 
 分组并拆分成2个集合
 
@@ -1060,7 +1060,7 @@ fun main() {
 data class Person(var name: String, var age: Int)
 ```
 
-### sortedBy
+## sortedBy
 
 排序
 
@@ -1083,7 +1083,7 @@ fun main() {
 data class Person(var name: String, var age: Int)
 ```
 
-### getOrElse
+## getOrElse
 
 检验下标为index的元素存不存在，存在则返回本身，不存在则执行后面的代码
 
@@ -1108,7 +1108,7 @@ fun main() {
 data class Person(var name: String, var age: Int)
 ```
 
-### flatMap
+## flatMap
 
 将二维数组中的每个集合拆成一维数组
 
@@ -1129,7 +1129,7 @@ fun main() {
 
 
 
-### takeIf
+## takeIf
 
 用于判断对象某个属性是否为空,或者用于某个变量检查后，再对对象进行处理
 
@@ -1168,7 +1168,7 @@ fun main() {
 class Person(var name: String, var age: Int)
 ```
 
-### RxJava
+## RxJava
 
 接收任意的值，并对其处理，可实现监听一个观察者监听者
 
@@ -1208,9 +1208,9 @@ inline fun <I, O> Rxjava<I>.fn2(lambda: (I) -> O) = Rxjava(lambda(value))
 inline fun <O> fn(lambda: () -> O) = Rxjava(lambda())
 ```
 
-## 集合
+# 集合
 
-### List
+## List
 
 **不可变集合listOf**
 
@@ -1298,7 +1298,7 @@ fun main() {
 }
 ```
 
-### Set集合
+## Set集合
 
 元素不可重复的集合
 
@@ -1327,7 +1327,7 @@ fun main() {
 }
 ```
 
-### Map
+## Map
 
 **可变Map mutableMapOf**
 
@@ -1395,11 +1395,11 @@ fun main() {
 }
 ```
 
-## 元组
+# 元组
 
 kotlin没有多个数据的元组
 
-### Pair
+## Pair
 
 二个数据泛型元组
 
@@ -1412,7 +1412,7 @@ fun main() {
 }
 ```
 
-### Triple
+## Triple
 
 三个数据泛型元组
 
@@ -1425,9 +1425,9 @@ fun main() {
 }
 ```
 
-## 面向对象
+# 面向对象
 
-### 类
+## 类
 
 **声明类**
 
@@ -1480,7 +1480,7 @@ class B(var name: String, var age: Int) {
 }
 ```
 
-### 成员变量延迟初始化手动赋值lateinit
+## 成员变量延迟初始化手动赋值lateinit
 
 只能用于引用类型String等，不能用于Int等基础类型，且不能为null
 
@@ -1500,7 +1500,7 @@ class A(var name: String, var age: Int) {
 }
 ```
 
-### 成员变量延迟初始化自动赋值bylazy
+## 成员变量延迟初始化自动赋值bylazy
 
 和懒汉很像
 
@@ -1525,7 +1525,7 @@ class A(var name: String, var age: Int) {
 }
 ```
 
-### 继承和重写
+## 继承和重写
 
 ```kt
 package com.org.kotlin
@@ -1555,7 +1555,7 @@ open class B(name: String, age: Int) : A(name, age) {
 }
 ```
 
-### 向上转型和向下转型
+## 向上转型和向下转型
 
 ```kt
 package com.org.kotlin
@@ -1601,7 +1601,7 @@ open class B(name: String, age: Int) : A(name, age) {
 }
 ```
 
-### object单例和匿名内部类
+## object单例和匿名内部类
 
 可用于单例和匿名内部类
 
@@ -1656,7 +1656,7 @@ class B() {
 }
 ```
 
-### 伴生对象
+## 伴生对象
 
 companion object
 
@@ -1684,7 +1684,7 @@ class A {
 }
 ```
 
-### 内部类
+## 内部类
 
 ```kt
 package com.org.kotlin
@@ -1728,7 +1728,7 @@ class A {
 }
 ```
 
-### 数据类
+## 数据类
 
 加上data关键字 就是orm类(数据库对象关系映射)
 
@@ -1775,7 +1775,7 @@ data class User(var userId: Int, var name: String, var age: Int)
 data class UserAddress(var userId: Int, var name: String, var age: Int, var address: String)
 ```
 
-### operator重载运算符
+## operator重载运算符
 
 既可以重载系统内置的运算符 > = < 等等，还可以用来对象的解构 见**数据类**部分
 
@@ -1798,7 +1798,7 @@ class A(var num: Int) {
 }
 ```
 
-### 枚举类
+## 枚举类
 
 enum class
 
@@ -1836,7 +1836,7 @@ enum class B {
 }
 ```
 
-### 密封类
+## 密封类
 
 枚举类的扩展，可代替枚举，主要用于when判断多个对象，不需要写else的情况
 
@@ -1888,7 +1888,7 @@ sealed class Color2 : Car {
 }
 ```
 
-### 接口
+## 接口
 
 接口可以多实现，类是单继承
 
@@ -1930,7 +1930,7 @@ class C(override var name: String, override var age: Int) : A, B, D() {
 }
 ```
 
-### 抽象类
+## 抽象类
 
 ```kt
 package com.org.kotlin
@@ -1952,7 +1952,7 @@ class B : A() {
 }
 ```
 
-### 泛型
+## 泛型
 
 ```kt
 package com.org.kotlin
@@ -2021,7 +2021,7 @@ inline fun <reified T> fn(obj: T) =
     }
 ```
 
-### 协变和逆变
+## 协变和逆变
 
 out和in操作符
 
@@ -2063,7 +2063,7 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
 }
 ```
 
-## 协程
+# 协程
 
 类似于线程，对线程进行了优化，更加轻量，协程比JVM线程的资源消耗更少
 
@@ -2071,7 +2071,7 @@ fun <T> copyFnIn(destArr: Array<in T>, srcArr: Array<T>) {
 
 **协程是运行在线程之上的,可在不同线程间调度**
 
-### 添加库
+## 添加库
 
 [kotlinx.coroutines 官方库](https://github.com/Kotlin/kotlinx.coroutines/blob/master/README.md#using-in-your-projects)
 
@@ -2084,7 +2084,7 @@ dependencies {
 }
 ```
 
-### 第一个协程
+## 第一个协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2109,7 +2109,7 @@ suspend fun fn() {
 
 tips:挂起函数的本质就是切线程，协程的本质就是在线程上的一层封装
 
-### 线程等待和线程挂起
+## 线程等待和线程挂起
 
 线程等待**runBlocking**
 
@@ -2142,7 +2142,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### 协程等待
+## 协程等待
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2169,7 +2169,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### async和await
+## async和await
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2240,13 +2240,13 @@ suspend fun getFn2(): Int {
 }
 ```
 
-### async还是launch
+## async还是launch
 
 launch可启动新协程而不将结果返回给调用方。任何被视为“一劳永逸”的工作都可以使用 launch 来启动
 
 async会启动一个新的协程，并允许您使用一个名为 await 的挂起函数返回结果
 
-### 协程通道通信
+## 协程通道通信
 
 用于协程间共享数据
 
@@ -2285,7 +2285,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### 取消协程
+## 取消协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2313,7 +2313,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### 自动取消协程
+## 自动取消协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2341,7 +2341,7 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
-### 非受限的协程
+## 非受限的协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2370,7 +2370,7 @@ fun main(): Unit = runBlocking {
 }
 ```
 
-### withContext
+## withContext
 
 指定协程的运行线程 
 
@@ -2431,7 +2431,7 @@ fun main(): Unit = runBlocking {
 }
 ```
 
-### 子协程
+## 子协程
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2462,7 +2462,7 @@ fun main(): Unit = runBlocking {
 }
 ```
 
-### 协程命名
+## 协程命名
 
 CoroutineName
 
@@ -2484,7 +2484,7 @@ fun main(): Unit = runBlocking(CoroutineName("主runBlocking协程")) {
 }
 ```
 
-### 作用域
+## 作用域
 
 一般安装使用主线程作用域即可，全局的作用域是跟随应用生命周期的
 
@@ -2499,7 +2499,7 @@ class MyAndroidActivity {
 }
 ```
 
-### 流flow
+## 流flow
 
 就是类似于监听变量
 
@@ -2539,9 +2539,9 @@ fun main() = runBlocking {
 }
 ```
 
-## json库
+# json库
 
-### 依赖
+## 依赖
 
 build
 
@@ -2576,7 +2576,7 @@ dependencies {
 }
 ```
 
-### 使用
+## 使用
 
 ```kt
 package com.example.kotlin_android_demo
@@ -2602,9 +2602,9 @@ fun main() {
 data class Person(var name: String, var age: Int)
 ```
 
-## 设计模式
+# 设计模式
 
-### 单例
+## 单例
 
 饿汉式
 
@@ -2703,7 +2703,7 @@ class SingleInstance private constructor() {
 }
 ```
 
-### 代理模式by
+## 代理模式by
 
 by关键字就是java中的代理模式
 
@@ -2739,9 +2739,9 @@ class A {
 
 相当于vue watch监视一个属性，没啥亮点
 
-## kotlin安卓项目搭建
+# kotlin安卓项目搭建
 
-### idea环境搭建流程
+## idea环境搭建流程
 
 1. idea需要2022版本 旧版不能热更新代码 [破解流程](https://www.exception.site/article/29) [补丁](https://pan.baidu.com/s/1uYLHHKGIcWqSrl9Je9991g ) 提取码：1234
 2. idea需要下载kotlin和android插件 否则第三步出不来
@@ -2753,7 +2753,7 @@ class A {
 8. apk运行安装到手机出现  应用不能安装 在gradle.properties(项目根目录或者gradle全局配置目录 ~/.gradle/)文件中添加android.injected.testOnly=false
 9. 发布Build--》 Generate Signed Bundle / APK 连生成key都有
 
-### build:gradle
+## build:gradle
 
 [镜像库](https://developer.aliyun.com/mvn/guide)
 
@@ -2773,7 +2773,7 @@ buildscript {
 }
 ```
 
-### 一些问题
+## 一些问题
 
 **添加main函数无法运行**
 
@@ -2793,11 +2793,11 @@ android {
 
 
 
-## JetpackCompose
+# JetpackCompose
 
 android函数声明式UI框架，和flutter类似就是了
 
-### DSL手写声明式组件
+## DSL手写声明式组件
 
 理解了这个再了解内置组件就容易多啦
 
@@ -2874,7 +2874,7 @@ fun CustomComponent(content: @Composable Scope.() -> Unit) {
 }
 ```
 
-### material组件文档
+## material组件文档
 
 [material组件文档](https://developer.android.google.cn/reference/kotlin/androidx/compose/material/package-summary#overview)
 
@@ -2882,11 +2882,11 @@ fun CustomComponent(content: @Composable Scope.() -> Unit) {
 
 [实验性组件库](https://google.github.io/accompanist)，正式发布会从该库移除，并加入compose的
 
-### Idea创建
+## Idea创建
 
 Idea-File-New-Project-Android-Empty Compose Activity
 
-### As创建项目 
+## As创建项目 
 
 使用最新版androidStudio
 
@@ -2899,7 +2899,7 @@ Idea-File-New-Project-Android-Empty Compose Activity
 7. 配置格式化快键键Keymap 搜索format
 8. 配置跳转编辑快键键Keymap 搜索navigate
 
-### slot
+## slot
 
 lambda尾随实现插槽功能
 
@@ -2921,7 +2921,7 @@ fun DefaultPreview() {
 }
 ```
 
-### 注解
+## 注解
 
 @Composable 
 
@@ -2931,7 +2931,7 @@ fun DefaultPreview() {
 
 加上这个注解 这个组件就可以在设计窗口，加在@Composable上方
 
-### 修饰符
+## 修饰符
 
 修改size\padding\width\height\等样式用修饰符modifier = Modifier.xxx.xxx,可以链式调用。需要注意的是先后顺序很重要
 
@@ -2965,7 +2965,7 @@ fun DemoComponent() {
 }
 ```
 
-### 空修饰符
+## 空修饰符
 
 封装组件可能会用到
 
@@ -2976,7 +2976,7 @@ fun PhotographerCard(modifier: Modifier = Modifier) {
 }
 ```
 
-### 设置activity内容
+## 设置activity内容
 
 ```kt
 setContent {
@@ -2985,7 +2985,7 @@ setContent {
 }
 ```
 
-### Text
+## Text
 
 style可以在主题文件里预先定义好全局的样式风格，然后拿过来用就行了
 
@@ -2993,7 +2993,7 @@ style可以在主题文件里预先定义好全局的样式风格，然后拿过
 Text("张三", fontSize = 14.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary, maxLines = 2, style = MaterialTheme.typography.labelLarge)
 ```
 
-### Button
+## Button
 
 按钮组件，内部提供一个插槽，内容都放在内部
 
@@ -3011,7 +3011,7 @@ Column {
 }
 ```
 
-### Icon
+## Icon
 
 [material-icons图标库搜索](https://joe1900.github.io/MDI/)
 
@@ -3025,7 +3025,7 @@ implementation "androidx.compose.material:material-icons-extended:$compose_versi
 Icon(Icons.Filled.ArrowBack, contentDescription = null)
 ```
 
-### Colum
+## Colum
 
 列
 
@@ -3037,7 +3037,7 @@ Column(verticalArrangement = Arrangement.SpaceBetween) {
 }
 ```
 
-### Box
+## Box
 
 堆叠布局及宽度100%或者高度100%或者填满
 
@@ -3054,7 +3054,7 @@ Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
 ```
 
 
-### Image
+## Image
 
 图片放到res/drawable和R.drawable.test的test名称一样就可以了...
 
@@ -3099,7 +3099,7 @@ fun DemoComponent() {
 }
 ```
 
-### Row
+## Row
 
 行
 
@@ -3111,7 +3111,7 @@ Row(modifier = Modifier.padding(start = 0.5.dp), horizontalArrangement = Arrange
 }
 ```
 
-### Spacer
+## Spacer
 
 空白间距
 
@@ -3122,7 +3122,7 @@ Spacer(modifier = Modifier.width(8.dp))
 Spacer(modifier = Modifier.height(4.dp))
 ```
 
-### TextField
+## TextField
 
 输入框
 
@@ -3137,7 +3137,7 @@ fun DemoComponent() {
 }
 ```
 
-### Surface
+## Surface
 
 在容器表面覆盖一层,也可用来占位
 
@@ -3151,7 +3151,7 @@ Surface(
 ) {}
 ```
 
-### TopAppBar
+## TopAppBar
 
 顶部导航栏 
 
@@ -3182,7 +3182,7 @@ CenterAlignedTopAppBar(
 )
 ```
 
-### NavigationBar
+## NavigationBar
 
 底部路由导航栏
 
@@ -3242,7 +3242,7 @@ fun DemoComponent() {
 }
 ```
 
-### scaffold
+## scaffold
 
 脚手架
 
@@ -3314,7 +3314,7 @@ fun DemoComponent() {
 }
 ```
 
-### LazyColumn
+## LazyColumn
 
 长列表,性能更好
 
@@ -3343,7 +3343,7 @@ fun DefaultPreview() {
 }
 ```
 
-### stickyHeader
+## stickyHeader
 
 粘性头部,滚动到顶部时，吸附到顶部
 
@@ -3392,7 +3392,7 @@ fun DemoComponent() {
 }
 ```
 
-### scroll
+## scroll
 
 页面内容可滚动
 
@@ -3474,7 +3474,7 @@ fun DemoComponent() {
 }
 ```
 
-### click
+## click
 
 组件添加点击事件
 
@@ -3486,7 +3486,7 @@ fun DemoComponent() {
 }
 ```
 
-### flex布局
+## flex布局
 
 使用Row Cloumn即可实现，另外需要注意的是flex:1使用Modifier.weight(1f)实现即可
 
@@ -3504,7 +3504,7 @@ Row(horizontalArrangement = Arrangement.SpaceBetween) {
 }
 ```
 
-### 自定义插槽
+## 自定义插槽
 
 类似vue插槽，利用尾随lambda实现，就是最后一项是lambda表达式
 
@@ -3525,7 +3525,7 @@ fun DefaultPreview() {
 }
 ```
 
-### 简单的状态管理
+## 简单的状态管理
 
 案例，控制一个列表项展开与合并
 
@@ -3600,7 +3600,7 @@ fun DefaultPreview() {
 }
 ```
 
-### MutableState
+## MutableState
 
 局部状态管理的几种方式 一般使用第三种即可 带set和get
 
@@ -3636,7 +3636,7 @@ fun DemoComponent() {
 
 tips:=号方式的set get需要加.value获取  而by就已经帮你封装好set/get了
 
-### ViewModel全局状态管理
+## ViewModel全局状态管理
 
 以一个文章列表添加删除显示为例
 
@@ -3827,7 +3827,7 @@ vm: XXXViewModel = viewModel(viewModelStoreOwner = LocalContext.current as Compo
 ```
 
 
-### 组件内使用协程
+## 组件内使用协程
 
 rememberCoroutineScope.launch
 
@@ -3849,11 +3849,11 @@ fun DemoComponent() {
 }
 ```
 
-### 生命周期
+## 生命周期
 
 [案例](https://developer.android.google.cn/topic/libraries/architecture/lifecycle)
 
-### 副作用
+## 副作用
 
 其实就是任何状态的变更，都会触发一些列的函数和vue生命周期钩子差不多的意思
 
@@ -3937,7 +3937,7 @@ fun DemoEffect(size: Float) {
 }
 ```
 
-### 局部状态作用域
+## 局部状态作用域
 
 compositionLocalOf
 
@@ -3985,7 +3985,7 @@ fun DefaultPreview() {
 }
 ```
 
-### 单值动画
+## 单值动画
 
 就是单个值改变的动画
 
@@ -4033,7 +4033,7 @@ fun DemoComponent() {
 }
 ```
 
-### 尺寸大小变化动画
+## 尺寸大小变化动画
 
 animateContentSize
 
@@ -4085,7 +4085,7 @@ fun DefaultPreview() {
 }
 ```
 
-### 显示隐藏动画
+## 显示隐藏动画
 
 直接用AnimatedVisibility 代替if即可
 
@@ -4134,7 +4134,7 @@ fun DemoComponent() {
 }
 ```
 
-### 多值动画
+## 多值动画
 
 有多个值一起改变的动画
 
@@ -4231,7 +4231,7 @@ fun DemoComponent() {
 }
 ```
 
-### 无限循环动画
+## 无限循环动画
 
 ```kt
 @Composable
@@ -4337,7 +4337,7 @@ fun DemoComponent() {
 }
 ```
 
-### 滑动删除动画
+## 滑动删除动画
 
 看看就行，基本用不到
 
@@ -4414,7 +4414,7 @@ fun DemoComponent() {
 }
 ```
 
-### 路由导航
+## 路由导航
 
 如果自定义AppBar要放搜索框，直接使用插槽的TopAppBar即可，就是没标题的那个
 
@@ -4811,7 +4811,7 @@ fun DemoComponent() {
 }
 ```
 
-### 状态栏
+## 状态栏
 
 依赖
 
@@ -4984,7 +4984,7 @@ fun DemoComponent() {
 }
 ```
 
-### 轮播图
+## 轮播图
 
 依赖
 
@@ -5051,7 +5051,7 @@ fun DemoComponent() {
 }
 ```
 
-### 主题
+## 主题
 
 主题色定义在ui.theme下的Color.kt文件下
 
@@ -5090,7 +5090,7 @@ fun DemoComponent() {
 }
 ```
 
-### 本地存储
+## 本地存储
 
 [DataStore](https://developer.android.google.cn/topic/libraries/architecture/datastore#kotlin)
 
@@ -5158,7 +5158,7 @@ fun DemoComponent() {
 }
 ```
 
-### 网络
+## 网络
 
 [Retrofit](https://square.github.io/retrofit/)
 
@@ -5319,7 +5319,7 @@ fun DemoComponent() {
 ```
 
 
-### 全局Context和Toast
+## 全局Context和Toast
 
 建一个类继承Application以获取全局Context
 
@@ -5380,7 +5380,7 @@ fun showToast(msg: String) {
 }
 ```
 
-### 下拉刷新和上拉加载
+## 下拉刷新和上拉加载
 
 下拉刷新的依赖
 
@@ -5550,7 +5550,7 @@ loadState.OnReachBottom {
 }
 ```
 
-### 折叠AppBar
+## 折叠AppBar
 
 这里直接用现成的，不要加太多特效，会卡的
 
@@ -5615,7 +5615,7 @@ fun DemoComponent() {
 }
 ```
 
-### placeholder
+## placeholder
 
 占位符 实验性修饰符
 
@@ -5667,7 +5667,7 @@ fun DemoComponent() {
 }
 ```
 
-### 日期选择插件
+## 日期选择插件
 
 [第三方插件](https://github.com/boguszpawlowski/ComposeCalendar)
 
@@ -5696,7 +5696,7 @@ fun MainScreen() {
 }
 ```
 
-### 依赖总结
+## 依赖总结
 
 ```
 //compose版本

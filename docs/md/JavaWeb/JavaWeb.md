@@ -1,8 +1,8 @@
 # JavaWeb
 
-## IDEA
+# IDEA
 
-### 添加jar包
+## 添加jar包
 
 [jar包搜索](https://mvnrepository.com/)
 
@@ -10,9 +10,9 @@
 
 删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
 
-## 工具类
+# 工具类
 
-### 高并发测试方法
+## 高并发测试方法
 
 自己封装了一下
 
@@ -112,9 +112,9 @@ public class Demo {
 }
 ```
 
-## 经典解决方案
+# 经典解决方案
 
-### ThreadLocal
+## ThreadLocal
 
 **线程本地变量**
 
@@ -129,7 +129,7 @@ public class Demo {
 
 
 
-## JDBC
+# JDBC
 
 基础的JDBC看看就行
 
@@ -137,7 +137,7 @@ public class Demo {
 
 [下载地址](https://dev.mysql.com/downloads/connector/j/) 选择Platform Independent
 
-### 步骤
+## 步骤
 
 db.properties文件内容见 *写入配置文件加载(推荐)*
 
@@ -186,7 +186,7 @@ public class Demo {
 }
 ```
 
-### 连接方式
+## 连接方式
 
 原始方式
 
@@ -339,7 +339,7 @@ public class Demo {
 }
 ```
 
-### 预处理
+## 预处理
 
 PreparedStatement 效率高，不存在sql注入风险
 
@@ -385,7 +385,7 @@ public class Demo {
 }
 ```
 
-### 封装工具类及调用
+## 封装工具类及调用
 
 JDBCUtil
 
@@ -493,7 +493,7 @@ public class Demo {
 }
 ```
 
-### 事务
+## 事务
 
 ```java
 import java.sql.*;
@@ -530,7 +530,7 @@ public class Demo {
 }
 ```
 
-### sql批处理
+## sql批处理
 
 批量处理减少网络开销和编译次数，提高效率；
 
@@ -561,7 +561,7 @@ public class Demo {
 }
 ```
 
-### 连接池
+## 连接池
 
 **c3p0**
 
@@ -838,7 +838,7 @@ public class Demo {
 }
 ```
 
-### DBUtils
+## DBUtils
 
 apache封装的工具类 数据库ORM
 
@@ -1012,7 +1012,7 @@ public class DbUtil {
 }
 ```
 
-### DAO
+## DAO
 
 访问数据库数据的对象 data access object
 
@@ -1223,22 +1223,22 @@ public class BasicDao<T> {
 }
 ```
 
-## 分层架构
+# 分层架构
 
-### DAO
+## DAO
 
 一般会有一个基类，只有原子性增删改查，开启关闭事务等
 
 将数据对象化，转为orm对象
 
-### Service
+## Service
 
 业务逻辑层 业务逻辑，以及调用DAO层的一些方法来获取数据
 
-### Controller
+## Controller
 
 控制器层负责数据传输 接收前端数据或者返回数据给前端 也就是Api提供者
 
-### View
+## View
 
 基本不需要，前后端分离。。。

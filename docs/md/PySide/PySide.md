@@ -1,5 +1,5 @@
 # PySide
-## 安装
+# 安装
 1. 安装PySide6
 ```powershell
 pip install PySide6
@@ -17,7 +17,7 @@ Lib\site-packages\PySide6
 
 2. vscode文件格式支持，编译ui文件，需要的扩展 Qt for Python
 
-## 基本案例
+# 基本案例
 ```py
 import sys
 
@@ -65,7 +65,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/基本案例.png)  
 
-## 父子元素操作元素删除
+# 父子元素操作元素删除
 ```py
 """ 
 父子元素操作
@@ -178,7 +178,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/父子元素操作元素删除.png)  
 
-## 按钮事件处理机制
+# 按钮事件处理机制
 ```py
 """ 
 按钮事件处理机制
@@ -268,7 +268,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/按钮事件处理机制.png)  
 
-## 类封装进阶和gui里的定时器
+# 类封装进阶和gui里的定时器
 ```py
 """ 
 类封装和定时器
@@ -372,7 +372,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/类封装进阶和gui里的定时器.png)  
 
-## 自定义按钮事件含传参
+# 自定义按钮事件含传参
 ```py
 """ 
 自定义按钮事件(右键事件)含传参
@@ -488,7 +488,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 使用装饰器自动连接绑定的事件
+# 使用装饰器自动连接绑定的事件
 ```py
 """ 
 使用装饰器自动连接绑定的事件
@@ -577,7 +577,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 类之间信号和槽的用法
+# 类之间信号和槽的用法
 解释一下：信号就是去触发事件的方法，槽就是要触发的事件
 ```py
 from PySide6.QtCore import QObject, Signal
@@ -631,7 +631,7 @@ if __name__ == "__main__":
 
 !> 信号和槽可以用在不同窗口之间传递数据
 
-## 设置控件尺寸/边距/层级关系
+# 设置控件尺寸/边距/层级关系
 ```py
 """
 设置控件尺寸,边距,层级关系
@@ -758,7 +758,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/设置控件尺寸.png)  
 
-## 设置鼠标状态和样式
+# 设置鼠标状态和样式
 ```py
 """
 设置鼠标状态和样式
@@ -852,7 +852,7 @@ if __name__ == "__main__":
 ```
 
 
-## 鼠标事件
+# 鼠标事件
 ```py
 """ 
 鼠标事件
@@ -960,7 +960,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/鼠标事件.png)  
 
-## 窗口事件
+# 窗口事件
 ```py
 """ 
 窗口事件
@@ -1051,7 +1051,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 设置控件显示和启用
+# 设置控件显示和启用
 ```py
 """
 设置控件显示和启用
@@ -1150,7 +1150,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 键盘交互事件
+# 键盘交互事件
 ```py
 """
 键盘交互事件
@@ -1208,7 +1208,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/键盘交互事件.png)  
 
-## 单行文本框焦点控制
+# 单行文本框焦点控制
 ```py
 """
 单行文本框焦点控制
@@ -1269,7 +1269,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/单行文本框焦点控制.png)  
 
-## 单行文本框
+# 单行文本框
 ```py
 """
 单行文本框
@@ -1378,7 +1378,7 @@ input.setInputMask("(000)000-0000")
 ```
 ![calc](../../images/mask.gif)  
 
-## 前端验证器
+# 前端验证器
 ```py
 """
 前端验证器
@@ -1472,7 +1472,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 多行文本框
+# 多行文本框
 ```py
 """
 多行文本框
@@ -1611,7 +1611,7 @@ if __name__ == "__main__":
 ![calc](../../images/pyside6/多行文本框-1.png)  
 ![calc](../../images/pyside6/多行文本框-2.png)  
 
-## 步长和日期输入框
+# 步长和日期输入框
 ```py
 """
 步长和日期输入框
@@ -1727,7 +1727,7 @@ if __name__ == "__main__":
 ![calc](../../images/pyside6/步长和日期输入框-1.png)  
 ![calc](../../images/pyside6/步长和日期输入框-2.png)  
 
-## 下拉选择框
+# 下拉选择框
 ```py
 """
 下拉选择框
@@ -1829,7 +1829,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/下拉选择框.png)  
 
-## 按钮方法单选多选复选框
+# 按钮方法单选多选复选框
 ```py
 """
 按钮方法单选多选复选框
@@ -1949,7 +1949,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/按钮方法单选多选复选框.png)  
 
-## 单选按钮切换事件
+# 单选按钮切换事件
 ```py
 """
 单选按钮切换事件
@@ -2008,7 +2008,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/单选按钮切换事件.png)  
 
-## 复选框选择和切换事件
+# 复选框选择和切换事件
 ```py
 """
 复选框选择和切换事件
@@ -2075,7 +2075,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/复选框选择和切换事件.png)  
 
-## 按钮组及其事件
+# 按钮组及其事件
 ```py
 """
 按钮组及其事件
@@ -2151,7 +2151,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 菜单按钮
+# 菜单按钮
 ```py
 """
 菜单按钮
@@ -2233,7 +2233,7 @@ if __name__ == "__main__":
 
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
-## 原生菜单栏
+# 原生菜单栏
 ```py
 """
 原生菜单栏
@@ -2314,7 +2314,7 @@ if __name__ == "__main__":
 
 !> 窗口需要继承QMainwindow否则没有menuBar方法 ,设置了窗口背景颜色 会导致菜单鼠标移入的颜色变白色
 
-## 右键菜单
+# 右键菜单
 1. 默认右键菜单
 
 ```py
@@ -2460,7 +2460,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/自定义右键菜单.png)  
 
-## 工具按钮及其菜单和事件
+# 工具按钮及其菜单和事件
 ```py
 """
 工具按钮及其菜单和事件
@@ -2549,7 +2549,7 @@ if __name__ == "__main__":
 
 !> 菜单按钮必须在窗口实例化之后添加，否则不显示
 
-## 滚动条
+# 滚动条
 ```py
 """
 滚动条
@@ -2613,7 +2613,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/滚动条.png)  
 
-## 输入对话框
+# 输入对话框
 ```py
 """
 输入对话框
@@ -2691,7 +2691,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/输入对话框.png)  
 
-## 文件对话框
+# 文件对话框
 ```py
 """
 文件对话框
@@ -2794,7 +2794,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/文件对话框.png)  
 
-## 日历
+# 日历
 ```py
 """
 日历
@@ -2865,7 +2865,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/日历.png)  
 
-## 标签
+# 标签
 ```py
 """
 标签控件
@@ -2940,7 +2940,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/标签控件.png)  
 
-### 实际案例-图片控件类
+## 实际案例-图片控件类
 ```py
 """
 显示网络图片
@@ -3038,7 +3038,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 进度条
+# 进度条
 ```py
 """
 进度条
@@ -3121,7 +3121,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/进度条.png)  
 
-## 操作提示框
+# 操作提示框
 ```py
 """
 操作提示框
@@ -3226,7 +3226,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/提示框.png)  
 
-## 盒子布局
+# 盒子布局
 ```py
 """
 盒子布局
@@ -3316,7 +3316,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/盒子布局.png)  
 
-## 垂直或水平盒子布局
+# 垂直或水平盒子布局
 ```py
 """
 垂直或水平盒子布局
@@ -3389,7 +3389,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/垂直或水平盒子布局.png)  
 
-## Qss加载方式
+# Qss加载方式
 ```py
 """
 Qss加载方式
@@ -3479,7 +3479,7 @@ QLabel[name="label"]:hover{
 
 !> 注意一点就行了，设置同一个控件样式要用一样的选择器，用不一样的第二种会失效
 
-## 表单布局
+# 表单布局
 ```py
 """
 表单布局
@@ -3565,7 +3565,7 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/表单布局.png)  
 
-## 长宽自适应设置
+# 长宽自适应设置
 ```py
 """
 长宽自适应设置
@@ -3628,7 +3628,7 @@ if __name__ == "__main__":
 
 !> qtdesigner里面主窗口一定要右键 布局 垂直或水平布局，然后主窗口里面的布局才会自适应窗口
 
-## 表格
+# 表格
 ```py
 """
 表格
@@ -3789,7 +3789,7 @@ if __name__ == "__main__":
 ![calc](../../images/pyside6/列表.png)  
 
 
-## tab选项卡
+# tab选项卡
 ```py
 """
 tab选项卡
@@ -3852,11 +3852,11 @@ if __name__ == "__main__":
 ```
 ![calc](../../images/pyside6/tab选项卡.png)  
 
-## 滚动区域ScrollArea
+# 滚动区域ScrollArea
 滚动区域自适应高度，必须在内容scrollAreaWidgetContents里添加垂直布局  
 ![calc](../../images/pyside6/scrollArea高度自适应方法.png)  
 
-## 动画
+# 动画
 ```py
 """
 动画
@@ -3899,7 +3899,7 @@ class Window(QWidget):
         btn2.resize(120, 40)
         btn2.move(100, 200)
 
-        ## 属性动画
+        # 属性动画
         # 1.创建动画
         # animation = QPropertyAnimation(btn1, b"pos", self)
         animation = QPropertyAnimation(self)
@@ -3916,7 +3916,7 @@ class Window(QWidget):
         # 6.开启动画 执行一次
         animation.start()
 
-        ## 插值动画  和css from to里的百分比进度定义动画一个道理
+        # 插值动画  和css from to里的百分比进度定义动画一个道理
         # 1.创建动画
         insert_animation = QPropertyAnimation(btn2, b"pos", self)
         # 2.定义动画插值
@@ -3932,7 +3932,7 @@ class Window(QWidget):
         # 5.开启动画 执行一次
         insert_animation.start()
 
-        ## 动画组 同时执行2个标签的颜色改变动画    # 注意：QPushButton的背景色涉及样式表，所以不能通过QPalette修改.所以这里用Qlabel代替演示
+        # 动画组 同时执行2个标签的颜色改变动画    # 注意：QPushButton的背景色涉及样式表，所以不能通过QPalette修改.所以这里用Qlabel代替演示
         # 1.添加2个自定义标签
         label1 = QSelfQLabel("自定义标签1", self)
         label1.resize(80, 40)
@@ -4001,7 +4001,7 @@ if __name__ == "__main__":
 - size
 - windowOpacity
 
-## 加载ui文件
+# 加载ui文件
 ```py
 """
 使用ui文件
@@ -4055,7 +4055,7 @@ if __name__ == "__main__":
 !> 使用ui加载方式，代码没有智能提示 不推荐
 
 
-## 使用ui导出的py文件
+# 使用ui导出的py文件
 ```py
 """
 使用ui导出的py文件
@@ -4152,7 +4152,7 @@ lib\ui_main.ui
 
 ?> 这里的qss样式也可以放在资源目录里，然后打包完后，再放到打包完成的文件夹中
 
-## PySide6加载pyecharts
+# PySide6加载pyecharts
 ```py
 """
 PySide6加载echarts
@@ -4236,7 +4236,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## PySide6加载matplotlib
+# PySide6加载matplotlib
 ```py
 """
 PySide6加载matplotlib
@@ -4315,7 +4315,7 @@ if __name__ == "__main__":
     main()
 ```
 
-## 打包exe
+# 打包exe
 ```py
 pyinstall -w -D ./index.py --distpath ./dist 
 ```
@@ -4352,7 +4352,7 @@ nuitka --mingw64 --standalone --show-memory --show-progress --enable-plugin=pysi
 ```
 !> 打包文件夹的启动速度比较快，打包成文件夹再用 enigmaprotector 打包成单个文件比较好
 
-## 无边框窗口缩放和标题可拖动模板
+# 无边框窗口缩放和标题可拖动模板
 ```py
 """
 引用自定义的标题栏 copy内的就是窗口拖动和缩放的代码
@@ -4869,15 +4869,15 @@ index.less vscode用 Easy Less 转成qss就行了
 
 ?> 鼠标移动发现的BUG，若里面放表格控件的时候，鼠标移入会变成缩放的指针，只要再qtdesiner里面把表格的指针设一下就行了
 
-## 遇到的BUG
-### 主窗口监控鼠标事件，调试时不进入MouseMoveEvent
+# 遇到的BUG
+## 主窗口监控鼠标事件，调试时不进入MouseMoveEvent
 需要将鼠标移入的元素勾上mouseTracking
 或者设置类似下面的
 ```py
 self.scrollArea.setMouseTracking(true);
 ```
 
-### 解决鼠标右侧移入scrollArea bug
+## 解决鼠标右侧移入scrollArea bug
 ```py
 self.scrollArea.setCursor(Qt.ArrowCursor)
 ```

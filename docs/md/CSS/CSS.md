@@ -1,6 +1,6 @@
 # CSS
-## style
-### div水平垂直居中的常用方法
+# style
+## div水平垂直居中的常用方法
 <p align="left" style="color:#777777;">发布日期：2021-02-01</p>
 
 假如有如下代码
@@ -131,7 +131,7 @@
 </style>
 ```
 
-### 父元素高度不确定的情况下-子元素高度相等-右边元素高度始终与左边相等
+## 父元素高度不确定的情况下子元素高度相等右边元素高度始终与左边相等
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
 ###### 1.纯CSS实现
@@ -202,8 +202,8 @@
 </style>
 ```
 
-## less
-### VSCODE EASY WXLESS 插件编译问题之calc
+# less
+## VSCODE EASY WXLESS 插件编译问题之calc
 <p align="left" style="color:#777777;">发布日期：2019-04-09</p>
 
 VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
@@ -235,8 +235,8 @@ VSCODE 使用 __EASY WXLESS__ 插件 遇到一个问题
 ```
 这样就达到了我们想要的效果
 
-## scss
-### mixin用法
+# scss
+## mixin用法
 <p align="left" style="color:#777777;">发布日期：2021-03-22</p>
 
 ```scss

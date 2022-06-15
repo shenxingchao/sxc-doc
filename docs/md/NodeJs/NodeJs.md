@@ -1,6 +1,6 @@
 # NodeJs
-## node
-### node安装与使用
+# node
+## node安装与使用
 - 安装
   https://nodejs.org/zh-cn/download/直接下载
 - 更新
@@ -10,8 +10,8 @@
   找到安装路径node bin location
   新的安装路径覆盖就的就可以了
 
-##  node_modules
-### 使用patch-package修改Node.js依赖包内容
+#  node_modules
+## 使用patch-package修改Node.js依赖包内容
 - 安装patch-package
     ```
     yarn add --dev patch-package postinstall-postinstall
@@ -27,8 +27,8 @@
     }
     ```
 
-## npm
-### npm基本操作
+# npm
+## npm基本操作
 - 设置镜像
   ```
     npm config set registry https://registry.npm.taobao.org
@@ -39,8 +39,8 @@
     npm查看当前地址源：npm get registry
   ```
 
-## yarn
-### yarn基本操作
+# yarn
+## yarn基本操作
 - 安装
   ```
   npm install -g yarn
@@ -70,8 +70,8 @@
 - yarn 超时
   删除yarn.lock文件 重新执行yarn
 
-## express
-### 使用express快速搭建本地测试服务器
+# express
+## 使用express快速搭建本地测试服务器
 1. 创建应用文件夹
 2. 初始化
     ```powershell

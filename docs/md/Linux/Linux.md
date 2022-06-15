@@ -1,22 +1,22 @@
 # Linux
-## 常用命令
-### 切换超级管理员
+# 常用命令
+## 切换超级管理员
 su
-### 创建多级目录
+## 创建多级目录
 mkdir -p
 
-### 清除
+## 清除
 clear
 
-### 下载命令
+## 下载命令
 wget `http://download.com` 
 一般下载路径放在`/usr/local/src/`
 应用程序放在`/usr/local/`  
 
-### 移动目录或文件
+## 移动目录或文件
 mv xxx /usr/local/
 
-### 解压 文件
+## 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压
 - *.tar.gz和*.tgz 用 tar -zxvf 解压
@@ -25,7 +25,7 @@ mv xxx /usr/local/
 - *.rar 用 unrar e解压
 - *.zip 用 unzip 解压
 
-## vim命令
+# vim命令
 创建文件 vim 新建文件名  
 回到命令行状态 esc  
 保存 wq  
@@ -36,11 +36,11 @@ mv xxx /usr/local/
 移动到开始 g
 
 
-## 直播或监控解决方案
+# 直播或监控解决方案
 1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流
 2. [rtsp直接转webrtc播放,以组件形式](https://github.com/mpromonet/webrtc-streamer)
 
-## 服务器迁移
+# 服务器迁移
 1. 原服务器关机
 2. 创建原服务器镜像
 3. 跨区域复制镜像

@@ -1,8 +1,8 @@
 # Vue
 
-## 一些技巧
+# 一些技巧
 
-### vue强制刷新子组件
+## vue强制刷新子组件
 
 [转](https://www.cnblogs.com/betty-niu/p/11199082.html)  
 父组件中利用v-if 强制刷新子组件
@@ -34,7 +34,7 @@ export default {
 </script>
 ```
 
-### 如何使用keepAlive组件
+## 如何使用keepAlive组件
 
 vux 管理一个cachedViews 路由名称的缓存数组就可以了
 
@@ -74,9 +74,9 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
 <router-view v-if="!$route.meta.keepAlive"></router-view>
 ```
 
-## 组件
+# 组件
 
-### vue2/vue3 svg组件
+## vue2/vue3 svg组件
 
 <p align="left" style="color:#777777;">发布日期：2021-03-08</p>
 
@@ -202,13 +202,13 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
    <svg-icon name="mini" className="icon"/>
    ```
 
-## Vue3
+# Vue3
 
-### vue3基础
+## vue3基础
 
 <p align="left" style="color:#777777;">发布日期：2021-03-07 更新日期：2021-03-08</p>
 
-#### Composition API
+## Composition API
 
 - setup()函数
   
@@ -262,7 +262,7 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
 
 !> reactive如果不用toRefs转就不能响应式，会导致数据更改画面不更新
 
-### vue3-vite-electron
+## vue3-vite-electron
 
 <p align="left" style="color:#777777;">发布日期：2021-03-04</p>
 
@@ -458,7 +458,7 @@ export default defineConfig({
 
 模板尚未完成
 
-### vue3-vue-cli-electron
+## vue3-vue-cli-electron
 
 <p align="left" style="color:#777777;">发布日期：2021-03-04 更新日期：2021-03-22</p>
 
@@ -691,9 +691,9 @@ for (const name of Object.keys(defines)) {
 
 - [asar解压工具](https://www.npmjs.com/package/asar)
 
-## vite
+# vite
 
-### 创建
+## 创建
 
 ```powershell
 yarn create vite

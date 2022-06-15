@@ -1,8 +1,8 @@
 # WebApp
 
-## uniapp
+# uniapp
 
-### Native.js示例汇总
+## Native.js示例汇总
 
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
@@ -11,13 +11,13 @@
 
 * * *
 
-## react native
+# react native
 
-### 环境搭建
+## 环境搭建
 
 <p align="left" style="color:#777777;">发布日期：2021-02-19</p>
 
-#### 一、java jdk安装和环境变量配置
+### jdk安装和环境变量配置
 
 [jdk1.8.0下载地址](https://www.oracle.com/java/technologies/javase/javase-jdk8-downloads.html#license-lightbox)  
 环境变量配置
@@ -37,7 +37,7 @@ java -version
 
 输出java version "1.8.0_191"
 
-#### 二、安装android studio
+### 安装android studio
 
 [下载地址](https://developer.android.google.cn/studio/)  
 
@@ -64,18 +64,18 @@ java -version
 | Path         | %ANDROID_HOME%\tools          |
 | Path         | %ANDROID_HOME%\tools\bin      |
 
-#### 三、安装夜神模拟器
+### 安装夜神模拟器
 
 [下载地址](https://www.yeshen.com/)
 
 !> 备份原有模拟器的nox_adb.exe 为nox_adb_old.exe，需要将androidsdk\platform-tools 下的adb.exe 改名为nox_adb.exe复制到夜神模拟器的adb文件夹，因为sdk版本不一样会跑不起来。 
 
-#### 四、cli创建应用
+### cli创建应用
 
 npm install -g  react-native-cli  
 react-native init
 
-#### 五、运行
+### 运行
 
 - 开启模拟器
 - abd连接模拟器
@@ -95,7 +95,7 @@ react-native init
 npm run android
 ```
 
-#### 六、调试工具
+### 调试工具
 
 ```npm
 npm config set electron_mirror https://cdn.npm.taobao.org/dist/electron/  
@@ -120,11 +120,11 @@ https://fbflipper.com 布局 日志 网络
 功能更强大 第三方 用这个
 https://github.com/jhen0409/react-native-debugger 布局 日志 网络 redux props
 
-### react native elements
+## react native elements
 
 <p align="left" style="color:#777777;">发布日期：2021-02-19</p>
 
-#### 安装
+### 安装
 
 - Step1
   
@@ -148,7 +148,7 @@ https://github.com/jhen0409/react-native-debugger 布局 日志 网络 redux pro
 
 !>  //使用 yarn add 速度快 不管怎么样都link一下不会错
 
-#### 基本使用案例
+### 基本使用案例
 
 ```javascript
 //导入按钮和主题容器
@@ -192,15 +192,15 @@ const App = () => {
 export default App;
 ```
 
-### react navigation路由导航器 底部tabbar
+## react navigation路由导航器 底部tabbar
 
 <p align="left" style="color:#777777;">发布日期：2021-02-21</p>
 
-#### 文档地址
+### 文档地址
 
 https://reactnavigation.org/docs
 
-#### 安装
+### 安装
 
 - Step1
   
@@ -214,7 +214,7 @@ https://reactnavigation.org/docs
   yarn add react-native-reanimated react-native-gesture-handler react-native-screens  @react-native-community/masked-view react-native-safe-area-context //react-native-safe-area-context如果在上面的ui框架已经安装  就不需要了
   ```
 
-#### 使用
+### 使用
 
 - 必须全局导入react-native-gesture-handler
   
@@ -222,7 +222,7 @@ https://reactnavigation.org/docs
   import 'react-native-gesture-handler';
   ```
 
-#### 堆栈导航
+### 堆栈导航
 
 - 安装
   
@@ -551,11 +551,11 @@ https://reactnavigation.org/docs
   //嵌套  堆栈导航->tab导航->堆栈导航->实际页面
   ```
 
-### react-native-scrollable-tab-view
+## react-native-scrollable-tab-view
 
 <p align="left" style="color:#777777;">发布日期：2021-02-21</p>
 
-#### 滚动tab
+### 滚动tab
 
 - 安装
   
@@ -613,7 +613,7 @@ https://reactnavigation.org/docs
 
 !> 假如这里报getNode()函数的问题，去react-native-scrollable-tab-view/index.js 搜索那个函数，把他删了就行了，高版本的rn>0.62.0不需要，低版本的话又需要
 
-#### 吸顶tab 嵌套scrollview
+### 吸顶tab 嵌套scrollview
 
 - 安装
   
@@ -791,15 +791,15 @@ renderTabBar={() => <ScrollableTabBar />}
 
 标签页的HScrollView 也不能用了  要用SScrollView
 
-## dart
+# dart
 
 !> dart是flutter应用的编写语言
 
-### 安装
+## 安装
 
 不需要安装，安装下面的flutter SDK已经带了Dart SDK了
 
-### 变量类型
+## 变量类型
 
 ```dart
   var varStr = 'hello wolrd!';
@@ -811,7 +811,7 @@ renderTabBar={() => <ScrollableTabBar />}
   print("$varStr\n$str\n$num\n$floatNum\n$flag\n");
 ```
 
-### 常量的两种写法
+## 常量的两种写法
 
 ```dart
   const double PI = 3.1415926;
@@ -823,7 +823,7 @@ renderTabBar={() => <ScrollableTabBar />}
   print("$PI\n$pi\n$curTime\n");
 ```
 
-### 数组
+## 数组
 
 ```dart
   //1创建方式1
@@ -847,7 +847,7 @@ renderTabBar={() => <ScrollableTabBar />}
   print(listsss);
 ```
 
-### 字典
+## 字典
 
 ```dart
   //创建方式1
@@ -860,14 +860,14 @@ renderTabBar={() => <ScrollableTabBar />}
   print(set);
 ```
 
-### 判断变量类型
+## 判断变量类型
 
 ```dart
   bool flag = true;
   print(flag is bool);
 ```
 
-### 类型转换
+## 类型转换
 
 ```dart
   int num = 123456;
@@ -877,7 +877,7 @@ renderTabBar={() => <ScrollableTabBar />}
   print(double.parse(num.toString()));
 ```
 
-### if判断
+## if判断
 
 ```dart
   bool flag = true;
@@ -889,7 +889,7 @@ renderTabBar={() => <ScrollableTabBar />}
   }
 ```
 
-### 运算符
+## 运算符
 
 ```dart
   //没列举的都和js一样
@@ -907,7 +907,7 @@ renderTabBar={() => <ScrollableTabBar />}
 
 ?> 什么swith for while do...while... try catch都和js一样就不列了
 
-### 单例模式
+## 单例模式
 
 ```dart
 class Manager{
@@ -934,9 +934,9 @@ Manager manager = new Manager();
 Manager manager2 = Manager.instance;
 ```
 
-## flutter
+# flutter
 
-### 常用
+## 常用
 
 [flutter pub 中文网](https://pub.flutter-io.cn/)
 
@@ -944,12 +944,12 @@ Manager manager2 = Manager.instance;
 
 [flutter老孟](http://laomengit.com/flutter/widgets/widgets_structure.html)
 
-### 安装
+## 安装
 
 参考地址 https://flutter.cn/docs/get-started/install/windows  
 创建项目 https://flutter.cn/docs/get-started/test-drive?tab=vscode#create-app
 
-### vscode配置
+## vscode配置
 
 1. 安装flutter插件 安装过程会自动安装dart插件
 
@@ -986,15 +986,15 @@ Manager manager2 = Manager.instance;
    • No issues found!
    ```
 
-### vscode包装组件代码
+## vscode包装组件代码
 
 ctrl+shift+r 或者右键重构 如 Wrap With Row
 
-### 关于嵌套
+## 关于嵌套
 
 同样可以用上面包装组件的方法  选择一段代码->右键重构->Extract Widget->生成组件代码块
 
-### 示例程序
+## 示例程序
 
 ```dart
 // 导入material扁平化主题
@@ -1084,7 +1084,7 @@ class _MyHomePageState extends State<MyHomePage> {
 }
 ```
 
-### adb连接到夜神模拟器
+## adb连接到夜神模拟器
 
 ```powershell
 adb disconnect 127.0.0.1:62001 # 断开连接
@@ -1093,7 +1093,7 @@ adb connect 127.0.0.1:62001
 
 打开闪退就下载最新的夜神模拟器 重新复制一下nox_adb.exe
 
-### 运行
+## 运行
 
 打开模拟器，在项目根目录按F5运行 或运行 flutter run命令
 
@@ -1150,7 +1150,7 @@ maven { url 'https://maven.aliyun.com/repository/jcenter' }
 maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
 ```
 
-### 官网无限列表程序
+## 官网无限列表程序
 
 ```dart
 import 'package:flutter/material.dart';
@@ -1269,7 +1269,7 @@ class _ListWidgetState extends State<ListWidget> {
 }
 ```
 
-### 使用pub获取依赖
+## 使用pub获取依赖
 
 ```
 flutter pub get
@@ -1277,7 +1277,7 @@ flutter pub get
 
 !> vscode中安装插件后每次保存配置文件 pubspec.yaml 会自动获取依赖
 
-### 公共头部
+## 公共头部
 
 ```dart
 import 'package:flutter/material.dart';
@@ -1303,7 +1303,7 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-### 使用MaterialApp和设置主题
+## 使用MaterialApp和设置主题
 
 ```dart
 // 导入material扁平化主题
@@ -1357,7 +1357,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Container容器组件
+## Container容器组件
 
 container默认就是全屏的容器
 
@@ -1409,7 +1409,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### FractionallySizedBox宽度高度百分比组件
+## FractionallySizedBox宽度高度百分比组件
 
 ```dart
 FractionallySizedBox (
@@ -1419,7 +1419,7 @@ FractionallySizedBox (
 )
 ```
 
-### Text文本组件
+## Text文本组件
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1472,9 +1472,9 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Image图片组件
+## Image图片组件
 
-#### 引入网络图片
+### 引入网络图片
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1505,7 +1505,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-#### 引入本地图片
+### 引入本地图片
 
 首先要设置图片文件夹和图片路径
 
@@ -1543,7 +1543,7 @@ class HomePage extends StatelessWidget {
    }
    ```
 
-#### 图片圆角
+### 图片圆角
 
 第一种 采用设置背景图片方式（不推荐）
 
@@ -1622,7 +1622,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### SingleChildScrollView滚动视图
+## SingleChildScrollView滚动视图
 
 ```dart
 Scrollbar(
@@ -1633,9 +1633,9 @@ Scrollbar(
 )
 ```
 
-### ListView列表组件
+## ListView列表组件
 
-#### ListTile 左侧图标中间标题右侧图标组件
+### ListTile 左侧图标中间标题右侧图标组件
 
 嵌套在ListView当中的列表项组件
 
@@ -1675,7 +1675,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-#### 使用map映射请求返回数据(推荐)
+### 使用map映射请求返回数据(推荐)
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1697,7 +1697,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-#### 使用ListView.builders创建(推荐)
+### 使用ListView.builders创建(推荐)
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1725,7 +1725,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### CustomScrollView可下拉刷新的滚动视图
+## CustomScrollView可下拉刷新的滚动视图
 
 以下滚动皆可添加下拉刷新，pull-to-refresh  
 普通列表滚动
@@ -1777,9 +1777,9 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### GirdView网格布局
+## GirdView网格布局
 
-#### GirdView.count 创建网格布局(推荐)
+### GirdView.count 创建网格布局(推荐)
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1823,7 +1823,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-#### 使用GirdView.builder 创建网格布局(不推荐，麻烦)
+### 使用GirdView.builder 创建网格布局(不推荐，麻烦)
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1867,7 +1867,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Padding边距组件
+## Padding边距组件
 
 用于没有padding属性设置的组件
 
@@ -1890,7 +1890,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Row水平布局组件
+## Row水平布局组件
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1922,7 +1922,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Column垂直布局组件
+## Column垂直布局组件
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1951,7 +1951,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Stack堆叠布局
+## Stack堆叠布局
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -1988,7 +1988,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### 定位方式
+## 定位方式
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -2032,7 +2032,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### AspectRatio宽高比组件
+## AspectRatio宽高比组件
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -2052,7 +2052,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Card卡片组件
+## Card卡片组件
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -2106,7 +2106,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### Wrap流式布局
+## Wrap流式布局
 
 ```dart
 class HomePage extends StatelessWidget {
@@ -2185,7 +2185,7 @@ class TextButtonComponent extends StatelessWidget {
 }
 ```
 
-### StatefulWidget状态组件
+## StatefulWidget状态组件
 
 基本用这种就行了
 
@@ -2225,7 +2225,7 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### TextButton文字按钮组件
+## TextButton文字按钮组件
 
 ```dart
 class TextButtonComponent extends StatelessWidget {
@@ -2272,7 +2272,7 @@ class TextButtonComponent extends StatelessWidget {
 }
 ```
 
-### ElevatedButton按钮组件
+## ElevatedButton按钮组件
 
 ```dart
 class ElevatedButtonComponent extends StatelessWidget {
@@ -2319,7 +2319,7 @@ class ElevatedButtonComponent extends StatelessWidget {
 }
 ```
 
-### Navigator路由
+## Navigator路由
 
 ```dart
 import 'package:flutter/cupertino.dart';
@@ -2511,7 +2511,7 @@ class NewPage extends StatelessWidget {
 }
 ```
 
-### 位于顶部的Tabbar组件
+## 位于顶部的Tabbar组件
 
 主页设置顶部tabbar 设置后就没地方设置底部啦
 
@@ -2602,7 +2602,7 @@ class TabbarScrollComponent extends StatelessWidget {
 }
 ```
 
-### Drawer抽屉
+## Drawer抽屉
 
 ```dart
 import 'package:flutter/material.dart';
@@ -2702,11 +2702,11 @@ class NewPage extends StatelessWidget {
 }
 ```
 
-### Toast提示窗
+## Toast提示窗
 
 [官方文档](https://pub.flutter-io.cn/packages/fluttertoast)
 
-### 基本app布局
+## 基本app布局
 
 main.dart
 
@@ -2878,7 +2878,7 @@ class _UserComponentState extends State<UserComponent> {
 }
 ```
 
-### 组件封装
+## 组件封装
 
 封装一个StatelessWidget自定义组件示例，这里封装了Icon组件
 
@@ -2927,7 +2927,7 @@ class IconComponent extends StatelessWidget {
 }
 ```
 
-### http网络请求库Dio封装
+## http网络请求库Dio封装
 
 使用 Dio 请求库  
 依赖文件pubspec.yaml
@@ -3071,7 +3071,7 @@ class Request {
 }
 ```
 
-### shared_preferences本地存储
+## shared_preferences本地存储
 
 相当于Localstroage  
 依赖
@@ -3169,7 +3169,7 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### Provider状态管理
+## Provider状态管理
 
 按1，2，3，4，5的步骤创建状态
 
@@ -3254,12 +3254,12 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### 加载Html
+## 加载Html
 
 [flutter_html](https://pub.dev/packages/flutter_html/install)  
 Flutter默认为16, 所以需要修改app/build.gradle下的minSdkVersion为19
 
-### get强大的路由状态缓存一体框架
+## get强大的路由状态缓存一体框架
 
 [get](https://pub.dev/packages/get)  
 路由一章的代码可修改为下面的
@@ -3628,7 +3628,7 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### 上拉加载下拉刷新
+## 上拉加载下拉刷新
 
 [pull_to_refresh](https://pub.dev/packages/pull_to_refresh)
 
@@ -3757,11 +3757,11 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### 轮播图
+## 轮播图
 
 [carousel_slider](https://pub.flutter-io.cn/packages/carousel_slider)
 
-### animations内容动画效果组件
+## animations内容动画效果组件
 
 [animations](https://pub.flutter-io.cn/packages/animations)
 点击容器 将容器放大并过渡到新页面
@@ -3801,7 +3801,7 @@ class HomePage extends StatelessWidget {
 }
 ```
 
-### 定位插件
+## 定位插件
 
 [geolocator](https://pub.flutter-io.cn/packages/geolocator)  
 
@@ -4042,9 +4042,9 @@ class _HomePageState extends State<HomePage> {
 }
 ```
 
-### 动画
+## 动画
 
-#### Tween补间动画
+### Tween补间动画
 
 ```dart
 class HomePage extends StatefulWidget {
@@ -4175,9 +4175,9 @@ class _HomePageState extends State<HomePage>
 }
 ```
 
-### 打包安装
+## 打包安装
 
-#### 添加启动图标
+### 添加启动图标
 
 [插件](https://pub.flutter-io.cn/packages/flutter_launcher_icons)  
 
@@ -4199,7 +4199,7 @@ flutter_icons:
 flutter pub run flutter_launcher_icons:main 
 ```
 
-#### 添加闪屏页
+### 添加闪屏页
 
 [flutter_native_splash](https://pub.flutter-io.cn/packages/flutter_native_splash)
 
@@ -4220,7 +4220,7 @@ flutter_native_splash:
 flutter pub run flutter_native_splash:create
 ```
 
-#### 添加一下需要的权限
+### 添加一下需要的权限
 
 这里添加基本的网络权限
 
@@ -4231,7 +4231,7 @@ flutter pub run flutter_native_splash:create
 </manifest
 ```
 
-#### 创建签名文件
+### 创建签名文件
 
 keytool工具会在安装android stido一起安装的  
 创建命令如下
@@ -4243,7 +4243,7 @@ keytool -genkey -v -keystore demo.keystore -alias demo -keyalg RSA -keysize 2048
 keytool -importkeystore -srckeystore demo.keystore -destkeystore demo.keystore -deststoretype pkcs12
 ```
 
-#### 给app配置自动签名
+### 给app配置自动签名
 
 创建文件/android/key.properties
 
@@ -4291,7 +4291,7 @@ buildTypes {
 
 !> 配置完后就能自动签名了，当你更改 gradle 文件后，也许需要运行一下 flutter clean。这将防止缓存的版本影响签名过程 运行完后保存下yaml配置文件重新pub get一下
 
-#### 打包
+### 打包
 
 生成release版本，生成过程中会自动签名
 
@@ -4303,15 +4303,15 @@ flutter build apk --split-per-abi #这种会生成三个
 
 生成文件目录\build\app\outputs\apk\release\xxx.apk
 
-#### 查看是否签名
+### 查看是否签名
 
 ```powershell
 keytool -list -printcert -jarfile .\app-release.apk
 ```
 
-### App升级方案
+## App升级方案
 
-#### 检查版本号
+### 检查版本号
 
 安装package_info
 
@@ -4320,7 +4320,7 @@ dev_dependencies:
   package_info: ^2.0.2
 ```
 
-#### 获取文件存储路径
+### 获取文件存储路径
 
 安装path_provider
 
@@ -4329,7 +4329,7 @@ dev_dependencies:
   path_provider: ^2.0.5
 ```
 
-#### 检查读写权限
+### 检查读写权限
 
 安装 permission_handler
 
@@ -4348,7 +4348,7 @@ android\app\src\main\AndroidManifest.xml 添加读写和请求安装的权限
 
 !> 最新版的需要设置android\app\build.gradle sdk31 不然会报错
 
-#### 服务器上传app.json和安装包
+### 服务器上传app.json和安装包
 
 app.json
 
@@ -4359,7 +4359,7 @@ app.json
 }
 ```
 
-#### 获取app.json信息
+### 获取app.json信息
 
 安装dio
 
@@ -4368,7 +4368,7 @@ dev_dependencies:
   dio: ^4.0.0 
 ```
 
-#### 打开安装文件
+### 打开安装文件
 
 安装open_file
 
@@ -4377,7 +4377,7 @@ dependencies:
   open_file: ^3.2.1
 ```
 
-#### 完整代码
+### 完整代码
 
 ```dart
 import 'dart:io';

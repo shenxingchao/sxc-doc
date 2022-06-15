@@ -1,6 +1,6 @@
 # Java
 
-## let’s go
+# let’s go
 
 java se = 桌面软件
 
@@ -8,13 +8,13 @@ java ee  = web
 
 android kotlin  = 手机 
 
-## jdk
+# jdk
 
 java JDK 包含了java开发工具(java、javac等)和jre(java运行环境)
 
 jre = JVM(java虚拟机) + Java核心类库
 
-## 环境变量
+# 环境变量
 
 直接我的电脑系统变量Path配置 jdk bin目录和 jre bin目录(根本不需要什么JAVA_HOME这种的，如果还要配置jdk下的其他目录，直接加就行了,简单明了)
 
@@ -25,7 +25,7 @@ D:\jdk1.8.0_191\jre\bin
 
 输入cmd 输入 java -version查看版本
 
-## HelloWorld
+# HelloWorld
 
 ```java
 public class HelloWorld {
@@ -35,13 +35,13 @@ public class HelloWorld {
 }
 ```
 
-## 编译
+# 编译
 
 javac HelloWorld.java
 
 tips：乱码运行时后面加上 -encoding utf8
 
-## 运行
+# 运行
 
 java HelloWorld
 
@@ -50,7 +50,7 @@ PS D:\sxc\javastudy> java HelloWorld
 hello world!
 ```
 
-## args
+# args
 
 这里的String[] args 和python里的*args差不多 不确定个数的参数打包数组
 
@@ -79,7 +79,7 @@ hello world!
 
 tips：public修饰类有且仅有一个 文件名按public类名来命名,main方法可以写在非public类中
 
-## VsCode运行配置
+# VsCode运行配置
 
 ```json
 {
@@ -92,7 +92,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 自己去快捷键绑定  alt+insert(源代码操作) 用于快速生成构造方法 set get tostring等
 
-## IDEA
+# IDEA
 
 | 功能                 | 操作                                                           |
 | :------------------- | :------------------------------------------------------------- |
@@ -103,7 +103,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | 注释//添加不放在行首 | Setting -> Editor -> Code Style ->Line comment at first column |
 
 
-## api文档
+# api文档
 
 [https://www.matools.com/api/java8](https://www.matools.com/api/java8)
 
@@ -111,7 +111,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 [https://devdocs.io/](https://devdocs.io/)
 
-## 常用数据类型
+# 常用数据类型
 
 ```java
 public class VarType {
@@ -145,7 +145,7 @@ public class VarType {
 }
 ```
 
-## 类型转换
+# 类型转换
 
 char-int-long-float-double
 
@@ -179,7 +179,7 @@ public class VarType {
 }
 ```
 
-## 逻辑运算符
+# 逻辑运算符
 
 ```java
 public class AndOr {
@@ -202,7 +202,7 @@ public class AndOr {
 }
 ```
 
-## 条件语句
+# 条件语句
 
 ```java
 public class IfElse {
@@ -220,7 +220,7 @@ public class IfElse {
 }
 ```
 
-## 三元运算符
+# 三元运算符
 
 ```java
 public class Demo {
@@ -233,9 +233,9 @@ public class Demo {
 }
 ```
 
-## 循环
+# 循环
 
-### for循环计算1到100的和
+## for循环计算1到100的和
 
 ```java
 public class SumNumber {
@@ -249,7 +249,7 @@ public class SumNumber {
 }
 ```
 
-### for循环输出列表
+## for循环输出列表
 
 ```java
 public class Demo {
@@ -262,7 +262,7 @@ public class Demo {
 }
 ```
 
-### for循环打印99乘法表
+## for循环打印99乘法表
 
 ```java
 public class Demo {
@@ -277,7 +277,7 @@ public class Demo {
 }
 ```
 
-### while循环最好是用在不确定循环次数的时,也可计算0到100的和
+## while循环最好是用在不确定循环次数的时,也可计算0到100的和
 
 ```java
 public class Demo {
@@ -367,7 +367,7 @@ public class Demo {
 }
 ```
 
-### break用法
+## break用法
 
 这里记录一下break可以跳出for循环标签，其他语言类似，continue也可以跳到指定标签运行
 
@@ -385,7 +385,7 @@ public class Demo {
 }
 ```
 
-## 增强for循环foreach
+# 增强for循环foreach
 
 vscode输入foreach或者iter
 
@@ -402,9 +402,9 @@ public class Demo {
 }
 ```
 
-## 数组
+# 数组
 
-### 基本操作
+## 基本操作
 
 ```java
 import java.util.Arrays;
@@ -446,7 +446,7 @@ public class Demo {
 }
 ```
 
-### 常用方法
+## 常用方法
 
 ```java
 import java.util.Arrays;
@@ -509,9 +509,9 @@ public class Demo {
 [1, 9, 36, 84, 126, 126, 84, 36, 9, 1]
 ```
 
-## 面向对象
+# 面向对象
 
-### 创建类
+## 创建类
 
 ```java
 public class Demo {
@@ -540,13 +540,13 @@ class Person {
 }
 ```
 
-### 变量
+## 变量
 
 全局变量（成员方法\属性）有默认值
 
 局部变量指在代码块中定义的，使用前必须赋值
 
-### 静态变量
+## 静态变量
 
 也称之为类变量，被所有对象所共享，在类加载的时候就生成了 (有一个loadClass方法)
 
@@ -568,7 +568,7 @@ class A {
 }
 ```
 
-### 构造方法
+## 构造方法
 
 构造方法和类名同名，他既然是方法，也具有方法重载
 
@@ -602,7 +602,7 @@ class Person {
 }
 ```
 
-### 静态方法
+## 静态方法
 
 静态方法只能访问静态变量，不允许使用this，super关键字
 
@@ -621,7 +621,7 @@ class Person {
 }
 ```
 
-### 传参方式
+## 传参方式
 
 分为引用传递和值传递
 
@@ -664,7 +664,7 @@ public class Demo {
 }
 ```
 
-### 可变参数
+## 可变参数
 
 可变参数 不确定参数的个数时使用 ，需要放在形参的最后
 
@@ -690,7 +690,7 @@ class Person {
 }
 ```
 
-### 方法重载
+## 方法重载
 
 方法的重载就是同一个类中方法名相同，形参不同（返回类型不构成重载的条件，只有返回类型不一样，不算重载）
 
@@ -714,7 +714,7 @@ class Person {
 }
 ```
 
-### 返回值
+## 返回值
 
 返回包装类
 
@@ -747,7 +747,7 @@ class Calc {
 }
 ```
 
-### 包
+## 包
 
 创建包
 
@@ -775,7 +775,7 @@ public class Demo {
 }
 ```
 
-### 访问修饰符
+## 访问修饰符
 
 | 访问修饰符         | 同类 | 同包 | 子类          | 不同包 |
 | ------------------ | ---- | ---- | ------------- | ------ |
@@ -784,7 +784,7 @@ public class Demo {
 | 默认（什么也不加） | √    | √    | 不同包× 同包√ | ×      |
 | private            | √    | ×    | ×             | ×      |
 
-### 封装
+## 封装
 
 属性私有化 设置or获取数据通过方法
 
@@ -825,7 +825,7 @@ class Person {
 }
 ```
 
-### 继承和多态
+## 继承和多态
 
 继承 子类和父类有共同属性或方法时使用，java是单继承，本质是查找关系，就近原则；子类可以直接调用父类的中的非静态方法，静态方法用父类名.方法名调用
 
@@ -999,7 +999,7 @@ class Teacher extends Person {
 }
 ```
 
-### this和super关键字
+## this和super关键字
 
 | 区别       | this                                             | super                                           |
 | ---------- | ------------------------------------------------ | ----------------------------------------------- |
@@ -1048,7 +1048,7 @@ class C extends B {
 
 !> 除非方法形参和局部变量重名，否则在方法里省略this，因为java源码也是这么写的
 
-### instanceof关键字
+## instanceof关键字
 
 用于判断对象x的运行类型是否xx类型或xx类型的父类型
 
@@ -1080,7 +1080,7 @@ class B extends A {
 }
 ```
 
-### 代码块
+## 代码块
 
 代码块用于初始化对象的共同属性，静态代码块会随着类的加载被调用，只会调用一次；普通代码块会随着对象创建被调用，创建一次调用一次
 
@@ -1183,7 +1183,7 @@ class B extends A {
 }
 ```
 
-### final关键字
+## final关键字
 
 可以修饰类 、方法、属性、局部变量
 
@@ -1209,7 +1209,7 @@ final class A {
 }
 ```
 
-### abstract抽象类
+## abstract抽象类
 
 抽象类（不能实例化，但它的本质还是类，也可以有属性和方法，抽象类的构造函数由其子类实例化用super(args)调用）
 
@@ -1235,7 +1235,7 @@ class Cat extends Animal {
 }
 ```
 
-### 接口interface
+## 接口interface
 
 接口不能被实例化
 
@@ -1296,7 +1296,7 @@ class A implements AInterface, BInterface {
 }
 ```
 
-### 内部类
+## 内部类
 
 直接创建匿名内部类对象**new 接口名(){ 方法体内实现接口里的方法 }**，然后直接在后面跟上方法体{},在方法体{}内直接重写接口里的方法
 
@@ -1405,7 +1405,7 @@ class Outer {
 }
 ```
 
-### 对象拷贝
+## 对象拷贝
 
 **浅拷贝**
 
@@ -1581,9 +1581,9 @@ class Person implements Serializable {
 }
 ```
 
-## 枚举
+# 枚举
 
-### 定义
+## 定义
 
 不用enum关键字的枚举类 基本不用这个
 
@@ -1655,7 +1655,7 @@ enum B {
 }
 ```
 
-### 枚举常用方法
+## 枚举常用方法
 
 ```java
 import java.util.Arrays;
@@ -1684,7 +1684,7 @@ enum B {
 }
 ```
 
-### 枚举判断
+## 枚举判断
 
 ```java
 public class Demo {
@@ -1713,7 +1713,7 @@ enum Color {
 }
 ```
 
-## 注解
+# 注解
 
 三种注解：@Override @Deprecated @ SuppressWarnings
 
@@ -1757,9 +1757,9 @@ class C extends B {
 }
 ```
 
-## 异常
+# 异常
 
-### 普通用法
+## 普通用法
 
 catch可以捕获多个异常，且try方法体内出现第一个异常后，异常后面的代码不执行，跳到对应的catch执行
 
@@ -1793,7 +1793,7 @@ public class Demo {
 }
 ```
 
-### 异常主动抛出
+## 异常主动抛出
 
 ```java
 public class Demo {
@@ -1836,9 +1836,9 @@ public class Demo {
 }
 ```
 
-## 包装类
+# 包装类
 
-### 拆箱和装箱
+## 拆箱和装箱
 
 就是基本类型转换为对象 叫装箱 对象转换为基本类型 为拆箱
 
@@ -1867,7 +1867,7 @@ public class Demo {
 }
 ```
 
-### 包装类和String转换
+## 包装类和String转换
 
 其他类型转为String类似
 
@@ -1896,13 +1896,13 @@ public class Demo {
 }
 ```
 
-## 泛型
+# 泛型
 
 泛型可以接收任意数据类型(得是引用类型，或者其子类型，不能是基本数据类型)，可以用来表示属性，方法返回值，方法形参的任意类型
 
 tips:泛型在创建对象时就知道类型是什么了，创建对象等号右边的<>内容可以省略，编译器会进行类型推断
 
-### 泛型的好处
+## 泛型的好处
 
 可以防止隐藏的类型转换错误，可以减少向下转向（强制类型转换）次数
 
@@ -1974,7 +1974,7 @@ class Person<T> {
 }
 ```
 
-### 语法
+## 语法
 
 **T** type类型 **E** element 元素 **K** key索引 **V** value值 **?** 未知类型
 
@@ -2049,7 +2049,7 @@ class Student<T, T2> implements Person<String> {
 }
 ```
 
-### 泛型继承
+## 泛型继承
 
 ```java
 import java.util.ArrayList;
@@ -2090,11 +2090,11 @@ class B extends A {
 }
 ```
 
-## 集合
+# 集合
 
 集合是可动态改变的数组，集合分为单列集合Collection（类似PHP索引数组）双列集合Map（类似PHP关联数组）
 
-### 体系图
+## 体系图
 
 ```mermaid
 graph TB;
@@ -2114,11 +2114,11 @@ graph TB;
         Hashtable --> properties
 ```
 
-## List
+# List
 
 元素可以重复，可以添加任意元素，包括null
 
-### 常用方法
+## 常用方法
 
 这里以创建一个ArrayList为例，这里创建的list是List类型向上转型，可以调用List里的所有方法，这些方法Vector LinkedList也是可以调用的
 
@@ -2176,7 +2176,7 @@ public class Demo {
 }
 ```
 
-### ArrayList
+## ArrayList
 
 ArrayList是线程不安全的，但是执行效率高
 
@@ -2200,7 +2200,7 @@ ArrayList是线程不安全的，但是执行效率高
     }
 ```
 
-### Vector
+## Vector
 
 多个线程同时操作一个集合时使用，因为他是线程安全的
 
@@ -2224,7 +2224,7 @@ public class Demo {
 }
 ```
 
-### LinkedList
+## LinkedList
 
 线程不安全，底层是双向链表（维护了首尾两个节点属性first和last，存放的是节点对象，每个节点通过他的prev和next属性连接起来）
 
@@ -2242,11 +2242,11 @@ graph LR;
     last --prev--> Node2
 ```
 
-## Set
+# Set
 
 元素不重复（底层是map，set的元素存放在map的key位置，利用了key值不能重复的原理）
 
-### HashSet
+## HashSet
 
 无序（添加的顺序和遍历出来的顺序是不一致的，但是遍历的顺序是不会变的，没有索引不能用for循环遍历）
 
@@ -2378,7 +2378,7 @@ class Goods {
 }
 ```
 
-### TreeSet
+## TreeSet
 
 底层是TreeMap，有序（底层默认调用传入类型的compareTo方法，如果没有必须自己实现），通过设置比较器（覆盖默认的比较器），可以自定义排序规则，也可以使内容重复返比较器返回一个不为0的整数
 
@@ -2439,9 +2439,9 @@ public class Demo {
 }
 ```
 
-## Map
+# Map
 
-### 常用方法
+## 常用方法
 
 这里以创建一个HashMap为例
 
@@ -2505,7 +2505,7 @@ class A {
 }
 ```
 
-### 遍历Map
+## 遍历Map
 
 ```java
 import java.util.HashMap;
@@ -2563,7 +2563,7 @@ public class Demo {
 }
 ```
 
-### HashMap
+## HashMap
 
 是线程不安全的，key-value，效率高
 
@@ -2615,7 +2615,7 @@ public class Demo {
 }
 ```
 
-### Hashtable
+## Hashtable
 
 线程安全，key-value存放，但是不能存储null索引和null值，效率低
 
@@ -2635,7 +2635,7 @@ public class Demo {
 }
 ```
 
-### Properties
+## Properties
 
 继承Hashtable，常用于配置文件，key-value都是字符串类型
 
@@ -2720,15 +2720,15 @@ public class Demo {
 }
 ```
 
-### TreeMap
+## TreeMap
 
 特性同TreeSet，方法同map，线程不安全
 
 **添加的索引key的类型必须一致**
 
-## 迭代器
+# 迭代器
 
-### 使用方法 
+## 使用方法 
 
 可用于迭代集合
 
@@ -2756,7 +2756,7 @@ public class Demo {
 }
 ```
 
-### 迭代删除元素
+## 迭代删除元素
 
 其他语言也就这样
 
@@ -2808,9 +2808,9 @@ public class Demo {
 ```
 
 
-## 多线程
+# 多线程
 
-### 线程创建
+## 线程创建
 
 和Python很像
 
@@ -2878,7 +2878,7 @@ class B implements Runnable {
 }
 ```
 
-### 线程方法
+## 线程方法
 
 ```java
 public class Demo {
@@ -2970,7 +2970,7 @@ class B extends Thread {
 }
 ```
 
-### 守护线程
+## 守护线程
 
 ```java
 public class Demo {
@@ -3009,7 +3009,7 @@ class A extends Thread {
 }
 ```
 
-### 线程加锁synchronized
+## 线程加锁synchronized
 
 synchronized可以修饰方法，让其变成同步的方法(排队执行)
 
@@ -3094,7 +3094,7 @@ class B extends Thread {
 }
 ```
 
-### 线程池
+## 线程池
 
 java自带线程池，容易出现oom(out of memory内存溢出,因为底层如果是无界队列或者线程无上线就会导致oom)，大公司慎用
 
@@ -3145,7 +3145,7 @@ public class Demo {
 }
 ```
 
-### 自定义线程池
+## 自定义线程池
 
 了解可以配置线程池大小和策略的参数即可
 
@@ -3204,13 +3204,13 @@ public class Demo {
 }
 ```
 
-## IO
+# IO
 
 **Input输入流**，读取文件数据到程序
 
 **output输出流**，程序写入数据到文件
 
-### 文件管理
+## 文件管理
 
 **创建文件**
 
@@ -3309,7 +3309,7 @@ public class Demo {
 }
 ```
 
-### 体系图
+## 体系图
 
 字节流可处理文本(读取乱码需要把读取的数组初始化大一点),音频,视频
 
@@ -3336,7 +3336,7 @@ graph LR;
     OutputStreamWriter字节转字符输出流 --> FileWriter字符输出流
 ```
 
-### FileInputStram
+## FileInputStram
 
 **文件字节输入流**
 
@@ -3375,7 +3375,7 @@ public class Demo {
 }
 ```
 
-### FileOutputStream
+## FileOutputStream
 
 **文件字节输出流**
 
@@ -3460,11 +3460,11 @@ public class Demo {
 }
 ```
 
-### ObjectInputStream
+## ObjectInputStream
 
 **对象类型输入流**[InputStream的包装类]
 
-### ObjectOutputStream
+## ObjectOutputStream
 
 **对象类型输出流**[OutputStream的包装类]
 
@@ -3521,7 +3521,7 @@ class A implements Serializable {
 }
 ```
 
-### FileReader
+## FileReader
 
 **字符输入流**
 
@@ -3551,7 +3551,7 @@ public class Demo {
 }
 ```
 
-### FileWriter
+## FileWriter
 
 **字符输出流**
 
@@ -3575,7 +3575,7 @@ public class Demo {
 }
 ```
 
-### BufferedReader
+## BufferedReader
 
 **缓冲字符输入流**[字符输入流的包装类,更高效]
 
@@ -3598,7 +3598,7 @@ public class Demo {
 }
 ```
 
-### BufferedWriter
+## BufferedWriter
 
 **缓冲字符输出流**[字符输出流的包装类,更高效]
 
@@ -3625,13 +3625,13 @@ public class Demo {
 }
 ```
 
-### InputStreamReader
+## InputStreamReader
 
 **字节转字符输入流**
 
 可以将字节流转成字符流，并同时设置编码，可解决乱码问题
 
-### OutputStreamWriter
+## OutputStreamWriter
 
 **字节转字符输出流**
 
@@ -3658,7 +3658,7 @@ public class Demo {
 }
 ```
 
-### Files
+## Files
 
 **文件工具类**
 
@@ -3688,7 +3688,7 @@ public class Demo {
 }
 ```
 
-## NIO
+# NIO
 
 NIO提供了与标准IO不同的IO工作方式：
 
@@ -3696,7 +3696,7 @@ Channels and Buffers(通道和缓冲区)：标准的IO基于字节流和字符�
 
 tips：安卓USB读写串口遇到过，那个时候用uniapp native.js没有多线程会阻塞，所以没搞出来，遗憾，有机会用原始搞一下
 
-### Buffer
+## Buffer
 
 缓冲区
 
@@ -3729,7 +3729,7 @@ public class Demo {
 }
 ```
 
-### Channel
+## Channel
 
 通道
 
@@ -3757,13 +3757,13 @@ public class Demo {
 }
 ```
 
-## Socket
+# Socket
 
 基于TCP或UDP通信
 
 [基于socket即时通信案例](https://github.com/shenxingchao/java-socket-demo)
 
-### TCP字节流
+## TCP字节流
 
 Server
 ```java
@@ -3925,7 +3925,7 @@ public class Server {
 
 
 
-### TCP字符流
+## TCP字符流
 
 Server
 ```java
@@ -3988,7 +3988,7 @@ public class Client {
 }
 ```
 
-### UDP
+## UDP
 
 Client
 
@@ -4042,13 +4042,13 @@ public class A {
 }
 ```
 
-## 反射
+# 反射
 
 反射就类似于你可以通过镜子看到自己本身
 
 java中的反射 比如jvm运行先加载类文件.class，然后利用反射生成类的Class对象(反射对象,包含类的结构信息，这个Class对象只创建一次)存放在堆中，最后生成对象（这个对象可以是创建多次的）；通过这个对象，才可以去调用各种方法。
 
-### 类加载流程图
+## 类加载流程图
 
 ```mermaid
 graph LR;
@@ -4058,7 +4058,7 @@ graph LR;
     堆内存Class对象 --new-->对象n...
 ```
 
-### 静态和动态加载
+## 静态和动态加载
 
 ```java
 public class Demo {
@@ -4077,7 +4077,7 @@ class A {
 }
 ```
 
-### 常用方法
+## 常用方法
 
 ```java
 import java.lang.reflect.Constructor;
@@ -4192,7 +4192,7 @@ class A {
 }
 ```
 
-### 反射爆破
+## 反射爆破
 
 ```java
 import java.lang.reflect.Constructor;
@@ -4252,7 +4252,7 @@ class A {
 }
 ```
 
-### 使用案例
+## 使用案例
 
 使用反射创建文件
 
@@ -4278,9 +4278,9 @@ public class Demo {
 }
 ```
 
-## 设计模式
+# 设计模式
 
-### 单例模式
+## 单例模式
 
 **饿汉式**
 
@@ -4375,7 +4375,7 @@ class SingleInstance {
 }
 ```
 
-### 抽象模板设计模式
+## 抽象模板设计模式
 
 共同代码父类实现，不同的代码子类实现(其实这个和继承没有太大区别，无非抽象方法没有方法体了)
 
@@ -4406,7 +4406,7 @@ class B extends A {
 }
 ```
 
-### 工厂设计模式
+## 工厂设计模式
 
 ```java
 public class Demo {
@@ -4450,7 +4450,7 @@ class Factory {
 }
 ```
 
-### 代理模式
+## 代理模式
 
 利用接口多态和接口类型的对象实现让不同的人做同一件事
 
@@ -4512,9 +4512,9 @@ class Agent implements Homework {
 }
 ```
 
-## 算法
+# 算法
 
-### 冒泡排序
+## 冒泡排序
 
 相邻两个数比较，进行arr.length-1轮比较，每轮比较的次数都会少一次
 
@@ -4584,7 +4584,7 @@ public class Demo {
 [1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
 ```
 
-### 选择排序
+## 选择排序
 
 每次和最小值比较，选出最小的值放在第i个位置，共进行arr.length-2轮
 
@@ -4643,7 +4643,7 @@ public class Demo {
 [1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
 ```
 
-### 插入排序
+## 插入排序
 
 每次取第i个数和他前面的有序列表对比，插入到相应为止，共进行arr.length - 1
 
@@ -4711,11 +4711,11 @@ public class Demo {
 [1.0, 1.0, 2.0, 3.4, 5.0, 50.0]
 ```
 
-## 正则表达式
+# 正则表达式
 
 创建正则表达式对象 java\\(转义符号)表示\ 这个和其他语言不一样的地方,其他类似于python
 
-### 整体校验是否匹配
+## 整体校验是否匹配
 
 ```java
 import java.util.regex.Pattern;
@@ -4739,7 +4739,7 @@ public class Demo {
 }
 ```
 
-### 匹配查找内容
+## 匹配查找内容
 
 ```java
 import java.util.regex.Matcher;
@@ -4776,7 +4776,7 @@ public class Demo {
 }
 ```
 
-### 反向引用
+## 反向引用
 
 即可以引用分组 既可以再正则表示内部引用 也可以在外部引用
 
@@ -4822,9 +4822,9 @@ public class Demo {
 }
 ```
 
-## 内置类
+# 内置类
 
-### Scanner获取用户输入
+## Scanner获取用户输入
 
 ```java
 import java.util.Scanner;
@@ -4844,7 +4844,7 @@ public class GetInput {
 }
 ```
 
-### Math数学方法
+## Math数学方法
 
 **random()**
 
@@ -4891,7 +4891,7 @@ public class Demo {
 
 取最小值
 
-### Random
+## Random
 
 **nextInt()**
 
@@ -4910,7 +4910,7 @@ public class Demo {
 }
 ```
 
-### String
+## String
 
 > 存储在常量池，常量池存储的字符串只会创建一次，复用率高；字符长度不可变，重写赋值相当于新建一个String对象
 > 
@@ -5076,7 +5076,7 @@ public class Demo {
 }
 ```
 
-### StringBuffer
+## StringBuffer
 
 > 字符长度可变，存储字符的char数组在堆中，重写赋值大于原数组长度的话会动态创建新的数组赋予长度，stringbuffer的方法用了synchronized关键字，是线程安全的
 
@@ -5113,11 +5113,11 @@ public class Demo {
 }
 ```
 
-### StringBuilder
+## StringBuilder
 
 > 基本用法同Stringbuffer，线程不安全，但是效率比Stringbuffer高
 
-### Arrays
+## Arrays
 
 **toString()**
 
@@ -5232,7 +5232,7 @@ public class Demo {
 }
 ```
 
-### Collections
+## Collections
 
 集合工具类 用于操作set和map
 
@@ -5291,7 +5291,7 @@ public class Demo {
 }
 ```
 
-### BigInteger
+## BigInteger
 
 超大整数
 
@@ -5314,7 +5314,7 @@ public class Demo {
 }
 ```
 
-### BigDecimal
+## BigDecimal
 
 超高精度小数
 
@@ -5337,7 +5337,7 @@ public class Demo {
 }
 ```
 
-### Object
+## Object
 
 **getClass()**
 
@@ -5386,7 +5386,7 @@ class Person {
 }
 ```
 
-### Date
+## Date
 
 最原始的日期对象
 
@@ -5417,7 +5417,7 @@ public class Demo {
 }
 ```
 
-### Calendar
+## Calendar
 
 日历类
 
@@ -5443,7 +5443,7 @@ public class Demo {
 }
 ```
 
-### LocalDateTime
+## LocalDateTime
 
 常用的日期时间类(jdk8)
 
@@ -5512,7 +5512,7 @@ public class Demo {
 }
 ```
 
-### Instant
+## Instant
 
 时间戳(jdk8) 可用于Date和LocalDateTime转换的中间类
 
@@ -5554,7 +5554,7 @@ public class Demo {
 }
 ```
 
-### System
+## System
 
 **currentTimeMillis()**
 
@@ -5584,7 +5584,7 @@ public class Demo {
 
 运行垃圾回收机制
 
-### UUID
+## UUID
 
 **randomUUID()**
 
@@ -5600,7 +5600,7 @@ public class Demo {
 }
 ```
 
-## 单元测试
+# 单元测试
 
 vscode java扩展已经自带了，加上 **@Test** 即可测试**public类**中的方法
 

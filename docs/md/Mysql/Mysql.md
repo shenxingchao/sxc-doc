@@ -1,40 +1,40 @@
 # Mysql
-## 准备工作
-### 安装mysql
+# 准备工作
+## 安装mysql
 参考[wnmp安装](/md/Php?id=wnmp搭建)中的mysql下载服务安装和服务启动 windows可设置成开机自启动
 
 [多个版本安装](https://blog.csdn.net/wudinaniya/article/details/82455431)
 
 !> 最好安装mysql-5.7.34  因为他支持中文全文索引
 
-### 设置环境变量
+## 设置环境变量
 环境变量-用户变量-Path 添加  D:\mysql-5.7.34\bin
 
-### 连接到Mysql
+## 连接到Mysql
 打开cmd
 ```powershell
 mysql -h localhost -P 3306 -u root -p ;
 ```
 > 初始密码去 D:\mysql\data\xxx.err 文件里 搜索 temporary password 为临时密码 登录后修改密码,参考[这里](/md/Mysql?id=访问控制)
 
-###  退出连接
+##  退出连接
 ```powershell
 quit or exit
 ```
-### 下载工具
+## 下载工具
 [Navicat Premium 15需要断网激活](https://pan.baidu.com/s/1dvZ-tTLXnhTlXXh9ag0o7Q )  
 提取码：c12z [激活教程](https://www.jianshu.com/p/aca31d8f4c5b)  
 [Navicat Premium 免安装旧版](https://pan.baidu.com/s/1QZc-mvzc0mPCeTKKiylxtQ)  
 提取码: 1wxg
 
-### 书写规范
+## 书写规范
 SQL语句和大小写 请注意，SQL语句不区分大小写，因此
 SELECT与select是相同的。同样，写成Select也没有关系。
 许多SQL开发人员喜欢对所有SQL关键字使用大写，而对所有
 列和表名使用小写，这样做使代码更易于阅读和调试。——来自MySql必知必会
 
-## 使用
-### 选择数据库
+# 使用
+## 选择数据库
 ```sql
 USE dbname
 ```
@@ -42,7 +42,7 @@ USE dbname
 ```sql
 Database changed
 ```
-### 显示所有数据库
+## 显示所有数据库
 ```sql
 SHOW DATABASES;
 ```
@@ -57,7 +57,7 @@ SHOW DATABASES;
 2 rows in set (0.00 sec)
 ```
 
-### 显示当前数据库所有表格
+## 显示当前数据库所有表格
 ```sql
 SHOW TABLES;
 ```
@@ -71,7 +71,7 @@ SHOW TABLES;
 23 rows in set (0.00 sec)
 ```
 
-### 显示指定表格的所有列
+## 显示指定表格的所有列
 ```sql
 SHOW COLUMNS FROM user;
 ```
@@ -90,7 +90,7 @@ DESCRIBE user;
 2 rows in set (0.00 sec)
 ```
 
-### 查看数据库运行状态
+## 查看数据库运行状态
 ```sql
 SHOW STATUS
 ```
@@ -109,7 +109,7 @@ SHOW STATUS LIKE 'Uptime';
 1 row in set (0.00 sec)
 ```
 
-## 排序规则
+# 排序规则
 
 排序规格可以作用于整个数据库、表、字段，例如账号字段设计为utf8bin 验证码字段设计为utf8_general_ci
 
@@ -119,7 +119,7 @@ utf8_general_ci 不区分大小写
 
 utf8mb4 可存储4位的emoji表情
 
-## 基本数据类型
+# 基本数据类型
 
 tinyint 无需这设置大小，因为宽度为固定值 4（含一位符号位），取值范围是 -128 ~ 127 的整型数据。存储大小为1个字节，所以在建表的时候，无论是tinyint(100)还是tinyint(1),最终都是tinyint(4)，故无需设置其宽度
 
@@ -127,7 +127,7 @@ float/double 不推荐，在计算SUM(column) 会丢失精度，直接用decimal
 
 varchar 最大长度21844，（65535-1-2）/3=21844  因为utf8是3个字节表示一位，65535是最大字节数(65535并不是一个很精确的上限，可以继续缩小这个上限。65535个字节包括所有字段的长度，变长字段的长度标识（每个变长字段额外使用1或者2个字节记录实际数据长度）、NULL标识位的累计,NULL标识位，如果varchar字段定义中带有default null允许列空,则需要需要1bit来标识，每8个bits的标识组成一个字段。一张表中存在N个varchar字段，那么需要（N+7）/8 （取整）bytes存储所有的NULL标识位。)；如果是GBK，2个字节表示1位，那就是（65535-1-2）/2；【前提是有且只有一个字段varchar;有多个varchar字段，或者或者有非空的字段，那所有varchar加起来的和也不等于21844，还会变小，没找到公式】
 
-## 初始化数据
+# 初始化数据
 创建数据库
 
 ```sql
@@ -175,9 +175,9 @@ INSERT INTO `dbname`.`user_address` (`id`, `user_id`, `address`) VALUES (2, 3, '
 ```
 
 
-## 查询
+# 查询
 
-### SELECT
+## SELECT
 语法 SELECT 字段名1，字段名2 FROM 表名
 ```sql
 SELECT id,name FROM `user`;
@@ -192,14 +192,14 @@ SELECT id,name FROM `user`;
 +----+------+
 ```
 
-### 查询全部
+## 查询全部
 
 ```sql
 SELECT * FROM `user`;
 ```
 输出结果和上面相同
 
-### DISTINCT关键字
+## DISTINCT关键字
 
 作用于所有列，聚合结果中所有指定列相同的数据，不能作用于单列
 假如user表如下
@@ -238,7 +238,7 @@ SELECT DISTINCT name FROM `user`;
 | 李四 |
 +------+
 ```
-### LIMIT
+## LIMIT
 
 语法 LIMIT 从index行开始,取number行
 ```sql
@@ -250,7 +250,7 @@ SELECT name FROM `user` LIMIT 2 OFFSET 1;
 ```
 一般用前一种比较多
 
-### ORDER BY
+## ORDER BY
 
 语法 ORDER BY 字段名 ASC | DESC; 不加默认为ASC
 下面的语句是先按id降序，再按age升序排列，注意这里排序字段的顺序
@@ -268,7 +268,7 @@ SELECT id,name,age FROM `user` ORDER BY id DESC,age ASC;
 ```
 !> ORDER BY 必须在 LIMIT 之前
 
-### WHERE
+## WHERE
 查找id为3的记录
 ```sql
 SELECT * FROM `user` WHERE id = 3;
@@ -310,7 +310,7 @@ SELECT * FROM `en_user` WHERE name = 'ZHANGSAN';
 2 rows in set (0.00 sec)
 ```
 
-### BETWEEN
+## BETWEEN
 语法 BETWEEN 开始范围 AND 结束范围
 ```sql
 SELECT * FROM `user` WHERE id BETWEEN 1 AND 2;
@@ -326,7 +326,7 @@ SELECT * FROM `user` WHERE id BETWEEN 1 AND 2;
 ```
 看到查询结果是包含边界值的
 
-### IS NULL
+## IS NULL
 判断age是NULL值的 不是字符串的null，这里的NULL表示空值就是没有值
 ```sql
 SELECT * FROM `user` WHERE age IS NULL;
@@ -341,7 +341,7 @@ SELECT * FROM `user` WHERE age IS NULL;
 1 row in set (0.00 sec)
 ```
 
-### AND
+## AND
 查询姓名是李四且年龄为1的记录
 ```sql
 SELECT * FROM `user` WHERE name = '李四' AND age = 1;
@@ -356,7 +356,7 @@ SELECT * FROM `user` WHERE name = '李四' AND age = 1;
 1 row in set (0.00 sec)
 ```
 
-### OR
+## OR
 查询姓名是李四或者年龄为1的记录
 ```sql
 SELECT * FROM `user` WHERE name = '李四' OR age = 1;
@@ -375,7 +375,7 @@ SELECT * FROM `user` WHERE name = '李四' OR age = 1;
 
 !> AND 和 OR 执行顺序是 先执行 AND 后执行 OR，如果想先执行OR 用()括起来
 
-### IN
+## IN
 查询年龄为1和2的记录
 ```sql
 SELECT * FROM `user` WHERE age IN(1,2);
@@ -394,7 +394,7 @@ SELECT * FROM `user` WHERE age IN(1,2);
 
 > IN 能完成与 OR 相同的功能  age=1 OR age=2 相当于 age IN(1,2) 
 
-### NOT
+## NOT
 取反操作
 只可用于 IN\BETWEEN\EXISTS 取反
 查询年龄不为1和2的记录
@@ -406,7 +406,7 @@ SELECT * FROM `user` WHERE age NOT IN(1,2);
 Empty set (0.00 sec)
 ```
 
-### LIKE
+## LIKE
 语法 LIKE '%查询条件值%'
 百分号可省略，省略一边表示查询值以一边开始模糊匹配
 查询姓李的记录
@@ -436,7 +436,7 @@ SELECT * FROM `user` WHERE name LIKE '李';
 Empty set (0.00 sec)
 ```
 
-### REGEXP
+## REGEXP
 语法 REGEXP '正则表达式'
 ```sql
 SELECT * FROM `user` WHERE name REGEXP '李';
@@ -453,7 +453,7 @@ SELECT * FROM `user` WHERE name REGEXP '李';
 ```
 !> 正则可以匹配任意数据，但是使用正则会影响性能，需要注意的是mysql正则表达式的转义字符是双斜杠\\\\而不是\，一个由MYSQL解释 一个由正则表达式库解释
 
-### AS
+## AS
 别名
 ```sql
 SELECT name AS username FROM `user` AS u;
@@ -470,7 +470,7 @@ SELECT name AS username FROM `user` AS u;
 3 rows in set (0.03 sec)
 ```
 
-### GROUP BY
+## GROUP BY
 聚合指定字段的记录即数据分组
 如按年龄分组查询  年龄为1的有两条 年龄为2的有一条
 ```sql
@@ -492,7 +492,7 @@ SELECT name,age,COUNT(*) AS row_count FROM `user` GROUP BY age;
 !> NULL值也会作为一个分组出现
 !> GROUP BY 必须在ORDER BY之前
 
-### HAVING
+## HAVING
 过滤 GROUP BY分组后的数据,支持所有WHERE操作符
 如按年龄分组查询 筛选每组个数大于1的数据
 ```sql
@@ -510,7 +510,7 @@ SELECT name,age,COUNT(*) AS row_count FROM `user` GROUP BY age HAVING(row_count 
 
 !> WHERE是过滤没分组的数据
 
-### USING
+## USING
 用于简化联合查询
 ```sql
 SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u ON user.id = u.id;
@@ -520,7 +520,7 @@ SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u ON user.id = u.id;
 SELECT * FROM user INNER JOIN (SELECT id FROM user) AS u USING(id);
 ```
 
-### 子查询
+## 子查询
 利用子查询的结果集作为父查询的条件
 ```sql
 SELECT*FROM `user` WHERE id IN (
@@ -544,7 +544,7 @@ SELECT*FROM `user` WHERE (id,name) IN (
 SELECT id,name FROM `user` WHERE id BETWEEN 1 AND 2);
 ```
 
-### EXISTS
+## EXISTS
 查询判断条件 不返回数据 只返回布尔类型
 如找出有地址的用户
 ```sql
@@ -566,7 +566,7 @@ WHERE
 2 rows in set (0.00 sec)
 ```
 
-### INNER JOIN
+## INNER JOIN
 内联查询，查询2个表都有的部分
 查询user表有地址的用户
 ```sql
@@ -588,7 +588,7 @@ FROM
 2 rows in set (0.00 sec)
 ```
 
-### LEFT JOIN
+## LEFT JOIN
 左外连接查询 全称 LEFT OUTER JOIN
 查询主表全部数据 连接表没有的数据填充NULL
 ```sql
@@ -615,7 +615,7 @@ ORDER BY
 3 rows in set (0.00 sec)
 ```
 
-### RIGHT JOIN
+## RIGHT JOIN
 右外连接查询 全称 RIGHT OUTER JOIN
 查询连接表全部数据
 ```sql
@@ -641,7 +641,7 @@ ORDER BY
 2 rows in set (0.00 sec)
 ```
 
-### UNION
+## UNION
 联合查询 将两条查询语句的结果集合并在一起返回，并剔除重复数据
 ```sql
 SELECT * FROM `user` WHERE name = '李四' AND age = 2 UNION
@@ -649,7 +649,7 @@ SELECT * FROM `user` WHERE name = "张三" ORDER BY id;
 ```
 默认情况下会剔除重复数据，如果想返回所有数据使用 UNION ALL
 
-### 索引
+## 索引
 
 添加索引
 ```sql
@@ -662,7 +662,7 @@ ALTER TABLE `user` ADD KEY `age_index` (`age`) USING BTREE;
 DROP INDEX age_index ON `user`;
 ```
 
-### FULLTEXT
+## FULLTEXT
 全文索引
 语法 MATCH(列1,列2) AGAINST(搜索表达式1,搜索表达式2)
 mysql5.7.6开始支持中文的全文索引 所以尽量用新版本，或者使用[Sphinx](https://www.runoob.com/w3cnote/sphinx-sql-search-engine.html) [ElasticSearch](https://github.com/elastic/elasticsearch)
@@ -685,7 +685,7 @@ SELECT * FROM `user_address` WHERE MATCH(address) AGAINST("杭州");
 ```
 !> mysql 全文索引以词为基础 就是分词的不是分字的 例如搜 AGAINST("杭") 就搜不到了
 
-### 联合索引
+## 联合索引
 有多个WHERE AND 条件的，即可用联合索引
 例如
 ```sql
@@ -697,7 +697,7 @@ CREATE INDEX `name_age_index` ON `user` (`name`,`age`) USING BTREE;
 ALTER TABLE `user` ADD KEY `name_age_index` (`name`,`age`) USING BTREE;
 ```
 
-## 运算
+# 运算
 支持+ - * /
 ```sql
 SELECT name,age * 2  FROM `user`;
@@ -714,8 +714,8 @@ SELECT name,age * 2  FROM `user`;
 3 rows in set (0.02 sec)
 ```
 
-## 函数
-### CONCAT
+# 函数
+## CONCAT
 拼接字段符
 语法 CONCAT (filed1,filed2,...)
 查询输出拼接好的字符串
@@ -734,7 +734,7 @@ SELECT CONCAT(name,'今年',age,'岁') AS name FROM `user`;
 3 rows in set (0.02 sec)
 ```
 
-### TRIM\LTRIM\RTRIM
+## TRIM\LTRIM\RTRIM
 去除 左右两边空格 \ 左空格 \ 右空格
 ```sql
 SELECT TRIM(name) FROM `user`;
@@ -751,7 +751,7 @@ SELECT TRIM(name) FROM `user`;
 3 rows in set (0.01 sec)
 ```
 
-### UPPER\LOWER
+## UPPER\LOWER
 全部字母转大写 \ 转小写
 ```sql
 SELECT UPPER(name) AS name FROM `en_user`;
@@ -768,7 +768,7 @@ SELECT UPPER(name) AS name FROM `en_user`;
 3 rows in set (0.00 sec)
 ```
 
-### LENGTH
+## LENGTH
 计算字符串长度
 ```sql
 SELECT LENGTH(name) AS name_length FROM `user`;
@@ -785,7 +785,7 @@ SELECT LENGTH(name) AS name_length FROM `user`;
 3 rows in set (0.01 sec)
 ```
 
-### LEFT\RIGHT
+## LEFT\RIGHT
 返回索引为1左边的字符
 下面取名字的姓
 ```sql
@@ -803,7 +803,7 @@ SELECT LEFT(name,1) AS xing FROM `user`;
 3 rows in set (0.00 sec)
 ```
 
-### SUBSTRING
+## SUBSTRING
 语法 SUBSTRING(str,n,m)
 截取字符串str 从索引n开始后的m个字符
 ```sql
@@ -822,7 +822,7 @@ SELECT SUBSTRING(name,2,1) AS ming FROM `user`;
 ```
 !>  n是从1开始的注意一点
 
-### SUBSTRING_INDEX
+## SUBSTRING_INDEX
 语法 SUBSTRING_INDEX(str,find_str,count)
 截取指定字符串str中find_str出现次数之前或之后的字符串，不包括他自己
 ```sql
@@ -839,7 +839,7 @@ SELECT SUBSTRING_INDEX(name,'n',1) AS ming FROM `en_user`;
 +----------+
 ```
 
-### REPLACE
+## REPLACE
 
 语法 REPLACE(str,search_str,replace_str)
 
@@ -862,7 +862,7 @@ SELECT REPLACE(name,'张','李') FROM `user`;
 3 rows in set (0.00 sec)
 ```
 
-### 日期函数
+## 日期函数
 | 函数名        | 描述                           |
 | ------------- | ------------------------------ |
 | ADDDATE()     | 增加一个日期（天、周等）       |
@@ -897,7 +897,7 @@ SELECT DATE_FORMAT(CURTIME(),'%y年%m月%d日 %H:%i:%s') AS create_date FROM `en
 3 rows in set (0.00 sec)
 ```
 
-### 数学方法
+## 数学方法
 | 函数名  | 描述                |
 | ------- | ------------------- |
 | ABS()   | 返回一个数的绝对值  |
@@ -927,7 +927,7 @@ SELECT name,ROUND(RAND() * 100) AS age FROM `user`;
 3 rows in set (0.00 sec)
 ```
 
-### 统计函数
+## 统计函数
 | 函数名  | 描述             |
 | ------- | ---------------- |
 | AVG()   | 返回某列的平均值 |
@@ -978,7 +978,7 @@ SELECT COUNT(age) AS has_age_count FROM `user`;
 1 row in set (0.00 sec)
 ```
 
-### 控制语句IF
+## 控制语句IF
 
 语法 IF(条件，结果1，结果2)
 
@@ -999,8 +999,8 @@ SELECT SUM(IF(name="张三",1,0)) AS '张三的人数',SUM(IF(name="李四",1,0)
 1 row in set (0.00 sec)
 ```
 
-## 新增
-### INSERT
+# 新增
+## INSERT
 语法 INSERT INTO table_name (字段1,字段2) VALUES ("值1","值2")
 返回影响行数
 ```sql
@@ -1013,14 +1013,14 @@ Query OK, 1 row affected (0.06 sec)
 
 tips:假如是插入所有字段 则(字段1，字段2)可以省略
 
-### LOW_PRIORITY
+## LOW_PRIORITY
 优先级  
 降低INSERT INTO 语句的优先级，也适用于UPDATE和DELETE语句，可提高SELECT语句的效率
 ```sql
 INSERT LOW_PRIORITY INTO `user` (name,age) VALUES ("张三",4);
 ```
 
-### 插入多行
+## 插入多行
 语法 INSERT INTO table_name (字段1,字段2) VALUES ("值1","值2"),("值3","值4")
 ```sql
 INSERT INTO `user` (name,age) VALUES ("张三",5),("张三",6);
@@ -1031,7 +1031,7 @@ Query OK, 2 rows affected (0.04 sec)
 Records: 2  Duplicates: 0  Warnings: 0
 ```
 
-### INSERT SELECT
+## INSERT SELECT
 将查询的结果集作为数据插入到表格
 ```sql
 INSERT INTO `user` (name,age) SELECT name,age FROM user;
@@ -1043,8 +1043,8 @@ Records: 8  Duplicates: 0  Warnings: 0
 ```
 !> SELETE 选择的列名不一定要和插入的列名一致，只要顺序对应即可
 
-## 更新
-### UPDATE
+# 更新
+## UPDATE
 语法 UPDATE table_name SET 字段1 = "值1",字段2 = "值2" WHERE 条件
 返回影响行数
 ```sql
@@ -1056,8 +1056,8 @@ Query OK, 2 rows affected (0.05 sec)
 Rows matched: 2  Changed: 2  Warnings: 0
 ```
 
-## 删除
-### DELETE
+# 删除
+## DELETE
 语法 DELETE FROM table_name WHERE 条件
 ```sql
 DELETE FROM `user` WHERE id>3;
@@ -1067,8 +1067,8 @@ DELETE FROM `user` WHERE id>3;
 Query OK, 13 rows affected (0.15 sec)
 ```
 
-## 表操作
-### CREATE
+# 表操作
+## CREATE
 ```sql
 CREATE TABLE IF NOT EXISTS `user`(
   `id` int(11) unsigned NOT NULL AUTO_INCREMENT COMMENT 'id',
@@ -1079,7 +1079,7 @@ CREATE TABLE IF NOT EXISTS `user`(
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 ```
 
-### ALTER
+## ALTER
 
 语法 ALTER TABLE table_name 操作
 
@@ -1097,22 +1097,22 @@ ALTER TABLE `user` DROP tel;
 ```sql
 ALTER TABLE `user_address` ADD CONSTRAINT `user_id` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`);
 ```
-### DROP
+## DROP
 删除表  
 语法 DROP TABLE table_name
 
-### RENAME
+## RENAME
 重命名表  
 语法 RENAME TABLE table_name To new_table_name
 
-### TRUNCATE
+## TRUNCATE
 清空表格并重写创建
 ```sql
 TRUNCATE `user_address`;
 ```
 !> 有关联表的主表不能够被清空提示：Cannot truncate a table referenced in a foreign key constraint 
 
-##  事务
+#  事务
 
 语法
 
@@ -1131,8 +1131,8 @@ START TRANSACTION;
 
 多个事务之间要相互隔离 默认的级别就是隔离的所以不用改。
 
-## 视图
-### 创建视图
+# 视图
+## 创建视图
 视图就是虚拟表 只包含查询语句，用来简化复杂SQL语句
 
 ```sql
@@ -1141,7 +1141,7 @@ SELECT u.*,ua.address FROM `user` AS u LEFT JOIN user_address AS ua ON u.id = ua
 ```
 !> 在navicat 中 创建视图按钮可省略 CREATE VIEW user_view AS
 
-### 使用视图构建的虚拟表查询
+## 使用视图构建的虚拟表查询
 ```sql
 SELECT * FROM user_view;
 ```
@@ -1157,11 +1157,11 @@ SELECT * FROM user_view;
 3 rows in set (0.02 sec)
 ```
 
-## 存储过程
-### 什么是存储过程
+# 存储过程
+## 什么是存储过程
 就是保存SQL语句的集合
 
-### 使用
+## 使用
 navicat里使用 函数菜单——新建函数——过程 来创建存储过程
 ```sql
 CREATE PROCEDURE `test`(n INT)
@@ -1188,7 +1188,7 @@ END
 ```
 
 
-### 百万条数据插入方法
+## 百万条数据插入方法
 利用MYSQL执行常量AUTOCOMMIT设置为0，阻止他每次执行sql都提交
 ```sql
 CREATE PROCEDURE `addData`(n int)
@@ -1225,23 +1225,23 @@ BEGIN
 END
 ```
 
-## 触发器
-### 创建
+# 触发器
+## 创建
 ```sql
 CREATE TRIGGER update_trigger AFTER INSERT ON `user` FOR EACH ROW
 UPDATE `user_address` SET address = "上海郊区" WHERE id = 1;
 ```
 
-### 删除
+## 删除
 ```sql
 DROP TRIGGER update_trigger;
 ```
 
-## 维护
-### 备份
+# 维护
+## 备份
 windows可以使用navicate自动备份
 
-### 导出
+## 导出
 1. 使用navicate导出（不推荐，导出的数据是一条一条插入的）  
 
 2. 使用命令（推荐）
@@ -1254,7 +1254,7 @@ windows可以使用navicate自动备份
     mysqldump -u root -p -h localhost -P 3306 datebase_name -e --max_allowed_packet=4194304 --net_buffer_length=1024000 > mysqldump.sql
     ```
 
-### 导入
+## 导入
 1. 方式1
    ```sql
    mysql -u root -p -h 服务器数据库ip -P 3306 datebase_name < C:\mysqldump.sql
@@ -1268,24 +1268,24 @@ windows可以使用navicate自动备份
     SOURCE sql文件路径
     ```
 
-### 检查
+## 检查
 检查表是否有错误 操作不可在表高频繁状态下执行
 ```sql
 CHECK TABLE table_name;
 ```
 
-### 分析
+## 分析
 操作不可在表高频繁状态下执行
 ANALYZE TABLE user;
 
-## 访问控制
-### 查看权限
+# 访问控制
+## 查看权限
 ```sql
 USE mysql;
 SHOW GRANTS FOR root;
 ```
 
-### 修改密码
+## 修改密码
 ```sql
 USE mysql;
 SET PASSWORD FOR root = Password("");
@@ -1293,8 +1293,8 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-## 性能优化
-### 查询优化
+# 性能优化
+## 查询优化
 1. 使用EXPLAIN
    ![calc](../../images/explain.png)  
 2. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
@@ -1433,17 +1433,17 @@ EXIT;
 13. UNION 除非要消除重复行 不然用UNION ALL代替
 14. 尽量使用数字 如1，2 tinyint类型 代表男女 字符串会降低查询和连接的性能
 
-## 名词
-### 主键
+# 名词
+## 主键
 确定一条记录的唯一标识，一个表只能有一个主键，主键可以由多列组合而成（复合主键）
-### UNIQUE
+## UNIQUE
 类似主键，表示唯一，区别是可以添加多个，如果一个字段没有指定NOT NULL，那么NULL可以是多个的
-### 外键
+## 外键
 外键定义在从表，是某个主表中的一列，它对应主表的主键值(或者UNIQUE键值)
-### BTREE
+## BTREE
 索引方法 B树索引 平衡多路查找树
 
-### 索引
+## 索引
 主键索引是HashMap的数据结构(键值对)，索引只有 = 查询才会起效果，如果是 > 查询就会无效
 
 索引可以使查询速度变快，但是会影响增删改的速度（每次操作会重新构建二叉树），但是利大于弊，所以尽量加索引

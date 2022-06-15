@@ -1,8 +1,8 @@
 # JavaScript
 
-## 效果
+# 效果
 
-### 浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告
+## 浏览器的滚动条的滚动监听事件实现随滚动条滚动的广告
 
 <p align="left" style="color:#777777;">发布日期：2019-03-27</p>
 
@@ -46,9 +46,9 @@
     那么你滚动条拖动多少，悬浮的广告给他加上相应的margin-top他是不是跟着滚动条下来了呢，这样也就达到了和fixed同样的效果  
     当然前提是这个div首先要浮动到浏览器窗口的右边  
 
-## 方法
+# 方法
 
-### 浮点数四舍五入保留小数位数
+## 浮点数四舍五入保留小数位数
 
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
@@ -130,7 +130,7 @@ Number.prototype.toFixed = function(n) {
 
 ?>实际开发可以直接用lodash中的[ceil](https://www.lodashjs.com/docs/lodash.ceil)方法
 
-### 数组按某个值排序
+## 数组按某个值排序
 
 <p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
@@ -153,7 +153,7 @@ List.sort((x, y) => {
 
 !>sort会改变原数组内容 若需要保留原数组 使用深拷贝即可
 
-### 数组对象按某个属性值分组
+## 数组对象按某个属性值分组
 
 <p align="left" style="color:#777777;">发布日期：2021-01-22</p>
 
@@ -207,9 +207,9 @@ Object.keys(map).forEach(key => {
 console.log(res)
 ```
 
-## jquery
+# jquery
 
-### jquery插件编写模板
+## jquery插件编写模板
 
 <p align="left" style="color:#777777;">发布日期：2019-04-02</p>
 
@@ -235,7 +235,7 @@ $.fn.functionName2 = function(options){
 })(jQuery);
 ```
 
-### jquery重复执行事件导致的动画在队列里的问题,停止动画
+## jquery重复执行事件导致的动画在队列里的问题停止动画
 
 <p align="left" style="color:#777777;">发布日期：2019-03-17</p>
 
@@ -267,29 +267,29 @@ $('div').mouseout(function(){
 这样，问题是不是解决了呢？  
 stop()方法还带有两个参数，自行百度  
 
-## typescript
+# typescript
 
 <p align="left" style="color:#777777;">发布日期：2020-08-18</p>
 
-### 初始化tscofig
+## 初始化tscofig
 
 ```tsc
 tsc --init
 ```
 
-### 编译
+## 编译
 
 ```tsc
 tsc test.ts
 ```
 
-### 编译遇到错误终止选项
+## 编译遇到错误终止选项
 
 ```tsc
 tsc test.ts --noEmitOnError
 ```
 
-### 数据类型定义
+## 数据类型定义
 
 ```typescript
 let isFlag: boolean = false;
@@ -298,7 +298,7 @@ let names: string = 'hello';
 let n: null = null;
 ```
 
-### 没有返回值方法定义
+## 没有返回值方法定义
 
 ```typescript
 function nFn(): void {
@@ -306,7 +306,7 @@ function nFn(): void {
 }
 ```
 
-### 回调函数
+## 回调函数
 
 ```typescript
 //回调函数就是函数传参
@@ -321,7 +321,7 @@ fn(1, 2, (sum: number) => {
 })
 ```
 
-### 任意值类型定义
+## 任意值类型定义
 
 ```typescript
 let anyValue: any = 'xxx';
@@ -340,7 +340,7 @@ anyValue.name;
 anyValue.setName();
 ```
 
-### 类型推论
+## 类型推论
 
 定义时赋值 则会被推出字符串类型  
 如下编译会报错， 会被推出let a: string = 3;  
@@ -358,13 +358,13 @@ a = '3';
 a = 4;
 ```
 
-### 联合类型
+## 联合类型
 
 ```typescript
 let name: string | number;
 ```
 
-### 简单的接口
+## 简单的接口
 
 接口开头字母大写， 定义的变量的格式必须和接口格式一致
 
@@ -379,7 +379,7 @@ let tom: Person = {
 };
 ```
 
-### 可选属性
+## 可选属性
 
 不一致可定义可选属性
 
@@ -393,7 +393,7 @@ let tom: Person = {
 };
 ```
 
-### 任意属性
+## 任意属性
 
 允许任意属性[propName: string]: any;  
 那么定义的name: string 和 可选属性age ? : number必须是string 类型的 所以下面的age也要改为age ? : string(不需要，因为有:any)  
@@ -425,7 +425,7 @@ let tom: Person = {
 };
 ```
 
-### 只读属性
+## 只读属性
 
 用readonly定义只读属性  
 
@@ -455,7 +455,7 @@ let tom: Person = {
 };
 ```
 
-### 数组声明【 类型 + 方括号】
+## 数组声明
 
 ```typescript
 let names: string[] = ['a', 'n', 'c'];
@@ -478,7 +478,7 @@ interface NumberArray {
 let fibonacci: NumberArray = [1, 1, 2, 3, 5];
 ```
 
-### 函数中定义数组
+## 函数中定义数组
 
 需要用接口对象来定义数组 而不是let args: number[] = arguments
 length和 callee 额外的约束属性而已
@@ -511,7 +511,7 @@ function sum() {
 }
 ```
 
-### 任意类型的数组定义
+## 任意类型的数组定义
 
 ```typescript
 let names: any[] = [1, '3', 444, {
@@ -519,7 +519,7 @@ let names: any[] = [1, '3', 444, {
 }];
 ```
 
-### 元组
+## 元组
 
 ```typescript
 //元组 类型必须一一对应
@@ -534,14 +534,14 @@ let [a, b]: [string, number] = fn(1, 2);
 console.log(a, b);
 ```
 
-### 字典
+## 字典
 
 ```typescript
 let dict: { [key: string]: any } = { "a": 1, "b": "2" }
 console.log(dict["a"])
 ```
 
-### 函数声明， 参数输入和返回输出都被约束
+## 函数声明参数输入和返回输出都被约束
 
 ```typescript
 function sum(x: number, y: number): number {
@@ -567,7 +567,7 @@ let mySum: (x: number, y: number) => number =  (x: number, y: number): number =>
 这里的 => 左边表示输入类型， 右边表示输出类型  
 (x: number, y: number): number 表示参数和返回值
 
-### 函数变量可选参数
+## 函数变量可选参数
 
 和可选属性一样加？
 
@@ -579,7 +579,7 @@ function fn(one: string, two ? : string) {
 
 可选参数必须加在必须参数后面， 如果给参数设置了默认值就不受前面的规则约束了
 
-### 类型断言
+## 类型断言
 
 就是自己知道这是什么类型的时候，告诉编译器这是什么类型
 
@@ -591,7 +591,7 @@ let strLength: number = (<string>someValue).length;
 let strLength: number = (someValue as string).length;
 ```
 
-### 枚举类型
+## 枚举类型
 
 ```typescript
 enum Color {
@@ -603,7 +603,7 @@ let color: Color = Color.red; //红色
 console.log(color); //输出0
 ```
 
-### 类
+## 类
 
 ```typescript
 class Person{
@@ -626,7 +626,7 @@ let person2 = new Person();
 person2.say();
 ```
 
-### 抽象类与继承
+## 抽象类与继承
 
 ```typescript
 abstract class Person {
@@ -659,7 +659,7 @@ let person2: Person = new Student();
 person2.say();
 ```
 
-### 接口与实现
+## 接口与实现
 
 ```typescript
 interface Person {
@@ -681,7 +681,7 @@ let person: Person = new Student();
 person.run();
 ```
 
-### set和get
+## set和get
 
 ```typescript
 class Person {
@@ -704,7 +704,7 @@ let person = new Person();
 person.name = '马云';
 ```
 
-### namespace命名空间
+## namespace命名空间
 
 ```typescript
 namespace workspace1 {
@@ -734,7 +734,7 @@ let person2 = new workspace2.Person();
 console.log(person1.name);
 ```
 
-### 单例模式
+## 单例模式
 
 单例模式就是一个类只产生一个对象
 
@@ -766,7 +766,7 @@ console.log(game2.name);//输出打地鼠
 console.log(game1==game2)//输出true
 ```
 
-### 代理模式
+## 代理模式
 
 代理模式就是一件事情，让不同的人去做
 
@@ -807,7 +807,7 @@ person.agent = new Person1();
 console.log(person.getName());
 ```
 
-### 观察者模式和vue2的原理
+## 观察者模式和vue2的原理
 
 观察者模式就是一个观察者监听一个变量自动触发函数
 
@@ -881,7 +881,7 @@ form.addEventListener("input", (event)=>{
 });
 ```
 
-### 工厂模式
+## 工厂模式
 
 工厂模式就是帮助我们快速创建对象  
 假入你在项目中new了某个对象100次，一年后由于业务逻辑变更，构造方法多了一个参数，你会怎么办？你应该会这么做：找到这100个对象new的地方，用新的构造方法来创建对象，你重复劳动了100次，假如采用工厂模式，你只用改一次：把创建工厂给改一下就好了。这就是工厂模式最简单最直接的好处。
@@ -923,9 +923,9 @@ console.log(student)
 
 [vue 集成 typescript](https://www.jianshu.com/p/9eca70b033da)
 
-## es6
+# es6
 
-### 数组去重
+## 数组去重
 
 <p align="left" style="color:#777777;">发布日期：2020-11-13</p>
 
@@ -996,7 +996,7 @@ console.log(student)
   console.log(newArr); //输出{name: 1, value: 2}{name: 2, value: 3}{name: 4, value: 3}
   ```
 
-### 求数组并集 差集 交集
+## 求数组并集 差集 交集
 
 <p align="left" style="color:#777777;">发布日期：2021-01-26</p>
 
@@ -1010,9 +1010,9 @@ let difference3 = [...a].filter(x => !b.has(x)); //返回b在a中没有的  输�
 let intersect = [...a].filter(x => b.has(x)); //交集 返回a和b共有的  也可以反着来 输出1,2,3
 ```
 
-## 框架
+# 框架
 
-### apidoc
+## apidoc
 
 <p align="left" style="color:#777777;">发布日期：2021-01-28</p>
 
@@ -1115,9 +1115,9 @@ let intersect = [...a].filter(x => b.has(x)); //交集 返回a和b共有的  也
 6. 版本控制
    建立一个同类型的后缀文件 如_olddoc.php 存放之前接口的注释就可以
 
-## 实战
+# 实战
 
-### 利用iframe跨域单点登录
+## 利用iframe跨域单点登录
 
 单点登录就是不同域名系统之间只需要登录一次 就可以访问多个系统了  
 如下图  
