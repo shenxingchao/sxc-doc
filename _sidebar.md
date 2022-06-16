@@ -4,7 +4,7 @@
 * [👏MyProject](/md/MyProject/MyProject#MyProject)
 * [😀CSS](/md/CSS/CSS#CSS)
 * [🥰WebApp](/md/WebApp/WebApp#WebApp)
-* [😍Javascript](/md/Javascript/Javascript#Javascript)
+* [😍JavaScript](/md/JavaScript/JavaScript#JavaScript)
 * [🧚‍♂️Vue.JS](/md/Vue/Vue#Vue)
 * [🤧UI框架](/md/UI框架/UI框架#UI框架)
 * [💣Cocos](/md/Cocos/Cocos#Cocos)

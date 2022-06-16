@@ -1,5 +1,64 @@
 # JavaWeb
 
+## 最原始的服务器
+
+```java
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        ServerSocket serverSocket = new ServerSocket(8888);
+        //阻塞 等待连接
+        Socket socket = serverSocket.accept();
+
+        // 输入流 读取数据
+        InputStream inputStream = socket.getInputStream();
+        byte[] bytes = new byte[8192];
+        int len;
+        while (inputStream.available() > 0) {
+            len = inputStream.read(bytes);
+            System.out.print(new String(bytes, 0, len));
+        }
+        // 输出流 回发数据
+        OutputStream outputStream = socket.getOutputStream();
+        // 按照http协议的格式封装一个报文
+        String response = "HTTP/1.1 200 OK\r\n" +
+                "Content-Length: 39\r\n" +
+                "Content-Type: text/html;charset=UTF-8\r\n\r\n" +
+                "<h1 style=\"color:red\">hello server!<h1>";
+        outputStream.write(response.getBytes());
+        outputStream.flush();
+        //不要关闭，关闭会导致服务器断开
+    }
+}
+```
+
+浏览器输入http://localhost:8888/ 访问，会在控制台输出访问的HTTP信息,且在页面显示hello server!
+
+```
+GET / HTTP/1.1
+Host: localhost:8888
+Connection: keep-alive
+...
+```
+
+## Servlet
+
+架构 Servelt是所有Service的基类
+
+流程图
+
+```mermaid
+graph TB;
+    浏览器发送HTTP请求 --> 服务器
+    服务器 --拿到报文并封装成request对象-->request
+    request --通过request的url属性拿到对应的Servlet对象-->Servlet
+    Servlet --调用Servlet的service方法利用Dao获取数据封装成response-->response
+    response --返回-->  浏览器
+```
+
+这里的通过request的url属性拿到对应的Servlet对象，是在Servlet静态代码块初始化好url对应Servlet的map容器,然后通过url拿到Servlet，就是个多态
+
+然后那些静态代码块初始化可以写在配置文件通过Propertiesload到代码块中
+
 # IDEA
 
 ## 添加jar包
@@ -110,6 +169,15 @@ public class Demo {
         }
     }
 }
+```
+
+## 读取xml
+
+[dom4j](https://dom4j.github.io/)
+
+```java
+//获取插件需要的URL对象
+Thread.currentThread().getContextClassLoader().getResource("db.properties");
 ```
 
 # 经典解决方案

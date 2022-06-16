@@ -101,6 +101,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | 函数扩展             | ctrl+alt+m                                                     |
 | 自动清理未导入的代码 | ctrl+alt+o                                                     |
 | 注释//添加不放在行首 | Setting -> Editor -> Code Style ->Line comment at first column |
+| 类名和文件名一起更改 | shift+F6->编辑后回车                                           |
 
 
 # api文档
@@ -3784,6 +3785,7 @@ public class Server {
         InputStream inputStream = socket.getInputStream();
         byte[] bytes = new byte[8192];
         int len;
+        //如果服务器想知道读完了没有 while (inputStream.available() > 0) {...}
         while ((len = inputStream.read(bytes)) != -1) {
             System.out.print(new String(bytes, 0, len));
         }
@@ -4277,6 +4279,48 @@ public class Demo {
     }
 }
 ```
+
+## 获取类加载器和读取文件实例
+
+```java
+通过类名
+ClassName.class.getClassLoader();
+或者是通过当前线程
+Thread.currentThread().getContextClassLoader();
+```
+
+**类加载器读取文件实例**
+
+```java
+public class Demo {
+    public static void main(String[] args) throws IOException {
+        //通过类加载器获取资源管理器下的文件 没有/
+        System.out.println(Demo.class.getClassLoader().getResource("db.properties"));
+        //有/
+        System.out.println(Demo.class.getResource("/db.properties"));
+        //通过当前线程获取
+        System.out.println(Thread.currentThread().getContextClassLoader().getResource("db.properties"));
+        //有/
+        System.out.println(Thread.currentThread().getClass().getResource("/db.properties"));
+
+        //通过类加载器获得文件缓冲输入流 java.io.BufferedInputStream
+        System.out.println(Demo.class.getClassLoader().getResourceAsStream("db.properties"));
+        //有/
+        System.out.println(Demo.class.getResourceAsStream("/db.properties"));
+        //通过文件输入流直接获取文件缓冲输入流
+        System.out.println(new BufferedInputStream(Files.newInputStream(Paths.get("db.properties"))));
+
+      /*  输出
+        file:/D:/sxc/javastudy/out/production/javastudy/db.properties
+        file:/D:/sxc/javastudy/out/production/javastudy/db.properties
+        file:/D:/sxc/javastudy/out/production/javastudy/db.properties
+        file:/D:/sxc/javastudy/out/production/javastudy/db.properties
+        java.io.BufferedInputStream@4b67cf4d
+        java.io.BufferedInputStream@7ea987ac
+        java.io.BufferedInputStream@12a3a380*/
+    }
+}
+```java
 
 # 设计模式
 

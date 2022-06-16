@@ -5676,13 +5676,13 @@ fun DemoComponent() {
 ```kt
 @Composable
 fun DemoComponent() {
-    val openDialog = remember { mutableStateOf(true) }
+    var openDialog by remember { mutableStateOf(true) }
 
-    if (openDialog.value) {
+    if (openDialog) {
         AlertDialog(
             onDismissRequest = {
                 //点击空白或者按返回按钮关闭弹窗
-                openDialog.value = false
+                openDialog = false
             },
             icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
             title = {
@@ -5697,7 +5697,7 @@ fun DemoComponent() {
             confirmButton = {
                 TextButton(
                     onClick = {
-                        openDialog.value = false
+                        openDialog = false
                     }
                 ) {
                     Text("确定")
@@ -5706,7 +5706,7 @@ fun DemoComponent() {
             dismissButton = {
                 TextButton(
                     onClick = {
-                        openDialog.value = false
+                        openDialog = false
                     }
                 ) {
                     Text("取消")
@@ -5722,28 +5722,31 @@ fun DemoComponent() {
 
 [第三方插件](https://github.com/boguszpawlowski/ComposeCalendar)
 
+这个插件需要minSdk>26(安卓8.0) 生产环境看需求
+
 ```
-//日期选择插件
-implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.5.1"
+//日期选择插件 关注一下他的最新版本，他写明了支持的最新compose版本
+implementation "io.github.vanpra.compose-material-dialogs:datetime:0.8.0-beta"
 ```
 
-基本使用,实际使用放到dialog中显示即可
 
 ```kt
 @Composable
-fun MainScreen() {
-    val calendarState = rememberSelectableCalendarState()
-
-    Column(
-        Modifier.verticalScroll(rememberScrollState())
+fun DemoComponent() {
+    val dialogState = rememberMaterialDialogState()
+    MaterialDialog(
+        dialogState = dialogState,
+        buttons = {
+            positiveButton("Ok")
+            negativeButton("Cancel")
+        }
     ) {
-        SelectableCalendar(calendarState = calendarState)
-        Button(onClick = {
-            println(calendarState.selectionState.selection[0])
-        }) {
-            Text(text = "确定")
+        datepicker { date ->
+            println(date)
         }
     }
+
+    dialogState.show()
 }
 ```
 
@@ -5789,5 +5792,5 @@ implementation "me.onebone:toolbar-compose:2.3.3"
 //占位符placeholder
 implementation "com.google.accompanist:accompanist-placeholder-material:0.24.10-beta"
 //日期选择插件
-implementation "io.github.boguszpawlowski.composecalendar:composecalendar:0.5.1"
+implementation "io.github.vanpra.compose-material-dialogs:datetime:0.8.0-beta"
 ```
