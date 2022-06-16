@@ -175,9 +175,107 @@ public class Demo {
 
 [dom4j](https://dom4j.github.io/)
 
+示例xml
+
+只要知道Element就是标签，获取标签名称用.getName(),获取标签innerHtml用.getText();Attribute就是属性，获取属性值用.getValue()
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<app>
+    <!--第一种是配置在属性里面的-->
+    <dataSource>
+        <properties name="dbnameAttribute" value="dbnameValue"/>
+        <properties name="userAttribute" value="userValue"/>
+        <properties name="passwordAttribute" value="passwordValue"/>
+    </dataSource>
+    <!--第二种是配置在innerHtml里面-->
+    <config>
+        <baseUrl>http://127.0.0.1</baseUrl>
+        <port>8080</port>
+    </config>
+    <!--第三种名称在标签上值在innerHtml-->
+    <dataSource2>
+        <properties name="dbnameAttribute">dbnameValue</properties>
+        <properties name="userAttribute">userValue</properties>
+        <properties name="passwordAttribute">passwordValue</properties>
+    </dataSource2>
+    <!--第四种双重循环-->
+    <configs>
+        <config>
+            <baseUrl>http://127.0.0.1</baseUrl>
+            <port>8080</port>
+        </config>
+        <config>
+            <baseUrl>http://127.0.0.2</baseUrl>
+            <port>8888</port>
+        </config>
+    </configs>
+</app>
+```
+
 ```java
-//获取插件需要的URL对象
-Thread.currentThread().getContextClassLoader().getResource("db.properties");
+public class Demo {
+    public static void main(String[] args) throws IOException, DocumentException {
+        //需要的URL对象
+        URL resource = Demo.class.getClassLoader().getResource("web.xml");
+        SAXReader reader = new SAXReader();
+        Document document = reader.read(resource);
+        //拿到xml根节点
+        Element rootElement = document.getRootElement();
+        /*---------------------第一种--------------------*/
+        //拿到需要的节点
+        Element dataSource = rootElement.element("dataSource");
+        //遍历节点
+        Iterator<Element> elementIterator = dataSource.elementIterator();
+        while (elementIterator.hasNext()) {
+            //拿到节点
+            Element element = elementIterator.next();
+            //获取节点属性
+            Attribute nameAttribute = element.attribute("name");
+            Attribute valueAttribute = element.attribute("value");
+            //获取属性值
+            System.out.println(nameAttribute.getValue() + ":" + valueAttribute.getValue());
+        }
+        /*---------------------第二种--------------------*/
+        //拿到需要的节点
+        dataSource = rootElement.element("config");
+        //遍历节点
+        elementIterator = dataSource.elementIterator();
+        while (elementIterator.hasNext()) {
+            //拿到节点
+            Element element = elementIterator.next();
+            //拿到值
+            System.out.println(element.getName() + ":" + element.getText());
+        }
+        /*---------------------第三种--------------------*/
+        //拿到需要的节点
+        dataSource = rootElement.element("dataSource2");
+        //遍历节点
+        elementIterator = dataSource.elementIterator();
+        while (elementIterator.hasNext()) {
+            //拿到节点
+            Element element = elementIterator.next();
+            //获取属性
+            Attribute nameAttribute = element.attribute("name");
+            //拿到值
+            System.out.println(nameAttribute.getValue() + ":" + element.getText());
+        }
+        /*---------------------第四种--------------------*/
+        //拿到需要的节点
+        dataSource = rootElement.element("configs");
+        //遍历节点
+        elementIterator = dataSource.elementIterator();
+        while (elementIterator.hasNext()) {
+            //拿到节点 config
+            Element element = elementIterator.next();
+            //拿到子节点值
+            String baseUrl = element.element("baseUrl").getText();
+            String port = element.element("port").getText();
+            //拿到值
+            System.out.println(baseUrl + ":" + port);
+        }
+    }
+}
 ```
 
 # 经典解决方案
