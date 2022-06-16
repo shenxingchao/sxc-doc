@@ -2142,6 +2142,8 @@ suspend fun fn() = coroutineScope {
 }
 ```
 
+tips:coroutineScope这个函数是为并行请求而设计的。当此作用域中的任何一个子协程失败时，此作用域失败，并且所有其他的子程序都被取消,这个函数在给定的块及其所有子协程完成后立即返回
+
 ## 协程等待
 
 ```kt
@@ -5666,6 +5668,55 @@ fun DemoComponent() {
     }
 }
 ```
+
+## AlertDialog
+
+弹窗 Material3的弹窗我觉得很漂亮
+
+```kt
+@Composable
+fun DemoComponent() {
+    val openDialog = remember { mutableStateOf(true) }
+
+    if (openDialog.value) {
+        AlertDialog(
+            onDismissRequest = {
+                //点击空白或者按返回按钮关闭弹窗
+                openDialog.value = false
+            },
+            icon = { Icon(Icons.Filled.Favorite, contentDescription = null) },
+            title = {
+                Text(text = "Title")
+            },
+            text = {
+                Text(
+                    "内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字内" +
+                            "容文字内容文字内容文字内容文字内容文字内容文字内容文字内容文字"
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("确定")
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        openDialog.value = false
+                    }
+                ) {
+                    Text("取消")
+                }
+            }
+        )
+    }
+}
+```
+
 
 ## 日期选择插件
 
