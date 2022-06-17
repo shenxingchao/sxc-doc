@@ -23,6 +23,58 @@ fun main() {
 
 kotlin基本数据类型有Byte、Short、Int、Long、Float、Double等，他们是一个类，在编译后会转成java基本数据类型byte,short,int,long,float,double
 
+### 保留n位小数
+
+```kt
+import java.math.RoundingMode
+import java.text.DecimalFormat
+
+fun main() {
+    println(3.1415926f.toFixed(4))//3.1416
+    println(3.1415926f.toFixed(0))//3.0
+    println(0.1f.toFixed(0))//0.0
+    println(0.5f.toFixed(0))//1.0
+    println((-0.1f).toFixed(0))//-0.0
+    println((-0.5f).toFixed(0))//-1.0
+
+    println(0.1f.toFixedByDecimalFormat(0))//.00
+    println(0.5f.toFixedByDecimalFormat(0))//1.0
+    println((-0.1f).toFixedByDecimalFormat(0))//-0.0
+    println((-0.5f).toFixedByDecimalFormat(0))//-1.0
+
+
+    //下面的例子证明 HALF_UP正是我们想要的四舍五入，四舍五入与符号无关
+    println("CEILING 是舍弃后面的直接向上取整")
+    println(3.1415926f.toFixedByDecimalFormat(4, RoundingMode.CEILING))//3.1416
+    println(3.1415926f.toFixedByDecimalFormat(0, RoundingMode.CEILING))//4.0
+    println("FLOOR 是舍弃后面的直接向下取整")
+    println(3.1415926f.toFixedByDecimalFormat(4, RoundingMode.FLOOR))//3.1415
+    println(3.5415926f.toFixedByDecimalFormat(0, RoundingMode.FLOOR))//3.0
+    println("HALF_UP 是四舍五入 正好是0.5的时候向上")
+    println(3.1415926f.toFixedByDecimalFormat(4, RoundingMode.HALF_UP))//3.1416
+    println(3.5f.toFixedByDecimalFormat(0, RoundingMode.HALF_UP))//4.0
+    println("HALF_DOWN 是四舍五入 正好是0.5的时候向下")
+    println(3.1415926f.toFixedByDecimalFormat(4, RoundingMode.HALF_DOWN))//3.1416
+    println(3.5f.toFixedByDecimalFormat(0, RoundingMode.HALF_DOWN))//3.0
+}
+
+//使用format格式化 四舍五入小数
+fun Float.toFixed(digit: Int): Float {
+    return "%.${digit}f".format(this).toFloat()
+}
+
+//使用DecimalFormat格式化 四舍五入
+fun Float.toFixedByDecimalFormat(
+    digit: Int,
+    roundingMode: RoundingMode = RoundingMode.HALF_UP
+): Float {
+    val df = DecimalFormat("#." + "#".repeat(digit))
+    //设置取整模式
+    df.roundingMode = roundingMode
+    return df.format(this).toFloat()
+}
+```
+
 ## 类型转换
 
 ```kt
