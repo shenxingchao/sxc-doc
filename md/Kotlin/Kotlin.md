@@ -5381,8 +5381,9 @@ fun DemoComponent() {
 ```kt
 interface DownloadApi {
     //资源下载这么定义就好了
-    @GET("version/app-release.apk")
-    suspend fun getDownload(): ResponseBody
+    @Streaming
+    @GET("{url}")
+    suspend fun getDownload(@Path("url") url: String): ResponseBody
 
 
     //拿到实例
@@ -5397,6 +5398,63 @@ interface DownloadApi {
         }
     }
 }
+
+suspend fun ResponseBody.download(
+    context: Context,
+    fileName: String,
+    onProgress: (percent: Float, complete: Boolean) -> Unit,
+) {
+    val responseBody = this
+    coroutineScope {
+        withContext(Dispatchers.IO) {
+            //runCatching防止编辑器报阻塞错误
+            runCatching {
+                try {
+                    //获取保存路径
+                    val savePath =
+                        context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + fileName
+                    //获取保存文件对象
+                    val file = File(savePath)
+                    //当前下载字节长度
+                    var currentLength = 0
+                    //每次读取的长度
+                    var readLength: Int
+                    //获取内容长度
+                    val contentLength = responseBody.contentLength()
+                    //.use 方法类似 java try catch with resource 会自动释放资源
+                    responseBody.byteStream().use { inputStream ->
+                        file.outputStream().use { outputStream ->
+                            //每次读取的字节数组长度8 * 1024
+                            val buffer = ByteArray(8 * 1024)
+                            while (inputStream.read(buffer, 0, buffer.size)
+                                    .also { readLength = it } != -1
+                            ) {
+                                outputStream.write(buffer, 0, readLength)
+                                //下载总长度
+                                currentLength += readLength
+                                //下载进度
+                                val percent =
+                                    "%.2f".format(currentLength.toFloat() / contentLength.toFloat())
+                                        .toFloat()
+                                //回调进度和完成状态
+                                if (percent < 1f) {
+                                    onProgress(percent, false)
+                                } else {
+                                    onProgress(percent, true)
+                                }
+                                //Log.d("Tag", "下载进度$percent")
+                            }
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.message?.let { Log.d("Tag", it) }
+                }
+            }.onFailure {
+                Log.d("Tag", it.message.toString())
+            }
+        }
+    }
+}
 ```
 
 下载并监听进度
@@ -5408,56 +5466,13 @@ fun DemoComponent() {
     val context = LocalContext.current
     Button(onClick = {
         scope.launch {
-            withContext(Dispatchers.IO) {
-                //runCatching防止编辑器报阻塞错误
-                runCatching {
-                    var byteInputStream: InputStream? = null
-                    try {//获取下载响应体
-                        val downloadBody =
-                            DownloadApi.instance.getDownload()
-                        println(downloadBody)
-                        //获取内容长度
-                        val contentLength = downloadBody.contentLength()
-                        //获取字节输入流
-                        byteInputStream = downloadBody.byteStream()
-                        //获取保存路径
-                        val savePath =
-                            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + "/app-release.png"
-                        //获取保存文件对象
-                        val file = File(savePath)
-                        //获取输出流
-                        val outputStream = file.outputStream()
-                        //当前下载字节长度
-                        var currentLength = 0
-                        //.use 方法类似 java try catch with resource 会自动释放资源
-                        //每次读取的长度
-                        var readLength: Int
-                        // 写入文件流
-                        outputStream.use { optStream ->
-                            //每次读取的字节数组长度8 * 1024
-                            val buffer = ByteArray(8 * 1024)
-                            while (byteInputStream.read(buffer, 0, buffer.size)
-                                    .also { readLength = it } != -1
-                            ) {
-                                //边读边写
-                                optStream.write(buffer, 0, readLength)
-                                //当前下载总长度
-                                currentLength += readLength
-                                //下载进度
-                                val percent = currentLength.toFloat() / contentLength.toFloat()
-                                Log.d("Tag", "下载进度$percent")
-                            }
-                            optStream.flush()
-                        }
-                    } catch (e: Exception) {
-                        e.message?.let { Log.d("Tag", it) }
-                    } finally {
-                        byteInputStream?.close()
+            DownloadApi.instance.getDownload("version/app-release.apk")
+                .download(context, "/app-release.apk") { percent, complete ->
+                    Log.d("Tag", percent.toString())
+                    if (complete) {
+                        Log.d("Tag", "下载完成")
                     }
-                }.onFailure {
-                    Log.d("Tag", it.message.toString())
                 }
-            }
         }
     }) {
         Text(text = "立即下载")
