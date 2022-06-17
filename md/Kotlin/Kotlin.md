@@ -5176,6 +5176,8 @@ implementation 'com.squareup.retrofit2:converter-gson:2.9.0' // 必要依赖，�
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
+### 普通请求
+
 工具类HttpUtils.kt
 
 ```kt
@@ -5186,6 +5188,7 @@ object HttpUtils {
         Retrofit.Builder()
             .baseUrl("http://noval.o8o8o8.com/")
             .addConverterFactory(GsonConverterFactory.create())
+            .client(getUnsafeOkHttpClient())//如果不需要https支持，这行可以删除
             .build()
     }
 
@@ -5217,6 +5220,57 @@ object HttpUtils {
                     this.cancel()
                 }
             }
+        }
+    }
+
+
+    //忽略https错误
+    fun getUnsafeOkHttpClient(): OkHttpClient {
+        return try {
+            val trustAllCerts: Array<TrustManager> = arrayOf(
+                @SuppressLint("CustomX509TrustManager")
+                object : X509TrustManager {
+                    @SuppressLint("TrustAllX509TrustManager")
+                    override fun checkClientTrusted(
+                        chain: Array<out X509Certificate>?,
+                        authType: String?
+                    ) {
+                    }
+
+                    @SuppressLint("TrustAllX509TrustManager")
+                    override fun checkServerTrusted(
+                        chain: Array<out X509Certificate>?,
+                        authType: String?
+                    ) {
+                    }
+
+                    override fun getAcceptedIssuers(): Array<X509Certificate> {
+                        return arrayOf()
+                    }
+                }
+            )
+
+            val trustManagerFactory =
+                TrustManagerFactory.getInstance(TrustManagerFactory.getDefaultAlgorithm())
+            trustManagerFactory.init(null as KeyStore?)
+            val trustManagers = trustManagerFactory.trustManagers
+            check(!(trustManagers.size != 1 || trustManagers[0] !is X509TrustManager)) {
+                "Unexpected default trust managers:" + Arrays.toString(
+                    trustManagers
+                )
+            }
+            val trustManager = trustManagers[0] as X509TrustManager
+
+
+            val sslContext: SSLContext = SSLContext.getInstance("SSL")
+            sslContext.init(null, trustAllCerts, SecureRandom())
+            val sslSocketFactory: SSLSocketFactory = sslContext.socketFactory
+            val builder = OkHttpClient.Builder()
+            builder.sslSocketFactory(sslSocketFactory, trustManager)
+            builder.hostnameVerifier { _, _ -> true }
+            builder.build()
+        } catch (e: Exception) {
+            throw RuntimeException(e)
         }
     }
 }
@@ -5316,6 +5370,97 @@ fun DemoComponent() {
         items(data.size) { index ->
             Text(data[index].bookName)
         }
+    }
+}
+```
+
+### 文件下载
+
+下载的接口
+
+```kt
+interface DownloadApi {
+    //资源下载这么定义就好了
+    @GET("version/app-release.apk")
+    suspend fun getDownload(): ResponseBody
+
+
+    //拿到实例
+    companion object {
+        val instance: DownloadApi by lazy {
+            Retrofit.Builder()
+                .baseUrl("http://sanic-kuwo.o8o8o8.com/")
+                .addConverterFactory(GsonConverterFactory.create())
+                .client(getUnsafeOkHttpClient())//如果不需要https支持，这行可以删除
+                .build()
+                .create(DownloadApi::class.java)
+        }
+    }
+}
+```
+
+下载并监听进度
+
+```kt
+@Composable
+fun DemoComponent() {
+    val scope = rememberCoroutineScope()
+    val context = LocalContext.current
+    Button(onClick = {
+        scope.launch {
+            withContext(Dispatchers.IO) {
+                //runCatching防止编辑器报阻塞错误
+                runCatching {
+                    var byteInputStream: InputStream? = null
+                    try {//获取下载响应体
+                        val downloadBody =
+                            DownloadApi.instance.getDownload()
+                        println(downloadBody)
+                        //获取内容长度
+                        val contentLength = downloadBody.contentLength()
+                        //获取字节输入流
+                        byteInputStream = downloadBody.byteStream()
+                        //获取保存路径
+                        val savePath =
+                            context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS)!!.path + "/app-release.png"
+                        //获取保存文件对象
+                        val file = File(savePath)
+                        //获取输出流
+                        val outputStream = file.outputStream()
+                        //当前下载字节长度
+                        var currentLength = 0
+                        //.use 方法类似 java try catch with resource 会自动释放资源
+                        //每次读取的长度
+                        var readLength: Int
+                        // 写入文件流
+                        outputStream.use { optStream ->
+                            //每次读取的字节数组长度8 * 1024
+                            val buffer = ByteArray(8 * 1024)
+                            while (byteInputStream.read(buffer, 0, buffer.size)
+                                    .also { readLength = it } != -1
+                            ) {
+                                //边读边写
+                                optStream.write(buffer, 0, readLength)
+                                //当前下载总长度
+                                currentLength += readLength
+                                //下载进度
+                                val percent = currentLength.toFloat() / contentLength.toFloat()
+                                Log.d("Tag", "下载进度$percent")
+                            }
+                            optStream.flush()
+                        }
+                    } catch (e: Exception) {
+                        e.message?.let { Log.d("Tag", it) }
+                    } finally {
+                        byteInputStream?.close()
+                    }
+                }.onFailure {
+                    Log.d("Tag", it.message.toString())
+                }
+            }
+        }
+    }) {
+        Text(text = "立即下载")
     }
 }
 ```

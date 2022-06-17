@@ -150,6 +150,8 @@
   - [主题](/md/Kotlin/Kotlin#主题)
   - [本地存储](/md/Kotlin/Kotlin#本地存储)
   - [网络](/md/Kotlin/Kotlin#网络)
+    - [普通请求](/md/Kotlin/Kotlin#普通请求)
+    - [文件下载](/md/Kotlin/Kotlin#文件下载)
   - [全局Context和Toast](/md/Kotlin/Kotlin#全局context和toast)
   - [下拉刷新和上拉加载](/md/Kotlin/Kotlin#下拉刷新和上拉加载)
   - [折叠AppBar](/md/Kotlin/Kotlin#折叠appbar)
