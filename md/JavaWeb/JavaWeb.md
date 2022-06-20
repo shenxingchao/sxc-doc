@@ -85,7 +85,7 @@ Module --> 重新配置Deployment Descriotors web.xml路径 D:\sxc\java\www\webP
 
 Artifacts --> 新建一个Web Application:expolode(可以热更新的不压缩的，另外一个是压缩的不能热更新) -->Form Modules --> 随便改个名字webProjectName
 
-Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources
+Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources(这两个热更新没用)
 
 ## 添加Servlet
 
@@ -262,6 +262,43 @@ web.xml alt+insert快速添加servlet,之后访问http://localhost:8888/webProje
 </web-app>
 ```
 
+### 获取servlet里的配置
+
+web.xml
+
+```xml
+<servlet>
+    <servlet-name>HelloServlet</servlet-name>
+    <servlet-class>com.sxc.servlet.HelloServlet</servlet-class>
+    <!--参数-->
+    <init-param>
+        <param-name>DbName</param-name>
+        <param-value>dbname</param-value>
+    </init-param>
+</servlet>
+```
+
+获取
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println(getInitParameter("DbName"));
+    }
+}
+```
+
+### 加载优先级
+
+load-on-startup标签可以设置servlet的加载优先级别和容器是否在启动时加载该servlet,正数的值越小，启动时加载该servlet的优先级越高
+
+```xml
+<servlet>
+    <load-on-startup>1</load-on-startup>
+</servlet>
+```
+
 ## 请求HttpServletRequest
 
 HttpServletRequest
@@ -381,6 +418,35 @@ public class OtherServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         System.out.println(req.getAttribute("access_token"));
+    }
+}
+```
+
+### 整个应用里共享数据
+
+ServletContext叫做Application域,关闭浏览器也不会消失
+
+设置
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        ServletContext servletContext = req.getServletContext();
+        //该方法可以在整个应用中共享数据
+        servletContext.setAttribute("globalValue", "abcd");
+    }
+}
+```
+
+读取
+
+```java
+public class OtherServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        ServletContext servletContext = req.getServletContext();
+        System.out.println(servletContext.getAttribute("globalValue"));
     }
 }
 ```
@@ -519,11 +585,109 @@ public class HelloServlet extends HttpServlet {
 public class OtherServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        //获取session 获取的时候不要创建了 false如果不存在会返回null
-        HttpSession session = req.getSession(false);
-        System.out.println(session.getAttribute("userId"));
+        //获取session
+        HttpSession session = req.getSession(true);
+        if (session != null){
+            System.out.println(session.getAttribute("userId"));
+        }
     }
 }
+```
+
+### 解决session浏览器关闭失效
+
+自带的session设置的cookie是-1 关闭浏览器即失效
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("text/html;charset=UTF-8");
+        //启用session true,如果没有session则创建
+        HttpSession session = req.getSession(true);
+        //手动创建JSESSIONID Cookie JSESSIONID=F186609E35A640E7B308F74CA2DB5D99; Path=/webProjectName; HttpOnly 会返回2个Set-Cookie
+        Cookie cookie = new Cookie("JSESSIONID", session.getId());
+        //设置过期时间非常大
+        cookie.setMaxAge(Integer.MAX_VALUE);
+        cookie.setHttpOnly(true);
+        cookie.setPath(req.getContextPath());
+
+        resp.addCookie(cookie);
+        PrintWriter writer = resp.getWriter();
+        writer.println("hello");
+        writer.flush();
+    }
+}
+```
+
+## JSP
+
+本质就是转成servlet 使用resp.getWriter()拼接输出
+
+了解一下，他的标签不用学
+
+### 案例
+
+```java
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+<%-- <%!可以放在servic方法外面 --%>
+<%!
+    public static String name = "JSP";
+
+    static {
+        System.out.println("static block");
+    }
+
+    public static void fun() {
+        System.out.println("static fun");
+    }
+%>
+<%
+    System.out.println("hello");
+    int count = 30;
+    System.out.println(name);
+    fun();
+%>
+<h1><%=count%>
+</h1>
+</body>
+</html>
+```
+
+### 本质
+
+Servlet处理请求存放到request中，然后通过转发到jsp页面去显示数据
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        //转发
+        RequestDispatcher requestDispatcher = req.getRequestDispatcher("/home.jsp");
+        requestDispatcher.forward(req, resp);
+    }
+}
+```
+
+### 配置错误页面
+
+web.xml
+
+```xml
+<error-page>
+    <error-code>404</error-code>
+    <location>/pages/404.jsp</location>
+</error-page>
+
+<error-page>
+    <exception-type>java.lang.Exception</exception-type>
+    <location>/pages/err.jsp</location>
+</error-page>
 ```
 
 # IDEA
