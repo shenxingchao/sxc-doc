@@ -42,9 +42,17 @@ Connection: keep-alive
 
 ## Servlet
 
-架构 Servelt是所有Service的基类
+Servlet 是基于 Jakarta 技术的 Web 组件，由容器管理，可生成动态内容
 
-流程图
+servlet 是独立于平台的 Java 类；容器，有时也称为 servlet 引擎
+
+Servlet 通过 servlet 容器实现的请求/响应范式与 Web 客户端交互
+
+### Servlet 容器
+
+Servlet 容器是 Web 服务器或应用程序服务器的一部分，它提供发送请求和响应的网络服务、解码基于 MIME 的请求以及格式化基于 MIME 的响应。Servlet 容器还通过其生命周期包含和管理 Servlet。
+
+### 流程图
 
 ```mermaid
 graph TB;
@@ -58,6 +66,394 @@ graph TB;
 这里的通过request的url属性拿到对应的Servlet对象，是在Servlet静态代码块初始化好url对应Servlet的map容器,然后通过url拿到Servlet，就是个多态
 
 然后那些静态代码块初始化可以写在配置文件通过Propertiesload到代码块中
+
+### Servlet的生命周期
+
+- init()：Servlet进行初始化；
+- service()：Servlet处理客户端的请求；
+- destroy()：Servlet结束，释放资源；
+
+## 创建一个普通的web工程
+
+File --> New --> Project --> 输入项目名称webProjectName，语言选择Java
+
+项目根目录下新建文件夹webapp（存放静态资源文件）--> webapp下新建WEB-INF -->复制tomcat目录下的web.xml，并清除根节点里面的所有内容
+
+File --> Project Structue(项目构建) --> Facts(特性) --> Web(添加一个web特性)
+
+Module --> 重新配置Deployment Descriotors web.xml路径 D:\sxc\java\www\webProjectName\webapp\WEB-INF\web.xml  --> 重新配置WebRsoucre静态文件根目录 D:\sxc\java\www\webProjectName\webapp
+
+Artifacts --> 新建一个Web Application:expolode(可以热更新的不压缩的，另外一个是压缩的不能热更新) -->Form Modules --> 随便改个名字webProjectName
+
+Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources
+
+## 添加Servlet
+
+### 新建Servlet
+
+src目录下新建HelloServlet.java 下面的要重写声明周期方法
+
+```java
+package com.sxc.servlet;
+
+import jakarta.servlet.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class HelloServlet implements Servlet {
+    @Override
+    public void init(ServletConfig servletConfig) throws ServletException {
+        System.out.println("servlet初始化");
+    }
+
+    @Override
+    public ServletConfig getServletConfig() {
+        return null;
+    }
+
+    @Override
+    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws ServletException, IOException {
+        PrintWriter writer = servletResponse.getWriter();
+        writer.println("hello servlet");
+        writer.println(servletRequest);
+        writer.println(servletResponse);
+        writer.flush();
+    }
+
+    @Override
+    public String getServletInfo() {
+        return null;
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("servlet销毁");
+    }
+}
+```
+
+简化 GenericServlet 已经帮我做了实现Servlet的接口并提供了一个service抽象方法
+
+```java
+package com.sxc.servlet;
+
+import jakarta.servlet.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class HelloServlet extends GenericServlet {
+
+    @Override
+    public void service(ServletRequest servletRequest, ServletResponse servletResponse) throws IOException {
+        PrintWriter writer = servletResponse.getWriter();
+        writer.println("hello servlet2");
+        writer.println(servletRequest);
+        writer.println(servletResponse);
+        writer.flush();
+    }
+}
+```
+
+继续简化，可以处理指定的resultFul接口 测试使用 FeHelper的简易Postman
+
+```java
+package com.sxc.servlet;
+
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("servlet get");
+        writer.flush();
+        //注释下面方法
+        //super.doGet(req, resp);
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("servlet post");
+        writer.flush();
+    }
+
+    @Override
+    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("servlet put");
+        writer.flush();
+    }
+
+    @Override
+    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("servlet delete");
+        writer.flush();
+    }
+}
+```
+
+### 注册一个Servlet到容器当中
+
+web.xml alt+insert快速添加servlet,之后访问http://localhost:8888/webProjectName/HelloServlet
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0"
+         metadata-complete="true">
+    <servlet>
+        <!--名称-->
+        <servlet-name>HelloServlet</servlet-name>
+        <!--路径-->
+        <servlet-class>com.sxc.servlet.HelloServlet</servlet-class>
+    </servlet>
+    <!--servlet对应url的映射关系-->
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <url-pattern>/HelloServlet</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+
+### URL路由匹配
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0"
+         metadata-complete="true">
+    <servlet>
+        <!--名称-->
+        <servlet-name>HelloServlet</servlet-name>
+        <!--路径-->
+        <servlet-class>com.sxc.servlet.HelloServlet</servlet-class>
+    </servlet>
+    <!--servlet对应url的映射关系-->
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <!--精确匹配-->
+        <url-pattern>/HelloServlet</url-pattern>
+        <!--路径匹配 按长短匹配 先匹配长的-->
+        <url-pattern>/HelloServlet/a/b</url-pattern>
+        <url-pattern>/HelloServlet/a</url-pattern>
+        <!--通配符匹配以HelloServlet开头-->
+        <url-pattern>/HelloServlet/*</url-pattern>
+        <!--扩展名匹配，只能加扩展名-->
+        <url-pattern>*.exe</url-pattern>
+        <!--默认匹配，任意都会匹配到这个-->
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+
+## 请求HttpServletRequest
+
+HttpServletRequest
+
+### 常用方法
+
+```java
+package com.sxc.servlet;
+
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.Map;
+
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("servlet get");
+        writer.flush();
+
+        //获取参数
+        Map<String, String[]> parameterMap = req.getParameterMap();
+        for (Map.Entry<String, String[]> stringEntry : parameterMap.entrySet()) {
+            System.out.println(stringEntry.getKey() + ":" + Arrays.toString(stringEntry.getValue()));
+        }
+
+        //项目根目录
+        System.out.println(req.getContextPath());// /webProjectName
+        //servlet路径
+        System.out.println(req.getServletPath());// /HelloServlet
+        //请求的方法
+        System.out.println(req.getMethod());//GET
+        //查询的参数
+        System.out.println(req.getQueryString());//id=3&&name=4
+        //访问的URL
+        System.out.println(req.getRequestURI());// /webProjectName/HelloServlet
+        System.out.println(req.getRequestURL());// http://localhost:8888/webProjectName/HelloServlet
+        //远程主机
+        System.out.println(req.getRemoteHost());// 0:0:0:0:0:0:0:1
+        //访问的ip
+        System.out.println(req.getRemoteAddr());// 0:0:0:0:0:0:0:1
+        //协议
+        System.out.println(req.getScheme());//http
+
+        //头部信息
+        System.out.println(req.getHeader("Content-Type"));
+        //所有头部名称
+        Enumeration<String> headerNames = req.getHeaderNames();
+        while (headerNames.hasMoreElements()) {
+            String s = headerNames.nextElement();
+            System.out.println(s + ":" + req.getHeader(s));
+        }
+    }
+}
+```
+
+### 请求转发
+
+web.xml新增一个OtherServlet
+
+```xml
+    <servlet>
+        <servlet-name>OtherServlet</servlet-name>
+        <servlet-class>com.sxc.servlet.OtherServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>OtherServlet</servlet-name>
+        <url-pattern>/OtherServlet</url-pattern>
+    </servlet-mapping>
+```
+
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        //转发
+        RequestDispatcher requestDispatcher = req.getRequestDispatcher("/OtherServlet");
+        requestDispatcher.forward(req, resp);
+    }
+}
+```
+
+```java
+public class OtherServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        System.out.println("OtherServlet");
+    }
+}
+```
+
+### 在各个转发中共享数据
+
+该方法称之为域方法。。。
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException, ServletException {
+        RequestDispatcher requestDispatcher = req.getRequestDispatcher("/OtherServlet");
+        //该方法可以在多个Servlet中共享
+        req.setAttribute("access_token","abcd");
+        requestDispatcher.forward(req, resp);
+    }
+}
+```
+
+```java
+public class OtherServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        System.out.println(req.getAttribute("access_token"));
+    }
+}
+```
+
+## 响应
+
+### 响应流类型
+
+```java
+PrintWriter out = response.getWriter();//获取字符流，处理字符；
+ServletOutputStream out = response.getOutputStream();//获取字节流，处理文件；
+```
+
+tips:getWriter 会有一个缓冲区大小为8KB 如果要立即刷新缓冲区 使用flushBuffer()
+
+### 响应中文字符乱码
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setCharacterEncoding("GBK");
+        PrintWriter writer = resp.getWriter();
+        writer.println("hello中文字符");
+        writer.flush();
+    }
+}
+```
+
+优化
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("text/html;charset=UTF-8");
+        //文本
+        //resp.setContentType("text/plain;charset=UTF-8");
+        //json
+        //resp.setContentType("application/json;charset=UTF-8");
+        PrintWriter writer = resp.getWriter();
+        writer.println("hello中文字符");
+        writer.flush();
+    }
+}
+```
+
+### 设置响应头
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("text/html;charset=UTF-8");
+        resp.setHeader("token","abcd");
+        PrintWriter writer = resp.getWriter();
+        writer.println("hello中文字符");
+        writer.flush();
+    }
+}
+```
+
+### 重定向
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.sendRedirect("https://www.baidu.com");
+    }
+}
+```
+
 
 # IDEA
 
@@ -1414,3 +1810,72 @@ public class BasicDao<T> {
 ## 下载
 
 [tomcat](https://tomcat.apache.org/download-10.cgi)
+
+## 环境变量
+
+### windows
+
+系统变量新建 CATALINA_HOME 为tomcat根目录，然后添加Path为bin目录和lib目录
+
+cmd->startup
+
+## 服务器配置文件
+
+server.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 服务器 port监听关闭的端口 -->
+<Server port="8005" shutdown="SHUTDOWN">
+  <Listener className="org.apache.catalina.startup.VersionLoggerListener" />
+  <Listener className="org.apache.catalina.core.AprLifecycleListener" SSLEngine="on" />
+  <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener" />
+  <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener" />
+  <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener" />
+  <GlobalNamingResources>
+    <Resource name="UserDatabase" auth="Container"
+              type="org.apache.catalina.UserDatabase"
+              description="User database that can be updated and saved"
+              factory="org.apache.catalina.users.MemoryUserDatabaseFactory"
+              pathname="conf/tomcat-users.xml" />
+  </GlobalNamingResources>
+  <!-- 服务 可以有多个 -->
+  <Service name="Catalina">
+     <!-- 端口配置 可以有多个 用于创建socket服务器并进行监听，等待客户端连接 -->
+    <Connector port="8888" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+     <!-- 引擎只能有一个也叫容器，负责处理请求 -->
+    <Engine name="Catalina" defaultHost="localhost">
+      <Realm className="org.apache.catalina.realm.LockOutRealm">
+        <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
+               resourceName="UserDatabase"/>
+      </Realm>
+      <!-- 应用 可以有多个 需要注意的是后面appBase虽然是网站根目录，但是如果要显示index.html需要放在文件夹中
+      然后访问www.test.com/webapp/index/html 默认根目录是ROOT 放在此文件夹中访问时不需要加目录名-->
+     <Host name="www.test.com"  appBase="D://sxc/java/www2/"
+            unpackWARs="true" autoDeploy="true">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+      </Host>
+      <Host name="localhost"  appBase="D://sxc/java/www/"
+            unpackWARs="true" autoDeploy="true">
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+      </Host>
+    </Engine>
+  </Service>
+</Server>
+```
+
+## IDEA 启动控制台乱码
+
+tomcat/conf/logging.properties
+
+```
+java.util.logging.ConsoleHandler.encoding = UTF-8
+改为
+java.util.logging.ConsoleHandler.encoding = GBK
+```
