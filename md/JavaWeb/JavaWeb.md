@@ -465,7 +465,7 @@ public class HelloServlet extends HttpServlet {
         Cookie cookie = new Cookie("jseesion", UUID.randomUUID().toString());
         //设置过期时间 s 小于0 就是关闭浏览器就失效 0是立即失效(ps失效了浏览器会自动删除这个cookie)
         cookie.setMaxAge(10);
-        //添加到响应头就是 addHeader("Cookie","xxx")
+        //添加到响应头就是 addHeader("Set-Cookie","xxx")
         resp.addCookie(cookie);
         PrintWriter writer = resp.getWriter();
         writer.println("hello");
@@ -477,6 +477,12 @@ public class HelloServlet extends HttpServlet {
 ## Session
 
 服务器端第一次调用getSession()的时候会创建；(保存在服务器内存中),应该和php中session_start()一个道理
+
+第一次调用会在请求里添加Set-Cookie
+
+```
+Set-Cookie: JSESSIONID=F186609E35A640E7B308F74CA2DB5D99; Path=/webProjectName; HttpOnly
+```
 
 ### 配置
 
@@ -513,8 +519,8 @@ public class HelloServlet extends HttpServlet {
 public class OtherServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        //获取session
-        HttpSession session = req.getSession(true);
+        //获取session 获取的时候不要创建了 false如果不存在会返回null
+        HttpSession session = req.getSession(false);
         System.out.println(session.getAttribute("userId"));
     }
 }
