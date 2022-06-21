@@ -75,17 +75,21 @@ graph TB;
 
 ## 创建一个普通的web工程
 
-File --> New --> Project --> 输入项目名称webProjectName，语言选择Java
+- File --> New --> Project --> 输入项目名称webProjectName，语言选择Java
 
-项目根目录下新建文件夹webapp（存放静态资源文件）--> webapp下新建WEB-INF -->复制tomcat目录下的web.xml，并清除根节点里面的所有内容
+- 项目根目录下新建文件夹webapp（存放静态资源文件）--> webapp下新建WEB-INF -->复制tomcat目录下的web.xml，并清除根节点里面的所有内容
 
-File --> Project Structue(项目构建) --> Facts(特性) --> Web(添加一个web特性)
+- File --> Project Structue(项目构建) --> Facts(特性) --> Web(添加一个web特性)
 
-Module --> 重新配置Deployment Descriotors web.xml路径 D:\sxc\java\www\webProjectName\webapp\WEB-INF\web.xml  --> 重新配置WebRsoucre静态文件根目录 D:\sxc\java\www\webProjectName\webapp
+- Module --> 重新配置Deployment Descriotors web.xml路径 D:\sxc\java\www\webProjectName\webapp\WEB-INF\web.xml  --> 重新配置WebRsoucre静态文件根目录 D:\sxc\java\www\webProjectName\webapp
 
-Artifacts --> 新建一个Web Application:expolode(可以热更新的不压缩的，另外一个是压缩的不能热更新) -->Form Modules --> 随便改个名字webProjectName
+- Artifacts --> 新建一个Web Application:expolode(可以热更新的不压缩的，另外一个是压缩的不能热更新) -->Form Modules --> 随便改个名字webProjectName
 
-Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources(这两个热更新没用)
+- Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources(这两个热更新没用)
+
+## webxml
+
+直接全局搜索web.xml，配置都分开写了
 
 ## 添加Servlet
 
@@ -230,6 +234,8 @@ web.xml alt+insert快速添加servlet,之后访问http://localhost:8888/webProje
 
 ### URL路由匹配
 
+web.xml
+
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
 <web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
@@ -288,6 +294,36 @@ public class HelloServlet extends HttpServlet {
     }
 }
 ```
+
+### 配置文件里全局读取
+
+任意一个Servlet都可以读取
+
+web.xml
+
+```xml
+<context-param>
+    <param-name>GlobalName</param-name>
+    <param-value>GlobalValue</param-value>
+</context-param>
+```
+
+获取
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        ServletContext servletContext = getServletContext();
+        //getInitParameter 获取当前Servlet配置； servletContext.getInitParameter获取全局的配置
+        System.out.println(servletContext.getInitParameter("GlobalName"));//GlobalValue
+        //不要用下面这个，无法输出
+        System.out.println(getInitParameter("GlobalName"));//null
+    }
+}
+```
+
+
 
 ### 加载优先级
 
@@ -690,15 +726,70 @@ web.xml
 </error-page>
 ```
 
-# IDEA
+### 配置首页
 
-## 添加jar包
+web.xml
 
-[jar包搜索](https://mvnrepository.com/)
+```xml
+<welcome-file-list>
+    <welcome-file>index.jsp</welcome-file>
+    <welcome-file>index.html</welcome-file>
+</welcome-file-list>
+```
 
-将jar包放在libs文件夹下，右键as library,选择项目即可
 
-删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
+## Filter
+
+使用场景，字符集设置，权限认证
+
+过滤器 启动服务器时即加载
+
+每个Filter顺序执行，执行完毕逆向放行，先进后出
+
+### 配置
+
+web.xml
+
+```xml
+<filter-mapping>
+    <filter-name>MyHttpFilter</filter-name>
+    <!-- /*是全部匹配了 -->
+    <url-pattern>/*</url-pattern>
+</filter-mapping>
+```
+
+MyHttpFilter.java
+
+```java
+public class MyHttpFilter extends jakarta.servlet.http.HttpFilter {
+    @Override
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        //对request方法进行过滤，假如只允许POST请求
+        if (!request.getMethod().equals("POST")) {
+            System.out.println("不是POST方法不放行");
+            return;
+        }
+        //下面那个doFilter的作用是放行的意思，就是过滤通过了
+        super.doFilter(request, response, chain);//就是执行了chain.doFilter()
+    }
+}
+```
+
+HelloServlet.java
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("永远进不来");
+    }
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println("放行了");
+    }
+}
+```
 
 # 工具类
 

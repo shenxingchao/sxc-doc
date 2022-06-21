@@ -103,6 +103,13 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | 注释//添加不放在行首 | Setting -> Editor -> Code Style ->Line comment at first column |
 | 类名和文件名一起更改 | shift+F6->编辑后回车                                           |
 
+## 添加jar包
+
+[jar包搜索](https://mvnrepository.com/)
+
+将jar包放在libs文件夹下，右键as library,选择项目即可
+
+删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
 
 # api文档
 
@@ -4552,6 +4559,64 @@ class Agent implements Homework {
     // 接口多态 向上转型（可以接收实现A接口的任意对象）
     public void setAgent(Homework agent) {
         this.agent = agent;
+    }
+}
+```
+
+## 责任链设计模式
+
+一个Servlet处理完转发给下一个处理，就是责任链设计模式
+
+## 观察者设计模式
+
+观察者接口有一个观察方法，在被观察者上关联观察者，被观察者每次更新时通知观察者去干活，和代理模式很像，本质也是接口多态
+
+例子，老师在黑板出题，学生是观察者，每个学生在纸上写出不同答案
+
+```java
+import java.util.ArrayList;
+import java.util.List;
+
+public class Demo {
+    public static void main(String[] args) {
+        Teacher teacher = new Teacher();
+        teacher.list.add(new Student());
+        teacher.list.add(new Parent());
+        teacher.doQuestion();
+    }
+}
+
+interface Observer {
+    //有一个通知观察者的方法
+    void notifyObserver();
+}
+
+class Teacher {
+    public List<Observer> list = new ArrayList<>();
+
+    //老师黑背出题方法
+    public void doQuestion() {
+        System.out.println("老师出题");
+        //通知每个观察者做题了
+        for (Observer observer : list) {
+            observer.notifyObserver();
+        }
+    }
+}
+
+class Student implements Observer {
+
+    @Override
+    public void notifyObserver() {
+        System.out.println("学生做题");
+    }
+}
+
+class Parent implements Observer {
+
+    @Override
+    public void notifyObserver() {
+        System.out.println("家长做题");
     }
 }
 ```
