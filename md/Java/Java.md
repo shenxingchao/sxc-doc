@@ -102,6 +102,10 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | 自动清理未导入的代码 | ctrl+alt+o                                                     |
 | 注释//添加不放在行首 | Setting -> Editor -> Code Style ->Line comment at first column |
 | 类名和文件名一起更改 | shift+F6->编辑后回车                                           |
+| 全局查找类           | ctrl+n                                                         |
+| 全局实现类           | ctrl+h                                                         |
+| 查看类               | f4                                                             |
+| 创建临时文件         | ctrl + alt + shift + insert                                    |
 
 ## 添加jar包
 
@@ -1536,6 +1540,7 @@ public class Demo {
 
 //序列化可读写
 class Student implements Serializable {
+    private static final long serialVersionUID = 1L; 
     private int classNo;
 
     public Student(int classNo) {
@@ -1553,6 +1558,7 @@ class Student implements Serializable {
 
 //序列化可读写
 class Person implements Serializable {
+    private static final long serialVersionUID = 1L; 
     private int age;
     private String[] hobby;
     private Student student;
@@ -3212,6 +3218,14 @@ public class Demo {
 }
 ```
 
+## 原子类
+
+线程安全
+
+Atomic 翻译成中文是原子的意思。在化学中，原子是构成一般物质的最小单位，是不可分割的。而在这里，Atomic 表示当前操作是不可中断的，即使是在多线程环境下执行，Atomic 类，是具有原子操作特征的类。
+
+例如AtomicInteger，AtomicIntegerArray
+
 # IO
 
 **Input输入流**，读取文件数据到程序
@@ -3514,6 +3528,7 @@ public class Demo {
 }
 
 class A implements Serializable {
+    private static final long serialVersionUID = 1L; 
     public String name;
 
     public A(String name) {
@@ -3702,7 +3717,7 @@ NIO提供了与标准IO不同的IO工作方式：
 
 Channels and Buffers(通道和缓冲区)：标准的IO基于字节流和字符流进行操作的，而NIO是基于通道(Channel)和缓冲区(Buffer)进行操作，数据总是从通道读取到缓冲区中，或者从缓冲区写入到通道中。
 
-tips：安卓USB读写串口遇到过，那个时候用uniapp native.js没有多线程会阻塞，所以没搞出来，遗憾，有机会用原始搞一下
+tips：安卓USB读写串口遇到过，那个时候用uniapp native.js没有多线程会阻塞，所以没搞出来，遗憾。补充：有机会用原始搞一下,用kotlin已经搞出来了
 
 ## Buffer
 
@@ -4620,6 +4635,10 @@ class Parent implements Observer {
     }
 }
 ```
+
+### 发布订阅模式
+
+发布者，订阅者通过中间商进行调度
 
 # 算法
 

@@ -73,6 +73,20 @@ graph TB;
 - service()：Servlet处理客户端的请求；
 - destroy()：Servlet结束，释放资源；
 
+### 声明周期注解
+
+就是个钩子函数
+
+@PostConstruct和@PreDestory
+
+执行顺序
+- @PostConstruct
+- init()
+- service()
+- destroy()
+- @PreDestory
+
+
 ## 创建一个普通的web工程
 
 - File --> New --> Project --> 输入项目名称webProjectName，语言选择Java
@@ -90,6 +104,80 @@ graph TB;
 ## webxml
 
 直接全局搜索web.xml，配置都分开写了
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0"
+         metadata-complete="false">
+    <!--metadata-complete="false" 配置false会扫描注解-->
+    <servlet>
+        <!--名称-->
+        <servlet-name>HelloServlet</servlet-name>
+        <!--路径-->
+        <servlet-class>com.sxc.servlet.HelloServlet</servlet-class>
+        <!--当前servlet参数-->
+        <init-param>
+            <param-name>DbName</param-name>
+            <param-value>dbname</param-value>
+        </init-param>
+        <!--启动时加载-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!--多个servlet-->
+    <servlet>
+        <servlet-name>OtherServlet</servlet-name>
+        <servlet-class>com.sxc.servlet.OtherServlet</servlet-class>
+    </servlet>
+    <!--servlet对应url的映射关系-->
+    <servlet-mapping>
+        <servlet-name>HelloServlet</servlet-name>
+        <!--精确匹配-->
+        <url-pattern>/HelloServlet</url-pattern>
+    </servlet-mapping>
+    <servlet-mapping>
+        <servlet-name>OtherServlet</servlet-name>
+        <url-pattern>/OtherServlet</url-pattern>
+    </servlet-mapping>
+    <!--全局的参数-->
+    <context-param>
+        <param-name>GlobalName</param-name>
+        <param-value>GlobalValue</param-value>
+    </context-param>
+    <!--filter过滤器-->
+    <filter>
+        <filter-name>MyHttpFilter</filter-name>
+        <filter-class>com.sxc.filter.MyHttpFilter</filter-class>
+    </filter>
+    <!--filter过滤器映射-->
+    <filter-mapping>
+        <filter-name>MyHttpFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+    <!--listener监听器-->
+    <listener>
+        <listener-class>com.sxc.listener.RequestListener</listener-class>
+    </listener>
+    <!--欢迎页配置-->
+    <welcome-file-list>
+        <welcome-file>index.jsp</welcome-file>
+        <welcome-file>index.html</welcome-file>
+    </welcome-file-list>
+    <!--错误页面配置-->
+    <error-page>
+        <error-code>404</error-code>
+        <location>/404.html</location>
+    </error-page>
+    <!--异常页面配置-->
+    <error-page>
+        <exception-type>java.lang.Exception</exception-type>
+        <location>/exception.html</location>
+    </error-page>
+</web-app>
+```
 
 ## 添加Servlet
 
@@ -323,8 +411,6 @@ public class HelloServlet extends HttpServlet {
 }
 ```
 
-
-
 ### 加载优先级
 
 load-on-startup标签可以设置servlet的加载优先级别和容器是否在启动时加载该servlet,正数的值越小，启动时加载该servlet的优先级越高
@@ -334,6 +420,46 @@ load-on-startup标签可以设置servlet的加载优先级别和容器是否在�
     <load-on-startup>1</load-on-startup>
 </servlet>
 ```
+
+### 使用注解配置Servlet
+
+web.xml
+
+```xml
+<web-app xmlns="https://jakarta.ee/xml/ns/jakartaee"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="https://jakarta.ee/xml/ns/jakartaee
+                      https://jakarta.ee/xml/ns/jakartaee/web-app_5_0.xsd"
+         version="5.0"
+         metadata-complete="false">
+         <!-- metadata-complete需要配置为false -->
+</web-app>
+```
+
+```java
+@WebServlet(
+        //名称
+        name = "HelloServlet",
+        //url访问地址
+        urlPatterns = {"/HelloServlet"},//用value也一样
+        //启动时加载
+        loadOnStartup = 1,
+        //当前servlet初始化参数
+        initParams = {
+                @WebInitParam(
+                        name = "DbName",
+                        value = "dbname"
+                )
+        }
+)
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        System.out.println("hello");
+    }
+}
+```
+
 
 ## 请求HttpServletRequest
 
@@ -691,6 +817,14 @@ public class HelloServlet extends HttpServlet {
 %>
 <h1><%=count%>
 </h1>
+<%--全局域--%>
+${applicationScope}
+<%--session域--%>
+${sessionScope}
+<%--当前servlet--%>
+${pageScope}
+<%--请求域--%>
+${requestScope}
 </body>
 </html>
 ```
@@ -751,12 +885,21 @@ web.xml
 web.xml
 
 ```xml
+<filter>
+    <filter-name>MyHttpFilter</filter-name>
+    <filter-class>com.sxc.filter.MyHttpFilter</filter-class>
+</filter>
+
 <filter-mapping>
     <filter-name>MyHttpFilter</filter-name>
-    <!-- /*是全部匹配了 -->
+        <!-- /*是全部匹配了 -->
     <url-pattern>/*</url-pattern>
 </filter-mapping>
 ```
+
+### 使用案例
+
+拦截http请求
 
 MyHttpFilter.java
 
@@ -790,6 +933,212 @@ public class HelloServlet extends HttpServlet {
     }
 }
 ```
+
+### 使用注解配置filter
+
+注意web.xml需要开启扫描
+
+```xml
+metadata-complete="false"
+```
+
+```java
+@WebFilter(filterName = "MyHttpFilter", urlPatterns = {"/*"})
+public class MyHttpFilter extends jakarta.servlet.http.HttpFilter {
+    @Override
+    protected void doFilter(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws IOException, ServletException {
+        //对request方法进行过滤，假如只允许POST请求
+        if (!request.getMethod().equals("POST")) {
+            System.out.println("不是POST方法不放行");
+            return;
+        }
+        //下面那个doFilter的作用是放行的意思，就是过滤通过了
+        super.doFilter(request, response, chain);//就是执行了chain.doFilter()
+    }
+}
+```
+
+## Listener
+
+监听器，用于监听各种类启动时，创建时，触发回调函数，类似于button.onclick = function(){} ...
+
+继承EventListener的有很多如ServletRequestListener（每次请求监听），HttpSessionListener（session创建监听），ServletContextListener（应用创建监听，做初始化工作）等，具体ctrl+h EventListener查看
+
+
+
+### 配置
+
+web.xml
+
+```xml
+<listener>
+    <listener-class>com.sxc.listener.RequestListener</listener-class>
+</listener>
+```
+
+### 使用案例
+
+监听网站访问
+
+```java
+public class RequestListener implements ServletRequestListener {
+    /**
+     * @param sre 事件绑定的对象 就是servlet对象
+     */
+    @Override
+    public void requestInitialized(ServletRequestEvent sre) {
+        //Servlet每初始化一次，说明URL被访问一次
+        ServletContext servletContext = sre.getServletContext();
+        Object visitCount = servletContext.getAttribute("visitCount");
+        if (visitCount == null) {
+            visitCount = 0;
+        }
+        servletContext.setAttribute("visitCount", (Integer) (visitCount) + 1);
+        System.out.println("访问了" + visitCount);
+        ServletRequestListener.super.requestInitialized(sre);
+    }
+}
+```
+
+### 使用注解配置Listener
+
+注意web.xml需要开启扫描
+
+```xml
+metadata-complete="false"
+```
+
+```java
+@WebListener
+public class RequestListener implements ServletRequestListener {
+    /**
+     * @param sre 事件绑定的对象 就是servlet对象
+     */
+    @Override
+    public void requestInitialized(ServletRequestEvent sre) {
+        //Servlet每初始化一次，说明URL被访问一次
+        ServletContext servletContext = sre.getServletContext();
+        Object visitCount = servletContext.getAttribute("visitCount");
+        if (visitCount == null) {
+            visitCount = 0;
+        }
+        servletContext.setAttribute("visitCount", (Integer) (visitCount) + 1);
+        System.out.println("访问了" + visitCount);
+        ServletRequestListener.super.requestInitialized(sre);
+    }
+}
+```
+
+## JNDI全局配置
+
+### 创建
+
+可以配置数据源，一些全局的常量，比较解耦。目录是webapp/META-INF/context.xml,手动创建，或者自动生成
+
+- File --> Project Structue(项目构建) --> Facts(特性) --> Deployment Descriptors --> Add Application Server specific descriptor --> 选择tomcat server
+
+### 配置
+
+context.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<Context path="/">
+    <!--数据源-->
+    <Resource name="dataSource/mysql"
+              auth="Container"
+              type="javax.sql.DataSource"
+              driverClassName="com.mysql.jdbc.Driver"
+              url="jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8"
+              username="root" password=""
+              maxTotal="20" maxIdle="10"
+              maxWaitMillis="10000"/>
+</Context>
+```
+
+然后在webapp/lib下面导入mysql-connector-java-5.1.47.jar下载地址见JDBC
+
+### 使用
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        Context ctx;
+        try {
+            //初始化Context
+            ctx = new InitialContext();
+            //获取mysql连接
+            DataSource dataSource = (DataSource) ctx.lookup("java:comp/env/dataSource/mysql");
+            Connection connection = dataSource.getConnection();
+            System.out.println(connection);//53913482, URL=jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8, MySQL Connector Java
+        } catch (NamingException | SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+### 在webxml中定义
+
+也可以在web.xml中定义基础数据类型
+
+```xml
+<!--基础数据类型-->
+<env-entry>
+    <env-entry-name>config/baseUrl</env-entry-name>
+    <env-entry-type>java.lang.String</env-entry-type>
+    <env-entry-value>D://www/</env-entry-value>
+</env-entry>
+```
+
+使用
+
+```java
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        Context ctx;
+        try {
+            //初始化Context
+            ctx = new InitialContext();
+            //获取全局常量
+            String baseUrl = (String) ctx.lookup("java:comp/env/config/baseUrl");
+            System.out.println(baseUrl);//D://www/
+        } catch (NamingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+### 使用注解引入资源
+
+前提是导入tomcat/lib目录下的annotations-api.jar
+
+然后使用import jakarta.annotation.Resource;
+
+```java
+@WebServlet(
+        //名称
+        name = "HelloServlet",
+        //url访问地址
+        urlPatterns = {"/HelloServlet"},//用value也一样
+        //启动时加载
+        loadOnStartup = 1
+)
+public class HelloServlet extends HttpServlet {
+
+    @Resource(lookup = "java:comp/env/config/baseUrl")
+    String baseUrl;
+
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) {
+        System.out.println(baseUrl);//D://www/
+    }
+}
+```
+
 
 # 工具类
 
@@ -1076,7 +1425,7 @@ public class Demo {
 
 ## 连接方式
 
-原始方式
+### 原始方式
 
 ```java
 import com.mysql.jdbc.Driver;
@@ -1100,7 +1449,7 @@ public class Demo {
 }
 ```
 
-反射方式
+### 反射方式
 
 ```java
 import com.mysql.jdbc.Driver;
@@ -1126,7 +1475,7 @@ public class Demo {
 }
 ```
 
-DriverManager方式
+### DriverManager方式
 
 ```java
 import com.mysql.jdbc.Driver;
@@ -1150,7 +1499,7 @@ public class Demo {
 }
 ```
 
-加载Driver时自动完成注册
+### 加载Driver时自动完成注册
 
 ```java
 import java.sql.Connection;
@@ -1169,7 +1518,7 @@ public class Demo {
 }
 ```
 
-全自动加载
+### 全自动加载
 
 ```java
 import java.sql.Connection;
@@ -1187,7 +1536,7 @@ public class Demo {
 }
 ```
 
-写入配置文件加载(推荐)
+### 写入配置文件加载(推荐)
 
 db.properties
 
@@ -1742,7 +2091,9 @@ apache封装的工具类 数据库ORM
 如果是多表，则orm对象的属性就是多张表结合就可以了；如果是重名，则使用别名就可以了;名称可以改为类似UserAddress
 
 ```java
-public class User {
+public class User implements Serializable {
+    //明确定义，不然会导致序列化和反序列化的对象不一样
+    private static final long serialVersionUID = 1L;
     private int id;
     private String name;
     private int age;
@@ -2196,7 +2547,7 @@ server.xml
 </Server>
 ```
 
-## IDEA 启动控制台乱码
+## IDEA启动控制台乱码
 
 tomcat/conf/logging.properties
 

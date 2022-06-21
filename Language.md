@@ -20,6 +20,10 @@ snapshot 快照，存储
 
 dismiss 不考虑（忽略）
 
-### 服务器
+## 服务器
 
 Servlet 小型web服务程序（JAVA）
+
+## 软件
+
+Hierarchy 层次，结构
