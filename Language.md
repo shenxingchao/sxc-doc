@@ -27,3 +27,4 @@ Servlet 小型web服务程序（JAVA）
 ## 软件
 
 Hierarchy 层次，结构
+snapshot 快照

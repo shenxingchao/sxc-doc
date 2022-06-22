@@ -1139,6 +1139,108 @@ public class HelloServlet extends HttpServlet {
 }
 ```
 
+## 文件上传
+
+在webapp下新建一个upload.html
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+    <form action="/webProjectName/UploadServlet" enctype="multipart/form-data" method="post">
+        <input type="file" name="filename">
+        <input type="submit" value="提交">
+    </form>
+</body>
+</html>
+```
+
+处理文件上传需要多部分的注解@MultipartConfig
+
+```java
+@WebServlet("/UploadServlet")
+@MultipartConfig
+public class UploadServlet extends HttpServlet {
+
+    @Override
+    protected void doPost(HttpServletRequest req, HttpServletResponse resp) {
+        BufferedInputStream bufferedInputStream = null;
+        BufferedOutputStream bufferedOutputStream = null;
+        ByteArrayOutputStream byteArrayOutputStream;
+        try {
+            //获取文件对象
+            Part filename = req.getPart("filename");
+            String submittedFileName = filename.getSubmittedFileName();
+            InputStream inputStream = filename.getInputStream();
+            bufferedInputStream = new BufferedInputStream(inputStream);
+
+            // 文件输出流用于保存文件
+            bufferedOutputStream = new BufferedOutputStream(new FileOutputStream("D://sxc/java/www/webProjectName/webapp/" + submittedFileName, true));
+
+            // 字节数组流 存储文件
+            byteArrayOutputStream = new ByteArrayOutputStream();
+            byte[] bytes = new byte[1024 * 1024];
+            int len;
+            while ((len = bufferedInputStream.read(bytes)) != -1) {
+                byteArrayOutputStream.write(bytes, 0, len);
+            }
+            // 写入文件流
+            bufferedOutputStream.write(byteArrayOutputStream.toByteArray());
+            bufferedOutputStream.flush();
+            System.out.println("完成");
+        } catch (IOException | ServletException e) {
+            throw new RuntimeException(e);
+        } finally {
+            try {
+                if (bufferedInputStream != null)
+                    bufferedInputStream.close();
+                if (bufferedOutputStream != null)
+                    bufferedOutputStream.close();
+                if (bufferedOutputStream != null)
+                    bufferedOutputStream.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+}
+```
+
+## JSON解析
+
+使用[fastjson](https://github.com/alibaba/fastjson/)
+
+## 打包
+
+### 构建
+
+- Artifacts --> 新建一个Web Application:Archive -->Form Modules --> 随便改个名字webProjectNameWar
+- Build --> Build Artifacts
+
+修改配置文件
+
+servel.xml
+
+```xml
+<!-- 注释旧的测试的那个，新增appBase为webapps，因为这是tomcat目录下的文件夹名称... -->
+<Host name="localhost"  appBase="webapps"
+    unpackWARs="true" autoDeploy="true">
+<Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+        prefix="localhost_access_log" suffix=".txt"
+        pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+</Host>
+```
+
+然后把打包后的war文件放入D:\sxc\tomcat\apache-tomcat-10.0.22\webapps
+
+然后命令行运行startup启动tomcat
+
+访问http://localhost:8888/webProjectNameWar/
+
 
 # 工具类
 
@@ -2476,7 +2578,7 @@ public class BasicDao<T> {
 
 ## Controller
 
-控制器层负责数据传输 接收前端数据或者返回数据给前端 也就是Api提供者
+控制器层负责数据传输 接收前端数据或者返回数据给前端（如果是页面用servlet转发到jsp。。。） 也就是Api提供者
 
 ## View
 
@@ -2492,9 +2594,11 @@ public class BasicDao<T> {
 
 ### windows
 
-系统变量新建 CATALINA_HOME 为tomcat根目录，然后添加Path为bin目录和lib目录
+系统变量新建 CATALINA_HOME 为tomcat根目录，然后添加Path为bin目录和lib目录，另外保证java的环境变量配置好
 
 cmd->startup
+
+tips:如果还启动不了，以管理员启动cmd
 
 ## 服务器配置文件
 
@@ -2528,8 +2632,8 @@ server.xml
         <Realm className="org.apache.catalina.realm.UserDatabaseRealm"
                resourceName="UserDatabase"/>
       </Realm>
-      <!-- 应用 可以有多个 需要注意的是后面appBase虽然是网站根目录，但是如果要显示index.html需要放在文件夹中
-      然后访问www.test.com/webapp/index/html 默认根目录是ROOT 放在此文件夹中访问时不需要加目录名-->
+      <!-- 应用 可以有多个 需要注意的是后面appBase是应用根目录，里面是放很多应用的，要显示index.html需要放在文件夹webapp(随意起名)，如果放在WEB-INF则需要请求转发才能访问
+      然后访问www.test.com/webapp/index/html-->
      <Host name="www.test.com"  appBase="D://sxc/java/www2/"
             unpackWARs="true" autoDeploy="true">
         <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
@@ -2547,6 +2651,41 @@ server.xml
 </Server>
 ```
 
+## 优化访问路径
+
+### windows
+
+以下修改server.xml
+
+去除8080端口,8080改为80
+
+```xml
+<Connector port="80" protocol="HTTP/1.1"
+               connectionTimeout="20000"
+               redirectPort="8443" />
+```
+
+(暂时不对)去除项目名称，配置完需清空tomcat缓存，清空C:\Users\123456\AppData\Local\JetBrains\IntelliJIdea2022.1\tomcat\xxx\work\
+
+```xml
+<Host name="localhost"  appBase="D://sxc/java/www/"
+            unpackWARs="true" autoDeploy="true">
+        <!-- 添加下面这行 path代表没有目录  docBase就是项目名 reloadable 监视class文件改的热加载 debug是debug的level，0表示最低级别-->
+        <!-- 下面如果是部署到tomcat目录下则这么设置 -->
+        <Context path="/" docBase="webProjectNameWar" debug="0" reloadable="true"/>
+        <Valve className="org.apache.catalina.valves.AccessLogValve" directory="logs"
+               prefix="localhost_access_log" suffix=".txt"
+               pattern="%h %l %u %t &quot;%r&quot; %s %b" />
+      </Host>
+```
+
+### IDEA开始时隐藏项目名
+
+点击Edit Configrations
+
+DePloyment -->Application context 设置为 /
+
+
 ## IDEA启动控制台乱码
 
 tomcat/conf/logging.properties
@@ -2556,3 +2695,121 @@ java.util.logging.ConsoleHandler.encoding = UTF-8
 改为
 java.util.logging.ConsoleHandler.encoding = GBK
 ```
+
+# Maven
+
+- 可以自动下载jar包
+- 构建项目自动化
+
+[下载](https://maven.apache.org/)
+
+## 环境变量
+
+### windows
+
+系统变量新建 MAVEN_HOME 为maven根目录，然后添加Path为bin目录 %MAVEN_HOME%/bin
+
+## 配置
+
+D:\sxc\apache-maven-3.8.6-bin\apache-maven-3.8.6\conf\setting.xml
+
+```xml
+<!-- 下载后的jar包存放目录 -->
+<localRepository>D:\\sxc\maven_repository</localRepository>
+
+...
+<!-- 下载地址aliyun代理 -->
+<mirrors>
+    <!-- 注释掉默认的 -->
+    <mirror>
+        <id>aliyunmaven</id>
+        <mirrorOf>*</mirrorOf>
+        <name>阿里云公共仓库</name>
+        <url>https://maven.aliyun.com/repository/public</url>
+    </mirror>
+<mirrors>
+
+...
+<!-- 全局jdk版本 -->
+<profiles>
+    <profile>    
+        <id>jdk-1.8</id>    
+        <activation>    
+            <activeByDefault>true</activeByDefault>    
+            <jdk>1.8</jdk>    
+        </activation>    
+        <properties>    
+            <maven.compiler.source>1.8</maven.compiler.source>    
+            <maven.compiler.target>1.8</maven.compiler.target>    
+            <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>    
+        </properties>    
+    </profile>
+</profiles>
+```
+
+## 工程目录
+
+```
+src                                 
+    |--main
+        |--java         源代码目录
+        |--resources    资源目录      
+    |--test
+        |--java         测试代码目录
+        |--resources    测试资源目录
+target
+    |--classes      编译后的class文件目录
+    |--test-classes 编译后的测试class文件目录
+pom.xml             Maven工程配置文件
+```
+
+### pomxml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 	
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <!-- 项目唯一标识符 -->
+    <artifactId>test</artifactId>
+    <!-- 包名倒着来，因为二级域名的问题 org(公司组织名称) sxc(项目名称)-->
+    <groupId>org.sxc</groupId>
+    <!-- 版本 快照版 -->
+    <version>1.0-SNAPSHOT</version>
+</project>
+```
+
+### 常用命令
+
+| 命令                   | 说明                                                   |
+| :--------------------- | :----------------------------------------------------- |
+| mvn –v                 | 显示版本信息                                           |
+| mvn clean              | 清理项目生产的临时文件,一般是模块下的target目录        |
+| mvn compile            | 编译源代码，一般编译模块下的src/main/java目录          |
+| mvn package            | 项目打包工具,会在模块下的target目录生成jar或war等文件  |
+| mvn test               | 测试命令,或执行src/test/java/下junit的测试用例         |
+| mvn install            | 将打包的jar/war文件复制到你的本地仓库中,供其他模块使用 |
+| mvn deploy             | 将打包的文件发布到远程参考,提供其他人员进行下载依赖    |
+| mvn site               | 生成项目相关信息的网站                                 |
+| mvn dependency:tree    | 打印出项目的整个依赖树                                 |
+| mvn archetype:generate | 创建Maven的普通java项目                                |
+| mvn tomcat:run         | 在tomcat容器中运行web应用                              |
+
+### 版本规范
+
+所有的软件都用版本
+
+Maven使用如下几个要素来定位一个项目，因此它们又称为项目的坐标。
+
+- groudId 团体、组织的标识符。团体标识的约定是，它以创建这个项目的组织名称的逆向域名开头。一般对应着JAVA的包的结构，例如org.apache。
+- artifactId 单独项目的唯一标识符。比如我们的tomcat, commons等。不要在artifactId中包含点号(.)。
+- version 项目的版本。
+- packaging 项目的类型，默认是jar，描述了项目打包后的输出。类型为jar的项目产生一个JAR文件，类型为war的项目产生一个web应用。
+
+Maven在版本管理时候可以使用几个特殊的字符串 SNAPSHOT，LATEST，RELEASE。比如"1.0-SNAPSHOT"。各个部分的含义和处理逻辑如下说明：
+  - SNAPSHOT 这个版本一般用于开发过程中，表示不稳定的版本。
+  - LATEST 指某个特定构件的最新发布，这个发布可能是一个发布版，也可能是一个snapshot版，具体看哪个时间最后。
+  - RELEASE 指最后一个发布版
