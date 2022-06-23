@@ -3132,3 +3132,243 @@ cat admin.password
 | 包名                                                    | 说明                                             |
 | :------------------------------------------------------ | :----------------------------------------------- |
 | [commons-lang3](https://www.jianshu.com/p/89287d907b68) | 对java.lang的扩展 处理字符串日期等。使用xxxUtil. |
+
+
+# 日志
+
+## JUL
+
+java util logging 内置日志框架
+
+### 案例
+
+新建一个maven项目在src/test/java/新建TestJUL.java
+
+pom.xml 引入单元测试junit
+
+```xml
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+```
+
+
+```java
+import org.junit.Test;
+
+import java.util.logging.*;
+
+public class TestJUL {
+    //获取一个jul日期对象
+    public static final Logger LOGGER = Logger.getLogger("logger");
+
+    @Test
+    public void testJUL() {
+        //去除jdk默认配置
+        LOGGER.setUseParentHandlers(false);
+        //获取一个控制台处理器
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        //设置格式化
+        consoleHandler.setFormatter(new SimpleFormatter());
+        //添加一个日志处理器
+        LOGGER.addHandler(consoleHandler);
+        //设置日志级别
+        LOGGER.setLevel(Level.ALL);
+        consoleHandler.setLevel(Level.ALL);
+        //打印日志
+        LOGGER.info("info");
+        LOGGER.warning("waring");
+        LOGGER.severe("deep waring");
+        LOGGER.fine("success");
+        /*六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        信息: info
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        警告: waring
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        严重: deep waring
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        详细: success*/
+    }
+}
+```
+
+### 写入文件
+
+```java
+public class TestJUL {
+    //获取一个jul日期对象
+    public static final Logger LOGGER = Logger.getLogger("logger");
+
+    @Test
+    public void testJUL() throws IOException {
+        //去除jdk默认配置
+        LOGGER.setUseParentHandlers(false);
+        //获取一个文件处理器
+        FileHandler fileHandler = new FileHandler("./log.txt", true);
+        //设置格式化
+        fileHandler.setFormatter(new SimpleFormatter());
+        //添加一个日志处理器
+        LOGGER.addHandler(fileHandler);
+        //设置日志级别
+        LOGGER.setLevel(Level.ALL);
+        fileHandler.setLevel(Level.ALL);
+        //打印日志
+        LOGGER.info("info");
+        LOGGER.warning("waring");
+        LOGGER.severe("deep waring");
+        LOGGER.fine("success");
+        /*六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        信息: info
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        警告: waring
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        严重: deep waring
+        六月 23, 2022 2:47:27 下午 TestJUL testJUL
+        详细: success*/
+    }
+}
+```
+
+### 日志父子关系
+
+日志底层维护了一个root manage
+
+父日志继承root manage 子日志的设置会继承父日志
+
+```java
+import org.junit.Test;
+
+import java.util.logging.*;
+
+public class TestJUL {
+    @Test
+    public void testJUL() {
+        Logger logger1 = Logger.getLogger("com.sxc.TestJUL");
+        Logger logger2 = Logger.getLogger("com.sxc");
+        // 一、对logger2进行独立的配置
+        // 1.关闭系统默认配置
+        logger2.setUseParentHandlers(false);
+        // 2.创建handler对象
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        // 3.创建formatter对象
+        SimpleFormatter simpleFormatter = new SimpleFormatter();
+        // 4.进行关联
+        consoleHandler.setFormatter(simpleFormatter);
+        logger2.addHandler(consoleHandler);
+        // 5.设置日志级别
+        logger2.setLevel(Level.ALL);
+        consoleHandler.setLevel(Level.ALL);
+        // 测试logger1是否被logger2影响
+        logger1.info("info");
+        logger1.warning("waring");
+        logger1.severe("deep waring");
+        logger1.fine("success");
+    }
+}
+```
+
+### 自定义格式化
+
+```java
+public class TestJUL {
+    //获取一个jul日期对象
+    public static final Logger LOGGER = Logger.getLogger("logger");
+
+    @Test
+    public void testJUL() {
+        //去除jdk默认配置
+        LOGGER.setUseParentHandlers(false);
+        //获取一个控制台处理器
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        //自定义设置格式化
+        consoleHandler.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return "等级:" + record.getLevel() + "消息:" + record.getMessage()
+                        + "时间戳:" + record.getMillis() + "\r\n";
+            }
+        });
+        //添加一个日志处理器
+        LOGGER.addHandler(consoleHandler);
+        //设置日志级别
+        LOGGER.setLevel(Level.ALL);
+        consoleHandler.setLevel(Level.ALL);
+        //打印日志
+        LOGGER.info("info");
+        LOGGER.warning("waring");
+        LOGGER.severe("deep waring");
+        LOGGER.fine("success");
+        // 等级:INFO消息:info时间:1655975264779
+        // 等级:WARNING消息:waring时间:1655975264780
+        // 等级:SEVERE消息:deep waring时间:1655975264780
+        // 等级:FINE消息:success时间:1655975264780
+    }
+}
+```
+
+### 自定义日志配置文件
+
+复制jdk/jre/lib/logging.properties存放到src/main/resource/logging.properties
+
+修改下面的配置
+
+```
+#可以配置多个
+handlers= java.util.logging.FileHandler,java.util.logging.ConsoleHandler
+#日志级别 ALL INFO ....
+.level= ALL
+
+#java.util.logging.FileHandler.pattern = %h/java%u.log
+#%u是下面count的计数，作用于生成的文件名
+java.util.logging.FileHandler.pattern = ./java%u.log
+java.util.logging.FileHandler.limit = 50000
+java.util.logging.FileHandler.append = true
+java.util.logging.FileHandler.count = 1
+java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+
+java.util.logging.ConsoleHandler.level = INFO
+java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+```
+
+
+```java
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.logging.*;
+
+public class TestJUL {
+    //获取一个jul日期对象
+    public static final Logger LOGGER = Logger.getLogger("logger");
+
+    @Test
+    public void testJUL() throws IOException {
+        //获取底层的日志管理器
+        LogManager logManager = LogManager.getLogManager();
+        InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("logging.properties");
+        logManager.readConfiguration(resourceAsStream);
+        //获取一个控制台处理器
+        ConsoleHandler consoleHandler = new ConsoleHandler();
+        //自定义设置格式化
+        consoleHandler.setFormatter(new Formatter() {
+            @Override
+            public String format(LogRecord record) {
+                return "等级:" + record.getLevel() + "消息:" + record.getMessage()
+                        + "时间戳:" + record.getMillis() + "\r\n";
+            }
+        });
+
+        //打印日志
+        LOGGER.info("info");
+        LOGGER.warning("waring");
+        LOGGER.severe("deep waring");
+        LOGGER.fine("success");
+    }
+}
+```
