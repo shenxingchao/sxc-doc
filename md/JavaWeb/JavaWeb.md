@@ -181,6 +181,8 @@ graph TB;
 
 ## 添加Servlet
 
+导入tomcat/lib/servlet-api.jar 到webapp/lib目录下
+
 ### 新建Servlet
 
 src目录下新建HelloServlet.java 下面的要重写声明周期方法
@@ -2718,7 +2720,7 @@ D:\sxc\apache-maven-3.8.6-bin\apache-maven-3.8.6\conf\setting.xml
 <localRepository>D:\\sxc\maven_repository</localRepository>
 
 ...
-<!-- 下载地址aliyun代理 -->
+<!-- 下载地址aliyun代理,建议配在pom.xml中 -->
 <mirrors>
     <!-- 注释掉默认的 -->
     <mirror>
@@ -2730,7 +2732,7 @@ D:\sxc\apache-maven-3.8.6-bin\apache-maven-3.8.6\conf\setting.xml
 <mirrors>
 
 ...
-<!-- 全局jdk版本 -->
+<!-- 全局jdk版本,建议配在pom.xml中-->
 <profiles>
     <profile>    
         <id>jdk-1.8</id>    
@@ -2779,6 +2781,210 @@ pom.xml             Maven工程配置文件
     <groupId>org.sxc</groupId>
     <!-- 版本 快照版 -->
     <version>1.0-SNAPSHOT</version>
+    <!-- 打包后生产war(web)/jar(普通jar包)/pom（父子模块） 默认是jar -->
+    <packaging>war</packaging>
+
+    <!--依赖列表-->
+    <dependencies>
+        <!--加依赖-->
+        <dependency>
+            <!--组织id-->
+            <groupId>mysql</groupId>
+            <!--成品id-->
+            <artifactId>mysql-connector-java</artifactId>
+            <!--版本-->
+            <version>5.1.49</version>
+            <!--类似于npm provided已经提供的依赖只有开发时使用 compile全部依赖(默认) test测试时依赖 runtime 只有测试和运行时需要，开发时不需要-->
+            <scope>provided</scope>
+
+            <!--子模块是否继承父模块的依赖，如果不写则默认false(继承)，如果是true则子模块需要手动添加依赖-->
+            <optional>false</optional>
+            <!--下面的是用于在当前依赖所依赖的库中排除依赖，然后可以自己在外面加想要的依赖-->
+            <exclustions>
+                <exclustion>
+                    <groupId>mysql</groupId>
+                    <artifactId>mysql-connector-java</artifactId>
+                </exclustion>
+            </exclustions>
+        </dependency>
+    </dependencies>
+
+    <properties>
+        <!-- 控制版本变量也可以放在这里，然后使用这个变量 -->
+        <mysql.connector.java.version>5.1.49</mysql.connector.java.version>
+        <!-- 然后在依赖里使用${mysql.connector.java.version} -->
+
+        <!-- jdk版本 也可以配置在Build当中 -->
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <!-- 添加编码，不然编译会有警告 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <!-- 下面是项目下的镜像配置 -->
+    <repositories>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <!--下面是build配置，构建配置-->
+    <build>
+        <!-- 产生的构件的文件名，默认值是${artifactId}-${version}。 -->
+        <finalNasourceDirectory>${basedir}\src\main\java</sourceDirectory>
+        <!--项目单元测试使用的源码目录，当测试项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
+        <>${basedir}\target\classes</outputDirectory>
+        <!--被编译过的测试class文件存放的目录。 -->
+        <testOutputDirectory>${basedir}\target\test-classes
+        </testOutputDirectory>
+        <!-- 以上配置都有默认值，就是约定好了目录就这么建 -->
+
+        <!-- 如果要把xml等资源文件放在src/main下面则需要配下面这个 -->
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
+        <!--使用的插件列表 。 -->
+        <plugins>
+            <!-- jdk版本 也可以配在这里 选一个地方配即可 -->
+            <plugin>                                       
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source> <!-- 源代码使用的JDK版本 -->
+                    <target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>UTF-8</encoding><!-- 字符集编码 -->
+                </configuration>
+            </plugin>
+            <!-- tomcat插件 内嵌tomcat9服务器 -->
+            <plugin>
+                <groupId>org.opoo.maven</groupId>
+                <artifactId>tomcat9-maven-plugin</artifactId>
+                <version>3.0.1</version>
+                <configuration>
+                    <port>9002</port>
+                    <uriEncoding>UTF-8</uriEncoding>
+                    <!-- 访问路径 -->
+                    <path>/</path>
+                </configuration>
+            </plugin>
+            <!-- war包打包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-war-plugin</artifactId>
+                <configuration>
+                    <warName>test</warName>
+                    <webResources>
+                        <resource>
+                            <directory>src/main/webapp/WEB-INF</directory>
+                            <filtering>true</filtering>
+                            <targetPath>WEB-INF</targetPath>
+                            <includes>
+                                <include>web.xml</include>
+                            </includes>
+                        </resource>
+                    </webResources>
+                </configuration>
+            </plugin>
+            <!-- jar包打包插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-assembly-plugin</artifactId>
+                <version>3.3.0</version>
+                <executions>
+                    <execution>
+                        <id>make-assembly</id>
+                        <!-- 绑定到package生命周期 -->
+                        <phase>package</phase>
+                        <goals>
+                            <!-- 只运行一次 -->
+                            <goal>single</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <archive>
+                        <manifest>
+                            <addClasspath>true</addClasspath>
+                            <mainClass>com.sxc.Test</mainClass> <!-- 你的主类名 -->
+                        </manifest>
+                    </archive>
+                    <descriptorRefs>
+                        <descriptorRef>jar-with-dependencies</descriptorRef>
+                    </descriptorRefs>
+                </configuration>
+            </plugin>
+        </plugins>
+
+        <!-- 后面的不常用 -->
+        <!--单元测试相关的所有资源路径，配制方法与resources类似 -->
+        <testResources>
+            <testResource>
+                <targetPath />
+                <filtering />
+                <directory />
+                <includes />
+                <excludes />
+            </testResource>
+        </testResources>
+
+        <!--主要定义插件的共同元素、扩展元素集合，类似于dependencyManagement， -->
+        <!--所有继承于此项目的子项目都能使用。该插件配置项直到被引用时才会被解析或绑定到生命周期。 -->
+        <!--给定插件的任何本地配置都会覆盖这里的配置 -->
+        <pluginManagement>
+            <plugins>...</plugins>
+        </pluginManagement>
+    </build>
+
+    <!--用于不同环境配置，可以把上面的配置都放在profile里面的-->
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <build>
+                <finalName>dev</finalName>
+            </build>
+        </profile>
+        <profile>
+            <id>test</id>
+            <build>
+                <finalName>test</finalName>
+            </build>
+        </profile>
+        <profile>
+            <!--激活当前环境，然后打包出来的就是pro.jar,只能激活一个环境-->
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <id>pro</id>
+            <build>
+                <finalName>pro</finalName>
+            </build>
+        </profile>
+    </profiles>
 </project>
 ```
 
@@ -2813,3 +3019,116 @@ Maven在版本管理时候可以使用几个特殊的字符串 SNAPSHOT，LATEST
   - SNAPSHOT 这个版本一般用于开发过程中，表示不稳定的版本。
   - LATEST 指某个特定构件的最新发布，这个发布可能是一个发布版，也可能是一个snapshot版，具体看哪个时间最后。
   - RELEASE 指最后一个发布版
+
+## IDEA配置
+
+File --> Settings --> Build --> BUild Tools --> Maven
+    - Maven home path (配置为maven根目录D:/sxc/apache-maven-3.8.6-bin/apache-maven-3.8.6)
+    - User settings file (配置为maven setting.xml目录 D:\sxc\apache-maven-3.8.6-bin\apache-maven-3.8.6\conf\settings.xml)
+    - Local repository(配置为maven jar包下载存放目录 D:\sxc\maven_repository)
+    - 记得勾上后面的Override（覆盖配置）
+
+还有一个新建项目的配置和上面的配置一样
+
+File --> New Project Step --> Setting for New Projects --> Build --> BUild Tools --> Maven
+
+## 创建
+
+idea2022.1创建Maven会卡死
+
+需要关闭项目再NewProject --> New Project --> Name --> Language Java --> Build system Maven --> GroupId com.sxc 
+
+## maven搜索
+
+[网址1](http://mvn.coderead.cn/)
+
+[网址2](https://search.maven.org/)
+
+## 父子模块
+
+先创建maven项目作为模块，然后New --> Modlue 创建子工程（注意选择他的parent模块）
+
+父工程的pom.xml 的打包方式必须为pom,子工程可以使用父工程的依赖,父工程的src都可以删掉
+
+parent pom.xml
+
+```xml
+...
+    <!-- 父工程的的打包方式必须为pom -->
+    <packaging>pom</packaging>
+    <!-- 这是个模块关系 -->
+    <modules>
+        <module>test</module>
+    </modules>
+    <!-- 父工程统一管理版本 -->
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>xxx</groupId>
+                <artifactId>xxx</artifactId>
+                <version>1.0.0</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+...
+```
+
+son pom.xml
+
+```xml
+...
+    <!-- 假设子工程是一个web项目 -->
+    <packaging>war</packaging>
+    <!-- 这是个模块关系 -->
+    <parent>
+        <artifactId>maventest</artifactId>
+        <groupId>com.sxc</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+
+    <!-- 如果父工程dependencyManagement 已经有了则会使用他里面的版本，而不是最新版，不写version会使用最新版本 -->
+    <dependencies>
+        <dependency>
+            <groupId>xxx</groupId>
+            <artifactId>xxx</artifactId>
+        </dependency>
+    </dependencies>
+...
+```
+
+## docker搭建maven本地服务器
+
+```shell
+// 安装docker
+yum install docker -y
+// 启动
+systemctl start docker
+// 修改镜像路径 自己登陆阿里云-》 容器镜像服务 -》 镜像加速器 -》 centos 就可以了
+sudo mkdir -p /etc/docker
+sudo tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://jf8zmt.mirror.aliyuncs.com"]
+}
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart docker
+
+
+docker run -d -p 8081:8081 --name nexus3 sonatype/nexus3
+
+// 查看运行状态
+docker container ls
+
+// 开放端口
+firewall-cmd --zone=public --add-port=8081/tcp --permanent
+// 获取密码
+docker exec -it nexus3 /bin/bash
+cd nexus-data/
+cat admin.password
+```
+
+# 常用jar包
+
+| 包名                                                    | 说明                                             |
+| :------------------------------------------------------ | :----------------------------------------------- |
+| [commons-lang3](https://www.jianshu.com/p/89287d907b68) | 对java.lang的扩展 处理字符串日期等。使用xxxUtil. |
