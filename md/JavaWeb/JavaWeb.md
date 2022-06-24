@@ -1051,7 +1051,7 @@ context.xml
               auth="Container"
               type="javax.sql.DataSource"
               driverClassName="com.mysql.jdbc.Driver"
-              url="jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8"
+              url="jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8;serverTimezone=Asia/Shanghai;"
               username="root" password=""
               maxTotal="20" maxIdle="10"
               maxWaitMillis="10000"/>
@@ -1073,7 +1073,7 @@ public class HelloServlet extends HttpServlet {
             //获取mysql连接
             DataSource dataSource = (DataSource) ctx.lookup("java:comp/env/dataSource/mysql");
             Connection connection = dataSource.getConnection();
-            System.out.println(connection);//53913482, URL=jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8, MySQL Connector Java
+            System.out.println(connection);//53913482, URL=jdbc:mysql://127.0.0.1:3306/dbname??useSSL=false;rewriteBatchedStatements=true;characterEncoding=utf-8;serverTimezone=Asia/Shanghai, MySQL Connector Java
         } catch (NamingException | SQLException e) {
             throw new RuntimeException(e);
         }
@@ -1546,7 +1546,7 @@ public class Demo {
         Properties properties = new Properties();
         properties.put("user", "root");
         properties.put("password", "");
-        Connection connection = driver.connect("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8", properties);
+        Connection connection = driver.connect("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai", properties);
         //关闭连接
         connection.close();
     }
@@ -1572,7 +1572,7 @@ public class Demo {
         Properties properties = new Properties();
         properties.put("user", "root");
         properties.put("password", "");
-        Connection connection = driver.connect("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8", properties);
+        Connection connection = driver.connect("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai", properties);
         //关闭连接
         connection.close();
     }
@@ -1596,7 +1596,7 @@ public class Demo {
         //注册驱动
         DriverManager.registerDriver(driver);
         //得到连接
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8", "root", "");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai", "root", "");
         //关闭连接
         connection.close();
     }
@@ -1615,7 +1615,7 @@ public class Demo {
         //加载Driver时自动完成注册
         Class.forName("com.mysql.jdbc.Driver");
         //得到连接
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8", "root", "");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai", "root", "");
         //关闭连接
         connection.close();
     }
@@ -1633,7 +1633,7 @@ public class Demo {
     public static void main(String[] args) throws SQLException {
         //在mysql-connector-java.jar/META-INF/services/java.sql.Driver自动注册了，所以不加载都可以
         //得到连接
-        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8", "root", "");
+        Connection connection = DriverManager.getConnection("jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai", "root", "");
         //关闭连接
         connection.close();
     }
@@ -1647,7 +1647,7 @@ db.properties
 ```properties
 user=root
 password=
-url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8
+url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 driver=com.mysql.jdbc.Driver
 ```
 
@@ -1964,7 +1964,7 @@ public class Demo {
     <default-config>
         <property name="driverClass">com.mysql.jdbc.Driver</property>
         <property name="jdbcUrl">
-            <![CDATA[jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8]]>
+            <![CDATA[jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai]]>
         </property>
         <property name="user">root</property>
         <property name="password"></property>
@@ -1985,7 +1985,7 @@ public class Demo {
     <named-config name="dataSource">
         <property name="driverClass">com.mysql.jdbc.Driver</property>
         <property name="jdbcUrl">
-            <![CDATA[jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8]]>
+            <![CDATA[jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai]]>
         </property>
         <property name="user">root</property>
         <property name="password"></property>
@@ -2040,7 +2040,7 @@ druid.properties
 ```properties
 #druid已经可以自动识别常用的驱动，可省略
 driverClassName=com.mysql.jdbc.Driver
-url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8
+url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 username=root
 password=
 #初始化连接数
@@ -3562,7 +3562,7 @@ public class TestLog4J {
         JDBCAppender jdbcAppender = new JDBCAppender();
         //驱动如果是8.x的 下面的驱动路径需要改成com.mysql.cj.jdbc.Driver
         jdbcAppender.setDriver("com.mysql.jdbc.Driver");
-        jdbcAppender.setURL("jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8");
+        jdbcAppender.setURL("jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai");
         jdbcAppender.setUser("root");
         jdbcAppender.setPassword("");
         jdbcAppender.setSql("INSERT INTO log(create_date,level,category,file_name,thread_name,line,all_category,message) values('%d{yyyy-MM-dd HH:mm:ss}','%p','%c','%F','%t','%L','%l','%m')");
@@ -3621,7 +3621,7 @@ log4j.appender.dbAppender=org.apache.log4j.jdbc.JDBCAppender
 log4j.appender.dbAppender.layout=org.apache.log4j.PatternLayout
 #mysql5.7及以上  驱动用8.0的时候变成com.mysql.cj.jdbc.Driver
 log4j.appender.dbAppender.Driver=com.mysql.jdbc.Driver
-log4j.appender.dbAppender.URL=jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8
+log4j.appender.dbAppender.URL=jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 log4j.appender.dbAppender.User=root
 log4j.appender.dbAppender.Password=
 log4j.appender.dbAppender.Sql=INSERT INTO log(create_date,level,category,file_name,thread_name,line,all_category,message) values('%d{yyyy-MM-dd HH:mm:ss}','%p','%c','%F','%t','%L','%l','%m')
@@ -3854,6 +3854,18 @@ public class ConnectionFactory {
 pom.xml
 
 ```xml
+    <!--mysql驱动-->
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.49</version>
+    </dependency>
+    <!--德鲁伊依赖-->
+    <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.2.11</version>
+    </dependency>
     <!-- Log4j2 门面API-->
     <dependency>
         <groupId>org.apache.logging.log4j</groupId>
