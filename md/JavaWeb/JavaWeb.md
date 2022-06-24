@@ -2839,9 +2839,9 @@ pom.xml             Maven工程配置文件
     <!--下面是build配置，构建配置-->
     <build>
         <!-- 产生的构件的文件名，默认值是${artifactId}-${version}。 -->
-        <finalNasourceDirectory>${basedir}\src\main\java</sourceDirectory>
+        <sourceDirectory>${basedir}\src\main\java</sourceDirectory>
         <!--项目单元测试使用的源码目录，当测试项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
-        <>${basedir}\target\classes</outputDirectory>
+        <outputDirectory>${basedir}\target\classes</outputDirectory>
         <!--被编译过的测试class文件存放的目录。 -->
         <testOutputDirectory>${basedir}\target\test-classes
         </testOutputDirectory>
@@ -2869,7 +2869,7 @@ pom.xml             Maven工程配置文件
 
         <!--使用的插件列表 。 -->
         <plugins>
-            <!-- jdk版本 也可以配在这里 选一个地方配即可 -->
+            <!-- jdk版本 也可以配在这里 选一个地方配即可必须配 -->
             <plugin>                                       
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -3775,7 +3775,7 @@ public class TestSlf4j {
 }
 ```
 
-## log4j2
+## log4j2推荐
 
 [log4j2](https://logging.apache.org/log4j/2.x/manual/configuration.html#XML)
 [log4j2 jdbc](https://logging.apache.org/log4j/2.x/manual/appenders.html#JDBCAppender)
@@ -3993,4 +3993,160 @@ public class TestSlf4j {
         }
     }
 }
+```
+
+# MyBatis
+
+[mybatis](https://mybatis.org/mybatis-3/)
+
+## 配置
+
+构件一个父工程 参照maven父子工程
+
+pom.xml
+
+```xml
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <junit.version>4.13.2</junit.version>
+        <mysql.version>8.0.29</mysql.version>
+        <mybatis.version>3.5.9</mybatis.version>
+        <lombok.version>1.18.24</lombok.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>mysql</groupId>
+                <artifactId>mysql-connector-java</artifactId>
+                <version>${mysql.version}</version>
+            </dependency>
+            <!--mybatis-->
+            <dependency>
+                <groupId>org.mybatis</groupId>
+                <artifactId>mybatis</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            <!--lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+```
+
+子工程 pom.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <parent>
+        <artifactId>test-mybatis</artifactId>
+        <groupId>com.sxc</groupId>
+        <version>1.0-SNAPSHOT</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>mybatis-01</artifactId>
+
+    <!-- 下面是项目下的镜像配置 -->
+    <repositories>
+        <repository>
+            <id>alimaven</id>
+            <name>aliyun maven</name>
+            <url>https://maven.aliyun.com/repository/public</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <!--mybatis-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+        </dependency>
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+    </dependencies>
+
+    <!--下面是build配置，构建配置-->
+    <build>
+        <!-- 产生的构件的文件名，默认值是${artifactId}-${version}。 -->
+        <sourceDirectory>${basedir}\src\main\java</sourceDirectory>
+        <!--项目单元测试使用的源码目录，当测试项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
+        <outputDirectory>${basedir}\target\classes</outputDirectory>
+        <!--被编译过的测试class文件存放的目录。 -->
+        <testOutputDirectory>${basedir}\target\test-classes
+        </testOutputDirectory>
+        <!-- 以上配置都有默认值，就是约定好了目录就这么建 -->
+
+        <!-- 如果要把xml等资源文件放在src/main下面则需要配下面这个 -->
+        <resources>
+            <resource>
+                <directory>src/main/java</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+            <resource>
+                <directory>src/main/resources</directory>
+                <includes>
+                    <include>**/*.properties</include>
+                    <include>**/*.xml</include>
+                </includes>
+                <filtering>false</filtering>
+            </resource>
+        </resources>
+
+        <!--使用的插件列表 。 -->
+        <plugins>
+            <!-- jdk版本 也可以配在这里 选一个地方配即可必须配 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>1.8</source> <!-- 源代码使用的JDK版本 -->
+                    <target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>UTF-8</encoding><!-- 字符集编码 -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
 ```
