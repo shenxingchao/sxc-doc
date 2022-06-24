@@ -3164,7 +3164,7 @@ import org.junit.Test;
 import java.util.logging.*;
 
 public class TestJUL {
-    //获取一个jul日期对象
+    //获取一个jul日志对象
     public static final Logger LOGGER = Logger.getLogger("logger");
 
     @Test
@@ -3201,7 +3201,7 @@ public class TestJUL {
 
 ```java
 public class TestJUL {
-    //获取一个jul日期对象
+    //获取一个jul日志对象
     public static final Logger LOGGER = Logger.getLogger("logger");
 
     @Test
@@ -3276,7 +3276,7 @@ public class TestJUL {
 
 ```java
 public class TestJUL {
-    //获取一个jul日期对象
+    //获取一个jul日志对象
     public static final Logger LOGGER = Logger.getLogger("logger");
 
     @Test
@@ -3318,21 +3318,31 @@ public class TestJUL {
 修改下面的配置
 
 ```
-#可以配置多个
+#rootHandler可以配置多个
 handlers= java.util.logging.FileHandler,java.util.logging.ConsoleHandler
-#日志级别 ALL INFO ....
+#rootHandler日志级别 ALL INFO WARNING SEVERE FINE FINER....
 .level= ALL
 
+
+#%u是下面count的计数，作用于生成的文件名 %h 是home路径
 #java.util.logging.FileHandler.pattern = %h/java%u.log
-#%u是下面count的计数，作用于生成的文件名
 java.util.logging.FileHandler.pattern = ./java%u.log
 java.util.logging.FileHandler.limit = 50000
 java.util.logging.FileHandler.append = true
 java.util.logging.FileHandler.count = 1
+#文件输出级别
+java.util.logging.FileHandler.level = FINER
 java.util.logging.FileHandler.formatter = java.util.logging.SimpleFormatter
+#不要继承rootHandler
+java.util.logging.FileHandler.useParentHandlers = false
 
-java.util.logging.ConsoleHandler.level = INFO
+#控制台输出级别
+java.util.logging.ConsoleHandler.level = FINER
 java.util.logging.ConsoleHandler.formatter = java.util.logging.SimpleFormatter
+java.util.logging.ConsoleHandler.useParentHandlers = false
+
+#配置格式化 这里的%4$s 代表SimpleFormatter这个类中format方法返回值的第n+1个参数
+java.util.logging.SimpleFormatter.format = level:%4$s "message":%5$s "time":[%1$tc] "THROW:"%6$s %n
 ```
 
 
@@ -3344,31 +3354,621 @@ import java.io.InputStream;
 import java.util.logging.*;
 
 public class TestJUL {
-    //获取一个jul日期对象
-    public static final Logger LOGGER = Logger.getLogger("logger");
-
-    @Test
-    public void testJUL() throws IOException {
+    //在静态代码块初始化root logger配置文件
+    static{
         //获取底层的日志管理器
         LogManager logManager = LogManager.getLogManager();
         InputStream resourceAsStream = Thread.currentThread().getContextClassLoader().getResourceAsStream("logging.properties");
-        logManager.readConfiguration(resourceAsStream);
-        //获取一个控制台处理器
-        ConsoleHandler consoleHandler = new ConsoleHandler();
-        //自定义设置格式化
-        consoleHandler.setFormatter(new Formatter() {
-            @Override
-            public String format(LogRecord record) {
-                return "等级:" + record.getLevel() + "消息:" + record.getMessage()
-                        + "时间戳:" + record.getMillis() + "\r\n";
-            }
-        });
+        try {
+            logManager.readConfiguration(resourceAsStream);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+    //获取一个jul日志对象
+    public static final Logger LOGGER = Logger.getLogger("logger");
 
+    @Test
+    public void testJUL()  {
         //打印日志
         LOGGER.info("info");
         LOGGER.warning("waring");
         LOGGER.severe("deep waring");
         LOGGER.fine("success");
+    }
+}
+```
+
+### 打印异常
+
+```java
+    @Test
+    public void testJUL() {
+        try {
+            int i = 1 / 0;
+        } catch (Exception e) {
+            //打印异常日志
+            LOGGER.throwing(Thread.currentThread().getName(), "testJUL", e);
+        }
+    }
+```
+
+## log4j
+
+不推荐了，只是试一下
+
+pom.xml引入依赖
+
+```xml
+<dependency>
+    <groupId>log4j</groupId>
+    <artifactId>log4j</artifactId>
+    <version>1.2.17</version>
+</dependency>
+```
+
+### 基本案例
+
+```java
+import org.apache.log4j.BasicConfigurator;
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
+public class TestLog4J {
+
+    static {
+        //初始化最基本的配置 输出级别debug
+        BasicConfigurator.configure();
+    }
+    //获取一个jul日志对象
+    public static final Logger LOGGER = Logger.getLogger(TestLog4J.class);
+
+    @Test
+    public void testLog4J() {
+        // 日志记录输出
+        LOGGER.info("hello log4j");
+        // 日志级别
+        LOGGER.fatal("fatal"); // 严重错误，一般会造成系统崩溃和终止运行
+        LOGGER.error("error"); // 错误信息，但不会影响系统运行
+        LOGGER.warn("warn"); // 警告信息，可能会发生问题
+        LOGGER.info("info"); // 程序运行信息，数据库的连接、网络、IO操作等
+        LOGGER.debug("debug"); // 调试信息，一般在开发阶段使用，记录程序的变量、参数等
+        LOGGER.trace("trace"); // 追踪信息，记录程序的所有流程信息
+    }
+}
+```
+
+### 自定义格式化
+
+```java
+import org.apache.log4j.*;
+import org.apache.log4j.spi.LoggingEvent;
+import org.junit.Test;
+
+public class TestLog4J {
+
+    static {
+        //自定义配置
+        Logger root = Logger.getRootLogger();
+        root.addAppender(new ConsoleAppender(
+                new Layout() {
+                    @Override
+                    public String format(LoggingEvent loggingEvent) {
+                        return "name:" + loggingEvent.getLoggerName() + " level:" + loggingEvent.getLevel()
+                                + " timestamp:" + loggingEvent.getTimeStamp() + " message:" + loggingEvent.getMessage()
+                                + "\r\n";
+                    }
+
+                    @Override
+                    public boolean ignoresThrowable() {
+                        return false;
+                    }
+
+                    @Override
+                    public void activateOptions() {
+
+                    }
+                }
+        ));
+    }
+
+    //获取一个jul日志对象
+    public static final Logger LOGGER = Logger.getLogger(TestLog4J.class);
+
+    @Test
+    public void testLog4J() {
+        // 日志记录输出
+        LOGGER.info("hello log4j");
+        // 日志级别
+        LOGGER.fatal("fatal"); // 严重错误，一般会造成系统崩溃和终止运行
+        LOGGER.error("error"); // 错误信息，但不会影响系统运行
+        LOGGER.warn("warn"); // 警告信息，可能会发生问题
+        LOGGER.info("info"); // 程序运行信息，数据库的连接、网络、IO操作等
+        LOGGER.debug("debug"); // 调试信息，一般在开发阶段使用，记录程序的变量、参数等
+        LOGGER.trace("trace"); // 追踪信息，记录程序的所有流程信息
+    }
+}
+```
+
+### 默认格式化占位符
+
+```
+%m 输出代码中指定的日志信息
+%p 输出日志级别，及 DEBUG、INFO 等
+%n 换行符（Windows平台的换行符为 "\n"，Unix 平台为 "\n"）
+%r 输出自应用启动到输出该 log 信息耗费的毫秒数
+%c 输出打印语句所属的类的全名
+%t 输出产生该日志的线程全名
+%d 输出服务器当前时间，默认为 ISO8601，也可以指定格式，如：%d{yyyy年MM月dd日HH:mm:ss}
+%l 输出日志时间发生的位置，包括类名、线程、及在代码中的行数。如：Test.main(Test.java:10)
+%F 输出日志消息产生时所在的文件名称
+%L 输出代码中的行号
+%% 输出一个 "%" 字符
+* 可以在 % 与字符之间加上修饰符来控制最小宽度、最大宽度和文本的对其方式。如：
+%5c 输出category名称，最小宽度是5，category<5，默认的情况下右对齐
+%-5c 输出category名称，最小宽度是5，category<5，"-"号指定左对齐,会有空格
+%.5c 输出category名称，最大宽度是5，category>5，就会将左边多出的字符截掉，<5不会有空格
+%20.30c category名称<20补空格，并且右对齐，>30字符，就从左边交远销出的字符截掉
+```
+
+```java
+    static {
+        //自定义配置
+        Logger root = Logger.getRootLogger();
+        root.addAppender(new ConsoleAppender(new PatternLayout("%r [%t] %p %c %x - %m%n")));
+    }
+```
+
+### 日志写入Mysql
+
+pom.xml配置mysql依赖
+
+```xml
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>5.1.49</version>
+        <!-- 5.1.49对应mysql5.6;5.7以上用8.x  -->
+    </dependency>
+```
+
+创建一张日志表
+
+```sql
+CREATE TABLE `log` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `create_date` varchar(255) DEFAULT NULL COMMENT '创建时间',
+    `level` varchar(255) DEFAULT NULL COMMENT '优先级',
+    `category` varchar(255) DEFAULT NULL COMMENT '所在类的全名',
+    `file_name` varchar(255) DEFAULT NULL COMMENT '输出日志消息产生时所在的文件名称 ',
+    `thread_name` varchar(255) DEFAULT NULL COMMENT '日志事件的线程名',
+    `line` varchar(255) DEFAULT NULL COMMENT '号行',
+    `all_category` varchar(255) DEFAULT NULL COMMENT '日志事件的发生位置',
+    `message` text DEFAULT NULL COMMENT '输出代码中指定的消息',
+    PRIMARY KEY (`id`)
+);
+```
+
+```java
+import org.apache.log4j.*;
+import org.apache.log4j.jdbc.JDBCAppender;
+import org.junit.Test;
+
+public class TestLog4J {
+
+    static {
+        //自定义配置
+        Logger root = Logger.getRootLogger();
+        JDBCAppender jdbcAppender = new JDBCAppender();
+        //驱动如果是8.x的 下面的驱动路径需要改成com.mysql.cj.jdbc.Driver
+        jdbcAppender.setDriver("com.mysql.jdbc.Driver");
+        jdbcAppender.setURL("jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8");
+        jdbcAppender.setUser("root");
+        jdbcAppender.setPassword("");
+        jdbcAppender.setSql("INSERT INTO log(create_date,level,category,file_name,thread_name,line,all_category,message) values('%d{yyyy-MM-dd HH:mm:ss}','%p','%c','%F','%t','%L','%l','%m')");
+        root.addAppender(jdbcAppender);
+    }
+
+    //获取一个jul日志对象
+    public static final Logger LOGGER = Logger.getLogger(TestLog4J.class);
+
+    @Test
+    public void testLog4J() {
+        // 日志记录输出
+        LOGGER.info("hello log4j");
+        // 日志级别
+        LOGGER.fatal("fatal"); // 严重错误，一般会造成系统崩溃和终止运行
+        LOGGER.error("error"); // 错误信息，但不会影响系统运行
+        LOGGER.warn("warn"); // 警告信息，可能会发生问题
+        LOGGER.info("info"); // 程序运行信息，数据库的连接、网络、IO操作等
+        LOGGER.debug("debug"); // 调试信息，一般在开发阶段使用，记录程序的变量、参数等
+        LOGGER.trace("trace"); // 追踪信息，记录程序的所有流程信息
+    }
+}
+```
+
+### 自定义日志配置文件
+
+存放到src/main/resource/log4j.properties
+
+在初始化话getLigger的时候默认会去读取配置文件
+
+```
+#root logger指定日志的输出级别与输出端 ALL是输出级别 Console,fileAppender,dbAppender是appender的名称
+log4j.rootLogger=ALL,consoleAppender,fileAppender,dbAppender
+#自定义每个包的logger
+log4j.logger.customLoggerName=ALL,consoleAppender,fileAppender,dbAppender
+#设置不要继承root logger
+log4j.additivity.customLoggerName=false
+# 控制台输出配置
+log4j.appender.consoleAppender=org.apache.log4j.ConsoleAppender
+log4j.appender.consoleAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.consoleAppender.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n
+# 文件输出配置 日期滚动处理器
+log4j.appender.fileAppender=org.apache.log4j.DailyRollingFileAppender
+#指定日志的输出路径
+log4j.appender.fileAppender.file=./log.txt
+#指定写入方式追加
+log4j.appender.fileAppender.append=true
+#使用自定义日志格式化器
+log4j.appender.fileAppender.layout=org.apache.log4j.PatternLayout
+#指定日志的输出格式
+log4j.appender.fileAppender.layout.ConversionPattern=%-d{yyyy-MM-dd HH:mm:ss} [%t:%r] -[%p] %m%n
+#指定日志的文件编码
+log4j.appender.fileAppender.encoding=UTF-8
+#mysql
+log4j.appender.dbAppender=org.apache.log4j.jdbc.JDBCAppender
+log4j.appender.dbAppender.layout=org.apache.log4j.PatternLayout
+#mysql5.7及以上  驱动用8.0的时候变成com.mysql.cj.jdbc.Driver
+log4j.appender.dbAppender.Driver=com.mysql.jdbc.Driver
+log4j.appender.dbAppender.URL=jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8
+log4j.appender.dbAppender.User=root
+log4j.appender.dbAppender.Password=
+log4j.appender.dbAppender.Sql=INSERT INTO log(create_date,level,category,file_name,thread_name,line,all_category,message) values('%d{yyyy-MM-dd HH:mm:ss}','%p','%c','%F','%t','%L','%l','%m')
+```
+
+下面是自定义名称，用了字符串
+
+```java
+import org.apache.log4j.Logger;
+import org.junit.Test;
+
+public class TestLog4J {
+    //获取一个jul日志对象
+    public static final Logger LOGGER = Logger.getLogger("customLoggerName");
+
+    @Test
+    public void testLog4J() {
+        // 日志记录输出
+        LOGGER.info("hello log4j");
+        // 日志级别
+        LOGGER.fatal("fatal"); // 严重错误，一般会造成系统崩溃和终止运行
+        LOGGER.error("error"); // 错误信息，但不会影响系统运行
+        LOGGER.warn("warn"); // 警告信息，可能会发生问题
+        LOGGER.info("info"); // 程序运行信息，数据库的连接、网络、IO操作等
+        LOGGER.debug("debug"); // 调试信息，一般在开发阶段使用，记录程序的变量、参数等
+        LOGGER.trace("trace"); // 追踪信息，记录程序的所有流程信息
+    }
+}
+```
+
+## slf4j
+
+slf4j是一个日志门面（相当于是一个统一的规约 就和mysql规约一样）
+
+首先引入依赖
+
+pom.xml
+
+```xml
+    <!--门面（接口规范）-->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+    <!--简单实现-->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-simple</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+```
+
+### 使用他的简单实现
+
+```java
+public class TestSlf4j {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger(TestSlf4j.class);
+
+    @Test
+    public void testSlf4j() {
+        //打印日志信息
+        LOGGER.error("error");
+        LOGGER.warn("warn");
+        LOGGER.info("info");
+        LOGGER.debug("debug");
+        LOGGER.trace("trace");
+        // 使用占位符输出日志信息
+        String name = "lucy";
+        Integer age = 18;
+        LOGGER.info("{}今年{}岁了！", name, age);
+        // 将系统异常信息写入日志
+        try {
+            int i = 1 / 0;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            LOGGER.info("出现异常：", e);
+        }
+    }
+}
+```
+
+### 绑定一些过时的库
+
+例如绑定log4j，相当于用slf4j的方式去使用log4j了,slf4j只是接口规范，记住
+
+pom.xml添加依赖
+
+```xml
+    <!--门面（接口规范）-->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+    <!--绑定log4j-->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-log4j12</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+    <!--log4j-->
+    <dependency>
+        <groupId>log4j</groupId>
+        <artifactId>log4j</artifactId>
+        <version>1.2.17</version>
+    </dependency>
+```
+
+修改log4j的配置文件如下
+
+```
+log4j.rootLogger=ALL,consoleAppender
+#这里修改为WARN
+log4j.logger.customLoggerName=WARN,consoleAppender
+log4j.additivity.customLoggerName=false
+# 控制台输出配置
+log4j.appender.consoleAppender=org.apache.log4j.ConsoleAppender
+log4j.appender.consoleAppender.layout=org.apache.log4j.PatternLayout
+log4j.appender.consoleAppender.layout.ConversionPattern=%d [%t] %-5p [%c] - %m%n
+```
+
+使用slf4j的方式去使用log4j，看到只能打印出Warn级别的
+
+```java
+public class TestSlf4j {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger("customLoggerName");
+
+    @Test
+    public void testSlf4j() {
+        //打印日志信息
+        LOGGER.error("error");
+        LOGGER.warn("warn");
+        LOGGER.info("info");
+        LOGGER.debug("debug");
+        LOGGER.trace("trace");
+        // 使用占位符输出日志信息
+        String name = "lucy";
+        Integer age = 18;
+        LOGGER.info("{}今年{}岁了！", name, age);
+        // 将系统异常信息写入日志
+        try {
+            int i = 1 / 0;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            LOGGER.info("出现异常：", e);
+        }
+    }
+}
+```
+
+## log4j2
+
+[log4j2](https://logging.apache.org/log4j/2.x/manual/configuration.html#XML)
+[log4j2 jdbc](https://logging.apache.org/log4j/2.x/manual/appenders.html#JDBCAppender)
+
+0. 创建数据库dbname
+
+建表
+
+```sql
+创建一张日志表
+
+```sql
+CREATE TABLE `log` (
+    `id` int(11) NOT NULL AUTO_INCREMENT,
+    `create_date` varchar(255) DEFAULT NULL COMMENT '创建时间',
+    `level` varchar(255) DEFAULT NULL COMMENT '优先级',
+    `category` varchar(255) DEFAULT NULL COMMENT '所在类的全名',
+    `file_name` varchar(255) DEFAULT NULL COMMENT '输出日志消息产生时所在的文件名称 ',
+    `thread_name` varchar(255) DEFAULT NULL COMMENT '日志事件的线程名',
+    `line` varchar(255) DEFAULT NULL COMMENT '号行',
+    `all_category` varchar(255) DEFAULT NULL COMMENT '日志事件的发生位置',
+    `message` text DEFAULT NULL COMMENT '输出代码中指定的消息',
+    PRIMARY KEY (`id`)
+);
+```
+
+1. 需要创建一个德鲁伊数据库的工厂类
+
+druid.properties 放到src/main/resources下 见JDBC德鲁伊
+
+
+然后创建工厂类
+
+```java
+import com.alibaba.druid.pool.DruidDataSourceFactory;
+
+import javax.sql.DataSource;
+import java.io.BufferedInputStream;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.util.Objects;
+import java.util.Properties;
+
+public class ConnectionFactory {
+    private interface Singleton {
+        ConnectionFactory INSTANCE = new ConnectionFactory();
+    }
+
+    private final DataSource dataSource;
+
+    private ConnectionFactory() {
+        try {
+            //新建Properties对象
+            Properties properties = new Properties();
+            //获取文件输入流
+            BufferedInputStream bufferedInputStream = new BufferedInputStream(Objects.requireNonNull(Thread.currentThread().getContextClassLoader().getResourceAsStream("druid.properties")));
+            //加载输入流到properties对象
+            properties.load(bufferedInputStream);
+            //关闭流
+            bufferedInputStream.close();
+            //使用properties创建
+            dataSource = DruidDataSourceFactory.createDataSource(properties);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public static Connection getDatabaseConnection() throws SQLException {
+        return Singleton.INSTANCE.dataSource.getConnection();
+    }
+}
+```
+
+2. 添加依赖
+
+pom.xml
+
+```xml
+    <!-- Log4j2 门面API-->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-api</artifactId>
+        <version>2.17.2</version>
+    </dependency>
+    <!-- Log4j2 日志实现 -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-core</artifactId>
+        <version>2.17.2</version>
+    </dependency>
+    <!--使用slf4j作为日志的门面,使用log4j2来记录日志 -->
+    <dependency>
+        <groupId>org.slf4j</groupId>
+        <artifactId>slf4j-api</artifactId>
+        <version>1.7.36</version>
+    </dependency>
+    <!--为slf4j绑定日志实现 log4j2的适配器 -->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-slf4j-impl</artifactId>
+        <version>2.17.2</version>
+    </dependency>
+    <!--支持web-->
+    <dependency>
+        <groupId>org.apache.logging.log4j</groupId>
+        <artifactId>log4j-web</artifactId>
+        <version>2.17.2</version>
+    </dependency>
+```
+
+3.log4j2.xml配置
+
+一样放在resources目录下 src/main/resourecs/log4j2.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status日志系统本身的level monitorInterval自动重启-->
+<Configuration status="error" monitorInterval="30">
+    <Appenders>
+        <!--控制台 name名称-->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <!--22-06-24 13:08:14 [main] TestSlf4j - error 日期 线程 类名 错误消息 换行-->
+            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n"/>
+        </Console>
+        <!--文件-->
+        <RollingFile name="fileAppender" fileName="log.txt"
+                     filePattern="./log-%d{yy-MM-dd}-%i.txt">
+            <PatternLayout>
+                <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n</pattern>
+            </PatternLayout>
+            <!--这里的配置去网上搜下暂时没研究了-->
+            <SizeBasedTriggeringPolicy size="100"/>
+        </RollingFile>
+        <!--数据库Appender-->
+        <JDBC name="databaseAppender" tableName="dbname.log">
+            <ConnectionFactory class="ConnectionFactory" method="getDatabaseConnection"/>
+            <Column name="create_date" pattern="%d{yyyy-MM-dd HH:mm:ss}"/>
+            <Column name="level" pattern="%p"/>
+            <Column name="category" pattern="%c"/>
+            <Column name="file_name" pattern="%F"/>
+            <Column name="thread_name" pattern="%t"/>
+            <Column name="line" pattern="%L"/>
+            <Column name="all_category" pattern="%l"/>
+            <Column name="message" pattern="%m"/>
+        </JDBC>
+    </Appenders>
+    <Loggers>
+        <!--自定义logger配置 additivity不继承root的-->
+        <Logger name="customLoggerName" level="ALL" additivity="false">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="databaseAppender"/>
+            <AppenderRef ref="fileAppender"/>
+        </Logger>
+        <!--root logger-->
+        <Root level="WARN">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="databaseAppender"/>
+            <AppenderRef ref="fileAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+4. 使用
+
+```java
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+public class TestSlf4j {
+
+    public static final Logger LOGGER = LoggerFactory.getLogger("customLoggerName");
+
+    @Test
+    public void testSlf4j() {
+        //打印日志信息
+        LOGGER.error("error");
+        LOGGER.warn("warn");
+        LOGGER.info("info");
+        LOGGER.debug("debug");
+        LOGGER.trace("trace");
+        // 使用占位符输出日志信息
+        String name = "lucy";
+        Integer age = 18;
+        LOGGER.info("{}今年{}岁了！", name, age);
+        // 将系统异常信息写入日志
+        try {
+            int i = 1 / 0;
+        } catch (Exception e) {
+            // e.printStackTrace();
+            LOGGER.info("出现异常：", e);
+        }
     }
 }
 ```
