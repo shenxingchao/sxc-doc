@@ -3913,13 +3913,23 @@ pom.xml
             <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n"/>
         </Console>
         <!--文件-->
-        <RollingFile name="fileAppender" fileName="log.txt"
-                     filePattern="./log-%d{yy-MM-dd}-%i.txt">
+        <RollingFile name="fileAppender" fileName="./log/log.txt"
+                     filePattern="./log/log-%d{yy-MM-dd}-%i.txt">
             <PatternLayout>
                 <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n</pattern>
             </PatternLayout>
-            <!--这里的配置去网上搜下暂时没研究了-->
-            <SizeBasedTriggeringPolicy size="100"/>
+            <Policies>
+                <!--每个日志大小-->
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <!--max=10最多创建10个日志-->
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="./" maxDepth="2">
+                    <IfFileName glob="./*/*.log"/>
+                    <!--保留7天-->
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
         </RollingFile>
         <!--数据库Appender-->
         <JDBC name="databaseAppender" tableName="dbname.log">
