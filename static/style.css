@@ -2,12 +2,6 @@
   width: 1rem;
   height: 1rem;
 }
-.mermaid{
-  max-width: 100%;
-}
-.mermaid > svg{
-  max-width: 100%;
-}
 .search {
   margin-bottom: 10px !important;
 }
