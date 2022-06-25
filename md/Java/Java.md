@@ -16,7 +16,7 @@ jre = JVM(java虚拟机) + Java核心类库
 
 # 环境变量
 
-直接我的电脑系统变量Path配置 jdk bin目录和 jre bin目录(根本不需要什么JAVA_HOME这种的，如果还要配置jdk下的其他目录，直接加就行了,简单明了)
+直接我的电脑系统变量Path配置 jdk bin目录和 jre bin目录  JAVA_HOME
 
 ```java
 D:\jdk1.8.0_191\bin
@@ -128,8 +128,13 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 # 常用数据类型
 
 ```java
-public class VarType {
+public class Demo {
     public static void main(String[] args) {
+        //字节
+        byte aByte = (byte) 'a';
+        System.out.println(aByte);//97
+        short aShort = -32768;//-s32768, 32767
+        System.out.println(aShort);
         // 整形
         int a = 123;
         int b = 345;
@@ -144,9 +149,6 @@ public class VarType {
         // 双精度浮点数
         double d = 3.1415926;
         System.out.println(d);
-        // 字符串ps:不是基本数据类型
-        String str = "hello world";
-        System.out.println(str);
         // 单个字符 单引号
         char word = 97;
         System.out.println(word);
@@ -155,6 +157,9 @@ public class VarType {
         boolean boolFalse = false;
         System.out.println(boolTrue);
         System.out.println(boolFalse);
+        // 字符串ps:不是基本数据类型
+        String str = "hello world";
+        System.out.println(str);
     }
 }
 ```
