@@ -2869,7 +2869,7 @@ pom.xml             Maven工程配置文件
 
         <!--使用的插件列表 。 -->
         <plugins>
-            <!-- jdk版本 也可以配在这里 选一个地方配即可必须配 -->
+            <!-- Maven使用的jdk版本，不配置默认是1.5必须配置 -->
             <plugin>                                       
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -3132,7 +3132,24 @@ cat admin.password
 | 包名                                                    | 说明                                             |
 | :------------------------------------------------------ | :----------------------------------------------- |
 | [commons-lang3](https://www.jianshu.com/p/89287d907b68) | 对java.lang的扩展 处理字符串日期等。使用xxxUtil. |
+| lombok | lombok可以简化orm类的编写，不需要写setter/getter/构造函数，编译后自动加上 |
 
+## lombok
+
+IDEA需要安装Lombok插件，一般已经默认装好了
+
+```java
+//以下是LomBook的注释
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int id;
+    private String name;
+    private String age;
+}
+```
 
 # 日志
 
@@ -3784,7 +3801,6 @@ public class TestSlf4j {
 
 建表
 
-```sql
 创建一张日志表
 
 ```sql
@@ -3999,13 +4015,58 @@ public class TestSlf4j {
 
 [mybatis](https://mybatis.org/mybatis-3/)
 
+## 安装插件
+
+IDEA插件 Free MyBatis Tool
+
 ## 配置
+
+### 案例数据库
+
+新建一个dbname的数据库
+
+表格数据
+
+```sql
+DROP TABLE IF EXISTS `user`;
+CREATE TABLE `user`  (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '',
+  `age` int(2) UNSIGNED NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 4 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user
+-- ----------------------------
+INSERT INTO `user` VALUES (1, '张三', 1);
+INSERT INTO `user` VALUES (2, '李四', 1);
+INSERT INTO `user` VALUES (3, '李四', 2);
+
+SET FOREIGN_KEY_CHECKS = 1;
+```
+
+### 工程配置
 
 构件一个父工程 参照maven父子工程
 
 pom.xml
 
 ```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sxc</groupId>
+    <artifactId>test-mybatis</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>mybatis-01</module>
+    </modules>
+    <packaging>pom</packaging>
+
     <properties>
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
@@ -4013,6 +4074,9 @@ pom.xml
         <mysql.version>8.0.29</mysql.version>
         <mybatis.version>3.5.9</mybatis.version>
         <lombok.version>1.18.24</lombok.version>
+        <log4j.version>2.17.2</log4j.version>
+        <slf4j.version>1.7.36</slf4j.version>
+        <druid.version>1.2.11</druid.version>
     </properties>
 
     <dependencyManagement>
@@ -4039,9 +4103,47 @@ pom.xml
                 <groupId>org.projectlombok</groupId>
                 <artifactId>lombok</artifactId>
                 <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+            <!-- Log4j2 门面API-->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-api</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <!-- Log4j2 日志实现 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-core</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <!--使用slf4j作为日志的门面,使用log4j2来记录日志 -->
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>${slf4j.version}</version>
+            </dependency>
+            <!--为slf4j绑定日志实现 log4j2的适配器 -->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-slf4j-impl</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <!--支持web-->
+            <dependency>
+                <groupId>org.apache.logging.log4j</groupId>
+                <artifactId>log4j-web</artifactId>
+                <version>${log4j.version}</version>
+            </dependency>
+            <!--德鲁伊-->
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid</artifactId>
+                <version>${druid.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
+</project>
 ```
 
 子工程 pom.xml
@@ -4099,20 +4201,42 @@ pom.xml
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <!-- Log4j2 门面API-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+        </dependency>
+        <!-- Log4j2 日志实现 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+        </dependency>
+        <!--使用slf4j作为日志的门面,使用log4j2来记录日志 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+        </dependency>
+        <!--为slf4j绑定日志实现 log4j2的适配器 -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+        </dependency>
+        <!--支持web-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-web</artifactId>
+        </dependency>
+        <!--德鲁伊-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
         </dependency>
     </dependencies>
 
     <!--下面是build配置，构建配置-->
     <build>
-        <!-- 产生的构件的文件名，默认值是${artifactId}-${version}。 -->
-        <sourceDirectory>${basedir}\src\main\java</sourceDirectory>
-        <!--项目单元测试使用的源码目录，当测试项目的时候，构建系统会编译目录里的源码。该路径是相对于pom.xml的相对路径。 -->
-        <outputDirectory>${basedir}\target\classes</outputDirectory>
-        <!--被编译过的测试class文件存放的目录。 -->
-        <testOutputDirectory>${basedir}\target\test-classes
-        </testOutputDirectory>
-        <!-- 以上配置都有默认值，就是约定好了目录就这么建 -->
-
         <!-- 如果要把xml等资源文件放在src/main下面则需要配下面这个 -->
         <resources>
             <resource>
@@ -4135,7 +4259,7 @@ pom.xml
 
         <!--使用的插件列表 。 -->
         <plugins>
-            <!-- jdk版本 也可以配在这里 选一个地方配即可必须配 -->
+            <!-- Maven使用的jdk版本，不配置默认是1.5必须配置 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
@@ -4149,4 +4273,429 @@ pom.xml
         </plugins>
     </build>
 </project>
+```
+
+### Mybatis配置
+
+resource目录下新建mybatis-config.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration
+        PUBLIC "-//mybatis.org//DTD Config 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <properties>
+        <property name="driver" value="com.mysql.cj.jdbc.Driver"/>
+        <property name="url"
+                  value="jdbc:mysql://localhost:3307/dbname?useSSL=false&amp;rewriteBatchedStatements=true&amp;
+        characterEncoding=utf-8&amp;serverTimezone=Asia/Shanghai"/>
+        <property name="username" value="root"/>
+        <property name="password" value=""/>
+    </properties>
+    <!--配置别名，其实就是配置map.xml下sql标签resultType的根路径 配置之后就可以简写 <select id="select" resultType="User">xxx</select>-->
+    <typeAliases>
+        <package name="com.sxc.entity"/>
+    </typeAliases>
+    <!--配置开发啊-->
+    <environments default="development">
+        <environment id="development">
+            <transactionManager type="JDBC"/>
+            <dataSource type="POOLED">
+                <property name="driver" value="${driver}"/>
+                <property name="url" value="${url}"/>
+                <property name="username" value="${username}"/>
+                <property name="password" value="${password}"/>
+            </dataSource>
+        </environment>
+        <!--德鲁伊配置 使用druid需要将上面的default改为production-->
+        <environment id="production">
+            <transactionManager type="JDBC"/>
+            <dataSource type="com.sxc.dataSource.DruidDataSourceFactory">
+                <property name="druid.driverClass" value="${driver}"/>
+                <property name="druid.url" value="${url}"/>
+                <property name="druid.username" value="${username}"/>
+                <property name="druid.password" value="${password}"/>
+            </dataSource>
+        </environment>
+    </environments>
+    <!--使用这个mapper进行映射sql语句-->
+    <mappers>
+        <mapper resource="UserMapper.xml"/>
+    </mappers>
+</configuration>
+```
+
+resource目录下新建数据库映射UserMapper.xml
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--namespace和id分别为接口全路径和接口里面的抽象方法-->
+    <select id="selectUserList" resultType="com.sxc.entity.User">
+        SELECT * FROM user
+    </select>
+</mapper>
+```
+
+### mybatis集成log4j2
+
+resource下面新建log4j2.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status日志系统本身的level monitorInterval自动重启-->
+<Configuration status="error" monitorInterval="30">
+    <Appenders>
+        <!--控制台 name名称-->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <!--22-06-24 13:08:14 [main] TestSlf4j - error 日期 线程 类名 错误消息 换行-->
+            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!--root logger-->
+        <Root level="ALL">
+            <AppenderRef ref="consoleAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>
+```
+
+### orm类
+
+src/main/java下新建 com.sxc.entity.User
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注释
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private int id;
+    @NonNull
+    private  String name;
+    private int age;
+}
+```
+
+### mapper接口
+
+src/main/java/com/sxc/mapper/UserMapper 底层会通过代理实现一个mapper实例
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.User;
+
+import java.util.List;
+
+public interface UserMapper {
+    List<User> selectUserList();
+}
+```
+
+### 使用
+
+test/java目录下新建TestMyBatis
+
+```java
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+@Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
+public class TestMyBatis {
+
+    @Test
+    public void testMyBatis() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        //自动释放连接
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+            List<User> userList = mapper.selectUserList();
+            log.debug("res [{}]",userList);//res [[User(id=1, name=张三, age=1), User(id=2, name=李四, age=1), User(id=3, name=李四, age=2)]]
+        }
+    }
+}
+```
+
+## 增删改查
+
+src/main/resource/UserMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--#{}代表生成的sql语句使用占位符? 如果是${}代表的是字符串直接代入SELECT * FROM user WHERE id = ?-->
+    <!--根据id查询-->
+    <select id="selectOne" resultType="com.sxc.entity.User">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
+    </select>
+    <!--多条件查询-->
+    <select id="selectByIdAndName" resultType="com.sxc.entity.User">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
+          and name = #{name}
+    </select>
+    <!--通过对象条件查询-->
+    <select id="selectByUser" resultType="com.sxc.entity.User">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
+          and name = #{name}
+    </select>
+    <!--通过map来查询-->
+    <select id="selectByMap" resultType="com.sxc.entity.User">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
+          and name = #{name}
+    </select>
+    <!--模糊查询${}可以进行字符串拼接，%%也可在外面传参的时候拼接-->
+    <select id="selectByName" resultType="com.sxc.entity.User">
+        SELECT *
+        FROM user
+        WHERE name LIKE '%${name}%'
+    </select>
+    <!--新增单条记录-->
+    <insert id="insert">
+        INSERT INTO `user` (`name`, `age`)
+        VALUES (#{name}, #{age})
+    </insert>
+    <!--更新记录-->
+    <update id="updateById">
+        UPDATE `user`
+        SET `name`=#{name}
+        WHERE id > #{id}
+    </update>
+    <!--删除-->
+    <delete id="deleteById">
+        DELETE
+        FROM `user`
+        WHERE id > #{id}
+    </delete>
+</mapper>
+```
+
+src/main/java/mapper/UserMapper.java
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.User;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.HashMap;
+import java.util.List;
+
+public interface UserMapper {
+    /**
+     * 根据id查询
+     *
+     * @param id
+     * @return
+     */
+    User selectOne(int id);
+
+    /**
+     * 多条件查询
+     *
+     * @param id
+     * @param name
+     * @return
+     */
+    User selectByIdAndName(@Param("id") int id, @Param("name") String name);//@Param 用于对应map sql语句里的占位
+
+    /**
+     * 通过对象条件查询
+     *
+     * @param user
+     * @return
+     */
+    User selectByUser(User user);
+
+    /**
+     * 通过map来查询
+     *
+     * @param hashMap
+     * @return
+     */
+    User selectByMap(HashMap<String, Object> hashMap);
+
+    /**
+     * 模糊查询
+     *
+     * @param name
+     * @return
+     */
+    List<User> selectByName(@Param("name") String name);
+
+    /**
+     * 新增单条记录
+     *
+     * @param user
+     * @return
+     */
+    int insert(User user);
+
+    /**
+     * 根据id更新记录
+     *
+     * @param id
+     * @return
+     */
+    int updateById(@Param("id") int id, @Param("name") String name);
+
+    /**
+     * 根据id删除记录
+     * @param id
+     * @return
+     */
+    int deleteById(@Param("id") int id);
+}
+```
+
+src/test/java/TestMyBatis.java
+
+```java
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.HashMap;
+import java.util.List;
+
+@Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
+public class TestMyBatis {
+
+    @Test
+    public void testMyBatis() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //根据id查询
+            User user = mapper.selectOne(1);
+            log.debug("res [{}]", user);//res [User(id=1, name=张三, age=1)]
+
+            //多条件查询
+            User user2 = mapper.selectByIdAndName(1, "张三");
+            log.debug("res [{}]", user2);//res [User(id=1, name=张三, age=1)]
+
+            //通过对象条件查询
+            User user3 = mapper.selectByUser(new User(1, "张三", 1));
+            log.debug("res [{}]", user3);//res [User(id=1, name=张三, age=1)]
+
+            //通过map来查询
+            HashMap<String, Object> hashMap = new HashMap<>(2);
+            hashMap.put("id", 1);
+            hashMap.put("name", "张三");
+            User user4 = mapper.selectByMap(hashMap);
+            log.debug("res [{}]", user4);//res [User(id=1, name=张三, age=1)]
+
+            //模糊查询
+            List<User> userList = mapper.selectByName("李");
+            log.debug("res [{}]", userList);//res [[User(id=2, name=李四, age=1), User(id=3, name=李四, age=2)]]
+
+            //新增单条记录
+            int affectedRow = 0;
+            try {
+                affectedRow = mapper.insert(new User("王五"));
+                //如果没有设置自动提交，必须手动提交事务
+                session.commit();
+            } catch (Exception e) {
+                log.error("exception [{}]", e.getMessage());
+                session.rollback();
+            }
+            log.debug("res [{}]", affectedRow);//res [1]
+
+            //更新id大于3的记录
+            int affectedRow2 = mapper.updateById(3, "hello mybatis");
+            session.commit();
+            log.debug("res [{}]", affectedRow2);//res [1]
+
+            //删除id大于3的记录
+            int affectedRow3 = mapper.deleteById(3);
+            session.commit();
+            log.debug("res [{}]", affectedRow3);//res [1]
+        }
+    }
+}
+```
+
+## mybatis集成durid德鲁伊连接池
+
+底层原理：mybatis底层解析配置文件时（构件sqlSessionFactory对象里面）会解析配置文件的dataSouce标签中的type属性，创建一个DataSourceFactory,并调用setProperties方法，并返回这个对像并设置到他自己的dataSource属性中
+
+src/main/dataSource下新建德鲁伊数据源工厂类，并配置到mybatis-config.xml当中
+
+```java
+package com.sxc.dataSource;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import org.apache.ibatis.datasource.DataSourceFactory;
+
+import javax.sql.DataSource;
+import java.util.Properties;
+
+public class DruidDataSourceFactory implements DataSourceFactory {
+    private Properties properties;
+
+    /**
+     * mybatis底层解析配置文件时主动调用setProperties方法
+     * @param properties
+     */
+    @Override
+    public void setProperties(Properties properties) {
+        this.properties = properties;
+    }
+
+    @Override
+    public DataSource getDataSource() {
+        try(DruidDataSource druidDataSource = new DruidDataSource()){
+            druidDataSource.configFromPropety(properties);
+            return  druidDataSource;
+        }
+    }
+}
 ```
