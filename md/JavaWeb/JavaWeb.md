@@ -2188,9 +2188,7 @@ apache封装的工具类 数据库ORM
 
 使用DBUtils+JDBCUtilByDruid工具类
 
-**orm(对象关系映射)**
-
-*orm对象（javabean对象或者叫domain对象）*
+**entity(数据表实体类)**
 
 如果是多表，则orm对象的属性就是多张表结合就可以了；如果是重名，则使用别名就可以了;名称可以改为类似UserAddress
 
@@ -2771,7 +2769,7 @@ pom.xml             Maven工程配置文件
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 	
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0     
          http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
@@ -2814,7 +2812,7 @@ pom.xml             Maven工程配置文件
         <mysql.connector.java.version>5.1.49</mysql.connector.java.version>
         <!-- 然后在依赖里使用${mysql.connector.java.version} -->
 
-        <!-- jdk版本 也可以配置在Build当中 -->
+        <!-- jdk版本 还需要在在Build中配置编译插件 -->
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
         <!-- 添加编码，不然编译会有警告 -->
@@ -2870,14 +2868,14 @@ pom.xml             Maven工程配置文件
         <!--使用的插件列表 。 -->
         <plugins>
             <!-- Maven使用的jdk版本，不配置默认是1.5必须配置 -->
-            <plugin>                                       
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source> <!-- 源代码使用的JDK版本 -->
-                    <target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
-                    <encoding>UTF-8</encoding><!-- 字符集编码 -->
+                    <source>${maven.compiler.source}</source> <!-- 源代码使用的JDK版本 -->
+                    <target>${maven.compiler.target}</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>${project.build.sourceEncoding}</encoding><!-- 字符集编码 -->
                 </configuration>
             </plugin>
             <!-- tomcat插件 内嵌tomcat9服务器 -->
@@ -4263,9 +4261,9 @@ pom.xml
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
                 <configuration>
-                    <source>1.8</source> <!-- 源代码使用的JDK版本 -->
-                    <target>1.8</target> <!-- 需要生成的目标class文件的编译版本 -->
-                    <encoding>UTF-8</encoding><!-- 字符集编码 -->
+                    <source>${maven.compiler.source}</source> <!-- 源代码使用的JDK版本 -->
+                    <target>${maven.compiler.target}</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>${project.build.sourceEncoding}</encoding><!-- 字符集编码 -->
                 </configuration>
             </plugin>
         </plugins>
@@ -5454,3 +5452,7 @@ mybatis-config.xml
 ## 分页插件
 
 [github](https://github.com/pagehelper/Mybatis-PageHelper)
+
+# Spring
+
+[官网](https://spring.io/)
