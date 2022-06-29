@@ -2198,9 +2198,9 @@ apache封装的工具类 数据库ORM
 public class User implements Serializable {
     //明确定义，不然会导致序列化和反序列化的对象不一样
     private static final long serialVersionUID = 1L;
-    private int id;
+    private Integer id;
     private String name;
-    private int age;
+    private Integer age;
 
     //可以直接使用无参构造器拿到属性
     public User() {
@@ -3129,10 +3129,10 @@ cat admin.password
 
 # 常用jar包
 
-| 包名                                                    | 说明                                             |
-| :------------------------------------------------------ | :----------------------------------------------- |
-| [commons-lang3](https://www.jianshu.com/p/89287d907b68) | 对java.lang的扩展 处理字符串日期等。使用xxxUtil. |
-| lombok | lombok可以简化orm类的编写，不需要写setter/getter/构造函数，编译后自动加上 |
+| 包名                                                    | 说明                                                                      |
+| :------------------------------------------------------ | :------------------------------------------------------------------------ |
+| [commons-lang3](https://www.jianshu.com/p/89287d907b68) | 对java.lang的扩展 处理字符串日期等。使用xxxUtil.                          |
+| lombok                                                  | lombok可以简化orm类的编写，不需要写setter/getter/构造函数，编译后自动加上 |
 
 ## lombok
 
@@ -3145,9 +3145,9 @@ IDEA需要安装Lombok插件，一般已经默认装好了
 @NoArgsConstructor
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int id;
+    private Integer id;
     private String name;
-    private String age;
+    private Integer age;
 }
 ```
 
@@ -3926,13 +3926,13 @@ pom.xml
         <!--控制台 name名称-->
         <Console name="consoleAppender" target="SYSTEM_OUT">
             <!--22-06-24 13:08:14 [main] TestSlf4j - error 日期 线程 类名 错误消息 换行-->
-            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n"/>
+            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n"/>
         </Console>
         <!--文件-->
         <RollingFile name="fileAppender" fileName="./log/log.txt"
                      filePattern="./log/log-%d{yy-MM-dd}-%i.txt">
             <PatternLayout>
-                <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n</pattern>
+                <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n</pattern>
             </PatternLayout>
             <Policies>
                 <!--每个日志大小-->
@@ -3970,8 +3970,6 @@ pom.xml
         <!--root logger-->
         <Root level="WARN">
             <AppenderRef ref="consoleAppender"/>
-            <AppenderRef ref="databaseAppender"/>
-            <AppenderRef ref="fileAppender"/>
         </Root>
     </Loggers>
 </Configuration>
@@ -4293,6 +4291,14 @@ resource目录下新建mybatis-config.xml
         <property name="username" value="root"/>
         <property name="password" value=""/>
     </properties>
+    <settings>
+        <!--配置mybatis内置的日志实现 STDOUT_LOGGING SLF4J-->
+        <setting name="logImpl" value="SLF4J"/>
+        <!--mybatis日志输出前缀 相当于给sql日志起了名称，然后在log4j2日志的配置文件中可以单独配置sql的日志文件-->
+        <setting name="logPrefix" value="mybatis.sql."/>
+        <!--开启驼峰式命名 goods_name自动转成goodsName-->
+        <setting name="mapUnderscoreToCamelCase" value="true"/>
+    </settings>
     <!--配置别名，其实就是配置map.xml下sql标签resultType的根路径 配置之后就可以简写 <select id="select" resultType="User">xxx</select>-->
     <typeAliases>
         <package name="com.sxc.entity"/>
@@ -4352,14 +4358,39 @@ resource下面新建log4j2.xml
         <!--控制台 name名称-->
         <Console name="consoleAppender" target="SYSTEM_OUT">
             <!--22-06-24 13:08:14 [main] TestSlf4j - error 日期 线程 类名 错误消息 换行-->
-            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %C - %m %n"/>
+            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n"/>
         </Console>
+        <!--文件-->
+        <RollingFile name="fileAppender" fileName="./log/sql.log.txt"
+                     filePattern="./log/log-%d{yy-MM-dd}-%i.txt">
+            <PatternLayout>
+                <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n</pattern>
+            </PatternLayout>
+            <Policies>
+                <!--每个日志大小-->
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <!--max=10最多创建10个日志-->
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="./" maxDepth="2">
+                    <IfFileName glob="./*/*.log"/>
+                    <!--保留7天-->
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
     </Appenders>
     <Loggers>
         <!--root logger-->
-        <Root level="ALL">
+        <Root level="debug">
             <AppenderRef ref="consoleAppender"/>
         </Root>
+        <!--自定义logger配置 additivity不继承root的-->
+        <!--mybatis.sql是mybatis-config.xml配置文件中的log前缀，这样可以单独将sql的日志拿出来-->
+        <Logger name="mybatis.sql" level="debug" additivity="false">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="fileAppender"/>
+        </Logger>
     </Loggers>
 </Configuration>
 ```
@@ -4375,17 +4406,17 @@ import lombok.*;
 
 import java.io.Serializable;
 
-//以下是LomBook的注释
+//以下是LomBook的注解
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
 public class User implements Serializable {
     private static final long serialVersionUID = 1L;
-    private int id;
+    private Integer id;
     @NonNull
     private  String name;
-    private int age;
+    private Integer age;
 }
 ```
 
@@ -4425,12 +4456,18 @@ import java.util.List;
 
 @Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
 public class TestMyBatis {
+    SqlSessionFactory sqlSessionFactory = null;
 
-    @Test
-    public void testMyBatis() throws IOException {
+    //方法名随意 @Before就是junit运行的一个钩子注解  即运行前会执行这个方法
+    @Before
+    public void init() throws IOException {
         String resource = "mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testMyBatis(){
         //自动释放连接
         try (SqlSession session = sqlSessionFactory.openSession()) {
             //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
@@ -4464,21 +4501,21 @@ src/main/resource/UserMapper.xml
         SELECT *
         FROM user
         WHERE id = #{id}
-          and name = #{name}
+          AND name = #{name}
     </select>
     <!--通过对象条件查询-->
     <select id="selectByUser" resultType="com.sxc.entity.User">
         SELECT *
         FROM user
         WHERE id = #{id}
-          and name = #{name}
+          AND name = #{name}
     </select>
     <!--通过map来查询-->
     <select id="selectByMap" resultType="com.sxc.entity.User">
         SELECT *
         FROM user
         WHERE id = #{id}
-          and name = #{name}
+          AND name = #{name}
     </select>
     <!--模糊查询${}可以进行字符串拼接，%%也可在外面传参的时候拼接-->
     <select id="selectByName" resultType="com.sxc.entity.User">
@@ -4533,7 +4570,7 @@ public interface UserMapper {
      * @param name
      * @return
      */
-    User selectByIdAndName(@Param("id") int id, @Param("name") String name);//@Param 用于对应map sql语句里的占位
+    User selectByIdAndName(@Param("id") Integer id, @Param("name") String name);//@Param 用于对应map sql语句里的占位 一定要加上 不使用会报arg0,parma1,让你去用这个
 
     /**
      * 通过对象条件查询
@@ -4573,14 +4610,14 @@ public interface UserMapper {
      * @param id
      * @return
      */
-    int updateById(@Param("id") int id, @Param("name") String name);
+    int updateById(@Param("id") Integer id, @Param("name") String name);
 
     /**
      * 根据id删除记录
      * @param id
      * @return
      */
-    int deleteById(@Param("id") int id);
+    int deleteById(@Param("id") Integer id);
 }
 ```
 
@@ -4603,12 +4640,18 @@ import java.util.List;
 
 @Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
 public class TestMyBatis {
+    SqlSessionFactory sqlSessionFactory = null;
 
-    @Test
-    public void testMyBatis() throws IOException {
+    //方法名随意 @Before就是junit运行的一个钩子注解  即运行前会执行这个方法
+    @Before
+    public void init() throws IOException {
         String resource = "mybatis-config.xml";
         InputStream inputStream = Resources.getResourceAsStream(resource);
-        SqlSessionFactory sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testMyBatis() {
         //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
         try (SqlSession session = sqlSessionFactory.openSession()) {
             //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
@@ -4699,3 +4742,715 @@ public class DruidDataSourceFactory implements DataSourceFactory {
     }
 }
 ```
+
+## 字段别名
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--配置一个字段别名映射 这里的id是下面resultMap的id type就是resultType-->
+    <resultMap id="userMap" type="User">
+        <!--这里的 property是对应实体类的属性名 column是数据库表的列名-->
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+    <select id="selectOne" resultMap="userMap">
+        SELECT *
+        FROM user
+        WHERE id = #{id}
+    </select>
+</mapper>
+```
+
+## 下划线自动转驼峰 
+
+mybatis-config.xml开启驼峰,开启后就不需要配置上面的字段别名,除非你需要的字段名称和数据库的不一样才需要别名
+
+```xml
+    <!--开启驼峰式命名 goods_name自动转成goodsName-->
+    <setting name="mapUnderscoreToCamelCase" value="true"/>
+```
+
+## 动态sql
+
+相当于php里面的链式调用，只不过用xml来写，这样写原生比较容易优化sql，感觉xml写起来很恶心...应该是落伍了
+
+### ifwhere
+
+src/main/java/mapper/UserMapper.java
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.User;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface UserMapper {
+    /**
+     * 查询单条记录 多条件查询 @Param是查询的别名必须加上
+     *
+     * @param id
+     * @param name
+     * @param age
+     * @return
+     */
+    List<User> selectUserList(@Param("id") Integer id,
+                              @Param("name") String name,
+                              @Param("age") Integer age);
+}
+```
+
+sql语句书写 src/main/resource/UserMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--配置一个字段别名映射 这里的id是下面resultMap的id type就是resultType-->
+    <resultMap id="userMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+    <select id="selectUserList" resultMap="userMap">
+        SELECT *
+        FROM user
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="age != null">
+                AND `age` = #{age}
+            </if>
+        </where>
+    </select>
+</mapper>
+```
+
+使用 src/test/java/TestMyBatis.java
+
+```java
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+@Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
+public class TestMyBatis {
+    SqlSessionFactory sqlSessionFactory = null;
+
+    //方法名随意 @Before就是junit运行的一个钩子注解  即运行前会执行这个方法
+    @Before
+    public void init() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testMyBatis() {
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //多条件查询
+            List<User> userList = mapper.selectUserList(null,"张三",null);
+            log.debug("res [{}]", userList);//res [[User(id=1, name=张三, age=1)]]
+        }
+    }
+}
+```
+
+### trim
+
+用于增改语句拼接
+
+```xml
+    <insert id="insert">
+        INSERT INTO `user`
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                `name`,
+            </if>
+            <if test="age != null">
+                `age`,
+            </if>
+        </trim>
+        <trim prefix=" VALUES (" suffix=")" suffixOverrides=",">
+            <if test="name != null and name != ''">
+                #{name},
+            </if>
+            <if test="age != null">
+                #{age},
+            </if>
+        </trim>
+    </insert>
+```
+
+### choosewhen
+
+基本不用和if同样效果
+
+```xml
+    <select id="selectUserList" resultMap="userMap">
+        SELECT *
+        FROM user
+        <where>
+            <choose>
+                <when test="id != null">
+                    AND `id` = #{id}
+                </when>
+                <when test="name != null and name != ''">
+                    AND `name` = #{name}
+                </when>
+                <when test="age != null">
+                    AND `age` = #{age}
+                </when>
+            </choose>
+        </where>
+    </select>
+```
+
+### set
+
+set用于更新记录，可以自动去除语句中的,
+
+UserMapper.java修改如下
+
+```java
+public interface UserMapper {
+    /**
+     * 根据id更新记录
+     *
+     * @param id
+     * @return
+     */
+    int updateById(@Param("id") Integer id, @Param("name") String name,@Param("age") Integer age);
+}
+```
+
+UserMapper.xml
+
+```xml
+    <!--更新记录-->
+    <update id="updateById">
+        UPDATE `user`
+        <set>
+            <if test="name != null and name != ''">
+                name = #{name},
+            </if>
+            <if test="age != null">
+                age = #{age}
+            </if>
+        </set>
+        <!-- 下面这个这么加让他必须传 不要用标签 一般都是有条件的 -->
+        WHERE id > #{id}
+    </update>
+```
+
+```java
+@Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
+public class TestMyBatis {
+    SqlSessionFactory sqlSessionFactory = null;
+
+    //方法名随意 @Before就是junit运行的一个钩子注解  即运行前会执行这个方法
+    @Before
+    public void init() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testMyBatis() {
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //更新id大于3的记录
+            int affectedRow2 = mapper.updateById(3, "hello mybatis",null);
+            session.commit();
+            log.debug("res [{}]", affectedRow2);//res [1]
+        }
+    }
+}
+```
+
+### foreach
+
+可以用于IN查询，IN删除，In修改 和 批量新增
+
+IN查找
+
+UserMapper.java
+
+```java
+public interface UserMapper {
+    //@Param 加上不然会找不到idList
+    List<User> selectUserListByIdList(@Param("idList") List<Integer> idList);
+}
+```
+
+UserMapper.xml
+
+```xml
+    <select id="selectUserListByIdList" resultMap="userMap">
+        SELECT *
+        FROM user
+        WHERE id IN
+        <foreach collection="idList" item="id" open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+```
+
+TestMyBatis.java
+
+```java
+    public void testMyBatis(){
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //多条件查询
+            List<User> userList = mapper.selectUserListByIdList(Arrays.asList(1, 2));
+            log.debug("res [{}]", userList);//res [[User(id=1, name=张三, age=1)]]
+        }
+    }
+```
+
+批量新增
+
+这里不举例了，之前创建的orm类没加name,age的构造器，age上没加@NonNull
+
+```java
+    int insertBatch(@Param("userList") List<User> userList);
+```
+
+```xml
+    <!--parameterType代表传入的是一个List集合-->
+    <insert id="insertBatch" parameterType="List">
+        INSERT INTO `user` (`name`,`age`) VALUES
+        <foreach collection="userList" item="user" separator=",">
+            (#{user.name},#{user.age})
+        </foreach>
+    </insert>
+```
+
+### sql片段
+
+用于提取公共的查询字段
+
+```xml
+    <!--定义片段-->
+    <sql id="selectField">
+        `id`,`name`,`age`
+    </sql>
+    <select id="selectUserList" resultMap="userMap">
+        SELECT <include refid="selectField"/>
+        FROM user
+        <where>
+            <if test="id != null">
+                AND `id` = #{id}
+            </if>
+            <if test="name != null and name != ''">
+                AND `name` = #{name}
+            </if>
+            <if test="age != null">
+                AND `age` = #{age}
+            </if>
+        </where>
+    </select>
+```
+
+### 连表查询
+
+一对一或者多对一使用association
+
+一对多使用collection
+
+用户表在前面找
+
+首先建立用户地址表，假设用户是一对多地址
+
+```sql
+DROP TABLE IF EXISTS `user_address`;
+CREATE TABLE `user_address`  (
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT COMMENT 'id',
+  `address` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL DEFAULT '' COMMENT 'address',
+  `user_id` int(11) UNSIGNED NOT NULL DEFAULT 0 COMMENT '外键',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `user_id`(`user_id`) USING BTREE,
+  CONSTRAINT `user_id_key` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE RESTRICT ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 5 CHARACTER SET = utf8 COLLATE = utf8_general_ci ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of user_address
+-- ----------------------------
+INSERT INTO `user_address` VALUES (1, '上海', 1);
+INSERT INTO `user_address` VALUES (2, '北京', 2);
+INSERT INTO `user_address` VALUES (3, '天津', 1);
+```
+
+然后新建用户实体类src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    @NonNull
+    private  String name;
+    private Integer age;
+
+
+    //一个用户有多个地址
+    private UserAddress userAddress;
+}
+```
+
+建立员工用户地址类src/main/java/com/sxc/entity/UserAddress.java
+
+```java
+package com.sxc.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class UserAddress implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String address;
+}
+```
+
+然后编写查询mapper接口  src/main/java/com/sxc/mappter/UserMapper.java
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.User;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface UserMapper {
+    //一对一
+    List<User> selectUserListOneByOne();
+
+    //一对多
+    List<User> selectUserListOneByMultiple();
+}
+```
+
+src/main/java/com/sxc/mappter/UserAddressMap.java这个这里其实没用到，写一下而已
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.UserAddress;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
+
+public interface UserAddressMap {
+    List<UserAddress> selectAddressList(@Param("userId") Integer userId);
+}
+```
+
+然后创建mapper.xml 这里可以在建一个mapper文件夹，把xml文件放里面
+
+src/main/resource/UserMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--配置一个字段别名映射 这里的id是下面resultMap的id type就是resultType-->
+    <resultMap id="userMap" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <!--一对一 或者多对一 且还能嵌套-->
+        <association property="userAddress" javaType="UserAddress">
+            <id property="id" column="addressId"/>
+            <result property="address" column="address"/>
+        </association>
+    </resultMap>
+    <resultMap id="userMapTwo" type="User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+        <!--多对一 也能嵌套-->
+        <collection property="userAddressList" javaType="List" ofType="UserAddress">
+            <id property="id" column="addressId"/>
+            <result property="address" column="address"/>
+        </collection>
+    </resultMap>
+    <select id="selectUserListOneByOne" resultMap="userMap">
+        SELECT u.id,
+               u.name,
+               u.age,
+               ua.id as addressId,
+               ua.address
+        FROM `user` AS u
+                 LEFT JOIN `user_address` AS ua ON u.id = ua.user_id
+    </select>
+    <select id="selectUserListOneByMultiple" resultMap="userMapTwo">
+        SELECT u.id,
+               u.name,
+               u.age,
+               ua.id as addressId,
+               ua.address
+        FROM `user` AS u
+                 LEFT JOIN `user_address` AS ua ON u.id = ua.user_id
+    </select>
+</mapper>
+```
+
+src/main/resource/UserAddressMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserAddressMap">
+    <!--配置一个字段别名映射 这里的id是下面resultMap的id type就是resultType-->
+    <resultMap id="userAddressMap" type="UserAddress">
+        <result property="id" column="id"/>
+        <result property="address" column="address"/>
+    </resultMap>
+    <!--定义片段-->
+    <sql id="selectField">
+        `id`
+        ,`address`,`user_id`
+    </sql>
+    <select id="selectAddressList" resultMap="userAddressMap">
+        SELECT
+        <include refid="selectField"/>
+        FROM user_address
+        WHERE user_id = #{userId}
+    </select>
+</mapper>
+```
+
+把xml配置mybatis-config.xml
+
+```xml
+...
+    <!--使用这个mapper进行映射sql语句-->
+    <mappers>
+        <mapper resource="UserMapper.xml"/>
+        <mapper resource="UserAddressMapper.xml"/>
+    </mappers>
+...
+```
+
+使用src/test/java/TestMyBatis.java
+
+```java
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.ibatis.io.Resources;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.ibatis.session.SqlSessionFactoryBuilder;
+import org.junit.Test;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.List;
+
+@Slf4j //   lombok的注解替代日志初始化public static final Logger LOGGER = LoggerFactory.getLogger(TestMyBatis.class);
+public class TestMyBatis {
+    SqlSessionFactory sqlSessionFactory = null;
+
+    //方法名随意 @Before就是junit运行的一个钩子注解  即运行前会执行这个方法
+    @Before
+    public void init() throws IOException {
+        String resource = "mybatis-config.xml";
+        InputStream inputStream = Resources.getResourceAsStream(resource);
+        sqlSessionFactory = new SqlSessionFactoryBuilder().build(inputStream);
+    }
+
+    @Test
+    public void testMyBatis() {
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //一对一查询
+            List<User> userList = mapper.selectUserListOneByOne();
+            log.debug("res [{}]", userList);
+            //res [[
+            // User(id=1, name=张三, age=1, userAddress=UserAddress(id=3, address=天津), userAddressList=null),
+            // User(id=2, name=李四, age=1, userAddress=UserAddress(id=2, address=北京), userAddressList=null),
+            // User(id=3, name=李四, age=2, userAddress=null, userAddressList=null)
+            // ]]
+            //一对多查询
+            List<User> userListTwo = mapper.selectUserListOneByMultiple();
+            log.debug("res [{}]", userListTwo);
+            //res [[
+            // User(id=1, name=张三, age=1, userAddress=null,
+            //      userAddressList=[UserAddress(id=1, address=上海), UserAddress(id=3, address=天津)]),
+            // User(id=2, name=李四, age=1, userAddress=null,
+            //      userAddressList=[UserAddress(id=2, address=北京)]),
+            // User(id=3, name=李四, age=2, userAddress=null,
+            //      userAddressList=[])]]
+        }
+    }
+}
+```
+
+### 获取自增Id
+
+UserMapper.xml
+
+```xml
+    <!--useGeneratedKeys获取自增主键 keyColumn数据库字段 keyProperty实体类映射字段-->
+    <insert id="insert" useGeneratedKeys="true" keyColumn="id" keyProperty="id">
+        INSERT INTO `user` (`name`, `age`)
+        VALUES (#{name}, #{age})
+    </insert>
+```
+
+TestMyBatis获取  mybatis会把id赋值到传入的user对象中
+
+```java
+    //新增单条记录
+    int affectedRow = 0;
+    try {
+        User user =  new User(null,"王五",18,null,null);
+        affectedRow = mapper.insert(user);
+        //如果没有设置自动提交，必须手动提交事务
+        session.commit();
+        log.debug("res [{}]", affectedRow);//res [1]
+        //拿到自增Id
+        log.debug("res [{}]", user.getId());//res [21]
+    } catch (Exception e) {
+        log.error("exception [{}]", e.getMessage());
+        session.rollback();
+    }
+```
+
+**全局配置**
+
+mybatis-config.xml 一般不配，哪里需要返回自增Id哪里加一下就行了
+
+```xml
+<setting name="useGeneratedKeys" value="true"/>
+```
+
+
+## 缓存
+
+### 一级缓存
+
+生命周期
+
+默认是开启一级缓存的，缓存只存在同一个SqlSession会话范围内，执行任何的新增修改删除操作都会清空缓存
+
+底层是存放在localCache.cache的HashMap当中
+
+### 二级缓存
+
+生命周期
+
+默认不开启，会造成数据不一致的问题，用于不同SqlSession会话范围内共享缓存
+
+启用方法
+
+mybatis-config.xml
+
+```xml
+    <!--开启全局二级缓存-->
+    <setting name="cacheEnabled" value="true"/>
+```
+
+开启一个mapper namespace下的缓存
+
+```xml
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <!--开启当前命名空间下的所有语句的二级缓存-->
+    <cache/>
+
+    <!-- 默认不使用 -->
+    <select id="selectUserListOneByOne" resultMap="userMap" useCache="false">
+        ...
+    </select>
+</mapper>
+```
+
+使用
+
+```java
+ @Test
+    public void testMyBatis(){
+        //自动释放连接 设置事务自动提交 sqlSessionFactory.openSession(true)
+        try (SqlSession session = sqlSessionFactory.openSession()) {
+            //获得一个代理对象 使用的是jdk的Proxy类 代理对象实现了UserMapper接口
+            UserMapper mapper = session.getMapper(UserMapper.class);
+
+            //一对一查询
+            List<User> userList = mapper.selectUserListOneByOne();
+            log.debug("res [{}]", userList);
+            //commit会把一级缓存刷到二级缓存当中
+            session.commit();
+            SqlSession session2 = sqlSessionFactory.openSession();
+            UserMapper mapper2 = session2.getMapper(UserMapper.class);
+            List<User> userList2 = mapper2.selectUserListOneByOne();
+            log.debug("res [{}]", userList2);
+        }
+    }
+```
+
+## 处理枚举类型
+
+[枚举类型不存字符串而是序列号](https://mybatis.org/mybatis-3/zh/configuration.html#%E5%A4%84%E7%90%86%E6%9E%9A%E4%B8%BE%E7%B1%BB%E5%9E%8B)
+
+## 分页插件
+
+[github](https://github.com/pagehelper/Mybatis-PageHelper)

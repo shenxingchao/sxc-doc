@@ -100,6 +100,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | :------------------- | :------------------------------------------------------------- |
 | 包围代码             | ctrl+alt+t                                                     |
 | 增强for循环          | iter                                                           |
+| 打印                 | sout soutv                                                     |
 | 函数扩展             | ctrl+alt+m                                                     |
 | 自动清理未导入的代码 | ctrl+alt+o                                                     |
 | 注释//添加不放在行首 | Setting -> Editor -> Code Style ->Line comment at first column |
@@ -4643,9 +4644,56 @@ class Parent implements Observer {
 }
 ```
 
-### 发布订阅模式
+## 发布订阅模式
 
 发布者，订阅者通过中间商进行调度
+
+## 创建者模式
+
+构件复杂对象使用，原理是在类内部创建一个Builder静态内部类，在内部类创建一个外部对象，并添加各种build方法使用外部对象的set方法设置外部对象的属性,返回这个Builder对象本身，然后就可以通过链式调用设置属性
+
+```java
+public class Computer {
+    // 鼠标
+    public String mouse;
+    // 键盘
+    public String keyboard;
+	
+	...省略getter和setter
+    public static class Builder{
+
+        private final Computer computer = new Computer();
+
+        public Builder buildMouse(String type){
+            computer.setMouse("安装了一个"+ type +"鼠标");
+            return this;
+        }
+
+        public Builder buildKeyboard(String type){
+            computer.setKeyboard("安装了一个"+ type +"键盘");
+            return this;
+        }
+
+        public Computer build(){
+            return computer;
+        }
+    }
+}
+```
+
+调用
+
+```java
+Computer computer = new Builder()
+    .buildMouse("罗技")
+    .buildKeyboard("雷柏")
+    .build();
+System.out.println(computer);
+```
+
+## 动态代理模式
+
+核心方法invoke
 
 # 算法
 
