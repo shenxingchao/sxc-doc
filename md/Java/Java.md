@@ -4340,17 +4340,18 @@ public class Demo {
         //通过文件输入流直接获取文件缓冲输入流
         System.out.println(new BufferedInputStream(Files.newInputStream(Paths.get("db.properties"))));
 
-      /*  输出
+        /*输出
         file:/D:/sxc/javastudy/out/production/javastudy/db.properties
         file:/D:/sxc/javastudy/out/production/javastudy/db.properties
         file:/D:/sxc/javastudy/out/production/javastudy/db.properties
         file:/D:/sxc/javastudy/out/production/javastudy/db.properties
         java.io.BufferedInputStream@4b67cf4d
         java.io.BufferedInputStream@7ea987ac
-        java.io.BufferedInputStream@12a3a380*/
+        java.io.BufferedInputStream@12a3a380
+        */
     }
 }
-```java
+```
 
 # 设计模式
 

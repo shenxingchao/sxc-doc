@@ -4174,8 +4174,11 @@ pom.xml
     </repositories>
 
     <properties>
+        <!-- jdk版本 还需要在在Build中配置编译插件 -->
         <maven.compiler.source>8</maven.compiler.source>
         <maven.compiler.target>8</maven.compiler.target>
+        <!-- 添加编码，不然编译会有警告 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <dependencies>
@@ -5456,3 +5459,828 @@ mybatis-config.xml
 # Spring
 
 [官网](https://spring.io/)
+
+## 配置
+
+创建一个maven工程
+
+pom.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sxc</groupId>
+    <artifactId>spring-study</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <!-- 添加编码，不然编译会有警告 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!--spring核心库-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-core</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+        <!--spring-bean 容器负责控制反转-ioc(把各种对象放到容器中，通过容器获取一个对象)-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-beans</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+        <!--context是spring-bean的扩展-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven使用的jdk版本，不配置默认是1.5必须配置 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source> <!-- 源代码使用的JDK版本 -->
+                    <target>${maven.compiler.target}</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>${project.build.sourceEncoding}</encoding><!-- 字符集编码 -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+## 容器
+
+### IOC控制反转
+
+spring beans容器负责控制反转 (把各种对象放到容器中，通过容器获取一个对象)
+
+新建bean配置文件（元数据） src/main/resources/application.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="userDao" class="com.sxc.dao.UserDao">
+    </bean>
+    <!--定义更多的bean-->
+</beans>
+```
+
+新建一个dao数据操作类 src/main/java/com/sxc/dao/UserDao.java
+
+```java
+package com.sxc.dao;
+
+public class UserDao {
+    public void fn(){
+        System.out.println("hello dao");
+    }
+}
+```
+
+新建测试类 src/test/java/TestSpring.java
+
+```java
+import com.sxc.dao.UserDao;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class TestSpring {
+    public static ApplicationContext context = null;
+
+    @Before
+    public void init(){
+        //装载容器 就是初始化 application.xml里的对象,可以同时实例化多个xml元数据里所有对象
+        context = new ClassPathXmlApplicationContext("application.xml");
+    }
+
+    @org.junit.Test
+    public void testIoc(){
+        //获取容器内的dao对象
+        UserDao userDao = context.getBean(UserDao.class);
+        userDao.fn();
+    }
+}
+```
+
+### 静态工厂方法创建对象
+
+先创建好静态单例对象，然后放到容器当中
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+
+public class UserService {
+
+    private static final UserService instance = new UserService();
+
+    // 构造方法私有化 防止用户直接new初始化类
+    private UserService() {
+    }
+
+    public static UserService getInstance() {
+        return instance;
+    }
+
+    public void fn() {
+        System.out.println("hello service");
+    }
+}
+```
+
+src/main/resources/application.xml添加一个属性factory-method 用于指定单例对象
+
+```xml
+    <bean id="userService" class="com.sxc.service.UserService" factory-method="getInstance">
+    </bean>
+```
+
+测试类获取对象同上节相同
+
+### 实例工厂创建对象
+
+例如你要创建一个Service对象然后，然后调用Dao的方法,可以省略掉创建Service这一步，让容器去管理
+
+过程就是在Service类中有一个创建Dao的方法，然后使用UserService的bean去添加userDao的bean
+
+src/main/java/com/sxc/service/UserService.java修改如下
+
+```java
+package com.sxc.service;
+
+
+import com.sxc.dao.UserDao;
+
+public class UserService {
+
+    private static final UserService instance = new UserService();
+
+    // 构造方法私有化 防止用户直接new初始化类
+    private UserService() {
+    }
+
+    public static UserService getInstance() {
+        return instance;
+    }
+
+    public void fn() {
+        System.out.println("hello spring");
+    }
+
+    //关键代码，获取一个dao工厂方法
+    public UserDao getUserDao(){
+        return new UserDao();
+    }
+}
+```
+
+src/main/resources/application.xml修改如下
+
+```xml
+    <bean id="userService" class="com.sxc.service.UserService" factory-method="getInstance">
+    </bean>
+    <!-- factory-bean使用了上面的UserService实例 方法使用了UserService创建Dao对象方法，所以叫实例工厂创建对象... -->
+    <bean id="userDao" factory-bean="userService" factory-method="getUserDao">
+    </bean>
+```
+
+测试类获取对象同上节相同
+
+
+### 依赖注入
+
+Dependency Injection
+
+UserService依赖UserDao,所以要把UserDao注入给UserService，就是需要在UserService的userDao属性初始化赋值。这个过程就是依赖注入
+
+#### 构造方法依赖注入
+
+通过构造方法实现上面所说的依赖注入
+
+修改src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+
+public class UserService {
+
+    //假设我需要操作UserDao
+    private UserDao userDao;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    //通过构造器注入 就是new的时候传一个UserDao
+    public UserService(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+配置application.xml
+
+```xml
+    <bean id="userDao" class="com.sxc.dao.UserDao"></bean>
+
+    <bean id="userService" class="com.sxc.service.UserService">
+        <!--构造方法依赖注入配置,把上面那个bean引用到这个构造方法标签中,实现依赖注入-->
+        <constructor-arg name="userDao" ref="userDao"/>
+    </bean>
+```
+
+src/test/java/TestSpring.java调用
+
+```java
+    @org.junit.Test
+    public void testConstructorArg(){
+        //获取容器内的service对象
+        UserService userService = context.getBean(UserService.class);
+        userService.fn();
+        // hello dao
+        // hello service
+    }
+```
+
+#### 通过构造器赋默认值
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+public class UserService {
+    //假如有简单数据类型的配置,在配置里赋默认值
+    private String baseUrl;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    //通过构造器注入 默认值
+    public UserService(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+}
+```
+
+src/main/resources/application.xml
+
+```xml
+    <bean id="userService" class="com.sxc.service.UserService">
+        <!--通过构造器赋默认值-->
+        <constructor-arg value="https://www.baidu.com" type="java.lang.String"/>
+    </bean>
+```
+
+src/test/java/TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testConstructorArgDefault() {
+        //获取容器内的service对象
+        UserService userService = context.getBean(UserService.class);
+        System.out.println("userService.getBaseUrl() = " + userService.getBaseUrl());
+        //userService.getBaseUrl() = http://www.baidu.comF
+    }
+```
+
+#### setter方法注入
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+
+public class UserService {
+
+    //假设我需要操作UserDao
+    private UserDao userDao;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+src/main/resources/application.xml
+
+```xml
+    <bean id="userDao" class="com.sxc.dao.UserDao"></bean>
+
+    <bean id="userService" class="com.sxc.service.UserService">
+        <property name="userDao" ref="userDao"/>
+    </bean>
+```
+
+测试类获取对象同**构造方法依赖注入**相同
+
+#### 通过setter方法赋默认值
+
+需要添加setter方法
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+public class UserService {
+    //假如有简单数据类型的配置,在配置里赋默认值
+    private String baseUrl;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+    
+    public String getBaseUrl() {
+        return baseUrl;
+    }
+
+    public void setBaseUrl(String baseUrl) {
+        this.baseUrl = baseUrl;
+    }
+}
+```
+
+src/main/resources/application.xml
+
+```xml
+    <bean id="userService" class="com.sxc.service.UserService">
+        <property name="baseUrl" value="https://www.baidu.com"/>
+        <!-- 数组 -->
+            <!-- 嵌套<array><value></value></array> -->
+        <!-- 集合 -->
+            <!-- 嵌套<list><value></value></list> -->
+        <!-- map -->
+            <!-- 嵌套<map><entry key="" value=""></entry></map> -->
+        <!-- null值 -->
+            <!-- 嵌套<null/> -->
+    </bean>
+```
+
+测试类获取对象同**通过构造器赋默认值**相同
+
+
+#### 使用命名空间简写属性
+
+src/main/resources/application.xml xml配置 添加xmlns:p="http://www.springframework.org/schema/p"
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd">
+    <!-- 然后可以使用p:baseUrl简写上一点的属性配置 -->
+    <bean id="userService" class="com.sxc.service.UserService"
+          p:baseUrl="https://www.baidu.com"/>
+    <!--定义更多的bean-->
+</beans>
+```
+
+还有一个c命名空间，用于简写构造器，xmlns:c="http://www.springframework.org/schema/c"
+
+#### 自动装配
+
+自动实现setter注入，不需要写property去引用bean
+
+将**setter方法注入**这一节的xml修改如下,别的不变
+
+src/main/resources/application.xml
+
+```xml
+    <bean id="userDao" class="com.sxc.dao.UserDao"></bean>
+    <!--autowire自动装配 byName 或者 byType-->
+    <!--  byName会根据属性的名称userDao去找id或者name属性为useDao的bean  -->
+    <!--  byType会根据属性的类型UerDao去找class为UerDao的bean  -->
+    <bean id="userService" class="com.sxc.service.UserService" autowire="byName">
+    </bean>
+```
+
+**全局定义自动装配**
+
+在beans标签上配置即可default-autowire="byName"
+
+**自动装配排除某个bean**
+
+在bean 或 beans上配置 autowire-candidates="false"和default-autowire-candidates="false"
+
+### 作用域
+
+#### 单例作用域
+
+默认就是单例作用域，每个bean对象只创建一个
+
+```xml
+<bean scope="singleton"/>
+```
+
+#### 原型作用域
+
+每次请求或者获取bean对象都会创建一个新的，容器只负责创建，不负责使用和销毁
+
+```xml
+<bean scope="prototype"/>
+```
+
+### 生命周期
+
+```mermaid
+graph TB;
+    bean创建 --> 初始化对象
+    初始化对象 -->包装bean对象xml里的属性填充
+    包装bean对象xml里的属性填充 -->init回调函数
+    init回调函数 -->使用
+    使用 -->detroy回调函数
+```
+
+
+添加测试方法,获取bean的同时会触发生命周期回调
+
+src/test/java/TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testLife() {
+        //获取容器内的service对象
+        UserService userService = context.getBean(UserService.class);
+    }
+```
+
+#### 实现接口方式使用回调函数
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+import org.springframework.beans.factory.DisposableBean;
+import org.springframework.beans.factory.InitializingBean;
+
+public class UserService implements InitializingBean, DisposableBean {
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Override
+    public void afterPropertiesSet() {
+        System.out.println("属性设置后回调函数");
+    }
+
+    @Override
+    public void destroy() {
+        System.out.println("bean销毁后回调函数");
+    }
+}
+```
+
+#### 配置方式使用回调函数
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+public class UserService {
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    public void init() {
+        System.out.println("属性设置后回调函数");
+    }
+
+    public void dispose() {
+        System.out.println("bean销毁后回调函数");
+    }
+}
+```
+
+src/main/resources/application.xml
+
+init-method 初始化回调函数  destroy-method销毁回调函数 
+
+```xml
+    <bean id="userService" class="com.sxc.service.UserService" init-method="init" destroy-method="dispose">
+    </bean>
+```
+
+> tips:default-init-method default-destroy-method设置统一的方法名称，如果bean存在则会在适当的时候被调用
+
+#### 注解方式使用回调函数
+
+[开启注解需要配置xml,下面3个context相关的](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#beans-annotation-config)
+
+src/main/resources/application.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+    <!-- 开启注解 -->
+    <context:annotation-config/>
+
+    <bean id="userService" class="com.sxc.service.UserService">
+    </bean>
+</beans>
+```
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+import javax.annotation.PostConstruct;
+import javax.annotation.PreDestroy;
+
+public class UserService {
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @PostConstruct
+    public void init() {
+        System.out.println("属性设置后回调函数");
+    }
+
+    @PreDestroy
+    public void dispose() {
+        System.out.println("bean销毁后回调函数");
+    }
+}
+```
+
+### 使用容器的一些上下文
+
+实现Aware接口可以帮我们拿到容器初始的一些对象
+
+#### ApplicationContextAware
+
+bean当前spring容器的上下文
+
+#### BeanNameAware
+
+bean初始化后的名称
+
+#### 案例
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.BeanNameAware;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
+
+public class UserService implements ApplicationContextAware, BeanNameAware {
+    private ApplicationContext context;
+    private String bean;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    /**
+     * 获取spring的ApplicationContext对象
+     *
+     * @param applicationContext the ApplicationContext object to be used by this object
+     * @throws BeansException
+     */
+    @Override
+    public void setApplicationContext(ApplicationContext applicationContext) throws BeansException {
+        context = applicationContext;
+    }
+
+    /**
+     * 获取spring的Bean名称
+     *
+     * @param s
+     */
+    @Override
+    public void setBeanName(String s) {
+        bean = s;
+    }
+
+    public ApplicationContext getContext() {
+        return context;
+    }
+
+    public void setContext(ApplicationContext context) {
+        this.context = context;
+    }
+
+    public String getBean() {
+        return bean;
+    }
+
+    public void setBean(String bean) {
+        this.bean = bean;
+    }
+}
+```
+
+src/test/java/TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testGetApplication() {
+        //获取容器内的service对象
+        UserService userService = context.getBean(UserService.class);
+        System.out.println("userService.getContext() = " + userService.getContext());
+        System.out.println("userService.getBean() = " + userService.getBean());
+    }
+```
+
+### 使用注解配置容器
+
+xml开启使用注解见**注解方式使用回调函数**
+
+#### 自动依赖注入Autowired
+
+@Autowired 可以在属性、Setter或者构造器上使用，完成自动装配
+
+直接在属性上加的时候，setter getter方法全部可以不要
+
+!> tips:只能按照Bean的类型去查找
+
+src/main/resources/application.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+
+    <context:annotation-config/>
+
+    <!-- 定义2个bean -->
+    <bean class="com.sxc.service.UserService"/>
+    <bean class="com.sxc.dao.UserDao"/>
+    <!--定义更多的bean-->
+</beans>
+```
+
+src/main/java/com/sxc/service/UserService.java
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+import org.springframework.beans.factory.annotation.Autowired;
+
+public class UserService{
+    //假设我需要操作UserDao
+    /**
+     * @Autowired 自动装配 自动依赖注入
+     */
+    @Autowired
+    private UserDao userDao;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    public UserDao getUserDao() {
+        return userDao;
+    }
+
+    public void setUserDao(UserDao userDao) {
+        this.userDao = userDao;
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+src/test/java/TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testAnnotation() {
+        //获取容器内的service对象
+        UserService userService = context.getBean(UserService.class);
+        userService.fn();
+    }
+```
+
+tips:不需要注入@Autowired(required = false)
+
+#### 指定主要的Bean自动注入依赖Primary
+
+@Primary 指定自动注入过程中，如果有多个相同返回类型获取实例的方法，优先注入
+
+只能在获取单例或实例对象的方法是上使用,也可以在xml bean标签上配置
+
+#### 指定名称自动注入依赖Qualifier
+
+ @Qualifier("beanName")
+
+ 作用于属性或者是构造方法参数上
+
+#### 使用名称或者类型注入Resource推荐
+
+@Resource如果指定了bean的name则按name注入，否则按照类型注入
+
+```xml
+    <bean class="com.sxc.service.UserService"/>
+    <bean class="com.sxc.dao.UserDao" name="userDao"/>
+````
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+
+import javax.annotation.Resource;
+
+public class UserService {
+    //假设我需要操作UserDao
+    @Resource(name = "userDao")
+    private UserDao userDao;
+
+
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
