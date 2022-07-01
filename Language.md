@@ -19,6 +19,7 @@ snapshot 快照，存储
 ## 操作
 
 dismiss 不考虑（忽略）
+populate 填充
 
 ## 服务器
 

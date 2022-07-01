@@ -6284,3 +6284,230 @@ public class UserService {
     }
 }
 ```
+
+### 容器启动过程
+
+底层核心方法refresh() 刷新容器
+
+```java
+public void refresh() throws BeansException, IllegalStateException {
+    synchronized (this.startupShutdownMonitor) {
+        StartupStep contextRefresh = this.applicationStartup.start("spring.context.refresh");
+
+        //准备刷新容器 例如日志配置
+        prepareRefresh();
+
+        //初始化bean工厂 就是读取bean的xml文件并加载到配置文件对象
+        ConfigurableListableBeanFactory beanFactory = obtainFreshBeanFactory();
+
+        //配置bean工厂 注册可解析的依赖性和默认环境bean 
+        prepareBeanFactory(beanFactory);
+
+        try {
+            //允许子类进行后置处理（后置回调）
+            postProcessBeanFactory(beanFactory);
+
+            StartupStep beanPostProcess = this.applicationStartup.start("spring.context.beans.post-process");
+            //调用bean工厂拦截处理器（调用回调）bean需要实现BeanFactoryPostProcessor
+            invokeBeanFactoryPostProcessors(beanFactory);
+
+            //注册bean的后置处理器（注册回调）
+            registerBeanPostProcessors(beanFactory);
+            beanPostProcess.end();
+
+            // Initialize message source for this context.
+            initMessageSource();
+
+            // Initialize event multicaster for this context.
+            initApplicationEventMulticaster();
+
+            // Initialize other special beans in specific context subclasses.
+            onRefresh();
+
+            // Check for listener beans and register them.
+            registerListeners();
+
+            // 初始化bean过程 bean需要实现这些接口才会调下面的钩子
+            // 填充bean属性populateBean()
+            // 调用实现Aware接口invokeAwareMethods()
+            // 初始化前调用创建前钩子applyBeanPostProcessorsBeforeInitialization()
+            // 然后初始化beaninvokeInitMethods()
+            // 然后调用初始化后钩子applyBeanPostProcessorsAfterInitialization()
+            finishBeanFactoryInitialization(beanFactory);
+
+            // 完成刷新
+            finishRefresh();
+        }
+
+        catch (BeansException ex) {
+            if (logger.isWarnEnabled()) {
+                logger.warn("Exception encountered during context initialization - " +
+                        "cancelling refresh attempt: " + ex);
+            }
+
+            // Destroy already created singletons to avoid dangling resources.
+            destroyBeans();
+
+            // Reset 'active' flag.
+            cancelRefresh(ex);
+
+            // Propagate exception to caller.
+            throw ex;
+        }
+
+        finally {
+            // Reset common introspection caches in Spring's core, since we
+            // might not ever need metadata for singleton beans anymore...
+            resetCommonCaches();
+            contextRefresh.end();
+        }
+    }
+}
+```
+
+### 使用类注解配置bean
+
+加上这些注解表示这个类是一个bean
+
+#### Component
+
+使用@Component注解来表示这个类是一个bean
+
+```java
+package com.sxc.dao;
+
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserDao {
+    public void fn() {
+        System.out.println("hello dao");
+    }
+}
+```
+
+#### 语义Bean注解
+
+默认生成的bean 会有一个默认名称:根据类名然后第一个字母变小写
+
+@Repository dao层 数据库层 持久层
+@Service 业务逻辑层
+@Controller 控制器层
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+@Service
+public class UserService {
+...
+}
+```
+
+```java
+@Repository(value = "userDao") //给bean加名字
+public class UserDao {
+...
+}
+```
+
+创建 src/main/java/com/sxc/controller/UserController
+
+```java
+@Controller
+public class UserController {
+...
+}
+```
+
+#### 使用配置文件配置扫描bean
+
+src/main/resources/application.xml
+
+```xml
+    <!-- <context:annotation-config/> 开了下面的扫包，则不需要上面的了，默认会把使用注释配置给打开 -->
+    <context:component-scan base-package="com.sxc"/>
+```
+
+#### 使用配置类扫描bean
+
+需要我们修改一下测试类,使用AnnotationConfigApplicationContext 获取context，会自动扫描包下面的配置类
+
+```java
+public class TestSpring {
+    public static final Logger LOGGER = LoggerFactory.getLogger(TestSpring.class);
+    public static ApplicationContext context = null;
+
+    @Before
+    public void init() {
+        //装载容器 就是初始化 application.xml里的对象,可以同时实例化多个xml元数据里所有对象
+        //context = new ClassPathXmlApplicationContext("application.xml");
+        //使用配置类装载配置传一个包就可以了，他自己会扫描配置类
+        context = new AnnotationConfigApplicationContext("com.sxc");
+    }
+}
+```
+
+配置类
+
+```java
+package com.sxc.config;
+
+import com.sxc.dao.UserDao;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
+
+@Configurable //表示是一个配置文件类
+@ComponentScan(
+        basePackages = "com.sxc",//扫描的包
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE, classes = {
+                UserDao.class
+        }//排除要扫描的bean，如果要全扫描，可以忽略
+        )
+) //表示开启bean扫描
+public class AppConfig {
+}
+```
+
+### 让一个方法称为bean
+
+@Bean
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
+
+@Service
+@Configuration //不加这个注解会导致bean与bean之间调用报错
+public class UserService {
+    //假设我需要操作UserDao 变为方法获取依赖bean
+    //@Resource
+    //private UserDao userDao;
+
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Bean
+    public UserDao userDao() {
+        return new UserDao();
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao().fn();
+        System.out.println("hello service");
+    }
+}
+```
