@@ -5896,7 +5896,7 @@ src/main/resources/application.xml xml配置 添加xmlns:p="http://www.springfra
 
 还有一个c命名空间，用于简写构造器，xmlns:c="http://www.springframework.org/schema/c"
 
-#### 自动装配
+#### 自动装配——重要
 
 自动实现setter注入，不需要写property去引用bean
 
@@ -6156,7 +6156,7 @@ src/test/java/TestSpring.java
     }
 ```
 
-### 使用注解配置容器
+### 使用注解配置容器——重要
 
 xml开启使用注解见**注解方式使用回调函数**
 
@@ -6365,7 +6365,7 @@ public void refresh() throws BeansException, IllegalStateException {
 }
 ```
 
-### 使用类注解配置bean
+### 使用类注解配置bean——重要
 
 加上这些注解表示这个类是一个bean
 
@@ -6435,7 +6435,7 @@ src/main/resources/application.xml
 
 #### 使用配置类扫描bean
 
-需要我们修改一下测试类,使用AnnotationConfigApplicationContext 获取context，会自动扫描包下面的配置类
+需要我们修改一下测试类,使用AnnotationConfigApplicationContext 获取context，会自动扫描包下面bean
 
 ```java
 public class TestSpring {
@@ -6446,8 +6446,19 @@ public class TestSpring {
     public void init() {
         //装载容器 就是初始化 application.xml里的对象,可以同时实例化多个xml元数据里所有对象
         //context = new ClassPathXmlApplicationContext("application.xml");
-        //使用配置类装载配置传一个包就可以了，他自己会扫描配置类
+        //使用配置类装载配置传一个包就可以了，他自己会扫描配置类 
         context = new AnnotationConfigApplicationContext("com.sxc");
+        //也可以直接配置为配置类扫包如下面
+        //context = new AnnotationConfigApplicationContext(AppConfig.class);
+
+        //下面的代码是创建一个无参构造，然后动态注册扫描类
+        // AnnotationConfigApplicationContext ctx = new AnnotationConfigApplicationContext();
+        // ctx.register(AppConfig.class， OtherConfig.class);
+        // ctx.register(AdditionalConfig.class);
+        // ctx.refresh();
+
+        // ctx.scan("com.sxc");
+        // ctx.refresh();
     }
 }
 ```
@@ -6462,7 +6473,7 @@ import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.FilterType;
 
-@Configurable //表示是一个配置文件类
+@Configuration //表示是一个bean配置类
 @ComponentScan(
         basePackages = "com.sxc",//扫描的包
         excludeFilters = @ComponentScan.Filter(
@@ -6475,9 +6486,11 @@ public class AppConfig {
 }
 ```
 
-### 让一个方法称为bean
+#### 让一个方法成为bean——重要
 
 @Bean
+
+也可以指定名称@Bean(name = "")
 
 ```java
 package com.sxc.service;
@@ -6509,6 +6522,293 @@ public class UserService {
         //使用容器创建的userDao bean与bean之间调用 要加注解@Configuration
         userDao().fn();
         System.out.println("hello service");
+    }
+}
+```
+
+#### 配置类注解
+
+@Configuration就如上节所示，一般是用作配置类，配置多个bean
+
+#### 引入注解类解耦
+
+可以将一个类的配置引入另一个类
+
+```java
+//引入配置类
+@Import(XxxConfig.class)
+//引入配置文件
+@ImportResource("classpath:/com/sxc/xxx-config.xml")
+```
+
+实战，让配置变的简单,xml引入properties，类中写配置,并引入xml，读取properties
+
+pom.xml引入依赖
+
+```xml
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.11</version>
+        </dependency>
+        <!-- 若是mysql5.7以上需要引入8.x 并使用cj.jdbc下的驱动 -->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>5.1.49</version>
+        </dependency>
+```
+
+Bean配置文件 AppConfig.java
+
+```java
+package com.sxc.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.ImportResource;
+
+import javax.sql.DataSource;
+import java.util.Properties;
+
+@Configuration
+@ImportResource("classpath:/application.xml") //classpath就是编译后的target/classes目录
+// @PropertySource("classpath:/druid.properties") 也可以直接用这个替代
+public class AppConfig {
+
+    @Value("${druid.driverClassName}")
+    private String driverClassName;
+
+    @Value("${druid.url}")
+    private String url;
+
+    @Value("${druid.username}")
+    private String username;
+
+    @Value("${druid.password}")
+    private String password;
+
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        Properties properties = new Properties();
+        properties.put("druid.driverClassName", driverClassName);
+        properties.put("druid.url", url);
+        properties.put("druid.username", username);
+        properties.put("druid.password", password);
+        System.out.println("properties = " + properties);
+        druidDataSource.configFromPropety(properties);
+        return druidDataSource;
+    }
+}
+```
+
+application.xml
+
+```xml
+<beans>
+    <context:property-placeholder location="classpath:/druid.properties"/>
+</beans>
+```
+
+druid.properties  com.mysql.jdbc.Driver视mysql版本5.7以上改为com.mysql.cj.jdbc.Driver
+
+```
+druid.driverClassName=com.mysql.jdbc.Driver
+druid.url=jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
+druid.username=root
+druid.password=
+```
+
+TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testAppConfig() {
+        //获取容器内的service对象
+        DataSource bean = context.getBean(DataSource.class);
+        System.out.println(bean);
+        try {
+            //获取druid数据源
+            System.out.println(bean.getConnection());
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+    }
+```
+
+#### PropertySource配置类加载Properties
+
+@PropertySource可以直接加载.properties文件到env环境对象中，也可以用@Value读取环境变量的值，如上一节
+
+如上一节的AppConfig.java 可以改为如下
+
+```java
+package com.sxc.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.core.env.Environment;
+
+import javax.sql.DataSource;
+import java.util.Properties;
+
+@Configuration
+@PropertySource("classpath:/druid.properties")
+public class AppConfig {
+
+    final
+    Environment env;
+
+    public AppConfig(Environment env) {
+        this.env = env;
+    }
+
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        Properties properties = new Properties();
+        properties.put("druid.driverClassName", env.getProperty("druid.driverClassName"));
+        properties.put("druid.url", env.getProperty("druid.url"));
+        properties.put("druid.username", env.getProperty("druid.username"));
+        properties.put("druid.password", env.getProperty("druid.password"));
+        System.out.println("properties = " + properties);
+        druidDataSource.configFromPropety(properties);
+        return druidDataSource;
+    }
+}
+```
+
+
+#### 环境配置
+
+生产环境或者是开发环境，类和方法都可以配置
+
+@Profile("production") @Profile("development")
+
+xml配置<beans profile="production"> <beans profile="development">
+
+**激活环境**
+
+使用代码激活环境
+
+```java
+// 创建容器
+AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext();
+// 激活环境
+context.getEnvironment().setActiveProfiles("development");
+```
+
+也可以添加JVM启动参数
+
+-Dspring.profiles.active="production,development"
+
+
+### 事件发布与订阅
+
+在src/main/java/event下新建事件处理者UserLoginEvent和事件的监听者(订阅)
+
+UserLoginEvent.java
+
+```java
+package com.sxc.event;
+
+import org.springframework.context.ApplicationEvent;
+
+/**
+ * 用户登录事件 相当于监听用户登录 然后这里收到通知执行方法
+ */
+public class UserLoginEvent extends ApplicationEvent {
+    public String msg = "";
+
+    public UserLoginEvent(Object source) {
+        super(source);
+        msg = (String) source;
+    }
+
+    public void fn() {
+        System.out.println("我是事件处理者收到" + msg);
+    }
+}
+```
+
+UserLoginListener.java
+
+```java
+package com.sxc.event;
+
+import org.springframework.context.ApplicationListener;
+import org.springframework.stereotype.Component;
+
+//需要装载监听者到Bean容器
+@Component
+public class UserLoginListener implements ApplicationListener<UserLoginEvent> {
+    @Override
+    public void onApplicationEvent(UserLoginEvent event) {
+        //监听到事件 触发事件函数
+        event.fn();
+    }
+}
+```
+
+然后测试类 发布事件者 假设这是在用户登录操作
+
+TestSpring.java
+
+```java
+    @org.junit.Test
+    public void testAppConfig() {
+        context.publishEvent(new UserLoginEvent("XXX用户登录了"));
+    }
+```
+
+最后会输出：我是事件处理者收到XXX用户登录了
+
+**实现ApplicationEventPublisherAware接口的方式发布事件**
+
+如果是在Service里发布，则src/main/java/com/sxc/service/UserService.java如下
+
+```java
+package com.sxc.service;
+
+import com.sxc.dao.UserDao;
+import com.sxc.event.UserLoginEvent;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.ApplicationEventPublisherAware;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
+
+@Service
+@Configuration //不加这个注解会导致bean与bean之间调用报错
+public class UserService implements ApplicationEventPublisherAware {
+
+    private ApplicationEventPublisher applicationEventPublisher;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Bean
+    public UserDao userDao() {
+        return new UserDao();
+    }
+
+    public void fn() {
+        //使用容器创建的userDao
+        userDao().fn();
+        System.out.println("hello service");
+        //发布事件
+        applicationEventPublisher.publishEvent(new UserLoginEvent("XXX用户登录了"));
+    }
+
+    @Override
+    public void setApplicationEventPublisher(ApplicationEventPublisher applicationEventPublisher) {
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 }
 ```
