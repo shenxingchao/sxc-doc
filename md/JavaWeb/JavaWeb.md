@@ -6812,3 +6812,33 @@ public class UserService implements ApplicationEventPublisherAware {
     }
 }
 ```
+
+**使用注解方式简写监听者Listener**
+
+```java
+package com.sxc.event;
+
+import org.springframework.context.event.EventListener;
+import org.springframework.stereotype.Component;
+
+@Component
+public class UserLoginListener {
+    @EventListener
+    public void onApplicationEvent(UserLoginEvent event) {
+        //监听到事件 触发事件函数
+        event.fn();
+    }
+}
+```
+
+**标准事件**
+
+就是内置的事件处理者 ContextRefreshedEvent(容器调用fresh()方法完成后会触发),ContextStartedEvent,ContextStoppedEvent,ContextClosedEvent,RequestHandledEvent,ServletRequestHandledEvent
+
+```java
+    @EventListener
+    public void internalEvent(ContextRefreshedEvent event) {
+        System.out.println("容器调用refresh完成");
+    }
+```
+

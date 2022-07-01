@@ -110,6 +110,15 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 | 查看类               | f4                                                             |
 | 创建临时文件         | ctrl + alt + shift + insert                                    |
 
+## 插件
+
+- Chinese 中文语言插件
+- Translation 翻译插件
+- key Prommoter X 快捷键提示插件
+- resultful tool resultful接口插件
+- Free MyBatis Tool mybatis xml跟踪跳转自动生成
+
+
 ## 添加jar包
 
 [jar包搜索](https://mvnrepository.com/)
