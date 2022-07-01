@@ -6499,13 +6499,14 @@ public class UserService {
     public UserService() {
     }
 
+    //方法获取依赖bean
     @Bean
     public UserDao userDao() {
         return new UserDao();
     }
 
     public void fn() {
-        //使用容器创建的userDao
+        //使用容器创建的userDao bean与bean之间调用 要加注解@Configuration
         userDao().fn();
         System.out.println("hello service");
     }
