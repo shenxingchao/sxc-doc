@@ -7420,3 +7420,182 @@ public class UserService implements IUserService {
     @Value("#{'2022'.concat('-').concat('09').concat('-').concat('09')}")
     private Date birthday;
 ```
+
+## AOP面向切面编程
+
+就是统一的给所有的Service，Controller，Dao做处理，他们都是Bean，Bean在加载到容器到加载完成的过程中会有很多的钩子(bean实现BeanPostProcessor)，可以在这些钩子进行统一处理，比如对加了@Service所有注解的Bean进行统一处理。
+
+底层用的是动态代理模式
+
+### AspectJ
+
+@AspectJ 将java类声明为一个切面
+
+#### 依赖
+
+pom.xml
+
+```xml
+<dependency>
+    <groupId>org.aspectj</groupId>
+    <artifactId>aspectjweaver</artifactId>
+    <version>1.9.9.1</version>
+</dependency>
+```
+
+#### 开启切面
+
+src/main/java/com/sxc/config/AppConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+
+@Configuration
+@ComponentScan(basePackages = "com.sxc")
+@EnableAspectJAutoProxy //开启AspectJ的自动代理
+public class AppConfig {
+    public AppConfig() {
+    }
+}
+```
+
+#### 切面和切入点表达式
+
+切入点就是方法增强处理的位置
+
+表达式就是用来找切入点的
+
+[切入点表达式](https://blog.csdn.net/qq_31854907/article/details/122585195)
+
+声明为一个切面和使用切点表达式src/main/java/com/sxc/aspectj/AspectJ.java
+
+```java
+package com.sxc.aspectj;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+
+@Component
+@Aspect //这个注解将类定义为切面
+public class AspectJ {
+
+    //切点 就是方法需要增强的位置
+    //execution 匹配方法 * 所有包下的 fn()方法 ..任意参数
+    @Pointcut("execution(* fn(..))")
+    private void strongPoint() {
+    }
+}
+```
+
+#### 切入点增强方法
+
+修改src/main/java/com/sxc/aspectj/AspectJ.java
+
+```java
+package com.sxc.aspectj;
+
+import org.aspectj.lang.ProceedingJoinPoint;
+import org.aspectj.lang.annotation.*;
+import org.springframework.stereotype.Component;
+
+@Component
+@Aspect //这个注解将类定义为切面
+public class AspectJ {
+
+    //匹配所有Service下的方法
+    @Pointcut("execution(public * com.sxc.service..*(..))")
+    private void beforePointcut() {
+    }
+
+    //下面是所有的增强方法
+    // @Before里面也是可以写表达式的 也可以是切点的引用，下面都是切点的引用
+    @Before("beforePointcut()")
+    private void beforeAdvice() {
+        System.out.println("前置增强方法");
+    }
+
+    /**
+     * 如果出异常不会执行
+     */
+    @AfterReturning("beforePointcut()")
+    private void afterReturningAdvice() {
+        System.out.println("返回后增强方法");
+    }
+
+    @After("beforePointcut()")
+    private void afterAdvice() {
+        System.out.println("后置增强方法");
+    }
+
+    @AfterThrowing("beforePointcut()")
+    private void afterThrowing() {
+        System.out.println("异常增强方法");
+    }
+
+
+    /**
+     * 包围增强
+     */
+    @Around("beforePointcut()")
+    private Object around(ProceedingJoinPoint proceedingJoinPoint) {
+        try {
+            System.out.println("包围增强前置");
+            //处理切入点方法
+            Object proceed = proceedingJoinPoint.proceed();
+            System.out.println("包围增强后置");
+            return proceed;
+        } catch (Throwable e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+测试src/test/java/TestSpring.java
+
+```java
+    @Test
+    public void testAOP() {
+        IUserService userService = context.getBean(IUserService.class);
+        userService.fn();
+      /*  包围增强前置
+        前置增强方法
+        hello dao
+        hello service
+        返回后增强方法
+        后置增强方法
+        包围增强后置*/
+    }
+```
+
+#### 切入方法参数JoinPoint
+
+```java
+    //JoinPoint 可以拿到目标对象，和代理对象，还有执行的方法，方法的签名,每个增强方法都有这个参数注入
+    @Before("beforePointcut()")
+    private void beforeAdvice(JoinPoint joinPoint) {
+        //目标对象
+        System.out.println(joinPoint.getTarget());//com.sxc.service.impl.UserService@73163d48
+        //代理对象
+        System.out.println(joinPoint.getThis());//com.sxc.service.impl.UserService@73163d48
+        //方法参数
+        System.out.println(Arrays.toString(joinPoint.getArgs()));//[]
+        //签名
+        System.out.println(joinPoint.getSignature());//void com.sxc.service.IUserService.fn()
+
+        //拿到类的反射信息
+        MethodSignature signature = (MethodSignature) joinPoint.getSignature();
+        Method method = signature.getMethod();
+        //下面的相当于在调用一遍切入的方法了
+        //try {
+        //    method.invoke(joinPoint.getTarget(), joinPoint.getArgs());
+        //} catch (IllegalAccessException | InvocationTargetException e) {
+        //    throw new RuntimeException(e);
+        //}
+        System.out.println("前置增强方法");
+    }
+```
