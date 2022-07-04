@@ -5566,6 +5566,7 @@ public class UserDao {
 
 ```java
 import com.sxc.dao.UserDao;
+import org.junit.Test;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 
@@ -5578,7 +5579,7 @@ public class TestSpring {
         context = new ClassPathXmlApplicationContext("application.xml");
     }
 
-    @org.junit.Test
+    @Test
     public void testIoc(){
         //获取容器内的dao对象
         UserDao userDao = context.getBean(UserDao.class);
@@ -5727,7 +5728,7 @@ public class UserService {
 src/test/java/TestSpring.java调用
 
 ```java
-    @org.junit.Test
+    @Test
     public void testConstructorArg(){
         //获取容器内的service对象
         UserService userService = context.getBean(UserService.class);
@@ -5775,7 +5776,7 @@ src/main/resources/application.xml
 src/test/java/TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testConstructorArgDefault() {
         //获取容器内的service对象
         UserService userService = context.getBean(UserService.class);
@@ -5956,7 +5957,7 @@ graph TB;
 src/test/java/TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testLife() {
         //获取容器内的service对象
         UserService userService = context.getBean(UserService.class);
@@ -6147,7 +6148,7 @@ public class UserService implements ApplicationContextAware, BeanNameAware {
 src/test/java/TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testGetApplication() {
         //获取容器内的service对象
         UserService userService = context.getBean(UserService.class);
@@ -6228,7 +6229,7 @@ public class UserService{
 src/test/java/TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testAnnotation() {
         //获取容器内的service对象
         UserService userService = context.getBean(UserService.class);
@@ -6625,7 +6626,7 @@ druid.password=
 TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testAppConfig() {
         //获取容器内的service对象
         DataSource bean = context.getBean(DataSource.class);
@@ -6760,7 +6761,7 @@ public class UserLoginListener implements ApplicationListener<UserLoginEvent> {
 TestSpring.java
 
 ```java
-    @org.junit.Test
+    @Test
     public void testAppConfig() {
         context.publishEvent(new UserLoginEvent("XXX用户登录了"));
     }
@@ -6840,4 +6841,582 @@ public class UserLoginListener {
     public void internalEvent(ContextRefreshedEvent event) {
         System.out.println("容器调用refresh完成");
     }
+```
+
+### JdbcTemplate简化jdbc操作
+
+[参考地址](https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#jdbc-JdbcTemplate)
+
+**主要依赖pom.xml**
+
+```xml
+   <dependency>
+        <groupId>com.alibaba</groupId>
+        <artifactId>druid</artifactId>
+        <version>1.2.11</version>
+    </dependency>
+    <dependency>
+        <groupId>mysql</groupId>
+        <artifactId>mysql-connector-java</artifactId>
+        <version>8.0.29</version>
+    </dependency>
+    <!-- jdbc template -->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-jdbc</artifactId>
+        <version>5.3.20</version>
+    </dependency>
+```
+
+**配置扫包类**
+
+src/main/java/com/sxc/config/AppConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+@ComponentScan(basePackages = "com.sxc")
+public class AppConfig {
+    public AppConfig() {
+    }
+}
+```
+
+**配置JdbcTempalte Bean**
+
+src/main/java/com/sxc/config/JdbcTemplateConfig.java
+
+```java
+package com.sxc.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.PropertySource;
+import org.springframework.jdbc.core.JdbcTemplate;
+
+import javax.sql.DataSource;
+
+@Configuration
+@PropertySource("classpath:/druid.properties")
+public class JdbcTemplateConfig {
+
+    @Value("${druid.driverClassName}")
+    private String driverClassName;
+
+    @Value("${druid.url}")
+    private String url;
+
+    @Value("${druid.username}")
+    private String username;
+
+    @Value("${druid.password}")
+    private String password;
+
+    /**
+     * 获取DataSource实例
+     *
+     * @return
+     */
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.setDriverClassName(driverClassName);
+        druidDataSource.setUrl(url);
+        druidDataSource.setUsername(username);
+        druidDataSource.setPassword(password);
+        return druidDataSource;
+    }
+
+    /**
+     * 返回一个JdbcTemplate实例
+     *
+     * @param dataSource
+     * @return
+     */
+    @Bean
+    public JdbcTemplate jdbcTemplate(DataSource dataSource) {
+        JdbcTemplate jdbcTemplate = new JdbcTemplate();
+        jdbcTemplate.setDataSource(dataSource);
+        return jdbcTemplate;
+    }
+}
+```
+
+**配置德鲁伊数据源**，这里用了5.7版本测试的，所以用的cj.jdbc
+
+```
+druid.driverClassName=com.mysql.cj.jdbc.Driver
+druid.url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
+druid.username=root
+druid.password=
+```
+
+**Service层**
+
+src/main/java/com/sxc/service/UserService.java 负责调用Dao层方法
+
+```java
+package com.sxc.service.impl;
+
+import com.sxc.dao.UserDao;
+import com.sxc.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService implements IUserService {
+    @Autowired
+    private UserDao userDao;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Override
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+**Dao层**
+
+src/main/java/com/sxc/data/UserDao.java 负责操作数据库
+
+```java
+package com.sxc.dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
+import org.springframework.stereotype.Repository;
+
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+@Repository(value = "userDao")
+public class UserDao {
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    public void fn() {
+        System.out.println(jdbcTemplate);
+        //获取记录数
+        int rowCount = (int) jdbcTemplate.queryForObject("SELECT COUNT(*) FROM user", Integer.class);
+        System.out.println(rowCount);//3
+
+        //获取List
+        List<Map<String, Object>> list = jdbcTemplate.queryForList("SELECT * FROM user WHERE name = ?", "张三");
+        System.out.println(list);//[{id=1, name=张三, age=1}]
+
+        //获取单个对象
+        Object user = jdbcTemplate.queryForObject("SELECT * FROM user WHERE id = ?", new RowMapper<Object>() {
+            @Override
+            public Object mapRow(ResultSet rs, int rowNum) throws SQLException {
+                System.out.println(rs);
+                HashMap<String, Object> user = new HashMap<>();
+                user.put("id", rs.getString("id"));
+                user.put("name", rs.getString("name"));
+                user.put("age", rs.getString("age"));
+                return user;
+            }
+        }, 1);//{name=张三, id=1, age=1}
+        System.out.println(user);
+
+        //测试一下连表
+        //获取List
+        String sql = "SELECT u.id,u.name,u.age,ua.id as addressId,ua.address" +
+                " FROM `user` AS u" +
+                " LEFT JOIN `user_address` AS ua ON u.id = ua.user_id" +
+                " WHERE u.id = ?";
+        list = jdbcTemplate.queryForList(sql, 1);
+        System.out.println(list);//[{id=1, name=张三, age=1, addressId=1, address=上海}, {id=1, name=张三, age=1, addressId=3, address=天津}]
+        
+        //其他增删改操作参考官网
+    }
+}
+```
+
+**测试类**
+
+src/test/java/TestSpring.java
+
+```java
+import com.sxc.config.AppConfig;
+import com.sxc.service.IUserService;
+import org.junit.Before;
+import org.junit.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+public class TestSpring {
+    public static final Logger LOGGER = LoggerFactory.getLogger(TestSpring.class);
+    public static ApplicationContext context = null;
+
+    @Before
+    public void init() {
+        //使用配置类装载配置传一个包就可以了，他自己会扫描配置类
+        context = new AnnotationConfigApplicationContext(AppConfig.class);
+    }
+
+    @Test
+    public void testJdbcTemplate() {
+        //获取容器内的dao对象
+        IUserService userService = context.getBean(IUserService.class);
+        userService.fn();
+    }
+}
+```
+
+### ApplicationContext中的加载资源
+
+#### 初始化提供批量加载xml
+
+这里我更喜欢用扫包的方式
+
+```java
+public class TestSpring {
+    public static final Logger LOGGER = LoggerFactory.getLogger(TestSpring.class);
+    public static ApplicationContext context = null;
+
+    @Before
+    public void init() {
+        //这个是根据类中的配置扫包，也可以直接配置要扫描的包目录
+        context = new AnnotationConfigApplicationContext(AppConfig.class);
+        //如果使用xml配置文件，则可以使用下面的方式批量加载
+        //使用通配符加载所有classpath目录下的xml资源
+        //context = new ClassPathXmlApplicationContext("classpath:*.xml");
+    }
+}
+```
+
+#### 使用内置的加载各种渠道的资源
+
+加载网络资源，加载classpath目录下的资源，加载本地资源等
+
+```java
+   @Test
+    public void testResource() throws IOException {
+        //ApplicationContext 加载classpath目录下的资源(编译后的target/classes目录) 假设resource目录下有这个文件
+        Resource resource = context.getResource("classpath:druid.properties");
+        System.out.println(resource.getFilename());//druid.properties
+        //加载网络资源
+        resource = context.getResource("http:http://sanic-kuwo.o8o8o8.com/version/app-release.apk");
+        System.out.println(resource.getFilename());//app-release.apk
+        //加载本地资源
+        resource = context.getResource("file:D://1.txt");
+        System.out.println(resource.getFile().length());
+    }
+```
+
+## Spring内置的工具类
+
+### BeanWrapperImpl属性包装类
+
+Spring工具类，用于Bean的属性的设置，只能说非常的方便
+
+新建两个实体类
+
+src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import java.io.Serializable;
+import java.util.List;
+
+public class User implements Serializable {
+    //明确定义，不然会导致序列化和反序列化的对象不一样
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String name;
+    private Integer age;
+
+    private List<UserAddress> userAddress;
+
+    //可以直接使用无参构造器拿到属性
+    public User() {
+    }
+
+    public User(int id, String name, int age) {
+        this.id = id;
+        this.name = name;
+        this.age = age;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public Integer getAge() {
+        return age;
+    }
+
+    public void setAge(Integer age) {
+        this.age = age;
+    }
+
+    public List<UserAddress> getUserAddress() {
+        return userAddress;
+    }
+
+    public void setUserAddress(List<UserAddress> userAddress) {
+        this.userAddress = userAddress;
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", age=" + age +
+                ", userAddress=" + userAddress +
+                '}';
+    }
+}
+```
+
+src/main/java/com/sxc/entity/UserAddress.java
+
+```java
+package com.sxc.entity;
+
+import java.io.Serializable;
+
+public class UserAddress implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String address;
+
+    public UserAddress() {
+    }
+
+    public UserAddress(Integer id, String address) {
+        this.id = id;
+        this.address = address;
+    }
+
+    public Integer getId() {
+        return id;
+    }
+
+    public void setId(Integer id) {
+        this.id = id;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    @Override
+    public String toString() {
+        return "UserAddress{" +
+                "id=" + id +
+                ", address='" + address + '\'' +
+                '}';
+    }
+}
+```
+
+测试类 src/test/java/TestSpring.java
+
+```java
+    @Test
+    public void testBeanWrapper() {
+        User user = new User();
+        UserAddress userAddress = new UserAddress();
+
+        //进行包装
+        BeanWrapperImpl beanWrapper = new BeanWrapperImpl(user);
+        //设置属性
+        beanWrapper.setPropertyValue("id", 1);
+        beanWrapper.setPropertyValue("name", "张三");
+        beanWrapper.setPropertyValue("age", 18);
+        List list = new ArrayList<UserAddress>() {{
+            add(userAddress);
+        }};
+        beanWrapper.setPropertyValue("userAddress", list);
+        //还能设置嵌套属性
+        beanWrapper.setPropertyValue("userAddress[0].id", 1);
+        beanWrapper.setPropertyValue("userAddress[0].address", "上海");
+        System.out.println("beanWrapper = " + beanWrapper.getWrappedInstance());
+        //beanWrapper = User{id=1, name='张三', age=18, userAddress=[UserAddress{id=1, address='上海'}]}
+    }
+```
+
+### 类型转化Converter
+
+ConversionServiceFactoryBean 是一个系统内置的bean通过给他设置Convert转换器，可以在使用Bean的时候，查找是否有强制类型转化，然后会去找对应类型转化的Convert转换器
+
+配置类src/main/resources/application.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        https://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        https://www.springframework.org/schema/context/spring-context.xsd">
+    <!--开启扫包-->
+    <context:component-scan base-package="com.sxc"/>
+    <!--类型转换器 必须要叫这个-->
+    <bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+        <property name="converters">
+            <list>
+                <bean class="com.sxc.convert.CustomConvert"/>
+            </list>
+        </property>
+    </bean>
+</beans>
+```
+
+自定义转化器类src/main/java/com/sxc/convert/CustomConvert.java
+```java
+package com.sxc.convert;
+
+import org.springframework.core.convert.converter.Converter;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+
+public class CustomConvert implements Converter<String, Date> {
+    @Override
+    public Date convert(String source) {
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        try {
+            return simpleDateFormat.parse(source);
+        } catch (ParseException e) {
+            throw new RuntimeException(e);
+        }
+    }
+}
+```
+
+结果显示类src/main/java/com/sxc/service/impl/UserService.java
+
+```java
+package com.sxc.service.impl;
+
+import com.sxc.dao.UserDao;
+import com.sxc.service.IUserService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+
+@Service
+public class UserService implements IUserService {
+    @Autowired
+    private UserDao userDao;
+
+    //假设这个字段读取到的是字符串，则使用这个字段时容器会进行强制转化
+    @Value("2022-07-04")
+    private Date birthday;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Override
+    public void fn() {
+        //这里会进行自动转化
+        System.out.println(birthday);//Mon Jul 04 00:00:00 CST 202
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+
+### DataBinder验证器
+
+[DataBinder](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#validation-binder)用于验证bean的数据是否合法，目测后面的框架会有别的工具类，暂时不用知道他怎么用了
+
+## EL表达式
+
+用于解析字符串或配置文件中的字符串，或者是@Value注解中的字符串
+
+### 简介
+
+```java
+    @Test
+    public void testElExpression() {
+        ExpressionParser parser = new SpelExpressionParser();
+        //解析字符串
+        Expression exp = parser.parseExpression("'Hello World'");
+        String message = (String) exp.getValue();
+        System.out.println("message = " + message);//Hello World
+        //解析字符串调用函数
+        exp = parser.parseExpression("'Hello World'.concat('!')");
+        message = (String) exp.getValue();
+        System.out.println("message = " + message);//Hello World!
+        //解析对象调用函数
+        exp = parser.parseExpression("new String('hello world!').toUpperCase()");
+        message = (String) exp.getValue();
+        System.out.println("message = " + message);//HELLO WORLD!
+        //解析一个对象的属性值
+        exp = parser.parseExpression("name");
+        message = (String) exp.getValue(new User(1, "张三", 18));
+        System.out.println("message = " + message);//张三
+
+        //解析器的上下文
+        EvaluationContext evaluationContext = SimpleEvaluationContext.forReadOnlyDataBinding().build();
+        //解析一个数组
+        User user = new User(1, "张三", 18);
+        user.setUserAddress(Arrays.asList(new UserAddress(1, "上海")));
+        UserAddress userAddress = parser.parseExpression("userAddress[0]").getValue(evaluationContext, user, UserAddress.class);
+        System.out.println("userAddress = " + userAddress);//userAddress = UserAddress{id=1, address='上海'}
+
+        //解析字符串表达式成数组
+        ArrayList list = parser.parseExpression("{1,2,3,4}").getValue(evaluationContext, ArrayList.class);
+        System.out.println("list = " + list);//[1, 2, 3, 4]
+    }
+```
+
+### xml配置文件里Bean中使用
+
+```xml
+#{expression string}
+```
+
+### 在注解中使用
+
+```java
+    @Value("#{'2022'.concat('-').concat('09').concat('-').concat('09')}")
+    private Date birthday;
 ```

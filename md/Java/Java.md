@@ -2203,6 +2203,13 @@ public class Demo {
         // 删除多个元素
         list.removeAll(list2);
         System.out.println(list);// []
+
+        //初始化直接添加元素,如果是jdk11则可以直接用List.of 创建可变集合
+        list = new ArrayList<Object>() {{
+            add("hello1");
+            add("hello2");
+        }};
+        System.out.println(list);//[hello1, hello2]
     }
 }
 ```
@@ -4538,18 +4545,28 @@ class Factory {
 
 利用接口多态和接口类型的对象实现让不同的人做同一件事
 
+### 静态代理
+
+繁杂，要设置多次被代理对象
+
 ```java
 public class Demo {
     public static void main(String[] args) {
-        Studuent studuent = new Studuent();
+        Student student = new Student();
         Teacher teacher = new Teacher();
         Agent agent = new Agent();
         // 让学生做作业
-        agent.setAgent(studuent);
+        agent.setAgent(student);
         agent.doHomework();
         // 让老师做作业
         agent.setAgent(teacher);
         agent.doHomework();
+        //学生吃饭
+        agent.setEatAgent(student);
+        agent.doEat();
+        //老师吃饭
+        agent.setEatAgent(teacher);
+        agent.doEat();
     }
 }
 
@@ -4559,27 +4576,44 @@ interface Homework {
     public void doHomework();
 }
 
+// 吃饭类
+interface Eat {
+    // 做作业
+    public void doEat();
+}
+
 // 学生类
-class Studuent implements Homework {
+class Student implements Homework, Eat {
 
     @Override
     public void doHomework() {
         System.out.println("学生做作业");
     }
+
+    @Override
+    public void doEat() {
+        System.out.println("学生吃饭");
+    }
 }
 
 // 老师类
-class Teacher implements Homework {
+class Teacher implements Homework, Eat {
 
     @Override
     public void doHomework() {
         System.out.println("老师做作业");
+    }
+
+    @Override
+    public void doEat() {
+        System.out.println("老师吃饭");
     }
 }
 
 // 代理类
 class Agent implements Homework {
     Homework agent = null;
+    Eat eatAgent = null;
 
     @Override
     public void doHomework() {
@@ -4589,9 +4623,120 @@ class Agent implements Homework {
         }
     }
 
+    public void doEat(){
+        if (eatAgent != null) {
+            eatAgent.doEat();
+        }
+    }
+
     // 接口多态 向上转型（可以接收实现A接口的任意对象）
     public void setAgent(Homework agent) {
         this.agent = agent;
+    }
+
+    public void setEatAgent(Eat eatAgent) {
+        this.eatAgent = eatAgent;
+    }
+}
+```
+
+### 动态代理
+
+动态代理和静态代理相比较，最大的好处就是接口中声明的所有的方法都被转移到一个集中的方法中去处理，就是invoke()方法.这样在接口中声明的方法比较多的情况下我们可以进行灵活处理,这个invoke相当于一个拦截器
+
+简单，只要设置一次被代理对象
+
+```java
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
+
+public class Demo {
+    public static void main(String[] args) {
+        Student student = new Student();
+        Teacher teacher = new Teacher();
+        Agent agent = new Agent();
+        //获取各种接口
+        Homework homework = (Homework) agent.getProxy();
+        Eat eat = (Eat) agent.getProxy();
+
+        //让学生去做
+        agent.setAgent(student);
+        homework.doHomework();
+        eat.doEat();
+        //让老师去做
+        agent.setAgent(teacher);
+        homework.doHomework();
+        eat.doEat();
+    }
+}
+
+class Agent implements InvocationHandler {
+    Homework agent = null;
+
+    // 接口多态 向上转型（可以接收实现A接口的任意对象）
+    public void setAgent(Homework agent) {
+        this.agent = agent;
+    }
+
+    @Override
+    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+        System.out.println("执行一些共同代码");
+        //代理对象实际执行方法
+        return method.invoke(agent, args);
+    }
+
+    /**
+     * 获取代理对象
+     */
+    public Object getProxy() {
+        //Homework.class, Eat.class 使用时创建接口代理类
+        //this -> InvocationHandler
+        return Proxy.newProxyInstance(
+                this.getClass().getClassLoader(),
+                new Class[]{Homework.class, Eat.class},
+                this);
+    }
+}
+
+// 作业类
+interface Homework {
+    // 做作业
+    public void doHomework();
+}
+
+// 吃饭类
+interface Eat {
+    // 做作业
+    public void doEat();
+}
+
+
+// 学生类
+class Student implements Homework, Eat {
+
+    @Override
+    public void doHomework() {
+        System.out.println("学生做作业");
+    }
+
+    @Override
+    public void doEat() {
+        System.out.println("学生吃饭");
+    }
+}
+
+// 老师类
+class Teacher implements Homework, Eat {
+
+    @Override
+    public void doHomework() {
+        System.out.println("老师做作业");
+    }
+
+    @Override
+    public void doEat() {
+        System.out.println("老师吃饭");
     }
 }
 ```
