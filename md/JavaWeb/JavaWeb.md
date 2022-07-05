@@ -5503,7 +5503,7 @@ pom.xml
             <artifactId>spring-beans</artifactId>
             <version>5.3.20</version>
         </dependency>
-        <!--context是spring-bean的扩展-->
+        <!--context是spring-bean的扩展 ctrl点击spring-context 可以看到上面两个都已经被导入，不需要重复导入-->
         <dependency>
             <groupId>org.springframework</groupId>
             <artifactId>spring-context</artifactId>
@@ -7301,6 +7301,41 @@ ConversionServiceFactoryBean 是一个系统内置的bean通过给他设置Conve
 </beans>
 ```
 
+或者不用xml，自己注册这个工厂Bean
+
+src/main/java/com/sxc/config/ConversionConfig.java
+
+```java
+package com.sxc.config;
+
+import com.sxc.convert.CustomConvert;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.support.ConversionServiceFactoryBean;
+
+import java.util.HashSet;
+
+@Configuration
+public class ConversionConfig {
+    //自定义类型转换器bean
+    @Bean
+    public CustomConvert customConvert() {
+        return new CustomConvert();
+    }
+
+    //-类型转换器 bean conversionService名字必须这么叫，因为这是工厂bean
+    @Bean
+    public ConversionServiceFactoryBean conversionService(CustomConvert customConvert) {
+        ConversionServiceFactoryBean conversionServiceFactoryBean = new ConversionServiceFactoryBean();
+        HashSet<Object> hashSet = new HashSet<>();
+        hashSet.add(customConvert);
+        conversionServiceFactoryBean.setConverters(hashSet);
+        return conversionServiceFactoryBean;
+    }
+}
+```
+
+
 自定义转化器类src/main/java/com/sxc/convert/CustomConvert.java
 ```java
 package com.sxc.convert;
@@ -7365,7 +7400,7 @@ public class UserService implements IUserService {
 
 ### DataBinder验证器
 
-[DataBinder](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#validation-binder)用于验证bean的数据是否合法，目测后面的框架会有别的工具类，暂时不用知道他怎么用了
+[DataBinder](https://docs.spring.io/spring-framework/docs/current/reference/html/core.html#validation-binder)用于验证bean的数据是否合法
 
 ## EL表达式
 
@@ -7469,7 +7504,7 @@ public class AppConfig {
 
 表达式就是用来找切入点的
 
-[切入点表达式](https://blog.csdn.net/qq_31854907/article/details/122585195)
+[切入点表达式](https://blog.csdn.net/qq_31854907/article/details/122585195)，常用的是execution和annotation
 
 声明为一个切面和使用切点表达式src/main/java/com/sxc/aspectj/AspectJ.java
 
@@ -7589,7 +7624,14 @@ public class AspectJ {
 
         //拿到类的反射信息
         MethodSignature signature = (MethodSignature) joinPoint.getSignature();
-        Method method = signature.getMethod();
+        //拿到注解 这里需要有一个SXC的注解在方法上
+        Annotation annotations = null;
+        try {
+            annotation = joinPoint.getTarget().getClass().getMethod("fn").getAnnotation(SXC.class);
+            System.out.println(annotation.annotationType() == SXC.class);//true
+        } catch (NoSuchMethodException e) {
+            throw new RuntimeException(e);
+        }
         //下面的相当于在调用一遍切入的方法了
         //try {
         //    method.invoke(joinPoint.getTarget(), joinPoint.getArgs());
@@ -7599,3 +7641,139 @@ public class AspectJ {
         System.out.println("前置增强方法");
     }
 ```
+
+注解接口src/main/java/com/sxc/annotation/SXC.java
+
+```java
+package com.sxc.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD) //作用于方法
+@Retention(RetentionPolicy.RUNTIME) //整个jvm加载运行一直存在
+public @interface SXC {
+}
+```
+
+**接收被增强方法的实参**
+
+```java
+    //src/main/java/com/sxc/service/IUserService.java
+    public interface IUserService {
+        //假设这个方法有一个参数a
+        void fn(String a);
+    }
+
+    //args 接收  src/main/java/com/sxc/aspectj/AspectJ.java
+    @Before("execution(public * com.sxc.service.IUserService.fn(String))&& args(a,...)")
+    private void beforeAdvice(JoinPoint joinPoint, String a) {
+        System.out.println(a);
+    }
+```
+
+## 事务
+
+spring事务依赖pom.xml
+
+```xml
+<!--spring事务，引入spring-jdbc就不需要引入这个了，里面有-->
+<dependency>
+    <groupId>org.springframework</groupId>
+    <artifactId>spring-tx</artifactId>
+    <version>5.3.20</version>
+</dependency>
+```
+
+### 开启一个事务管理器
+
+注解 @Transactional 可以作用于类或者方法
+
+**开启事务管理器**src/main/java/com/sxc/config/AppConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+
+@Configuration
+@ComponentScan(basePackages = "com.sxc")
+@EnableAspectJAutoProxy //开启AspectJ的自动代理
+@EnableTransactionManagement //开启事务管理器
+public class AppConfig {
+    public AppConfig() {
+    }
+}
+```
+
+**配置事务管理器的数据源**src/main/java/com/sxc/config/TransactionManagerConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionManager;
+
+import javax.sql.DataSource;
+
+@Configuration
+public class TransactionManagerConfig {
+
+    //给事务管理器Bean配置使用的数据源
+    @Bean
+    public TransactionManager transactionManager(@Autowired DataSource dataSource) {
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+        dataSourceTransactionManager.setDataSource(dataSource);
+        return dataSourceTransactionManager;
+    }
+}
+```
+
+测试一下事务回滚 默认只有运行时异常RuntimeException 及其子类时才会回滚
+
+src/main/java/com/sxc/dao/UserDao.java
+
+```java
+package com.sxc.dao;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
+
+@Repository(value = "userDao")
+//propagation 事务的传播方式
+@Transactional(
+        propagation = Propagation.REQUIRED//增删改使用默认的事务 如果嵌套在另一个事务，则会融入到那个事务
+        //propagation = Propagation.SUPPORTS //查询 不使用事务
+        //propagation = Propagation.REQUIRES_NEW //打印日志可以用这个事务 创建新的事务，相当于事务又嵌套了一个事务
+)
+public class UserDao {
+    @Autowired
+    JdbcTemplate jdbcTemplate;
+
+    public void fn() {
+        String sql = "UPDATE user SET name = ? WHERE id = ?";
+        jdbcTemplate.update(sql, "张四", 1);
+        System.out.println(1 / 0);
+        sql = "UPDATE user SET name = ? WHERE id = ?";
+        jdbcTemplate.update(sql, "张五", 1);
+        System.out.println("hello dao");
+    }
+}
+```
+
+## 整合mybatis
+
+[官方文档](http://mybatis.org/spring/zh)
+
+新建一个maven项目 ssm
