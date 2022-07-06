@@ -7756,6 +7756,7 @@ import org.springframework.transaction.annotation.Transactional;
         propagation = Propagation.REQUIRED//增删改使用默认的事务 如果嵌套在另一个事务，则会融入到那个事务
         //propagation = Propagation.SUPPORTS //查询 不使用事务
         //propagation = Propagation.REQUIRES_NEW //打印日志可以用这个事务 创建新的事务，相当于事务又嵌套了一个事务
+        //rollbackFor = Exception.class 配置回滚策略,不只是运行异常才会回滚
 )
 public class UserDao {
     @Autowired
@@ -7772,8 +7773,554 @@ public class UserDao {
 }
 ```
 
-## 整合mybatis
+## 整合mybatis案例
 
 [官方文档](http://mybatis.org/spring/zh)
 
 新建一个maven项目 ssm
+
+### 依赖
+
+pom.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.sxc</groupId>
+    <artifactId>ssm</artifactId>
+    <version>1.0-SNAPSHOT</version>
+
+    <properties>
+        <maven.compiler.source>8</maven.compiler.source>
+        <maven.compiler.target>8</maven.compiler.target>
+        <!-- 添加编码，不然编译会有警告 -->
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
+
+    <dependencies>
+        <!--单元测试-->
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.13.2</version>
+            <scope>test</scope>
+        </dependency>
+        <!--spring核心库 bean 扩展库都在这里-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-context</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+        <!--jdbc 事务-->
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-jdbc</artifactId>
+            <version>5.3.20</version>
+        </dependency>
+        <!--AOP切面库-->
+        <dependency>
+            <groupId>org.aspectj</groupId>
+            <artifactId>aspectjweaver</artifactId>
+            <version>1.9.9.1</version>
+        </dependency>
+        <!--DataSource数据源-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+            <version>1.2.11</version>
+        </dependency>
+        <!--mysql连接驱动-->
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+            <version>8.0.29</version>
+        </dependency>
+        <!--mybatis-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis</artifactId>
+            <version>3.5.10</version>
+        </dependency>
+        <!--spring整合mybatis-->
+        <dependency>
+            <groupId>org.mybatis</groupId>
+            <artifactId>mybatis-spring</artifactId>
+            <version>2.0.7</version>
+        </dependency>
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+            <version>1.18.24</version>
+            <scope>provided</scope>
+        </dependency>
+        <!--日志start-->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.36</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-web</artifactId>
+            <version>2.17.2</version>
+        </dependency>
+        <!--日志end-->
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven使用的jdk版本，不配置默认是1.5必须配置 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${maven.compiler.source}</source> <!-- 源代码使用的JDK版本 -->
+                    <target>${maven.compiler.target}</target> <!-- 需要生成的目标class文件的编译版本 -->
+                    <encoding>${project.build.sourceEncoding}</encoding><!-- 字符集编码 -->
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+```
+
+### 资源文件
+
+**数据源**
+
+src/main/resources/druid.properties
+
+```
+druid.driverClassName=com.mysql.cj.jdbc.Driver
+druid.url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
+druid.username=root
+druid.password=
+```
+
+**mybatis xml文件**
+
+src/main/resources/mappers/UserMapper.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.sxc.mapper.UserMapper">
+    <resultMap id="userMap" type="com.sxc.entity.User">
+        <id property="id" column="id"/>
+        <result property="name" column="name"/>
+        <result property="age" column="age"/>
+    </resultMap>
+    <!--更新记录-->
+    <update id="updateById">
+        UPDATE `user`
+        SET `name`=#{name}
+        WHERE id = #{id}
+    </update>
+    <select id="selectOne" resultMap="userMap">
+        SELECT *
+        FROM user
+        <where>
+            `id` = #{id}
+        </where>
+    </select>
+</mapper>
+```
+
+**日志配置**
+
+src/main/resources/log4j2.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<!--status日志系统本身的level monitorInterval自动重启-->
+<Configuration status="error" monitorInterval="30">
+    <Appenders>
+        <!--控制台 name名称-->
+        <Console name="consoleAppender" target="SYSTEM_OUT">
+            <!--22-06-24 13:08:14 [main] TestSlf4j - error 日期 线程 类名 错误消息 换行-->
+            <PatternLayout pattern="%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n"/>
+        </Console>
+        <!--文件-->
+        <RollingFile name="fileAppender" fileName="./log/sql.log.txt"
+                     filePattern="./log/log-%d{yy-MM-dd}-%i.txt">
+            <PatternLayout>
+                <pattern>%d{yy-MM-dd HH:mm:ss} [%t] %c %level - %m %n</pattern>
+            </PatternLayout>
+            <Policies>
+                <!--每个日志大小-->
+                <SizeBasedTriggeringPolicy size="1MB"/>
+            </Policies>
+            <!--max=10最多创建10个日志-->
+            <DefaultRolloverStrategy max="10">
+                <Delete basePath="./" maxDepth="2">
+                    <IfFileName glob="./*/*.log"/>
+                    <!--保留7天-->
+                    <IfLastModified age="7d"/>
+                </Delete>
+            </DefaultRolloverStrategy>
+        </RollingFile>
+    </Appenders>
+    <Loggers>
+        <!--root logger-->
+        <Root level="debug">
+            <AppenderRef ref="consoleAppender"/>
+        </Root>
+        <!--自定义logger配置 additivity不继承root的-->
+        <!--mybatis.sql是mybatis-config.xml配置文件中的log前缀，这样可以单独将sql的日志拿出来-->
+        <Logger name="mybatis.sql" level="debug" additivity="false">
+            <AppenderRef ref="consoleAppender"/>
+            <AppenderRef ref="fileAppender"/>
+        </Logger>
+    </Loggers>
+</Configuration>
+```
+
+### 源代码
+
+#### Spring配置类
+
+**Spring容器核心配置类**
+
+src/main/java/com/sxc/config/AppConfig.java
+
+```java
+package com.sxc.config;
+
+import com.alibaba.druid.pool.DruidDataSource;
+import org.apache.ibatis.logging.slf4j.Slf4jImpl;
+import org.apache.ibatis.session.SqlSessionFactory;
+import org.mybatis.spring.SqlSessionFactoryBean;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.*;
+import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
+import org.springframework.transaction.config.JtaTransactionManagerFactoryBean;
+import org.springframework.transaction.jta.JtaTransactionManager;
+
+import javax.sql.DataSource;
+
+@Configuration
+@ComponentScan(basePackages = "com.sxc")
+@MapperScan(basePackages = "com.sxc.mapper") //扫描mapper下的所有Mapper
+@EnableAspectJAutoProxy //开启AspectJ的自动代理
+@EnableTransactionManagement //开启事务管理器
+@PropertySource("classpath:druid.properties")
+public class AppConfig {
+    @Value("${druid.driverClassName}")
+    private String driverClassName;
+
+    @Value("${druid.url}")
+    private String url;
+
+    @Value("${druid.username}")
+    private String username;
+
+    @Value("${druid.password}")
+    private String password;
+
+    public AppConfig() {
+    }
+
+    /**
+     * 获取DataSource实例
+     *
+     * @return DataSource
+     */
+    @Bean
+    public DataSource dataSource() {
+        DruidDataSource druidDataSource = new DruidDataSource();
+        druidDataSource.setDriverClassName(driverClassName);
+        druidDataSource.setUrl(url);
+        druidDataSource.setUsername(username);
+        druidDataSource.setPassword(password);
+        return druidDataSource;
+    }
+
+    //要开启Spring的事务处理功能,给事务管理器Bean配置使用的数据源
+    @Bean
+    public TransactionManager transactionManager(DataSource dataSource) {
+        DataSourceTransactionManager dataSourceTransactionManager = new DataSourceTransactionManager();
+        dataSourceTransactionManager.setDataSource(dataSource);
+        return dataSourceTransactionManager;
+    }
+
+    /**
+     * 交由容器管理事务
+     *
+     * @return JtaTransactionManager
+     */
+    @Bean
+    public JtaTransactionManager transactionManager() {
+        return new JtaTransactionManagerFactoryBean().getObject();
+    }
+
+    /**
+     * SqlSessionFactory
+     *
+     * @param dataSource 数据源
+     * @return SqlSessionFactory
+     */
+    @Bean
+    public SqlSessionFactory sqlSessionFactory(DataSource dataSource) throws Exception {
+        SqlSessionFactoryBean sqlSessionFactoryBean = new SqlSessionFactoryBean();
+        sqlSessionFactoryBean.setDataSource(dataSource);
+        //指定MyBatis配置文件路径
+        //sqlSessionFactoryBean.setConfigLocation(new PathMatchingResourcePatternResolver()
+        //                .getResources("classpath:mybatis-config.xml"));
+        //也可直接使用内部bean的方式代替配置文件 下面是mybatis的配置
+        org.apache.ibatis.session.Configuration configuration = new org.apache.ibatis.session.Configuration();
+        configuration.setLogImpl(Slf4jImpl.class);
+        configuration.setLogPrefix("mybatis.sql.");
+        configuration.setMapUnderscoreToCamelCase(true);
+        sqlSessionFactoryBean.setConfiguration(configuration);
+        //配置别名
+        sqlSessionFactoryBean.setTypeAliasesPackage("com.sxc.entity");
+        //指定mapper.xml文件位置
+        sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver()
+                .getResources("classpath:mappers/**/*.xml"));
+        return sqlSessionFactoryBean.getObject();
+    }
+}
+```
+
+**APO+Spring事务拦截器TransactionInterceptor**
+
+src/main/java/com/sxc/config/TransactionalAopConfig.java
+
+```java
+package com.sxc.config;
+
+import org.aspectj.lang.annotation.Aspect;
+import org.springframework.aop.Advisor;
+import org.springframework.aop.aspectj.AspectJExpressionPointcut;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.transaction.TransactionDefinition;
+import org.springframework.transaction.TransactionManager;
+import org.springframework.transaction.interceptor.*;
+
+import javax.annotation.Resource;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
+
+@Aspect
+@Configuration
+public class TransactionalAopConfig {
+    //配置方法过期时间，默认-1,永不超时
+    private final static int METHOD_TIME_OUT = 5000;
+
+    //配置切入点表达式
+    private static final String POINTCUT_EXPRESSION = "execution(* com.sxc.service..*.*(..))";
+
+    //事务管理器
+    @Resource
+    private TransactionManager transactionManager;
+
+    //这就是xml配置里的txAdvice
+    //https://docs.spring.io/spring-framework/docs/current/reference/html/data-access.html#transaction-declarative-applying-more-than-just-tx-advice
+    @Bean
+    public TransactionInterceptor txAdvice() {
+        //事务管理规则，声明具备事务管理的方法名
+        NameMatchTransactionAttributeSource source = new NameMatchTransactionAttributeSource();
+        //只读事务，不做更新操作
+        RuleBasedTransactionAttribute readOnly = new RuleBasedTransactionAttribute();
+        readOnly.setReadOnly(true);
+        readOnly.setPropagationBehavior(TransactionDefinition.PROPAGATION_NOT_SUPPORTED);
+        //当前存在事务就使用当前事务，当前不存在事务就创建一个新的事务
+        RuleBasedTransactionAttribute required = new RuleBasedTransactionAttribute();
+        //抛出异常后执行切点回滚,这边你可以更换异常的类型
+        required.setRollbackRules(Collections.singletonList(new RollbackRuleAttribute(Exception.class)));
+        //PROPAGATION_REQUIRED:事务隔离性为1，若当前存在事务，则加入该事务；如果当前没有事务，则创建一个新的事务。这是默认值
+        required.setPropagationBehavior(TransactionDefinition.PROPAGATION_REQUIRED);
+        //设置事务失效时间，如果超过5秒，则回滚事务
+        required.setTimeout(METHOD_TIME_OUT);
+        Map<String, TransactionAttribute> attributesMap = new HashMap<>(30);
+        //查询开启只读
+        attributesMap.put("select*", readOnly);
+        attributesMap.put("get*", readOnly);
+        attributesMap.put("find*", readOnly);
+        //设置增删改上传等使用事务
+        attributesMap.put("add*", required);
+        attributesMap.put("insert*", required);
+        attributesMap.put("remove*", required);
+        attributesMap.put("delete*", required);
+        attributesMap.put("update*", required);
+        attributesMap.put("save*", required);
+        attributesMap.put("import*", required);
+        attributesMap.put("edit*", required);
+        source.setNameMap(attributesMap);
+        return new TransactionInterceptor(transactionManager, source);
+    }
+
+    //设置切面=切点pointcut+通知TxAdvice
+    @Bean
+    public Advisor txAdviceAdvisor() {
+        /* 声明切点的面：切面就是通知和切入点的结合。通知和切入点共同定义了关于切面的全部内容——它的功能、在何时和何地完成其功能*/
+        AspectJExpressionPointcut pointcut = new AspectJExpressionPointcut();
+        /*声明和设置需要拦截的方法,用切点语言描写*/
+        pointcut.setExpression(POINTCUT_EXPRESSION);
+        /*设置切面=切点pointcut+通知TxAdvice*/
+        return new DefaultPointcutAdvisor(pointcut, txAdvice());
+    }
+}
+```
+
+#### 实体
+
+src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    @NonNull
+    private  String name;
+    private Integer age;
+}
+```
+
+### Dao
+
+Mybatis的Mapper接口
+
+src/main/java/com/sxc/mapper/UserMapper.java
+
+```java
+package com.sxc.mapper;
+
+import com.sxc.entity.User;
+import org.apache.ibatis.annotations.Param;
+
+public interface UserMapper {
+    /**
+     * 根据id查询
+     *
+     * @param id
+     * @return
+     */
+    User selectOne(@Param("id") Integer id);
+
+    /**
+     * 根据id更新记录
+     *
+     * @param id
+     * @return
+     */
+    int updateById(@Param("id") Integer id, @Param("name") String name);
+}
+```
+
+#### service
+
+业务逻辑层
+
+接口src/main/java/com/sxc/service/IUserService.java
+
+```java
+package com.sxc.service;
+
+public interface IUserService {
+    void getFn();
+
+    void updateFn(Integer id);
+}
+```
+
+接口实现src/main/java/com/sxc/service/impl/UserService.java
+
+```java
+package com.sxc.service.impl;
+
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import com.sxc.service.IUserService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+
+@Service
+public class UserService implements IUserService {
+    @Resource
+    private UserMapper userMapper;
+
+    @Override
+    public void getFn() {
+        User user = userMapper.selectOne(3);
+        System.out.println(user);
+    }
+
+    @Override
+    public void updateFn(Integer id) {
+        int row = userMapper.updateById(id, "王五");
+        System.out.println("row = " + row);
+        //这里定义一个异常 来验证事务是否执行回滚
+        int i = 1 / 0;
+        row = userMapper.updateById(id, "赵六");
+        System.out.println("row = " + row);
+    }
+}
+```
+
+#### 测试类
+
+src/main/java/com/sxc/Test.java
+
+```java
+package com.sxc;
+
+import com.sxc.config.AppConfig;
+import com.sxc.service.IUserService;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+
+@Slf4j
+public class Test {
+    public static void main(String[] args) {
+        AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext(AppConfig.class);
+        IUserService bean = context.getBean(IUserService.class);
+        bean.getFn();
+        bean.updateFn(1);
+    }
+}
+```
+
