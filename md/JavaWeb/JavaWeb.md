@@ -8324,3 +8324,227 @@ public class Test {
 }
 ```
 
+# springMVC
+
+## 创建项目
+
+### 新建一个maven项目ssm
+
+![calc](../../images/java/spring-mvc/01.png)
+
+### 添加web特性
+
+![calc](../../images/java/spring-mvc/02.png)
+
+### 添加成品
+
+![calc](../../images/java/spring-mvc/03.png)
+
+### 然后运行里配置tomcat服务器
+
+![calc](../../images/java/spring-mvc/04.png)
+
+### 添加web需要的servlet依赖
+
+pom.xml
+
+```
+    <!--servlet-api tomcat10用的是jakarta,不能兼容spring5.x版本，需要用tomcat9-->
+    <dependency>
+        <groupId>javax.servlet</groupId>
+        <artifactId>javax.servlet-api</artifactId>
+        <version>4.0.1</version>
+    </dependency>
+```
+
+### 配置webxml
+
+web.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+</web-app>
+```
+
+### 创建一个Servlet测试
+
+访问http://localhost:8888/app/HelloServlet 显示hello即成功
+
+src/main/java/com/sxc/servlet/HelloServlet.java
+
+```java
+package com.sxc.servlet;
+
+
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+import java.io.IOException;
+import java.io.PrintWriter;
+
+@WebServlet(
+        //名称
+        name = "HelloServlet",
+        //url访问地址
+        urlPatterns = {"/HelloServlet"}//用value也一样
+)
+public class HelloServlet extends HttpServlet {
+    @Override
+    protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        PrintWriter writer = resp.getWriter();
+        writer.println("hello");
+        writer.flush();
+    }
+}
+```
+
+## 配置springmvc
+
+### 添加springmvc依赖
+
+```xml
+    <!--spring mvc包含了所有spring相关的依赖 不需要spring-context了-->
+    <dependency>
+        <groupId>org.springframework</groupId>
+        <artifactId>spring-webmvc</artifactId>
+        <version>5.3.20</version>
+    </dependency>
+```
+
+### 添加配置
+
+首先需要相关的jar包依赖进WEB-IN/lib目录,否则会报异常一个或多个listeners启动失败，更多详细信息查看对应的容器日志文件
+
+![calc](../../images/java/spring-mvc/05.png)
+
+**web配置文件**
+
+web/WEB-INF/web.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://xmlns.jcp.org/xml/ns/javaee"
+         xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/javaee http://xmlns.jcp.org/xml/ns/javaee/web-app_4_0.xsd"
+         version="4.0">
+    <!--配置一个ContextLoaderListener，他会在servlet容器启动时帮我们初始化spring容器-->
+    <listener>
+        <listener-class>org.springframework.web.context.ContextLoaderListener</listener-class>
+    </listener>
+
+    <!--指定启动spring容器的配置文件-->
+    <context-param>
+        <param-name>contextConfigLocation</param-name>
+        <param-value>/WEB-INF/app-context.xml</param-value>
+    </context-param>
+
+    <!--注册DispatcherServlet，这是springmvc的核心 请求分发器，前端控制器-->
+    <servlet>
+        <servlet-name>springmvc</servlet-name>
+        <servlet-class>org.springframework.web.servlet.DispatcherServlet</servlet-class>
+        <init-param>
+            <param-name>contextConfigLocation</param-name>
+            <param-value>/WEB-INF/app-context.xml</param-value>
+        </init-param>
+        <!--加载时先启动-->
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <!--/ 匹配所有的请求；（不包括.jsp）-->
+    <!--/* 匹配所有的请求；（包括.jsp）-->
+    <servlet-mapping>
+        <servlet-name>springmvc</servlet-name>
+        <url-pattern>/</url-pattern>
+    </servlet-mapping>
+</web-app>
+```
+
+**springmvc配置文件**
+
+web/WEB-INF/app-context.xml
+
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns="http://www.springframework.org/schema/beans"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context
+       https://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/mvc
+       https://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!-- 自动扫包 -->
+    <context:component-scan base-package="com.sxc.controller"/>
+    <!-- 让Spring MVC不处理静态资源，负责静态资源也会走我们的前端控制器、试图解析器 -->
+    <mvc:default-servlet-handler/>
+    <!--  让springmvc自带的注解生效  -->
+    <mvc:annotation-driven/>
+
+    <!-- 处理映射器 -->
+    <bean class="org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping"/>
+    <!-- 处理器适配器 -->
+    <bean class="org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter"/>
+    <!-- 视图解析器 /WEB-INF/page/hello.jsp-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver" id="internalResourceViewResolver">
+        <!-- 前缀 -->
+        <property name="prefix" value="/WEB-INF/page/"/>
+        <!-- 后缀 -->
+        <property name="suffix" value=".jsp"/>
+    </bean>
+</beans>
+```
+
+### 添加一个测试的jsp页面
+
+web/WEB-INF/page/hello.jsp
+
+```html
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<html>
+<head>
+    <title>Title</title>
+</head>
+<body>
+${msg}
+</body>
+</html>
+```
+
+### 添加控制器
+
+控制器也就是servlet叫法不一样而已
+
+访问http://localhost:8888/app/hello 显示我是数据即成功
+
+src/main/java/com/sxc/controller/HelloController.java
+
+```java
+package com.sxc.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.servlet.ModelAndView;
+
+
+@Controller
+public class HelloController {
+
+    @RequestMapping("/hello")
+    public ModelAndView testAnnotation() {
+        //ModelAndView 封装了模型和视图
+        ModelAndView modelAndView = new ModelAndView();
+        //添加数据
+        modelAndView.addObject("msg", "我是数据");
+        //设置显示的到页面
+        modelAndView.setViewName("hello");
+        return modelAndView;
+    }
+}
+```
