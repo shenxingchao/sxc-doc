@@ -8336,7 +8336,7 @@ public class Test {
 
 # springMVC
 
-## 创建项目
+## 创建maven项目
 
 ### 新建一个maven项目ssm
 
@@ -8418,7 +8418,7 @@ public class HelloServlet extends HttpServlet {
 }
 ```
 
-## 配置springmvc
+## maven配置springmvc
 
 ### 添加springmvc依赖
 
@@ -8602,6 +8602,205 @@ public class UserController {
 }
 ```
 
+## 创建gradle项目
+
+### 新建一个gradle java项目
+
+![calc](../../images/java/spring-mvc/10.png)
+
+### 添加web特性
+
+![calc](../../images/java/spring-mvc/11.png)
+
+### 添加成品
+
+![calc](../../images/java/spring-mvc/12.png)
+
+### 然后运行里配置tomcat服务器
+
+![calc](../../images/java/spring-mvc/04.png)
+
+去除访问路径中的app
+
+![calc](../../images/java/spring-mvc/06.png)
+
+### 添加web需要的servlet依赖
+
+```
+plugins {
+    id 'java'
+}
+
+group 'com.sxc'
+version '1.0-SNAPSHOT'
+
+repositories {
+    maven { url('https://maven.aliyun.com/repository/central') }//mavenCentral()
+}
+
+dependencies {
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
+    //servlet依赖
+    implementation 'javax.servlet:javax.servlet-api:4.0.1'
+    implementation 'org.bitbucket.swattu:spring-mvc:4.2.5'
+}
+
+test {
+    useJUnitPlatform()
+}
+```
+
+### 创建配置文件类
+
+作用同web.xml
+
+```java
+import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+
+//相当于WebXml
+public class MyWebApplicationInitializer implements WebApplicationInitializer {
+
+    @Override
+    public void onStartup(ServletContext servletContext) {
+    }
+}
+```
+
+### 创建Servlet测试
+
+## gradle配置springmvc
+
+### 添加springmvc依赖
+
+```
+    //springmvc
+    implementation 'org.bitbucket.swattu:spring-mvc:4.2.5'
+```
+
+### 添加配置
+
+首先需要相关的jar包依赖进WEB-IN/lib目录,否则会报异常一个或多个listeners启动失败，更多详细信息查看对应的容器日志文件
+
+![calc](../../images/java/spring-mvc/12.png)
+
+**web配置文件**
+
+java/com/sxc/config/MyWebApplicationInitializer.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.web.WebApplicationInitializer;
+import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
+import org.springframework.web.servlet.DispatcherServlet;
+
+import javax.servlet.ServletContext;
+import javax.servlet.ServletRegistration;
+
+//相当于WebXml
+public class MyWebApplicationInitializer implements WebApplicationInitializer {
+
+    @Override
+    public void onStartup(ServletContext servletContext) {
+
+        // 载入spring 配置 相当于载入app-context.xml
+        AnnotationConfigWebApplicationContext context = new AnnotationConfigWebApplicationContext();
+        context.register(AppConfig.class);
+
+        //注册DispatcherServlet，这是springmvc的核心 请求分发器，前端控制器
+        DispatcherServlet servlet = new DispatcherServlet(context);
+        ServletRegistration.Dynamic registration = servletContext.addServlet("springmvc", servlet);
+        //加载时启动
+        registration.setLoadOnStartup(1);
+        // /匹配所有的请求（不包括.jsp）
+        // /*匹配所有的请求（包括.jsp）
+        registration.addMapping("/");
+    }
+}
+```
+
+**springmvc配置文件**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.config.annotation.DefaultServletHandlerConfigurer;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+
+
+//让Spring MVC不处理静态资源，负责静态资源也会走我们的前端控制器、试图解析器
+@Configuration
+@EnableWebMvc
+@ComponentScan(basePackages = "com.sxc.controller")
+public class WebConfig implements WebMvcConfigurer {
+
+    @Override
+    public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
+        configurer.enable();
+    }
+}
+```
+
+**spring配置文件**
+
+java/com/sxc/config/AppConfig.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
+import org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter;
+import org.springframework.web.servlet.view.InternalResourceViewResolver;
+
+//相当于app-context.xml
+@Configuration
+@ComponentScan(basePackages = "com.sxc")
+public class AppConfig {
+
+    //处理映射器
+    @Bean
+    public BeanNameUrlHandlerMapping beanNameUrlHandlerMapping() {
+        return new BeanNameUrlHandlerMapping();
+    }
+
+    //处理器适配器
+    @Bean
+    public SimpleControllerHandlerAdapter simpleControllerHandlerAdapter() {
+        return new SimpleControllerHandlerAdapter();
+    }
+
+    //视图解析器 /WEB-INF/page/hello.jsp
+    @Bean
+    public InternalResourceViewResolver internalResourceViewResolver() {
+        InternalResourceViewResolver internalResourceViewResolver = new InternalResourceViewResolver();
+        internalResourceViewResolver.setPrefix("/WEB-INF/page/");
+        internalResourceViewResolver.setSuffix(".jsp");
+        return internalResourceViewResolver;
+    }
+
+}
+```
+
+配置完成截图
+
+![calc](../../images/java/spring-mvc/13.png)
+
+后面的就一样了
+
 ## 核心内容
 
 ### 注解详细传参
@@ -8639,7 +8838,7 @@ public class UserController {
     public String addUser(Model model) {
         //添加数据
         model.addAttribute("msg", "我是user");
-        //返回视图
+        //返回数据
         return "hello";
     }
 }
