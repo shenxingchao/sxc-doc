@@ -120,7 +120,7 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 ### RestfulTool
 
-![calc](../../java/idea/01.png)
+![calc](../../images/java/idea/01.png)
 
 执行全局URL查找定位 Ctrl+Alt+/ 
 
