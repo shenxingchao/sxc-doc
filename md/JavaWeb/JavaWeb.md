@@ -8716,6 +8716,16 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
         //注册DispatcherServlet，这是springmvc的核心 请求分发器，前端控制器
         DispatcherServlet servlet = new DispatcherServlet(context);
         ServletRegistration.Dynamic registration = servletContext.addServlet("springmvc", servlet);
+
+        //处理乱码 无效
+        FilterRegistration.Dynamic characterEncodingFilter = servletContext.addFilter(
+                "CharacterEncodingFilter", CharacterEncodingFilter.class);
+        characterEncodingFilter.setInitParameter("encoding", "utf-8");
+        characterEncodingFilter.setInitParameter("forceEncoding", "true");
+        characterEncodingFilter.addMappingForUrlPatterns(
+                EnumSet.of(DispatcherType.REQUEST, DispatcherType.FORWARD, DispatcherType.INCLUDE),
+                false, "/");
+
         //加载时启动
         registration.setLoadOnStartup(1);
         // /匹配所有的请求（不包括.jsp）
