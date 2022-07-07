@@ -2698,13 +2698,13 @@ java.util.logging.ConsoleHandler.encoding = GBK
 
 ## IDEA配置tomcat热更新
 
-1. tomcat运行配置需要热加载class
+1. tomcat运行配置需要热加载class 第二项配置donothing 失去焦点不要编译
 
 2. 设置Setting-Build-Compiler-Build project automatically
 
 3. tomcat必须debug模式启动
 
-4. 编辑器失去焦点才会触发自动编译
+4. 修改代码手动update class and resource既可以,不要自动编译，会变卡
 
 # Maven
 
@@ -8649,10 +8649,10 @@ public class UserController {
 
 - "/user/*" - 匹配路径段中的零个或多个字符
 - "/user/**" - 匹配多个路径段
-- "/user/getUser/{userId}" - 匹配路径段并将其【捕获为变量】
-- "/user/getUser/{userId:[\\d+]}" - 使用正则表达式匹配并【捕获变量】
+- "/user/getUser/{id}" - 匹配路径段并将其【捕获为变量】
+- "/user/getUser/{id:[\\d+]}" - 使用正则表达式匹配并【捕获变量】
 
-示例 匹配一个userId,需要在方法是加@PathVariable注解
+示例 匹配一个id,需要在方法是加@PathVariable注解
 
 http://localhost:8888/user/getUser/3 返回userInfo3即成功
 
@@ -8668,11 +8668,515 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("user") //作为公共前缀 相当于模块
 public class UserController {
 
-    //获取用户详情 @PathVariable("userId")可以简写
-    @GetMapping("getUser/{userId}")
+    //获取用户详情 @PathVariable("id")可以简写
+    @GetMapping("getUser/{id}")
     @ResponseBody
-    public String getUser(@PathVariable Integer userId, Model model) {
-        return "userInfo" + userId;
+    public String getUser(@PathVariable Integer id, Model model) {
+        return "userInfo" + id;
     }
 }
+```
+
+### 获取请求参数
+
+#### 原始方法获取
+
+访问http://localhost:8888/user/getUser?id=4
+
+```java
+    @GetMapping("getUser")
+    @ResponseBody
+    public String getUser(
+            HttpServletRequest httpServletRequest,
+            HttpServletResponse httpServletResponse,
+            HttpSession httpSession,
+            Model model
+    ) {
+        String id = httpServletRequest.getParameter("id");
+        return "userInfo" + id;
+    }
+```
+
+#### 方法参数获取
+
+这种方式不能获取json，json还得上面那种，这种方式是html表单提交x-www-form-urlencoded
+
+需要添加Header头Content-Type:application/x-www-form-urlencoded;charset=UTF-8
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/x-www-form-urlencoded;charset=UTF-8",
+            produces = "text/plain;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public String addUser(String name, Integer age) {
+        System.out.println(name);
+        System.out.println(age);
+        return "userInfo" + name;
+    }
+```
+
+![calc](../../images/java/spring-mvc/07.png)
+
+!> 注意接收类型需要使用包装类,否则接收到null无法赋给基本类型
+
+**@RequestParam参数绑定**
+
+@RequestParam(value = "age", required = false) 可以声明参数非必传
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/x-www-form-urlencoded;charset=UTF-8",
+            produces = "text/plain;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public String addUser(@RequestParam("name") String name, @RequestParam("age") Integer age) {
+        System.out.println(name);
+        System.out.println(age);
+        return "userInfo" + name;
+    }
+```
+
+接收数组,传参的时候可以这样?names=张三,李四,王五
+
+@RequestParam("names") String[] names
+
+**@RequestHeader拿到Header参数**
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/x-www-form-urlencoded;charset=UTF-8",
+            produces = "text/plain;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public String addUser(@RequestHeader("Host") String host, @RequestParam("name") String name, @RequestParam("age") Integer age) {
+        System.out.println(host);
+        System.out.println(name);
+        System.out.println(age);
+        return "userInfo" + name;
+    }
+```
+
+**@CookieValue 获取cookie**
+
+**@SessionAttribute 从session作用域HttpSession获取值，给session设置值**
+
+**@RequestAttribute 从请求转发作用域HttpServletRequest里获取值，给request设置值**
+
+**@ModelAttribute 从请求转发作用域Model（springmvc的Model model）里获取值**
+
+**@SessionAttributes 应用到Controller上面，可以将Model中设置的属性同步到session当中**
+
+#### 解决乱码
+
+web.xml
+
+```xml
+    <!--请求过滤器，编码转换-->
+    <filter>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <filter-class>org.springframework.web.filter.CharacterEncodingFilter</filter-class>
+        <init-param>
+            <param-name>encoding</param-name>
+            <param-value>utf-8</param-value>
+        </init-param>
+    </filter>
+    <filter-mapping>
+        <filter-name>CharacterEncodingFilter</filter-name>
+        <url-pattern>/*</url-pattern>
+    </filter-mapping>
+```
+
+### json
+
+首先创建一个实体类src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    @NonNull
+    private  String name;
+    private Integer age;
+}
+```
+
+#### 返回json
+
+**使用fastjson依赖**
+
+报错,是因为构建里fastjson lib没有添加到WEB-INF下
+
+```
+Handler dispatch failed; nested exception is java.lang.NoClassDefFoundError: com/alibaba/fastjson/JSONArray
+```
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/json;charset=UTF-8",
+            produces = "application/json;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public String addUser(User user) {
+        System.out.println(user);
+        System.out.println(user.getName());
+        System.out.println(user.getAge());
+
+        return JSONArray.toJSONString(user);
+    }
+```
+
+
+**配置一个通用的springmvc转化器FastJsonHttpMessageConverter**
+
+app-context.xml
+
+```xml
+    <mvc:annotation-driven >
+            <mvc:message-converters>
+                <bean id="fastjson" class="com.alibaba.fastjson.support.spring.FastJsonHttpMessageConverter">
+                    <property name="supportedMediaTypes">
+                        <list>
+                            <!-- 这里顺序不能反，一定先写text/html,不然ie下会出现下载提示 -->
+                        <value>text/html;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                        </list>
+                    </property>
+                </bean>
+            </mvc:message-converters>
+    </mvc:annotation-driven>
+```
+
+然后就可以简写
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/json;charset=UTF-8",
+            produces = "application/json;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public User addUser(User user) {
+        System.out.println(user);
+        System.out.println(user.getName());
+        System.out.println(user.getAge());
+        return user;
+    }
+```
+
+**使用jackjson重点推荐**
+
+依赖pom.xml
+
+```xml
+    <!--对象转json字符串jackson-->
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-core</artifactId>
+        <version>2.13.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-annotations</artifactId>
+        <version>2.13.3</version>
+    </dependency>
+    <dependency>
+        <groupId>com.fasterxml.jackson.core</groupId>
+        <artifactId>jackson-databind</artifactId>
+        <version>2.13.3</version>
+    </dependency>
+```
+
+**配置一个通用的springmvc转化器MappingJackson2HttpMessageConverter**
+
+app-context.xml
+
+```xml
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <!-- 自定义Jackson的objectMapper -->
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+```
+
+创建一个统一的json处理文件 处理返回的Date类型 剔除null值等等
+
+src/main/java/com/sxc/config/CustomObjectMapper.java
+
+```java
+package com.sxc.config;
+
+import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
+
+import java.text.SimpleDateFormat;
+import java.util.TimeZone;
+
+public class CustomObjectMapper extends ObjectMapper {
+
+    public CustomObjectMapper() {
+        super();
+        //去掉默认的时间戳格式
+        configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        //设置为东八区
+        setTimeZone(TimeZone.getTimeZone("GMT+8"));
+        //设置日期转换yyyy-MM-dd HH:mm:ss
+        setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
+        //设置输入:禁止把POJO中值为null的字段映射到json字符串中
+        configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
+        //空值不序列化
+        setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        //反序列化时，属性不存在的兼容处理
+        getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        //序列化枚举是以toString()来输出，默认false，即默认以name()来输出
+        configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
+    }
+}
+```
+
+修改配置文件app-context.xml
+
+```xml
+    <mvc:annotation-driven>
+        <mvc:message-converters>
+            <bean class="org.springframework.http.converter.json.MappingJackson2HttpMessageConverter">
+                <!-- 自定义Jackson的objectMapper -->
+                <property name="objectMapper" ref="customObjectMapper"/>
+                <property name="supportedMediaTypes">
+                    <list>
+                        <value>text/plain;charset=UTF-8</value>
+                        <value>application/json;charset=UTF-8</value>
+                    </list>
+                </property>
+            </bean>
+        </mvc:message-converters>
+    </mvc:annotation-driven>
+    <!--注入我们写的对jackson的配置的bean-->
+    <bean name="customObjectMapper" class="com.sxc.config.CustomObjectMapper"/>
+```
+
+#### 接收json
+
+**想要接收json,必须先配置上一章的jackson**，那么注解@RequestBody 才会生效
+
+直接使用@RequestBody User user 就可以接收一个User对象了
+
+```java
+    @PostMapping(
+            value = "addUser",
+            consumes = "application/json;charset=UTF-8",
+            produces = "application/json;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public User addUser(@RequestBody User user) {
+        System.out.println(user);
+        System.out.println(user.getName());
+        System.out.println(user.getAge());
+        return user;
+    }
+```
+
+![calc](../../images/java/spring-mvc/08.png)
+
+
+**如果想要使用spring的格式转化器**
+
+则需要如下配置,以及把格式转化器的bean conversionService注入
+
+```xml
+<mvc:annotation-driven conversion-service="conversionService" />
+```
+
+**使用注解推荐**
+
+src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.io.Serializable;
+import java.util.Date;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    @NonNull
+    private String name;
+    private Integer age;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //请求参数转换
+    @JsonFormat(
+            pattern = "yyyy-MM-dd HH:mm:ss",
+            timezone = "GMT-8"
+    )//返回参数转化
+    private Date birthday;
+}
+```
+
+效果如下
+
+![calc](../../images/java/spring-mvc/09.png)
+
+### 请求格式校验注解
+
+添加到实体类上
+
+@Null	被注解的元素必须为 null
+
+@NotNull	被注解的元素必须不为 null
+
+@AssertTrue	被注解的元素必须为 true
+
+@AssertFalse	被注解的元素必须为 false
+
+@Min(value)	被注解的元素必须是一个数字，其值必须大于等于指定的最小值
+
+@Max(value)	被注解的元素必须是一个数字，其值必须小于等于指定的最大值
+
+@DecimalMin(value)	被注解的元素必须是一个数字，其值必须大于等于指定的最小值
+
+@DecimalMax(value)	被注解的元素必须是一个数字，其值必须小于等于指定的最大值
+
+@Size(max, min)	被注解的元素的大小必须在指定的范围内
+
+@Digits (integer, fraction)	被注解的元素必须是一个数字，其值必须在可接受的范围内
+
+@Past	被注解的元素必须是一个过去的日期
+
+@Future	被注解的元素必须是一个将来的日期
+
+@Pattern(value)	被注解的元素必须符合指定的正则表达式
+
+hibernate注解
+
+@Email	被注解的元素必须是电子邮箱地址
+
+@Length	被注解的字符串的大小必须在指定的范围内
+
+@NotEmpty	被注解的字符串的必须非空
+
+@Range	被注解的元素必须在合适的范围内
+
+**所需要的的依赖**
+
+```xml
+    <!--验证器-->
+    <dependency>
+        <groupId>javax.validation</groupId>
+        <artifactId>validation-api</artifactId>
+        <version>2.0.1.Final</version>
+    </dependency>
+    <!--必须为6.x版本高版本不适配-->
+    <dependency>
+        <groupId>org.hibernate</groupId>
+        <artifactId>hibernate-validator</artifactId>
+        <version>6.0.9.Final</version>
+    </dependency>
+```
+
+使用前需要配置app-contenxt.xml
+
+```xml
+    <!--注册注解驱动-->
+    <mvc:annotation-driven validator="localValidator"/>
+
+    <bean id="localValidator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+        <property name="providerClass" value="org.hibernate.validator.HibernateValidator"/>
+    </bean>
+```
+
+
+使用案例  @Max(value = 10, message = "年龄最大值是10岁")
+
+src/main/java/com/sxc/entity/User.java
+
+```java
+package com.sxc.entity;
+
+import com.fasterxml.jackson.annotation.JsonFormat;
+import lombok.*;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import javax.validation.constraints.Max;
+import java.io.Serializable;
+import java.util.Date;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    @NonNull
+    private String name;
+    @Max(value = 10, message = "年龄最大值是10岁")
+    private Integer age;
+
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //请求参数转换
+    @JsonFormat(
+            pattern = "yyyy-MM-dd HH:mm:ss",
+            timezone = "GMT-8"
+    )//返回参数转化
+    private Date birthday;
+}
+```
+
+src/main/java/com/sxc/controller/UserController.java
+
+```java
+   @PostMapping(
+            value = "addUser",
+            consumes = "application/json;charset=UTF-8",
+            produces = "application/json;charset=UTF-8"
+    )//请求路径user/addUser
+    @ResponseBody
+    public User addUser(@Validated @RequestBody User user, BindingResult bindingResult) {
+        List<ObjectError> allErrors = bindingResult.getAllErrors();
+        Iterator<ObjectError> iterator = allErrors.iterator();
+        // 打印以下错误结果
+        while (iterator.hasNext()) {
+            ObjectError error = iterator.next();
+            System.out.println(error.getDefaultMessage());//年龄最大值是10岁
+        }
+        System.out.println(user);
+        System.out.println(user.getName());
+        System.out.println(user.getAge());
+        return user;
+    }
 ```
