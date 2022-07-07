@@ -8738,7 +8738,7 @@ import org.springframework.web.servlet.config.annotation.DefaultServletHandlerCo
 import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
-
+//Spring MVC配置文件相当于app-context.xml
 //让Spring MVC不处理静态资源，负责静态资源也会走我们的前端控制器、试图解析器
 @Configuration
 @EnableWebMvc
@@ -8766,7 +8766,7 @@ import org.springframework.web.servlet.handler.BeanNameUrlHandlerMapping;
 import org.springframework.web.servlet.mvc.SimpleControllerHandlerAdapter;
 import org.springframework.web.servlet.view.InternalResourceViewResolver;
 
-//相当于app-context.xml
+//spring配置文件
 @Configuration
 @ComponentScan(basePackages = "com.sxc")
 public class AppConfig {
