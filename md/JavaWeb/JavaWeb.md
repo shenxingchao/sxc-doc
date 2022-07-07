@@ -99,7 +99,7 @@ graph TB;
 
 - Artifacts --> 新建一个Web Application:expolode(可以热更新的不压缩的，另外一个是压缩的不能热更新) -->Form Modules --> 随便改个名字webProjectName
 
-- Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources(这两个热更新没用)
+- Add Configuration --> Tomcat Server --> Local --> 随便改个名字 tomcat10 --> 配置Application server --> No artifacts marked for deployment --> Fix(配置部署) --> On 'Update' action 和 On frame deactivation配置为Update classes and resources
 
 ## webxml
 
@@ -2695,6 +2695,16 @@ java.util.logging.ConsoleHandler.encoding = UTF-8
 改为
 java.util.logging.ConsoleHandler.encoding = GBK
 ```
+
+## IDEA配置tomcat热更新
+
+1. tomcat运行配置需要热加载class
+
+2. 设置Setting-Build-Compiler-Build project automatically
+
+3. tomcat必须debug模式启动
+
+4. 编辑器失去焦点才会触发自动编译
 
 # Maven
 
@@ -8344,6 +8354,10 @@ public class Test {
 
 ![calc](../../images/java/spring-mvc/04.png)
 
+去除访问路径中的app
+
+![calc](../../images/java/spring-mvc/06.png)
+
 ### 添加web需要的servlet依赖
 
 pom.xml
@@ -8372,7 +8386,7 @@ web.xml
 
 ### 创建一个Servlet测试
 
-访问http://localhost:8888/app/HelloServlet 显示hello即成功
+访问http://localhost:8888/HelloServlet 显示hello即成功
 
 src/main/java/com/sxc/servlet/HelloServlet.java
 
@@ -8521,7 +8535,7 @@ ${msg}
 
 控制器也就是servlet叫法不一样而已
 
-访问http://localhost:8888/app/hello 显示我是数据即成功
+访问http://localhost:8888/hello 显示我是数据即成功
 
 src/main/java/com/sxc/controller/HelloController.java
 
@@ -8545,6 +8559,120 @@ public class HelloController {
         //设置显示的到页面
         modelAndView.setViewName("hello");
         return modelAndView;
+    }
+}
+```
+
+### 简化控制器
+
+SpringMVC作了简化处理 返回一个String作为视图名称
+
+访问http://localhost:8888/user/getUser 显示我是user即成功
+
+```java
+package com.sxc.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestMapping;
+
+//@Controller注解声明为一个控制器
+@Controller
+@RequestMapping("user") //作为公共前缀 相当于模块
+public class UserController {
+
+    //访问的路由地址
+    //注意:Model对象是由DispatcherServlet创建并作为实参传递给单元方法使用
+    //特点:
+    //请求转发:
+    //model对象中存储的数据，相当于存储到了request对象中，所有就可以在jsp页面直接使用${}获取数据
+    @RequestMapping("getUser") //直接访问user/getUser
+    //@RequestMapping(value = "getUser", method = RequestMethod.GET)
+    //@GetMapping("getUser")
+    public String getUser(Model model) {
+        //添加数据
+        model.addAttribute("msg", "我是user");
+        //返回视图
+        return "hello";
+        //重定向
+        //return "redirect:https://www.baidu.com";
+        //内部重定向
+        //return "forward:/hello";
+    }
+}
+```
+
+## 核心内容
+
+### 注解详细传参
+
+以**PostMapping**为例
+
+访问http://localhost:8888/user/addUser?username=%E5%BC%A0%E4%B8%89&password=123456 显示hello即成功,需要添加header头Content-Type application/json以及header头token
+
+```java
+package com.sxc.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseBody;
+
+//@Controller注解声明为一个控制器
+@Controller
+@RequestMapping("user") //作为公共前缀 相当于模块
+public class UserController {
+
+    //@RequestMapping(value = "addUser", method = RequestMethod.POST)
+    @PostMapping(
+            value = "addUser",//请求路径user/addUser
+            consumes = "application/json;charset=UTF-8",//客户端请求数据媒体类型 application/x-www-form-urlencoded
+            produces = "application/json;charset=UTF-8",//响应数据媒体类型 text/plain
+            params = {"username", "password"}, //请求必须携带URL参数 ?username=333&&passwod=4444
+            headers = {"token"} //请求必须携带头
+    )
+    @ResponseBody //返回响应体 而不是视图解析器
+    //@GetMapping
+    //@PutMapping
+    //@DeleteMapping
+    public String addUser(Model model) {
+        //添加数据
+        model.addAttribute("msg", "我是user");
+        //返回视图
+        return "hello";
+    }
+}
+```
+
+### URL匹配
+
+- "/user/*" - 匹配路径段中的零个或多个字符
+- "/user/**" - 匹配多个路径段
+- "/user/getUser/{userId}" - 匹配路径段并将其【捕获为变量】
+- "/user/getUser/{userId:[\\d+]}" - 使用正则表达式匹配并【捕获变量】
+
+示例 匹配一个userId,需要在方法是加@PathVariable注解
+
+http://localhost:8888/user/getUser/3 返回userInfo3即成功
+
+```java
+package com.sxc.controller;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+
+//@Controller注解声明为一个控制器
+@Controller
+@RequestMapping("user") //作为公共前缀 相当于模块
+public class UserController {
+
+    //获取用户详情 @PathVariable("userId")可以简写
+    @GetMapping("getUser/{userId}")
+    @ResponseBody
+    public String getUser(@PathVariable Integer userId, Model model) {
+        return "userInfo" + userId;
     }
 }
 ```
