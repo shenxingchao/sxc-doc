@@ -8336,6 +8336,8 @@ public class Test {
 
 # springMVC
 
+核心就是控制器转发DispatcherServlet这个类
+
 ## 创建maven项目
 
 ### 新建一个maven项目ssm
@@ -9665,6 +9667,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+@Builder //可以使用构建者模式创建对象
 public class Response implements Serializable {
     private static final long serialVersionUID = 1L;
 
@@ -9798,6 +9801,7 @@ app-context.xml
 java/com/sxc/config/WebConfig.java
 
 ```java
+    //拦截器
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(new GlobalInterceptor());
@@ -9813,4 +9817,57 @@ java/com/sxc/config/WebConfig.java
     "code": 10001,
     "data": null
 }
+```
+
+
+### Resultful
+
+@RestController  声明为一个Restful控制器
+
+- 查询所有用户		GET /user
+- 查询编号为1的用户	 GET /user/1
+- 新增一个用户	    POST /user
+- 修改编号为1的用户	 PUT /user/1
+- 删除编号为1的用户	 DELETE /user/1
+
+### 跨域解决
+
+可以直接在类上增加注解 @CrossOrigin(maxAge = 3600) 表示这个类是跨域的
+
+或者配置全局
+
+**xml方式**
+
+app-context.xml
+
+```xml
+<mvc:cors>
+
+    <mvc:mapping path="/**"
+        allowed-origins="*"
+        allowed-methods="GET, PUT"
+        allowed-headers="header1, header2, header3"
+        exposed-headers="header1, header2" 
+        allow-credentials="true"
+        max-age="123" />
+
+</mvc:cors>
+```
+
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    //跨域请求允许
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                //.allowedOrigins("*") allowCredentials(false)使用
+                .allowedOriginPatterns("*") //allowCredentials(true)使用
+                .allowedMethods("POST", "GET", "OPTIONS", "DELETE", "PUT", "HEAD")
+                .allowedHeaders("*")
+                //.exposedHeaders("header1", "header2") //不允许的
+                .allowCredentials(true).maxAge(3600);
+    }
 ```
