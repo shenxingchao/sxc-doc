@@ -8473,7 +8473,7 @@ web/WEB-INF/web.xml
     <!--/* 匹配所有的请求；（包括.jsp）-->
     <servlet-mapping>
         <servlet-name>springmvc</servlet-name>
-        <url-pattern>/</url-pattern>
+        <url-pattern>/*</url-pattern>
     </servlet-mapping>
 </web-app>
 ```
@@ -8608,11 +8608,9 @@ public class UserController {
 
 ![calc](../../images/java/spring-mvc/10.png)
 
-### 添加web特性
-
-![calc](../../images/java/spring-mvc/11.png)
-
 ### 添加成品
+
+不需要web特性后面用配置类
 
 ![calc](../../images/java/spring-mvc/12.png)
 
@@ -8626,7 +8624,7 @@ public class UserController {
 
 ### 添加web需要的servlet依赖
 
-```
+```gradle
 plugins {
     id 'java'
 }
@@ -8643,7 +8641,6 @@ dependencies {
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
     //servlet依赖
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
-    implementation 'org.bitbucket.swattu:spring-mvc:4.2.5'
 }
 
 test {
@@ -8656,18 +8653,18 @@ test {
 作用同web.xml
 
 ```java
+package com.sxc.config;
+
 import org.springframework.web.WebApplicationInitializer;
-import org.springframework.web.context.support.AnnotationConfigWebApplicationContext;
-import org.springframework.web.servlet.DispatcherServlet;
 
 import javax.servlet.ServletContext;
-import javax.servlet.ServletRegistration;
 
 //相当于WebXml
 public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
     @Override
     public void onStartup(ServletContext servletContext) {
+        System.out.println("web配置文件在启动时加载并注册了全局的ServletContext");
     }
 }
 ```
@@ -8676,9 +8673,27 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
 
 ## gradle配置springmvc
 
+
+### gradle运行乱码问题
+
+setting里FileEncodings全部设置为UTF-8,然后添加下面的
+
+**也可以解决**
+
+```gradle
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+```
+
+**推荐 用本地的jdk就没问题，不然用的是gradle的会乱码**
+
+![calc](../../images/java/spring-mvc/14.png)
+
+
 ### 添加springmvc依赖
 
-```
+```gradle
     //springmvc
     implementation 'org.bitbucket.swattu:spring-mvc:4.2.5'
 ```
@@ -8749,12 +8764,12 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 //Spring MVC配置文件相当于app-context.xml
-//让Spring MVC不处理静态资源，负责静态资源也会走我们的前端控制器、试图解析器
 @Configuration
 @EnableWebMvc
 @ComponentScan(basePackages = "com.sxc.controller")
 public class WebConfig implements WebMvcConfigurer {
 
+    //让Spring MVC不处理静态资源，否则静态资源也会走我们的前端控制器、试图解析器
     @Override
     public void configureDefaultServletHandling(DefaultServletHandlerConfigurer configurer) {
         configurer.enable();
@@ -8792,16 +8807,6 @@ public class AppConfig {
     public SimpleControllerHandlerAdapter simpleControllerHandlerAdapter() {
         return new SimpleControllerHandlerAdapter();
     }
-
-    //视图解析器 /WEB-INF/page/hello.jsp
-    @Bean
-    public InternalResourceViewResolver internalResourceViewResolver() {
-        InternalResourceViewResolver internalResourceViewResolver = new InternalResourceViewResolver();
-        internalResourceViewResolver.setPrefix("/WEB-INF/page/");
-        internalResourceViewResolver.setSuffix(".jsp");
-        return internalResourceViewResolver;
-    }
-
 }
 ```
 
@@ -8809,7 +8814,7 @@ public class AppConfig {
 
 ![calc](../../images/java/spring-mvc/13.png)
 
-后面的就一样了
+后面的直接用下面的开始测试
 
 ## 核心内容
 
@@ -8981,6 +8986,8 @@ public class UserController {
 
 #### 解决乱码
 
+**xml方式**
+
 web.xml
 
 ```xml
@@ -8999,9 +9006,48 @@ web.xml
     </filter-mapping>
 ```
 
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+   
+    //参考 https://blog.csdn.net/qq_38974638/article/details/120529468
+
+    /**
+     * http请求消息转化器
+     *
+     * @param converters initially an empty list of converters
+     */
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //解决返回乱码
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+        //调用父类的配置
+        WebMvcConfigurer.super.configureMessageConverters(converters);
+    }
+```
+
 ### json
 
 首先创建一个实体类src/main/java/com/sxc/entity/User.java
+
+引入lombok
+
+```xml
+    <!--lombok-->
+    <dependency>
+        <groupId>org.projectlombok</groupId>
+        <artifactId>lombok</artifactId>
+        <version>1.18.24</version>
+        <scope>provided</scope>
+    </dependency>
+```
+
+```gradle
+    //lombok
+    implementation 'org.projectlombok:lombok:1.18.24'
+```
 
 ```java
 package com.sxc.entity;
@@ -9075,9 +9121,7 @@ app-context.xml
 
 ```java
     @PostMapping(
-            value = "addUser",
-            consumes = "application/json;charset=UTF-8",
-            produces = "application/json;charset=UTF-8"
+            value = "addUser"
     )//请求路径user/addUser
     @ResponseBody
     public User addUser(User user) {
@@ -9111,7 +9155,18 @@ app-context.xml
     </dependency>
 ```
 
+build.gradle
+
+```gradle
+    //jackson
+    implementation 'com.fasterxml.jackson.core:jackson-core:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-annotations:2.13.3'
+    implementation 'com.fasterxml.jackson.core:jackson-databind:2.13.3'
+```
+
 **配置一个通用的springmvc转化器MappingJackson2HttpMessageConverter**
+
+**xml方式**
 
 app-context.xml
 
@@ -9131,6 +9186,36 @@ app-context.xml
     </mvc:annotation-driven>
 ```
 
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    /**
+     * http请求消息转化器
+     *
+     * @param converters initially an empty list of converters
+     */
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //配置一个通用的springmvc转化器MappingJackson2HttpMessageConverter
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        ArrayList<MediaType> mediaTypes = new ArrayList<>();
+        mediaTypes.add(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8));
+        mediaTypes.add(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
+        mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+        converters.add(mappingJackson2HttpMessageConverter);
+
+        //解决返回乱码
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        //调用父类的配置
+        WebMvcConfigurer.super.configureMessageConverters(converters);
+    }
+```
+
+!> 注意这里还拿不到请求的参数，因为还没配呢
+
 创建一个统一的json处理文件 处理返回的Date类型 剔除null值等等
 
 src/main/java/com/sxc/config/CustomObjectMapper.java
@@ -9142,6 +9227,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
@@ -9158,15 +9244,25 @@ public class CustomObjectMapper extends ObjectMapper {
         setDateFormat(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss"));
         //设置输入:禁止把POJO中值为null的字段映射到json字符串中
         configure(SerializationFeature.WRITE_NULL_MAP_VALUES, false);
-        //空值不序列化
-        setSerializationInclusion(JsonInclude.Include.NON_NULL);
+        //反序列化的时候如果多了其他属性,不抛出异常
+        configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         //反序列化时，属性不存在的兼容处理
         getDeserializationConfig().withoutFeatures(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+
+        //序列换成json时,将所有的long变成string.因为js中得数字类型不能包含所有的java long值，超过16位后会出现精度丢失
+        SimpleModule simpleModule = new SimpleModule();
+        simpleModule.addSerializer(Long.class, com.fasterxml.jackson.databind.ser.std.ToStringSerializer.instance);
+        simpleModule.addSerializer(Long.TYPE, com.fasterxml.jackson.databind.ser.std.ToStringSerializer.instance);
+        registerModule(simpleModule);
+        //空值不序列化 NON_NULL 会去除null 默认不会去除
+        setSerializationInclusion(JsonInclude.Include.ALWAYS);
         //序列化枚举是以toString()来输出，默认false，即默认以name()来输出
         configure(SerializationFeature.WRITE_ENUMS_USING_TO_STRING, true);
     }
 }
 ```
+
+**xml方式**
 
 修改配置文件app-context.xml
 
@@ -9189,6 +9285,34 @@ public class CustomObjectMapper extends ObjectMapper {
     <bean name="customObjectMapper" class="com.sxc.config.CustomObjectMapper"/>
 ```
 
+**配置方式**
+
+```java
+    /**
+     * http请求消息转化器
+     *
+     * @param converters initially an empty list of converters
+     */
+    @Override
+    public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
+        //配置一个通用的springmvc转化器MappingJackson2HttpMessageConverter
+        MappingJackson2HttpMessageConverter mappingJackson2HttpMessageConverter = new MappingJackson2HttpMessageConverter();
+        ArrayList<MediaType> mediaTypes = new ArrayList<>();
+        mediaTypes.add(new MediaType(MediaType.TEXT_PLAIN, StandardCharsets.UTF_8));
+        mediaTypes.add(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
+        mappingJackson2HttpMessageConverter.setSupportedMediaTypes(mediaTypes);
+        //自定义格式转化
+        mappingJackson2HttpMessageConverter.setObjectMapper(new CustomObjectMapper());
+        converters.add(mappingJackson2HttpMessageConverter);
+
+        //解决返回乱码
+        converters.add(new StringHttpMessageConverter(StandardCharsets.UTF_8));
+
+        //调用父类的配置
+        WebMvcConfigurer.super.configureMessageConverters(converters);
+    }
+```
+
 #### 接收json
 
 **想要接收json,必须先配置上一章的jackson**，那么注解@RequestBody 才会生效
@@ -9197,9 +9321,7 @@ public class CustomObjectMapper extends ObjectMapper {
 
 ```java
     @PostMapping(
-            value = "addUser",
-            consumes = "application/json;charset=UTF-8",
-            produces = "application/json;charset=UTF-8"
+            value = "addUser"
     )//请求路径user/addUser
     @ResponseBody
     public User addUser(@RequestBody User user) {
@@ -9221,7 +9343,7 @@ public class CustomObjectMapper extends ObjectMapper {
 <mvc:annotation-driven conversion-service="conversionService" />
 ```
 
-**使用注解推荐**
+**转换日期使用注解推荐**
 
 src/main/java/com/sxc/entity/User.java
 
@@ -9300,6 +9422,8 @@ hibernate注解
 
 @Range	被注解的元素必须在合适的范围内
 
+**xml方式**
+
 **所需要的的依赖**
 
 ```xml
@@ -9328,8 +9452,35 @@ hibernate注解
     </bean>
 ```
 
+**配置方式**
 
-使用案例  @Max(value = 10, message = "年龄最大值是10岁")
+```gradle
+    //验证器
+    implementation 'javax.validation:validation-api:2.0.1.Final'
+    //这个不要升级版本高版本不兼容
+    implementation 'org.hibernate.validator:hibernate-validator:6.2.3.Final'
+```
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    @Override
+    public Validator getValidator() {
+        try (LocalValidatorFactoryBean localValidatorFactoryBean = new LocalValidatorFactoryBean()) {
+            return localValidatorFactoryBean;
+        } catch (Exception e) {
+            throw new RuntimeException("验证器Bean加载失败");
+        }
+    }
+```
+
+
+使用案例  
+
+```
+@Max(value = 10, message = "年龄最大值是10岁")
+@Email
+```
 
 src/main/java/com/sxc/entity/User.java
 
@@ -9340,6 +9491,7 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.Max;
 import java.io.Serializable;
 import java.util.Date;
@@ -9353,8 +9505,8 @@ public class User implements Serializable {
     private static final long serialVersionUID = 1L;
     private Integer id;
     @NonNull
-    private String name;
     @Max(value = 10, message = "年龄最大值是10岁")
+    private String name;
     private Integer age;
 
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss") //请求参数转换
@@ -9363,29 +9515,300 @@ public class User implements Serializable {
             timezone = "GMT-8"
     )//返回参数转化
     private Date birthday;
+
+    @Email
+    private String email;
 }
 ```
 
 src/main/java/com/sxc/controller/UserController.java
 
+这里直接返回String了，为了看错误消息而已
+
 ```java
-   @PostMapping(
-            value = "addUser",
-            consumes = "application/json;charset=UTF-8",
-            produces = "application/json;charset=UTF-8"
+     @PostMapping(
+            value = "addUser"
     )//请求路径user/addUser
     @ResponseBody
-    public User addUser(@Validated @RequestBody User user, BindingResult bindingResult) {
+    public String addUser(@Validated @RequestBody User user, BindingResult bindingResult) {
         List<ObjectError> allErrors = bindingResult.getAllErrors();
-        Iterator<ObjectError> iterator = allErrors.iterator();
         // 打印以下错误结果
-        while (iterator.hasNext()) {
-            ObjectError error = iterator.next();
+        StringBuilder msg = new StringBuilder("错误:");
+        for (ObjectError error : allErrors) {
             System.out.println(error.getDefaultMessage());//年龄最大值是10岁
+            msg.append(error.getDefaultMessage());
         }
-        System.out.println(user);
-        System.out.println(user.getName());
-        System.out.println(user.getAge());
-        return user;
+
+        return msg.toString();
     }
+```
+
+![calc](../../images/java/spring-mvc/15.png)
+
+
+### 全局异常处理
+
+写一个异常处理器
+
+java/com/sxc/config/MyHandlerExceptionResolver.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.view.json.MappingJackson2JsonView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//全局异常处理 这里设置错误消息后转发
+public class MyHandlerExceptionResolver implements HandlerExceptionResolver {
+    @Override
+    public ModelAndView resolveException(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) {
+        ModelAndView modelAndView = new ModelAndView();
+        //使用jackson返回json
+        MappingJackson2JsonView view = new MappingJackson2JsonView();
+        modelAndView.setView(view);
+        modelAndView.addObject("code", "10001");
+        modelAndView.addObject("message", ex.getMessage());
+
+        return modelAndView;
+    }
+}
+```
+
+然后配置到springmvc中
+
+**xml方式**
+
+app-context.xml
+
+```xml
+    <!--异常处理器-->
+    <bean id="globalExecptionResolver" class="com.sxc.config.MyHandlerExceptionResolver"/>
+```
+
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    @Override
+    public void configureHandlerExceptionResolvers(List<HandlerExceptionResolver> resolvers) {
+        //实现HandlerExceptionResolver 捕获全局异常
+        resolvers.add(new MyHandlerExceptionResolver());
+        //调用父类的配置
+        WebMvcConfigurer.super.configureHandlerExceptionResolvers(resolvers);
+    }
+```
+
+测试随便搞个异常 返回结果
+
+```json
+{
+    "message": "算术异常/ by zero",
+    "code": 10001
+}
+```
+
+
+**注解方式推荐**
+
+@ControllerAdvice @RestControllerAdvice 
+
+这个注解可以做三个事情
+
+- 处理全局异常，配合ExceptionHandler实现
+- 预设全局数据
+- 请求参数预处理
+
+定义一个全局的异常处理控制器java/com/sxc/config/GlobalExceptionResolverController.java
+
+```java
+package com.sxc.config;
+
+import com.sxc.entity.Response;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+
+@RestControllerAdvice
+public class GlobalExceptionResolverController {
+    @ExceptionHandler(ArithmeticException.class)
+    public Response processArithmeticException(ArithmeticException e) {
+        return new Response("算术异常" + e.getMessage(), 10001);
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public Response processRuntimeException(RuntimeException e) {
+        return new Response("运行异常" + e.getMessage(), 10002);
+    }
+
+    @ExceptionHandler(Exception.class)
+    public Response processException(Exception e) {
+        return new Response("未知异常" + e.getMessage(), 99999);
+    }
+}
+```
+
+创建一个响应类java/com/sxc/entity/Response.java，然后随便搞个异常测试
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+public class Response implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @NonNull
+    private String message;
+
+    @NonNull
+    private Integer code;
+
+    private Object data;
+}
+```
+
+```json
+{
+    "message": "算术异常/ by zero",
+    "code": 10001
+}
+```
+
+### 配置静态资源目录
+
+app-context.xml
+
+web/(和WEB-INF 同级，可以放前端代码,静态资源等) 和 src/main/resource/static
+
+**xml方式**
+
+app-context.xml
+
+```xml
+    <mvc:resources mapping="/**" location="/, classpath:/static/" cache-period="31556926"/>
+```
+
+
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    @Override
+    public void addResourceHandlers(ResourceHandlerRegistry registry) {
+        registry.addResourceHandler("/**")
+                .addResourceLocations("/", "classpath:/static/")
+                .setCacheControl(CacheControl.maxAge(Duration.ofDays(365)));
+    }
+```
+
+### 拦截器
+
+定义一个全局的token拦截器 src/main/java/com/sxc/config/GlobalInterceptor.java
+
+```java
+package com.sxc.config;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.sxc.entity.Response;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.HandlerInterceptor;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+//拦截器
+public class GlobalInterceptor implements HandlerInterceptor {
+
+    @Override
+    @ResponseBody
+    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        System.out.println("加载controller之前");
+        //这里这个token的逻辑随便写的
+        if (request.getHeader("token") == null) {
+            //假如没有token 则提示token无效
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json; charset=utf-8");
+            Response rs = new Response("token过期", 10001, null);
+            //jackson
+            ObjectMapper objectMapper = new ObjectMapper();
+            response.getWriter().println(objectMapper.writeValueAsString(rs));
+            return false;
+        } else {
+            //有token则去查token 假设是正确的则设置一个新的token返回 用于刷新token
+            response.setHeader("token", "new token string");
+        }
+        return HandlerInterceptor.super.preHandle(request, response, handler);
+    }
+
+    @Override
+    public void postHandle(HttpServletRequest request, HttpServletResponse response, Object handler, ModelAndView modelAndView) throws Exception {
+        System.out.println("加载controller之后");
+        HandlerInterceptor.super.postHandle(request, response, handler, modelAndView);
+    }
+
+    @Override
+    public void afterCompletion(HttpServletRequest request, HttpServletResponse response, Object handler, Exception ex) throws Exception {
+        System.out.println("完成");
+        HandlerInterceptor.super.afterCompletion(request, response, handler, ex);
+    }
+}
+```
+
+
+**xml方式**
+
+app-context.xml
+
+```xml
+    <!-- 拦截器 -->
+    <mvc:interceptors>
+        <mvc:interceptor>
+            <!--
+                mvc:mapping：拦截的路径
+                /**：是指所有文件夹及其子孙文件夹
+                /*：是指所有文件夹，但不包含子孙文件夹
+                /：Web项目的根目录
+            -->
+            <mvc:mapping path="/**"/>
+            <!--mvc:exclude-mapping：不拦截的路径-->
+            <mvc:exclude-mapping path="/user/addUser"/>
+            <!--class属性就是我们自定义的拦截器-->
+            <bean id="loginInterceptor" class="com.sxc.config.LoginInterceptor"/>
+        </mvc:interceptor>
+    </mvc:interceptors>
+```
+
+**配置方式**
+
+java/com/sxc/config/WebConfig.java
+
+```java
+    @Override
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new GlobalInterceptor());
+        WebMvcConfigurer.super.addInterceptors(registry);
+    }
+```
+
+测试返回
+
+```json
+{
+    "message": "token过期",
+    "code": 10001,
+    "data": null
+}
 ```

@@ -132,6 +132,10 @@ tips：public修饰类有且仅有一个 文件名按public类名来命名,main�
 
 删除 File - Project Structure - Modules - Dependencies 选中要删除的包remove即可
 
+## 配置编辑器文件编码
+
+![calc](../../images/java/idea/02.png)
+
 # api文档
 
 [https://www.matools.com/api/java8](https://www.matools.com/api/java8)
