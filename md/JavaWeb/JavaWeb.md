@@ -9715,6 +9715,8 @@ java/com/sxc/config/WebConfig.java
 
 ### 拦截器
 
+**比如用于权限验证，token验证等**
+
 定义一个全局的token拦截器 src/main/java/com/sxc/config/GlobalInterceptor.java
 
 ```java
