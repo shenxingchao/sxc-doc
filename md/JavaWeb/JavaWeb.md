@@ -8110,8 +8110,8 @@ public class AppConfig {
         configuration.setLogPrefix("mybatis.sql.");
         configuration.setMapUnderscoreToCamelCase(true);
         sqlSessionFactoryBean.setConfiguration(configuration);
-        //配置别名
-        sqlSessionFactoryBean.setTypeAliasesPackage("com.sxc.entity");
+        //配置别名 如果mybatis sql语句用的xml写，则无效- -
+        //sqlSessionFactoryBean.setTypeAliasesPackage("com.sxc.entity");
         //指定mapper.xml文件位置
         sqlSessionFactoryBean.setMapperLocations(new PathMatchingResourcePatternResolver()
                 .getResources("classpath:mappers/**/*.xml"));
@@ -10030,8 +10030,45 @@ gradle在C:\Users\doudou\.gradle\caches\modules-2\files-2.1\mysql\mysql-connecto
 
 修改模板
 
-- dao层添加@Mapper
 - controller层添加参数@RequestBody 接收json
+- controller层返回类型修改
+
+他自动生成的dao有问题，有一个queryAllByLimit方法，他有两个参数，实际运行时会异常```org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [arg0, pageable, param1, param2]```，因为Mybatis的参数匹配机制有关，当传递多个参数的时候，映射机制并不清楚如何匹配到正确的参数；解决办法是将参数加上@Param("user"),然后sql语句用到的地方改为user.xxx,这需要改模板
+
+### 分页参数问题
+
+如果是json传参，就直接用PageHelper,如果要用他默认的PageRequest，还得加一个分页参数解析器，才能注入到参数的Bean中,而且分页参数是拼接再url上的如http://localhost:8080/user?page=0&size=10  page=0是第一页 因为是 limit 0,10...
+
+分页解析器处理器 java/com/sxc/config/PageRequestHandlerMethodArgumentResolver.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.core.MethodParameter;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
+
+//分页请求处理解析器
+public class PageRequestHandlerMethodArgumentResolver extends PageableHandlerMethodArgumentResolver {
+    //让他支持解析Pageable的子类 PageRequest
+    //isAssignableFrom 判断Pageable是不是 ()里的PageRequest 的 父类
+    @Override
+    public boolean supportsParameter(MethodParameter parameter) {
+        return Pageable.class.isAssignableFrom(parameter.getParameterType());
+    }
+}
+```
+
+添加到配置java/com/sxc/config/WebConfig.java
+
+```java
+    //参数解析处理器 拦截参数 重新修改包装后传递给控制器
+    @Override
+    public void addArgumentResolvers(List<HandlerMethodArgumentResolver> resolvers) {
+        resolvers.add(new PageRequestHandlerMethodArgumentResolver());
+        WebMvcConfigurer.super.addArgumentResolvers(resolvers);
+    }
+```
 
 
 ## 遇到的问题
@@ -10056,3 +10093,4 @@ tasks.withType(JavaCompile) {
 很多时候是因为idea project structure --> artifacts 没有将刚依赖的jar包添加到WEB-INF/lib中
 
 还有可能是bean大小写问题
+
