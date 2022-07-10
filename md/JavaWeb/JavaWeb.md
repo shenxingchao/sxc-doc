@@ -8734,7 +8734,7 @@ public class MyWebApplicationInitializer implements WebApplicationInitializer {
         DispatcherServlet servlet = new DispatcherServlet(context);
         ServletRegistration.Dynamic registration = servletContext.addServlet("springmvc", servlet);
 
-        //处理乱码 无效
+        //处理乱码
         FilterRegistration.Dynamic characterEncodingFilter = servletContext.addFilter(
                 "CharacterEncodingFilter", CharacterEncodingFilter.class);
         characterEncodingFilter.setInitParameter("encoding", "utf-8");
@@ -9863,11 +9863,196 @@ java/com/sxc/config/WebConfig.java
     @Override
     public void addCorsMappings(CorsRegistry registry) {
         registry.addMapping("/**")
-                //.allowedOrigins("*") allowCredentials(false)使用
-                .allowedOriginPatterns("*") //allowCredentials(true)使用
+                .allowedOrigins("*") //allowCredentials(false)使用
+                // .allowedOriginPatterns("*") //allowCredentials(true)使用 跨域携带cookie时使用 而且allowedHeaders 配置为指定的前端域名
                 .allowedMethods("POST", "GET", "OPTIONS", "DELETE", "PUT", "HEAD")
                 .allowedHeaders("*")
                 //.exposedHeaders("header1", "header2") //不允许的
-                .allowCredentials(true).maxAge(3600);
+                .allowCredentials(false).maxAge(3600);
     }
 ```
+
+
+### 文件上传
+
+**配置**
+
+**xml方式**
+
+pom.xml
+
+```xml
+    <dependency>
+        <groupId>commons-fileupload</groupId>
+        <artifactId>commons-fileupload</artifactId>
+        <version>1.4</version>
+    </dependency>
+```
+
+app-context.xml
+
+```xml
+    <!--文件上传配置 必须要叫multipartResolver 覆盖默认的-->
+    <bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+    <!-- 请求的编码格式，必须和jSP的pageEncoding属性一致，以便正确读取表单的内容，默认为ISO-8859-1 -->
+    <property name="defaultEncoding" value="utf-8"/>
+    <!-- 上传文件大小上限，单位为字节（10485760=10M） -->
+    <property name="maxUploadSize" value="10485760"/>
+    <property name="maxInMemorySize" value="40960"/>
+    </bean>
+```
+
+**配置方式**
+
+build.gradle
+
+```gradle
+    //文件上传
+    implementation 'commons-fileupload:commons-fileupload:1.4'
+```
+
+java/com/sxc/config/AppConfig.java
+
+```java
+    //文件上传拦截器 必须要叫multipartResolver 覆盖默认的
+    @Bean
+    public CommonsMultipartResolver multipartResolver() {
+        CommonsMultipartResolver commonsMultipartResolver = new CommonsMultipartResolver();
+        commonsMultipartResolver.setDefaultEncoding("UTF-8");
+        commonsMultipartResolver.setMaxUploadSize(10485760);//10M
+        commonsMultipartResolver.setMaxInMemorySize(40960);
+        return commonsMultipartResolver;
+    }
+```
+
+编写一个测试html,vscode 安装live server插件 直接允许html到简易服务器
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>上传测试html</title>
+  </head>
+  <body>
+    <div id="app">
+      <input type="file" ref="upload" />
+      <button @click="upload()">xhr上传</button>
+      <form
+        action="http://localhost:8888/user/upload"
+        method="post"
+        enctype="multipart/form-data"
+      >
+        <input type="file" name="file" />
+        <input type="submit" value="表单上传" />
+      </form>
+    </div>
+  </body>
+  <script src="https://cdn.jsdelivr.net/npm/vue@2.6.14/dist/vue.js"></script>
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+  <script type="text/javascript">
+    var app = new Vue({
+      el: "#app",
+      data: {},
+      methods: {
+        upload() {
+          var formData = new FormData();
+          formData.append("file", this.$refs.upload.files[0]);
+          axios
+            .request({
+              url: "http://localhost:8888/user/upload",
+              method: "post",
+              headers: { "Content-Type": "multipart/form-data" }, //不加也行，默认会加上
+              data: formData,
+            })
+            .then(
+              (res) => {
+                // 上传成功后的处理
+                console.log(res);
+              },
+              (err) => {
+                // 出现错误时的处理
+              }
+            );
+        },
+      },
+    });
+  </script>
+</html>
+```
+
+测试java/com/sxc/controller/UserController.java
+
+```java
+    //RequestParam 接收前端传来的file key
+    @PostMapping("upload")
+    @ResponseBody
+    public String userUpload(@RequestParam("file") CommonsMultipartFile commonsMultipartFile) throws IOException {
+        String uploadFileName = commonsMultipartFile.getOriginalFilename();
+        System.out.println("上传文件名 : " + uploadFileName);
+        //上传路径保存设置 会上传到tomcat 服务器的所在磁盘的根目录 如果是./会上传到tomcat的bin目录...
+        String path = "/upload";
+        //如果路径不存在，创建一个
+        File realPath = new File(path);
+        if (!realPath.exists() && realPath.mkdir()) {
+            System.out.println("文件夹创建成功");
+        }
+        System.out.println("上传文件保存地址：" + realPath);
+        //保存到目录
+        commonsMultipartFile.transferTo(new File(path + "/" + uploadFileName));
+        return "上传文件成功";
+    }
+```
+
+
+下载文件可[参考](https://www.cnblogs.com/likeyou99315/p/14383245.html)
+
+## 代码自动生成
+
+使用插件EasyCode,并配置好IDEA里面的datasource
+
+驱动选择本地仓库下载的 用对应mysql版本的驱动 5.7及以上对应8.x 命名空间对应xxx.cj.xxx
+
+maven在C:\Users\doudou\.m2\repository\mysql\mysql-connector-java;
+
+gradle在C:\Users\doudou\.gradle\caches\modules-2\files-2.1\mysql\mysql-connector-java
+
+然后再Datasource下选中表格右键 EasyCode既可以生成代码
+
+所需依赖 这里测试用到mysql5.6
+
+```gradle
+    //代码自动生成依赖 可以自动生成controller service dao entity（自己用lombok定义比较好） mapper
+    implementation 'org.springframework.data:spring-data-commons:2.7.1'
+```
+
+修改模板
+
+- dao层添加@Mapper
+- controller层添加参数@RequestBody 接收json
+
+
+## 遇到的问题
+
+### gradle打war包以及乱码问题
+
+```gradle
+plugins {
+    id 'war'
+}
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+}
+```
+
+### gradle运行资源目录没有加入到成品
+
+这个会导致classpath下的文件找不到,需要project structure --> artifacts --> WEB-INF --> classes下增加directory for content 配置为resource目录
+
+### bean未定义
+
+很多时候是因为idea project structure --> artifacts 没有将刚依赖的jar包添加到WEB-INF/lib中
+
+还有可能是bean大小写问题
