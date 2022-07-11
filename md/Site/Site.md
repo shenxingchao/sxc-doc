@@ -68,6 +68,8 @@
 
 [git profile 创建](https://rahuldkjain.github.io/gh-profile-readme-generator/)
 
+[github资源下载](https://ghproxy.com/)
+
 ## Mock
 
 [mockjs](http://mockjs.com/)

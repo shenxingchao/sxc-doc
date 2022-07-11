@@ -6,6 +6,8 @@
 
 ## FinalShell
 
+推荐
+
 # 常用命令
 ## 切换超级管理员
 su
@@ -15,6 +17,14 @@ mkdir -p
 ## 清除
 clear
 
+## 上传文件到当前目录
+
+rz -b
+
+## 删除文件
+
+rm -rf xxxx
+
 ## 下载命令
 wget `http://download.com` 
 一般下载路径放在`/usr/local/src/`
@@ -22,6 +32,10 @@ wget `http://download.com`
 
 ## 移动目录或文件
 mv xxx /usr/local/
+
+## 拷贝文件
+
+cp xxx /usr/local
 
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
@@ -32,6 +46,16 @@ mv xxx /usr/local/
 - *.rar 用 unrar e解压
 - *.zip 用 unzip 解压
 
+## 查看端口号
+
+netstat -antp | grep 6379
+
+## 杀死进程
+
+kill 端口号
+
+kill -9 端口号 强制杀死
+
 # vim命令
 创建文件 vim 新建文件名  
 回到命令行状态 esc  
@@ -41,7 +65,6 @@ mv xxx /usr/local/
 搜索 esc + / + search_string  
 移动到末尾 G  
 移动到开始 g
-
 
 # 直播或监控解决方案
 1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流

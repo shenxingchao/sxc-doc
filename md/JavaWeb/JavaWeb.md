@@ -2564,26 +2564,6 @@ public class BasicDao<T> {
 }
 ```
 
-# 分层架构
-
-## DAO
-
-一般会有一个基类，只有原子性增删改查，开启关闭事务等
-
-将数据对象化，转为orm对象
-
-## Service
-
-业务逻辑层 业务逻辑，以及调用DAO层的一些方法来获取数据
-
-## Controller
-
-控制器层负责数据传输 接收前端数据或者返回数据给前端（如果是页面用servlet转发到jsp。。。） 也就是Api提供者
-
-## View
-
-基本不需要，前后端分离。。。
-
 # tomcat
 
 ## 下载
@@ -2690,7 +2670,7 @@ DePloyment -->Application context 设置为 /
 
 tomcat/conf/logging.properties
 
-```
+```java
 java.util.logging.ConsoleHandler.encoding = UTF-8
 改为
 java.util.logging.ConsoleHandler.encoding = GBK
@@ -3106,7 +3086,7 @@ son pom.xml
 
 ## docker搭建maven本地服务器
 
-```shell
+```powershell
 // 安装docker
 yum install docker -y
 // 启动
@@ -3342,7 +3322,7 @@ public class TestJUL {
 
 修改下面的配置
 
-```
+```java
 #rootHandler可以配置多个
 handlers= java.util.logging.FileHandler,java.util.logging.ConsoleHandler
 #rootHandler日志级别 ALL INFO WARNING SEVERE FINE FINER....
@@ -3618,7 +3598,7 @@ public class TestLog4J {
 
 在初始化话getLigger的时候默认会去读取配置文件
 
-```
+```java
 #root logger指定日志的输出级别与输出端 ALL是输出级别 Console,fileAppender,dbAppender是appender的名称
 log4j.rootLogger=ALL,consoleAppender,fileAppender,dbAppender
 #自定义每个包的logger
@@ -3759,7 +3739,7 @@ pom.xml添加依赖
 
 修改log4j的配置文件如下
 
-```
+```java
 log4j.rootLogger=ALL,consoleAppender
 #这里修改为WARN
 log4j.logger.customLoggerName=WARN,consoleAppender
@@ -6960,7 +6940,7 @@ public class JdbcTemplateConfig {
 
 **配置德鲁伊数据源**，这里用了5.7版本测试的，所以用的cj.jdbc
 
-```
+```java
 druid.driverClassName=com.mysql.cj.jdbc.Driver
 druid.url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 druid.username=root
@@ -7922,7 +7902,7 @@ pom.xml
 
 src/main/resources/druid.properties
 
-```
+```java
 druid.driverClassName=com.mysql.cj.jdbc.Driver
 druid.url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 druid.username=root
@@ -8334,7 +8314,7 @@ public class Test {
 }
 ```
 
-# springMVC
+# SpringMVC
 
 核心就是控制器转发DispatcherServlet这个类
 
@@ -8364,7 +8344,7 @@ public class Test {
 
 pom.xml
 
-```
+```xml
     <!--servlet-api tomcat10用的是jakarta,不能兼容spring5.x版本，需要用tomcat9-->
     <dependency>
         <groupId>javax.servlet</groupId>
@@ -9479,7 +9459,7 @@ java/com/sxc/config/WebConfig.java
 
 使用案例  
 
-```
+```java
 @Max(value = 10, message = "年龄最大值是10岁")
 @Email
 ```
@@ -10094,3 +10074,416 @@ tasks.withType(JavaCompile) {
 
 还有可能是bean大小写问题
 
+# Redis
+
+## 特性
+
+**高效性**
+
+存储在内存，Redis读取的速度是30w次/s，写的速度是10w次/s
+
+**多种数据结构**
+
+支持value(String),List(消息队列key=>List，有序),Set,ZSet,Hash(key=>map)
+
+- ZSet 存储一个set集合 并且可以根据属性值排序。应用场景排行榜
+- 针对指定的key 可以设置过期时间。应用场景用户token过期时间
+- INCR 原子性自增id+1，redis是单线程的。应用场景分布式比如同时有10个线程在执行操作，需要一个唯一的自增id
+- Set 去重复性
+- List 应用场景将数据库数据存储到redis
+- 多个Set操作。应用场景反垃圾系统，比如一个Set存储登录用户id，另一个Set存储操作的id，然后对两个Set进行差集（或其他操作），可以找出登录了且没操作的用户
+
+**原子性**
+
+redis是单线程的,Redis的所有操作都是原子性的
+
+**稳定性**
+
+持久化，主从复制（集群）
+
+**支持过期时间，消息队列**
+
+## 安装
+
+### windows
+
+[windows下载](https://github.com/microsoftarchive/redis/releases)
+
+**开启redis服务器**
+
+redis-server.exe redis.windows.conf
+
+**运行redis客户端**
+
+redis-cli.exe -h localhost -p 6379
+
+### linux
+
+**编译源代码**
+
+需要安装c++编译工具
+
+```powershell
+yum install gcc gcc-c++
+```
+
+需要安装tcl
+
+```powershell
+yum -y install tcl 
+```
+
+然后下载redi并编译
+
+```powershell
+cd /usr/local/src
+wget http://download.redis.io/releases/redis-7.0.2.tar.gz
+tar -zxvf redis-7.0.2.tar.gz
+cd redis-7.0.2
+make
+# 注意下面这个make test 安装前必须进行编译测试 报错的话如果是单核cpu执行taskset -c 1 sudo make test
+make test && make install PREFIX=/usr/local/redis7/
+```
+
+**配置**
+
+```powershell
+cd  /usr/local/redis7/
+#用于存放redis日志
+mkdir log
+#用于存放redis备份数据
+mkdir data
+#复制安装源码里的配置文件到redis目录
+cp /usr/local/src/redis-7.0.2/redis.conf ./
+```
+
+修改redis.conf
+
+```powershell
+#服务器绑定的ip地址
+bind xxx.xxx.xxx.xxx
+#开启守护进程模式
+daemonize yes
+#开启保护模式 不允许外网访问
+protected-mode yes
+#端口号
+port
+#日志文件存储路径
+logfile "/usr/local/redis7/log/redis.log"
+#数据存储路径
+dir /usr/local/redis7/data
+```
+
+**开启redis服务器**
+
+```powershell
+#开启redis服务器
+/usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf
+#关闭reids；(这个是redis.conf配置里的bind地址，如果是守护进程模式，则无法关闭，需要先改模式) 或使用kill 端口号
+/usr/local/redis7/bin/redis-cli -h localhost shutdown
+#查看reids是否启动成功
+netstat -antp | grep 6379
+```
+
+!>tip:Windows访问Linux防火墙需要开放6379端口，且不开启保护模式
+
+## 命令查询
+
+[命令查询](http://redis.cn/commands.html)
+
+[命令查询 推荐](https://www.runoob.com/redis/redis-commands.html)
+
+## 客户端
+
+[下载](https://github.com/qishibo/AnotherRedisDesktopManager/releases)
+
+## 操作
+
+
+### Key
+
+```
+> set key value
+OK
+#设置key的存活时间5秒 毫秒用pexpire
+> expire key 5
+1
+#查看key还剩多少存活时间 毫秒用pttl
+> ttl key
+1
+#删除key
+> del key
+1
+#查询key是否存在
+> exists key
+0
+```
+
+### String
+
+```powershell
+#设置值
+> set key value
+OK
+#获取值
+> get key
+value
+#设置多个值
+> mset key1 value1 key2 value2
+OK
+#获取多个值
+> mget key1 key2
+value1
+value2
+#若key不存在则设置值，存在则返回0
+> setnx key newvalue
+0
+#过期时间 token 手机验证码
+> setex key 10 value
+OK
+#原子加1
+> incr id
+1
+> incr id
+2
+> incr id
+3
+> get id
+3
+#原子减1 秒杀库存操作 优惠券发放
+> decr id
+2
+> decr id
+1
+> decr id
+0
+#步长
+> decrby id 3
+-3
+> incrby id 3
+0
+```
+
+**String下的Bitmap**
+
+就是存储byte字节的 类似0 1 1 0 1 0
+
+这个也可以用来统计uv 还能统计某个用户是否连续7天签到等等
+
+```powershell
+#设置id为1，2，3，4的登录状态 1表示登录
+> setbit uv:20220711 1 1
+0
+> setbit uv:20220711 2 1
+0
+> setbit uv:20220711 3 0
+0
+> setbit uv:20220711 4 1
+0
+#获取指定id的登录状态
+> getbit uv:20220711 1
+1
+#获取当天用户的登录数
+> bitcount uv:20220711 0 999999999
+3
+#获取连续3天登录的用户id
+> setbit uv:20220712 1 1
+0
+> setbit uv:20220713 1 1
+0
+> setbit uv:20220712 2 1
+0
+> setbit uv:20220713 2 1
+0
+# and将两个做并集
+> bitop and uv:3daysLogin uv:20220711 uv:20220712 uv:20220713
+1
+# 求出连续3天登录用户数
+> bitcount uv:3daysLogin
+2
+```
+
+### Hash
+
+值是一个HashMap
+
+```powershell
+#设置值 也可设置多个 hmset已经弃用
+> hset key username 张三 age 18
+2
+#获取单个键值
+> hget key username
+张三
+#获取多个键值
+> hmget key username age
+张三
+18
+#若key不存在则设置值，存在则返回0
+> hsetnx key username 张三
+0
+#查询键名是否存在
+> HEXISTS key username
+1
+#获取所有键值对
+> hgetall key
+username
+张三
+age
+18
+#拿到所有内层key
+> hkeys key
+username
+age
+#拿到所有内层key的键值
+> HVALS key
+张三
+18
+#某个属性原子+1
+> HINCRBY key age 1
+19
+#原子-1
+> HINCRBY key age -1
+18
+#删除内层key 如果属性全部被删除，则整个key被删除
+> hdel key username age
+2
+```
+
+### List
+
+有序 底层是linkedlist 易于插入删除
+
+lpush lpop /rpush rpop 栈 先进后出
+
+lpush rpop /消息队列 先进先出
+
+```powershell
+#往头部插入
+> lpush key 1 2 3 4
+4
+#查看list 根据索引范围
+> lrange key 0 3
+4
+3
+2
+1
+#查看list 取出所有
+> lrange key 0 -1
+4
+3
+2
+1
+#若key存在则向头部插入一个值
+> lpushx key 5
+5
+#获取列表长度
+> llen key
+5
+#从头部取出
+> lpop key
+5
+> lpop key
+4
+> lpop key
+3
+> lpop key
+2
+> lpop key
+1
+> lpop key
+null
+#往尾部插入值
+> rpush key 1 2 3 4
+4
+#若key存在则向尾部插入一个值
+> rpushx key 5
+5
+# 从右边取出
+> rpop key
+5
+> rpop key
+4
+> rpop key
+3
+> rpop key
+2
+> rpop key
+1
+> rpop key
+null
+#通过索引获取列表的值
+> lindex key 0
+null
+#从头部取出 消息队列阻塞取消息 若key元素为空，则会阻塞，知道有元素被添加
+blpop key 1000
+#从尾部取出
+brpop key 1000
+```
+
+### Set
+
+```powershell
+#设置值
+> sadd key 1 2 3 4 5
+5
+#获取值
+> smembers key
+1
+2
+3
+4
+5
+#获取总数
+> scard key
+5
+#获取差集 比如key2是操作的用户 key是登录的用户，这个差集就能看出谁没登录也在那操作，就是在黑你网站
+> sadd key2 1 2 3
+3
+> sdiff key key2
+4
+5
+```
+
+比如统计登录用户数
+
+```powershell
+#设置当前登录用户的id
+> sadd uv:20220711 1 2 3
+3
+#获取当天登录的用户数量
+> scard uv:20220711
+3
+```
+
+### ZSet
+
+可以用来统计pv 每个页面的访问量，以下权重改为访问量，value1，value2改为页面名称
+
+```powershell
+#设置值 100，200是权重值 zset会根据这个权重值排序
+> zadd key 100 value1 200 value2
+2
+#获取总数
+> zcard key
+2
+#统计指定权重范围内的数量
+> zcount key 0 1000
+2
+#增加权重值
+> zincrby key 1 value1
+101
+#查看某个值的权重
+> zscore key value1
+101
+#查看某个值的索引(排行)
+> zrank key value1
+0
+#查看某个范围内的排名(升序)
+> zrange key 0 1000
+value1
+value2
+#查看某个范围内的排名(降序)
+> zrevrange key 0 1000
+value2
+value1
+```
