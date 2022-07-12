@@ -10197,7 +10197,7 @@ netstat -antp | grep 6379
 
 [下载](https://github.com/qishibo/AnotherRedisDesktopManager/releases)
 
-## 操作
+## 基础操作
 
 
 ### Key
@@ -10236,7 +10236,7 @@ OK
 value1
 value2
 #若key不存在则设置值，存在则返回0
-> setnx key newvalue
+> setnx key newValue
 0
 #过期时间 token 手机验证码
 > setex key 10 value
@@ -10268,7 +10268,7 @@ OK
 
 就是存储byte字节的 类似0 1 1 0 1 0
 
-这个也可以用来统计uv 还能统计某个用户是否连续7天签到等等
+这个也可以用来统计登录uv 还能统计某个用户是否连续7天签到等等
 
 ```powershell
 #设置id为1，2，3，4的登录状态 1表示登录
@@ -10295,7 +10295,7 @@ OK
 0
 > setbit uv:20220713 2 1
 0
-# and将两个做并集
+# and将两个做交集 or做并集
 > bitop and uv:3daysLogin uv:20220711 uv:20220712 uv:20220713
 1
 # 求出连续3天登录用户数
@@ -10414,7 +10414,7 @@ null
 #通过索引获取列表的值
 > lindex key 0
 null
-#从头部取出 消息队列阻塞取消息 若key元素为空，则会阻塞，知道有元素被添加
+#从头部取出 消息队列阻塞取消息 若key元素为空，则会阻塞，知道有元素被添加 1000=1秒
 blpop key 1000
 #从尾部取出
 brpop key 1000
@@ -10442,6 +10442,18 @@ brpop key 1000
 > sdiff key key2
 4
 5
+#获取交集
+> sinter key key2
+1
+2
+3
+#获取并集
+> sunion key key2
+1
+2
+3
+4
+5
 ```
 
 比如统计登录用户数
@@ -10455,21 +10467,32 @@ brpop key 1000
 3
 ```
 
-### ZSet
+**统计大数据uv**
 
-可以用来统计pv 每个页面的访问量，以下权重改为访问量，value1，value2改为页面名称
+HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量，但是他不能取值,且不是非常精确的统计
 
 ```powershell
-#设置值 100，200是权重值 zset会根据这个权重值排序
+> pfadd pageUv:20220712 1 2 3 4 5
+1
+> pfcount pageUv:20220712
+5
+```
+
+### ZSet
+
+可以用来统计pv 每个页面的访问量，且可以排序，以下权重改为访问量，value1，value2改为页面名称，set也能统计但是不能排序
+
+```powershell
+#设置值 100，200是权重值 ZSet会根据这个权重值排序
 > zadd key 100 value1 200 value2
 2
 #获取总数
 > zcard key
 2
 #统计指定权重范围内的数量
-> zcount key 0 1000
+> zcount key 0 99999999
 2
-#增加权重值
+#增加权重值 原子+1
 > zincrby key 1 value1
 101
 #查看某个值的权重
@@ -10479,11 +10502,394 @@ brpop key 1000
 > zrank key value1
 0
 #查看某个范围内的排名(升序)
-> zrange key 0 1000
+> zrange key 0 99999999
 value1
 value2
 #查看某个范围内的排名(降序)
-> zrevrange key 0 1000
+> zrevrange key 0 99999999
 value2
 value1
+#查看某个范围内的排名(降序)
+> zrevrangebyscore key 99999999 0
+value2
+value1
+#迭代权重和排名 相当于遍历key value 0（游标，就是索引）从0，99999999 match匹配规则 后面2个参数可省略
+> zscan key 0 match * count 99999999
+0
+value1
+101
+value2
+200
+```
+
+**统计pv**
+
+```powershell
+#添加每天的页面访问量
+> zadd pv:20220712 10 page1.html 20 page2.html 5 page3.html
+3
+> zadd pv:20220713 5 page1.html 10 page2.html
+2
+#将两个集合做交集 在对交集的元素进行权重求和  2代表2个key
+> zinterstore pv:sum 2 pv:20220712 pv:20220713
+2
+#查看结果
+> zscan pv:sum 0 match * count 99999999
+0
+page1.html
+15
+page2.html
+30
+```
+
+## java操作reids
+
+### 创建项目
+
+新建一个gradle项目redis-opration
+
+并添加redis依赖和junit依赖
+
+```gradle
+plugins {
+    id 'java'
+}
+
+group 'com.sxc'
+version '1.0-SNAPSHOT'
+
+repositories {
+    maven { url('https://maven.aliyun.com/repository/central') }//mavenCentral()
+}
+
+dependencies {
+    //测试
+    implementation 'junit:junit:4.13.2'
+    //redis
+    implementation 'redis.clients:jedis:4.2.3'
+}
+
+test {
+    useJUnitPlatform()
+}
+```
+
+### 编写测试文件
+
+```java
+package com.sxc;
+
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+import java.time.Duration;
+
+public class TestRedis {
+    public static Jedis jedis = null;
+
+    //初始化redis连接
+    @Before
+    public void init() {
+        //创建redis连接 这里用的是虚拟机的ip 本机用localhost即可
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        //最大空闲连接
+        jedisPoolConfig.setMaxIdle(10);
+        //最小空闲连接
+        jedisPoolConfig.setMinIdle(5);
+        //最大连接数
+        jedisPoolConfig.setMaxTotal(50);
+        //最大等待时间
+        jedisPoolConfig.setMaxWait(Duration.ofSeconds(5));
+        try (
+                JedisPool pool = new JedisPool(jedisPoolConfig, "192.168.48.128", 6379)
+        ) {
+            jedis = pool.getResource();
+        }
+    }
+
+    //关闭连接
+    @After
+    public void destroy() {
+        jedis.close();
+    }
+
+    @Test
+    public void test() {
+        jedis.set("key", "value");
+        String keyValue = jedis.get("key");
+        System.out.println(keyValue);//value
+    }
+}
+```
+
+### String
+
+```java
+    @Test
+    public void testString() {
+        //设置值
+        jedis.set("key", "value");
+        //获取值
+        System.out.println(jedis.get("key"));//value
+        //设置多个值
+        jedis.mset("key1", "value1", "key2", "value2");
+        //获取多个值
+        System.out.println(jedis.mget("key1", "key2"));//[value1,value2]
+        //若key不存在则设置值，存在则返回0
+        System.out.println(jedis.setnx("key", "newValue"));//0
+        //过期时间 token 手机验证码
+        jedis.setex("key", 5, "value");
+        //原子加1
+        System.out.println(jedis.incr("id"));//1
+        System.out.println(jedis.incr("id"));//2
+        System.out.println(jedis.incr("id"));//3
+        //原子减1 秒杀库存操作 优惠券发放
+        System.out.println(jedis.decr("id"));//2
+        System.out.println(jedis.decr("id"));//1
+        System.out.println(jedis.decr("id"));//0
+        //步长
+        System.out.println(jedis.decrBy("id", 3));//-3
+        System.out.println(jedis.incrBy("id", 3));//0
+    }
+```
+
+**String下的Bitmap**
+
+就是存储byte字节的 类似0 1 1 0 1 0
+
+这个也可以用来统计登录uv 还能统计某个用户是否连续7天签到等等
+
+```java
+    @Test
+    public void testBitmap() {
+        //设置id为1，2，3，4的登录状态 1表示登录
+        jedis.setbit("uv:20220711", 1L, true);
+        jedis.setbit("uv:20220711", 2L, true);
+        jedis.setbit("uv:20220711", 3L, false);
+        jedis.setbit("uv:20220711", 4L, true);
+        //获取指定id的登录状态
+        System.out.println(jedis.getbit("uv:20220711", 1L));//true
+        //获取当天用户的登录数
+        System.out.println(jedis.bitcount("uv:20220711", 0L, 99999999L));//3
+        //获取连续3天登录的用户id
+        jedis.setbit("uv:20220712", 1L, true);
+        jedis.setbit("uv:20220712", 2L, true);
+        jedis.setbit("uv:20220713", 1L, true);
+        jedis.setbit("uv:20220713", 2L, true);
+        //and将两个做交集 or做并集
+        jedis.bitop(BitOP.AND, "uv:3daysLogin", "uv:20220711", "uv:20220712", "uv:20220713");
+        //求出连续3天登录用户数
+        System.out.println(jedis.bitcount("uv:3daysLogin"));//2
+    }
+```
+
+### Hash
+
+值是一个HashMap
+
+```java
+    @Test
+    public void testHash() {
+        //设置值 也可设置多个 hmset已经弃用
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("username", "张三");
+        hashMap.put("age", "18");
+        jedis.hset("key", hashMap);
+        //获取单个键值
+        System.out.println(jedis.hget("key", "username"));//张三
+        //获取多个键值
+        System.out.println(jedis.hmget("key", "username", "age"));//[张三, 18]
+        //若key不存在则设置值，存在则返回0
+        System.out.println(jedis.hsetnx("key", "username", "张三"));//0
+        //查询键名是否存在
+        System.out.println(jedis.hexists("key", "username"));//true
+        //获取所有键值对
+        System.out.println(jedis.hgetAll("key"));//{age=18, username=张三}
+        //拿到所有内层key
+        System.out.println(jedis.hkeys("key"));//[age, username]
+        //拿到所有内层key的键值
+        System.out.println(jedis.hvals("key"));//[18, 张三]
+        //某个属性原子+1
+        System.out.println(jedis.hincrBy("key", "age", 1));//19
+        //原子-1
+        System.out.println(jedis.hincrBy("key", "age", -1));//18
+        //删除内层key 如果属性全部被删除，则整个key被删除
+        System.out.println(jedis.hdel("key", "username", "age"));//2
+    }
+```
+
+### List
+
+有序 底层是linkedlist 易于插入删除
+
+lpush lpop /rpush rpop 栈 先进后出
+
+lpush rpop /消息队列 先进先出
+
+```java
+    @Test
+    public void testList() {
+        //往头部插入
+        jedis.lpush("key", "1", "2", "3", "4");
+        //查看list 根据索引范围
+        System.out.println(jedis.lrange("key", 0, 3));//[4, 3, 2, 1]
+        //查看list 取出所有
+        System.out.println(jedis.lrange("key", 0, -1));//[4, 3, 2, 1]
+        //若key存在则向头部插入一个值
+        jedis.lpushx("key", "5");
+        //获取列表长度
+        System.out.println(jedis.llen("key"));//5
+        //从头部取出
+        System.out.println(jedis.lpop("key"));//5
+        System.out.println(jedis.lpop("key"));//4
+        System.out.println(jedis.lpop("key"));//3
+        System.out.println(jedis.lpop("key"));//2
+        System.out.println(jedis.lpop("key"));//1
+        System.out.println(jedis.lpop("key"));//null
+        //往尾部插入值
+        jedis.rpush("key", "1", "2", "3", "4");
+        //若key存在则向尾部插入一个值
+        jedis.rpushx("key", "5");
+        //从右边取出
+        System.out.println(jedis.rpop("key"));//5
+        System.out.println(jedis.rpop("key"));//4
+        System.out.println(jedis.rpop("key"));//3
+        System.out.println(jedis.rpop("key"));//2
+        System.out.println(jedis.rpop("key"));//1
+        System.out.println(jedis.rpop("key"));//null
+        //通过索引获取列表的值
+        System.out.println(jedis.lindex("key", 0L));//null
+        //从头部取出 消息队列阻塞取消息 若key元素为空，则会阻塞，知道有元素被添加 1000=1秒
+        //创建一个线程，2秒后加一个元素
+        Runnable runnable = () -> {
+            try {
+                Thread.sleep(2000);
+                jedis.lpush("key", "1");
+                Thread.sleep(2000);
+                jedis.lpush("key", "2");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        runnable.run();
+        System.out.println(jedis.blpop(4000, "key"));//[key, 1]
+        //从尾部取出
+        System.out.println(jedis.brpop(4000, "key"));//[key, 2]
+    }
+```
+
+### Set
+
+```java
+    @Test
+    public void testSet() {
+        //设置值
+        jedis.sadd("key", "1", "2", "3", "4", "5");
+        //获取值
+        System.out.println(jedis.smembers("key"));//[1, 2, 3, 4, 5]
+        //获取总数
+        System.out.println(jedis.scard("key"));//5
+        //获取差集 比如key2是操作的用户 key是登录的用户，这个差集就能看出谁没登录也在那操作，就是在黑你网站
+        jedis.sadd("key2", "1", "2", "3");
+        System.out.println(jedis.sdiff("key", "key2"));//[4, 5]
+        //获取交集
+        System.out.println(jedis.sinter("key", "key2"));//[1, 2, 3]
+        //获取并集
+        System.out.println(jedis.sunion("key", "key2"));//[1, 2, 3, 4, 5]
+    }
+```
+
+比如统计登录用户数
+
+```java
+    @Test
+    public void testSetUV() {
+        jedis.sadd("uv:20220711", "1", "2", "3");
+        System.out.println(jedis.scard("uv:20220711"));//3
+    }
+```
+
+**统计大数据uv**
+
+HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量，但是他不能取值,且不是非常精确的统计
+
+```java
+    @Test
+    public void testHyperLogLog() {
+        jedis.pfadd("pageUv:20220712", "1", "2", "3", "4", "5");
+        System.out.println(jedis.pfcount("pageUv:20220712"));//5
+    }
+```
+
+### ZSet
+
+可以用来统计pv 每个页面的访问量，且可以排序，以下权重改为访问量，value1，value2改为页面名称，set也能统计但是不能排序
+
+```java
+    @Test
+    public void tetZSet() {
+        //添加单个值
+        jedis.zadd("key", 100.0, "value");
+        //设置值 100，200是权重值 ZSet会根据这个权重值排序
+        HashMap<String, Double> hashMap = new HashMap<>();
+        hashMap.put("value1", 100.0);
+        hashMap.put("value2", 200.0);
+        jedis.zadd("key", hashMap);
+        //获取总数
+        System.out.println(jedis.zcard("key"));//3
+        //统计指定权重范围内的数量
+        System.out.println(jedis.zcount("key", 0, 9999999));//3
+        //增加权重值 原子+1
+        System.out.println(jedis.zincrby("key", 1, "value1"));//101.0
+        //查看某个值的权重
+        System.out.println(jedis.zscore("key", "value1"));//101.0
+        //查看某个值的索引(排行)
+        System.out.println(jedis.zrank("key", "value1"));//1
+        //查看某个范围内的排名(升序)
+        System.out.println(jedis.zrange("key", 0, 9999999));//[value, value1, value2]
+        //查看某个范围内的排名(降序)
+        System.out.println(jedis.zrevrange("key", 0, 99999999));//[value2, value1, value]
+        //查看某个范围内的排名(降序)
+        System.out.println(jedis.zrevrangeByScore("key", 99999999, 0));//[value2, value1, value]
+        //迭代权重和排名 相当于遍历key value 0（游标，就是索引）从0，99999999 match匹配规则 后面2个参数可省略
+        ScanParams scanParams = new ScanParams();
+        scanParams.match("*");
+        scanParams.count(99999999);
+        List<Tuple> list = jedis.zscan("key", "0", scanParams).getResult();
+        for (Tuple tuple : list) {
+            System.out.println(tuple.getElement() + tuple.getScore());//value 100.0;value1 101.0;value2 200.0
+        }
+    }
+```
+
+**统计pv**
+
+```java
+    @Test
+    public void testZSetPV() {
+        //添加每天的页面访问量
+        HashMap<String, Double> hashMap = new HashMap<>();
+        hashMap.put("page1.html", 10.0);
+        hashMap.put("page2.html", 20.0);
+        hashMap.put("page3.html", 5.0);
+        jedis.zadd("pv:20220712", hashMap);
+        hashMap.clear();
+        hashMap.put("page1.html", 5.0);
+        hashMap.put("page2.html", 10.0);
+        jedis.zadd("pv:20220713", hashMap);
+        //将两个集合做交集 在对交集的元素进行权重求和  2代表2个key
+        jedis.zinterstore("pv:sum", "pv:20220712", "pv:20220713");
+        //查看结果
+        ScanParams scanParams = new ScanParams();
+        scanParams.match("*");
+        scanParams.count(99999999);
+        List<Tuple> list = jedis.zscan("pv:sum", "0", scanParams).getResult();
+        for (Tuple tuple : list) {
+            System.out.println(tuple.getElement() + tuple.getScore());//page1.html15.0 page2.html30.0
+        }
+    }
 ```
