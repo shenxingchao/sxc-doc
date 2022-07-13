@@ -10179,8 +10179,9 @@ dir /usr/local/redis7/data
 ```powershell
 #开启redis服务器
 /usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf
-#关闭reids；(这个是redis.conf配置里的bind地址，如果是守护进程模式，则无法关闭，需要先改模式) 或使用kill 端口号
+#关闭reids；(这个是redis.conf配置里的bind地址) 或使用kill 端口号
 /usr/local/redis7/bin/redis-cli -h localhost shutdown
+/usr/local/redis7/bin/redis-cli -h 192.168.48.128 shutdown
 #查看reids是否启动成功
 netstat -antp | grep 6379
 ```
@@ -10776,9 +10777,9 @@ lpush rpop /消息队列 先进先出
             }
         };
         runnable.run();
-        System.out.println(jedis.blpop(4000, "key"));//[key, 1]
+        System.out.println(jedis.blpop(4000, "key"));//[key, 2]
         //从尾部取出
-        System.out.println(jedis.brpop(4000, "key"));//[key, 2]
+        System.out.println(jedis.brpop(4000, "key"));//[key, 1]
     }
 ```
 
@@ -10894,7 +10895,462 @@ HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量
     }
 ```
 
+## SpringBoot添加redis
 
-https://start.aliyun.com/
+### 创建
 
-https://start.spring.io/
+创建一个普通的SpringBoot项目并添加依赖Nosql->Spring Data Reids(Access+Driver)
+
+![calc](../../images/java/redis/01.png)
+
+配置文件resources/application.yml
+
+```yml
+spring:
+  redis:
+    host: 192.168.48.128
+    port: 6379
+    jedis:
+      pool:
+        #最大空闲连接
+        max-idle: 10
+        #最小空闲连接
+        min-idle: 5
+        #最大连接数
+        max-active: 50
+        #最大等待时间ms
+        max-wait: 5000
+```
+
+!> @Autowired报错bean不存在配置idea忽略这个检查即可
+
+![calc](../../images/java/idea/03.png)
+
+### 起步
+
+```java
+package com.sxc.springbootredis;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.redis.core.RedisTemplate;
+
+@SpringBootTest
+class SpringbootRedisApplicationTests {
+    //自动注入
+    @Autowired
+    RedisTemplate<String, String> redisTemplate;
+
+    @Test
+    void contextLoads() {
+    }
+
+    @Test
+    public void test() {
+        //第一种 我更喜欢这种 符合原生jedis操作
+        redisTemplate.opsForValue().set("key", "value");
+        System.out.println(redisTemplate.opsForValue().get("key"));
+        redisTemplate.delete("key");
+        redisTemplate.opsForSet().add("key", "1");
+
+        //第二种 不用每次都设置key
+        redisTemplate.boundValueOps("key").set("value");
+        System.out.println(redisTemplate.boundValueOps("key").get());
+        redisTemplate.delete("key");
+        redisTemplate.boundSetOps("key").add("1");
+    }
+}
+```
+
+### String
+
+```java
+    @Test
+    public void testString() {
+        //设置值
+        redisTemplate.opsForValue().set("key", "value");
+        //获取值
+        System.out.println(redisTemplate.opsForValue().get("key"));//value
+        //设置多个值
+        redisTemplate.execute((RedisCallback<Boolean>) connection -> {
+                    HashMap<byte[], byte[]> hashMap = new HashMap<>();
+                    hashMap.put("key1".getBytes(), "value1".getBytes());
+                    hashMap.put("key2".getBytes(), "value2".getBytes());
+                    return connection.mSet(hashMap);
+                }
+        );
+        //获取多个值
+        List<byte[]> list = redisTemplate.execute((RedisCallback<List<byte[]>>) connection ->
+                //返回一个byte数组List<byte[]>>
+                connection.mGet("key1".getBytes(), "key2".getBytes())
+        );
+        if (list != null) {
+            for (Object bytes : list
+            ) {
+                System.out.println(new String((byte[]) bytes));
+            }
+        }
+        //若key不存在则设置值，存在则返回false
+        System.out.println(redisTemplate.opsForValue().setIfAbsent("key", "newValue"));//false
+        //过期时间 token 手机验证码
+        redisTemplate.opsForValue().set("key", "value", Duration.ofMillis(5000));
+        //原子加1
+        System.out.println(redisTemplate.opsForValue().increment("id"));//1
+        System.out.println(redisTemplate.opsForValue().increment("id"));//2
+        System.out.println(redisTemplate.opsForValue().increment("id"));//3
+        //原子减1 秒杀库存操作 优惠券发放
+        System.out.println(redisTemplate.opsForValue().decrement("id"));//2
+        System.out.println(redisTemplate.opsForValue().decrement("id"));//1
+        System.out.println(redisTemplate.opsForValue().decrement("id"));//0
+        //步长
+        System.out.println(redisTemplate.opsForValue().decrement("id", 3));//-3
+        System.out.println(redisTemplate.opsForValue().increment("id", 3));//0
+    }
+```
+
+**String下的Bitmap**
+
+就是存储byte字节的 类似0 1 1 0 1 0
+
+这个也可以用来统计登录uv 还能统计某个用户是否连续7天签到等等
+
+```java
+    @Test
+    public void testBitmap() {
+        //设置id为1，2，3，4的登录状态 1表示登录
+        redisTemplate.opsForValue().setBit("uv:20220711", 1L, true);
+        redisTemplate.opsForValue().setBit("uv:20220711", 2L, true);
+        redisTemplate.opsForValue().setBit("uv:20220711", 3L, false);
+        redisTemplate.opsForValue().setBit("uv:20220711", 4L, true);
+        //获取指定id的登录状态
+        System.out.println(redisTemplate.opsForValue().getBit("uv:20220711", 1L));//true
+        //获取当天用户的登录数
+        Long counts = redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.bitCount("uv:20220711".getBytes(), 0L, 99999999L)
+        );
+        System.out.println(counts);//3
+        //获取连续3天登录的用户id
+        redisTemplate.opsForValue().setBit("uv:20220712", 1L, true);
+        redisTemplate.opsForValue().setBit("uv:20220712", 2L, true);
+        redisTemplate.opsForValue().setBit("uv:20220713", 1L, true);
+        redisTemplate.opsForValue().setBit("uv:20220713", 2L, true);
+        //and将两个做交集 or做并集
+        redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.bitOp(
+                        RedisStringCommands.BitOperation.AND,
+                        "uv:3daysLogin".getBytes(),
+                        "uv:20220711".getBytes(),
+                        "uv:20220712".getBytes(),
+                        "uv:20220713".getBytes())
+        );
+        //求出连续3天登录用户数
+        counts = redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.bitCount("uv:3daysLogin".getBytes())
+        );
+        System.out.println(counts);//2
+    }
+```
+
+### Hash
+
+值是一个HashMap
+
+```java
+    @Test
+    public void testHash() {
+        //设置值
+        redisTemplate.opsForHash().put("key", "username", "张三");
+        //也可设置多个
+        HashMap<String, String> hashMap = new HashMap<>();
+        hashMap.put("username", "张三");
+        hashMap.put("age", "18");
+        redisTemplate.opsForHash().putAll("key", hashMap);
+        //获取单个键值
+        System.out.println(redisTemplate.opsForHash().get("key", "username"));//张三
+        //获取多个键值
+        Collection<Object> collection = new ArrayList<>();
+        collection.add("username");
+        collection.add("age");
+        System.out.println(redisTemplate.opsForHash().multiGet("key", collection));//[张三, 18]
+        //若key不存在则设置值，存在则返回false
+        System.out.println(redisTemplate.opsForHash().putIfAbsent("key", "username", "张三"));//false
+        //查询键名是否存在
+        Boolean execute = redisTemplate.execute((RedisCallback<Boolean>) connection ->
+                connection.hExists("key".getBytes(), "username".getBytes())
+        );
+        System.out.println(execute);//true
+        //获取所有键值对
+        Map<byte[], byte[]> map = redisTemplate.execute((RedisCallback<Map<byte[], byte[]>>) connection ->
+                connection.hGetAll("key".getBytes())
+        );
+        if (map != null) {
+            for (Map.Entry<byte[], byte[]> bytes : map.entrySet()) {
+                System.out.println(new String(bytes.getKey()));//username age
+                System.out.println(new String(bytes.getValue()));//张三 18
+            }
+        }
+        //拿到所有内层key
+        System.out.println(redisTemplate.opsForHash().keys("key"));//[username, age]
+        //拿到所有内层key的键值
+        System.out.println(redisTemplate.opsForHash().values("key"));//[张三, 18]
+        //某个属性原子+1
+        System.out.println(redisTemplate.opsForHash().increment("key", "age", 1));//19
+        //原子-1
+        System.out.println(redisTemplate.opsForHash().increment("key", "age", -1));//18
+        //删除内层key 如果属性全部被删除，则整个key被删除
+        System.out.println(redisTemplate.opsForHash().delete("key", "username", "age"));//2
+    }
+```
+
+### List
+
+有序 底层是linkedlist 易于插入删除
+
+lpush lpop /rpush rpop 栈 先进后出
+
+lpush rpop /消息队列 先进先出
+
+```java
+    @Test
+    public void testList() {
+        //往头部插入
+        redisTemplate.opsForList().leftPush("key", "1");
+        Collection<String> collection = new ArrayList<>();
+        collection.add("2");
+        collection.add("3");
+        collection.add("4");
+        redisTemplate.opsForList().leftPushAll("key", collection);
+        //查看list 根据索引范围
+        System.out.println(redisTemplate.opsForList().range("key", 0, 3));//[4, 3, 2, 1]
+        //查看list 取出所有
+        System.out.println(redisTemplate.opsForList().range("key", 0, -1));//[4, 3, 2, 1]
+        //若key存在则向头部插入一个值
+        redisTemplate.opsForList().leftPushIfPresent("key", "5");
+        //获取列表长度
+        System.out.println(redisTemplate.opsForList().size("key"));//5
+        //从头部取出
+        System.out.println(redisTemplate.opsForList().leftPop("key"));//5
+        System.out.println(redisTemplate.opsForList().leftPop("key"));//4
+        System.out.println(redisTemplate.opsForList().leftPop("key", 3));//3 2 1
+        //往尾部插入值
+        redisTemplate.opsForList().rightPush("key", "1");
+        collection = new ArrayList<>();
+        collection.add("2");
+        collection.add("3");
+        collection.add("4");
+        redisTemplate.opsForList().rightPushAll("key", collection);
+        //若key存在则向尾部插入一个值
+        redisTemplate.opsForList().rightPushIfPresent("key", "5");
+        //从右边取出
+        System.out.println(redisTemplate.opsForList().rightPop("key"));//5
+        System.out.println(redisTemplate.opsForList().rightPop("key"));//4
+        System.out.println(redisTemplate.opsForList().rightPop("key", 3));//3 2 1
+        //通过索引获取列表的值
+        System.out.println(redisTemplate.opsForList().index("key", 0L));//null
+        //从头部取出 消息队列阻塞取消息 若key元素为空，则会阻塞，知道有元素被添加 1000=1秒
+        //创建一个线程，2秒后加一个元素
+        Runnable runnable = () -> {
+            try {
+                Thread.sleep(2000);
+                redisTemplate.opsForList().leftPush("key", "1");
+                Thread.sleep(2000);
+                redisTemplate.opsForList().leftPush("key", "2");
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        };
+        runnable.run();
+        //从头部取出
+        List<byte[]> execute = redisTemplate.execute((RedisCallback<List<byte[]>>) connection ->
+                connection.bLPop(4000, "key".getBytes())
+        );
+        if (execute != null) {
+            for (byte[] bytes : execute
+            ) {
+                System.out.println(new String(bytes));
+            }//[key, 2]
+        }
+        //从尾部取出
+        redisTemplate.execute((RedisCallback<List<byte[]>>) connection ->
+                connection.bRPop(4000, "key".getBytes())
+        );//[key, 1]
+    }
+```
+
+### Set
+
+```java
+    @Test
+    public void testSet() {
+        //设置值
+        redisTemplate.opsForSet().add("key", "1", "2", "3", "4", "5");
+        //获取值
+        System.out.println(redisTemplate.opsForSet().members("key"));//[1, 2, 3, 4, 5]
+        //获取总数
+        System.out.println(redisTemplate.opsForSet().size("key"));//5
+        //获取差集 比如key2是操作的用户 key是登录的用户，这个差集就能看出谁没登录也在那操作，就是在黑你网站
+        redisTemplate.opsForSet().add("key2", "1", "2", "3");
+        System.out.println(redisTemplate.opsForSet().difference("key", "key2"));//[4, 5]
+        //获取交集
+        System.out.println(redisTemplate.opsForSet().intersect("key", "key2"));//[1, 2, 3]
+        //获取并集
+        System.out.println(redisTemplate.opsForSet().union("key", "key2"));//[1, 2, 3, 4, 5]
+    }
+```
+
+比如统计登录用户数
+
+```java
+    @Test
+    public void testSetUV() {
+        redisTemplate.opsForSet().add("uv:20220711", "1", "2", "3");
+        System.out.println(redisTemplate.opsForSet().size("uv:20220711"));//3
+    }
+```
+
+**统计大数据uv**
+
+HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量，但是他不能取值,且不是非常精确的统计
+
+```java
+    @Test
+    public void testHyperLogLog() {
+        redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.pfAdd("pageUv:20220712".getBytes(),
+                        "1".getBytes(),
+                        "2".getBytes(),
+                        "3".getBytes(),
+                        "4".getBytes(),
+                        "5".getBytes())
+        );
+        Long execute = redisTemplate.execute((RedisCallback<Long>) connection ->
+                connection.pfCount("pageUv:20220712".getBytes())
+        );
+        System.out.println(execute);//5
+    }
+```
+
+### ZSet
+
+可以用来统计pv 每个页面的访问量，且可以排序，以下权重改为访问量，value1，value2改为页面名称，set也能统计但是不能排序
+
+```java
+    @Test
+    public void tetZSet() {
+        //添加单个值
+        redisTemplate.opsForZSet().add("key", "value", 100.0);
+        //设置值 100，200是权重值 ZSet会根据这个权重值排序
+        Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
+        tuples.add(new DefaultTypedTuple<>("value1", 100.0));
+        tuples.add(new DefaultTypedTuple<>("value2", 200.0));
+        redisTemplate.opsForZSet().add("key", tuples);
+        //获取总数
+        System.out.println(redisTemplate.opsForZSet().size("key"));//3
+        //统计指定权重范围内的数量
+        System.out.println(redisTemplate.opsForZSet().count("key", 0, 9999999));//3
+        //增加权重值 原子+1
+        System.out.println(redisTemplate.opsForZSet().incrementScore("key", "value1", 1));//101.0
+        //查看某个值的权重
+        System.out.println(redisTemplate.opsForZSet().score("key", "value1"));//101.0
+        //查看某个值的索引(排行)
+        System.out.println(redisTemplate.opsForZSet().rank("key", "value1"));//1
+        //查看某个范围内的排名(升序)
+        System.out.println(redisTemplate.opsForZSet().range("key", 0, 9999999));//[value, value1, value2]
+        //查看某个范围内的排名(降序)
+        System.out.println(redisTemplate.opsForZSet().reverseRange("key", 0, 99999999));//[value2, value1, value]
+        //查看某个范围内的排名(降序)
+        System.out.println(redisTemplate.opsForZSet().reverseRangeByScore("key", 0, 99999999));//[value2, value1, value]
+        //迭代权重和排名 相当于遍历key value 0（游标，就是索引）从0，99999999 match匹配规则 后面2个参数可省略
+        Cursor<ZSetOperations.TypedTuple<String>> cursor = redisTemplate.opsForZSet().scan("key", ScanOptions.NONE);
+        while (cursor.hasNext()) {
+            ZSetOperations.TypedTuple<String> tuple = cursor.next();
+            System.out.println(tuple.getValue() + tuple.getScore());//value 100.0;value1 101.0;value2 200.0
+        }
+    }
+```
+
+**统计pv**
+
+```java
+    @Test
+    public void testZSetPV() {
+        //添加每天的页面访问量
+        Set<ZSetOperations.TypedTuple<String>> tuples = new HashSet<>();
+        tuples.add(new DefaultTypedTuple<>("page1.html", 10.0));
+        tuples.add(new DefaultTypedTuple<>("page2.html", 20.0));
+        tuples.add(new DefaultTypedTuple<>("page3.html", 5.0));
+        redisTemplate.opsForZSet().add("pv:20220712", tuples);
+        tuples.clear();
+        tuples.add(new DefaultTypedTuple<>("page1.html", 5.0));
+        tuples.add(new DefaultTypedTuple<>("page2.html", 10.0));
+        redisTemplate.opsForZSet().add("pv:20220713", tuples);
+        //将两个集合做交集 在对交集的元素进行权重求和  2代表2个key
+        redisTemplate.opsForZSet().intersectAndStore("pv:20220712", "pv:20220713", "pv:sum");
+        //查看结果
+        Cursor<ZSetOperations.TypedTuple<String>> cursor = redisTemplate.opsForZSet().scan("pv:sum", ScanOptions.NONE);
+        while (cursor.hasNext()) {
+            ZSetOperations.TypedTuple<String> tuple = cursor.next();
+            System.out.println(tuple.getValue() + tuple.getScore());//page1.html15.0 page2.html30.0
+        }
+    }
+```
+
+## 持久化
+
+### RDB
+
+Redis会定期保存数据快照至一个rbd文件中，并在启动时自动加载rdb文件，恢复之前保存的数据。
+
+配置自动备份策略
+
+cd  /usr/local/redis7/ 修改redis.conf
+
+```powershell
+# save 10秒 执行100次操作 就备份一次 备份文件会被放到配置的data目录见 #安装linux
+save 3600 1
+save 300 100
+save 60 10000
+```
+
+优点：
+
+- 对性能影响最小
+- 恢复速度快
+
+缺点：
+
+- 快照是定期生成的，所以在Redis crash时或多或少会丢失一部分数据
+- 如果数据集非常大且CPU不够强（比如单核CPU），Redis在fork子进程时可能会消耗相对较长的时间，影响Redis对外提供服务的能力
+
+### AOF
+
+记录每一次Redis操作到日志文件，恢复的时候执行日志文件里每一次操作
+
+配置文件开启aof
+
+```powershell
+#开启aof
+appendonly  yes
+```
+
+**重写策略**
+
+```powershell
+auto-aof-rewrite-percentage 100
+auto-aof-rewrite-min-size 64mb
+```
+
+优点：
+
+- 不会丢失数据
+
+缺点：
+- 影响性能
+- 恢复速度极慢
+
+# SpringBoot
+
+https://start.aliyun.com/ 低版本
+
+https://start.spring.io/ 最新版
