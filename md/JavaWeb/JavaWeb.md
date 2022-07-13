@@ -10543,6 +10543,19 @@ page2.html
 30
 ```
 
+### 事务
+
+redis的事务不保证整个事务的原子性，如果是运行时出现错误，则前面执行的不会回滚
+
+```powershell
+> multi
+OK
+> set key 3
+QUEUED
+> exec
+OK
+```
+
 ## java操作reids
 
 ### 创建项目
@@ -11296,9 +11309,31 @@ HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量
     }
 ```
 
+### 事务
+
+redis的事务不保证整个事务的原子性，如果是运行时出现错误，则前面执行的不会回滚
+
+```java
+    @Test
+    public void redisTransaction() {
+        //开启事务
+        redisTemplate.multi();
+        //批量插入
+        redisTemplate.opsForList().leftPush("key", "1");
+        redisTemplate.opsForList().leftPush("key", "2");
+        redisTemplate.opsForList().leftPush("key", "3");
+        redisTemplate.opsForList().leftPush("key", "4");
+        //执行事务
+        redisTemplate.exec();
+    }
+```
 ## 持久化
 
+就是备份redis数据到磁盘上
+
 ### RDB
+
+默认是RDB方案
 
 Redis会定期保存数据快照至一个rbd文件中，并在启动时自动加载rdb文件，恢复之前保存的数据。
 
@@ -11334,7 +11369,21 @@ save 60 10000
 appendonly  yes
 ```
 
+**多少时间写入一次**
+
+```powershell
+# appendfsync always #每写入一条日志就进行一次fsync操作，数据安全性最高，但速度最慢
+appendfsync everysec #交由后台线程每秒fsync一次
+# appendfsync no #交给操作系统决定，速度最快
+```
+
 **重写策略**
+
+相当于压缩日志文件大小
+
+- Redis在每次AOF rewrite时，会记录完成rewrite后的AOF日志大小，当AOF日志大小在该基础上增长了100%后，自动进行AOF rewrite 32m--->10万-->64M--->40M--100万--80--》50M-->>100m
+
+- auto-aof-rewrite-min-size最开始的AOF文件必须要触发这个文件才触发，后面的每次重写就不会根据这个变量了。该变量仅初始化启动Redis有效。
 
 ```powershell
 auto-aof-rewrite-percentage 100
@@ -11343,7 +11392,7 @@ auto-aof-rewrite-min-size 64mb
 
 优点：
 
-- 不会丢失数据
+- 基本不会丢失太多数据
 
 缺点：
 - 影响性能
