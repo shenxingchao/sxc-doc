@@ -10976,6 +10976,33 @@ class SpringbootRedisApplicationTests {
 }
 ```
 
+### RedisCallback和SessionCallback
+
+RedisCallback是底层操作
+
+SessionCallback是封装后的操作，有些方法没有，而且重写方法有泛型，需要抑制警告，且不能用Lambda表达式
+
+综上，底层的更好
+
+```java
+    //RedisCallback
+    redisTemplate.execute((RedisCallback<Object>) connection -> {
+        connection.set("key".getBytes(), "value".getBytes());
+        connection.bitCount("key".getBytes());
+        return null;
+    });
+
+    //SessionCallback
+    redisTemplate.execute(new SessionCallback<Object>() {
+        @SuppressWarnings({"all"})
+        @Override
+        public Object execute(RedisOperations operations) throws DataAccessException {
+            operations.opsForValue().set("key", "value");
+            return null;
+        }
+    });
+```
+
 ### String
 
 ```java
@@ -11316,15 +11343,15 @@ redis的事务不保证整个事务的原子性，如果是运行时出现错误
 ```java
     @Test
     public void redisTransaction() {
-        //开启事务
-        redisTemplate.multi();
-        //批量插入
-        redisTemplate.opsForList().leftPush("key", "1");
-        redisTemplate.opsForList().leftPush("key", "2");
-        redisTemplate.opsForList().leftPush("key", "3");
-        redisTemplate.opsForList().leftPush("key", "4");
-        //执行事务
-        redisTemplate.exec();
+        redisTemplate.execute((RedisCallback<Object>) connection -> {
+            connection.multi();
+            connection.lPush("key".getBytes(), "1".getBytes());
+            connection.lPush("key".getBytes(), "2".getBytes());
+            connection.lPush("key".getBytes(), "3".getBytes());
+            connection.lPush("key".getBytes(), "4".getBytes());
+            connection.exec();
+            return null;
+        });
     }
 ```
 ## 持久化
