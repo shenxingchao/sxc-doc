@@ -10982,7 +10982,7 @@ RedisCallback是底层操作
 
 SessionCallback是封装后的操作，有些方法没有，而且重写方法有泛型，需要抑制警告，且不能用Lambda表达式
 
-综上，底层的更好
+综上，底层的更好。
 
 ```java
     //RedisCallback
