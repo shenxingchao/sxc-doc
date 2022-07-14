@@ -3127,15 +3127,39 @@ cat admin.password
 IDEA需要安装Lombok插件，一般已经默认装好了
 
 ```java
-//以下是LomBook的注释
+//以下是LomBook的注解
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class User implements Serializable {
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+@Builder//使用构建者模式
+public class Response implements Serializable {
     private static final long serialVersionUID = 1L;
-    private Integer id;
-    private String name;
-    private Integer age;
+
+    @NonNull
+    private String message;
+
+    @NonNull
+    private Integer code;
+
+    private Object data;
+
+    //调用Response.success();
+    public static Response success() {
+        return Response.builder().message("success").code(0).data(null).build();
+    }
+
+    public static Response success(Object data) {
+        return Response.builder().message("success").code(0).data(data).build();
+    }
+
+    public static Response fail() {
+        return Response.builder().message("fail").code(10001).data(null).build();
+    }
+
+    public static Response fail(Integer code) {
+        return Response.builder().message("fail").code(code).data(null).build();
+    }
 }
 ```
 
