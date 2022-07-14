@@ -10212,6 +10212,9 @@ OK
 #查看key还剩多少存活时间 毫秒用pttl
 > ttl key
 1
+#设置key过期时间的 传一个时间戳
+> expireat key 1657766320
+1
 #删除key
 > del key
 1
@@ -10908,6 +10911,22 @@ HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量
     }
 ```
 
+### 事务
+
+redis的事务不保证整个事务的原子性，如果是运行时出现错误，则前面执行的不会回滚
+
+```java
+    @Test
+    public void redisTransaction() {
+        Transaction transaction = jedis.multi();
+        transaction.lpush("key", "1");
+        transaction.lpush("key", "2");
+        transaction.lpush("key", "3");
+        transaction.lpush("key", "4");
+        transaction.exec();
+    }
+```
+
 ## SpringBoot添加redis
 
 ### 创建
@@ -11425,8 +11444,31 @@ auto-aof-rewrite-min-size 64mb
 - 影响性能
 - 恢复速度极慢
 
+# MyBatisPlus
+
 # SpringBoot
 
 https://start.aliyun.com/ 低版本
 
 https://start.spring.io/ 最新版
+
+
+# 面试题
+
+https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
+
+1. 改变String的值，且不改变引用地址
+
+    使用反射爆破可以设置改变常量属性的值
+
+    ```java
+        String s = "abc";
+        try {
+            Field value = s.getClass().getDeclaredField("value");
+            value.setAccessible(true);
+            value.set(s, "abcd".toCharArray());
+        } catch (NoSuchFieldException | IllegalAccessException e) {
+            throw new RuntimeException(e);
+        }
+        System.out.println(s);
+    ```
