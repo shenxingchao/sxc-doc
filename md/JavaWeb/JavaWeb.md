@@ -11468,6 +11468,71 @@ auto-aof-rewrite-min-size 64mb
 - 影响性能
 - 恢复速度极慢
 
+## 数据淘汰策略
+
+当内存中存储的数据超过指定配置,则要清理出足够的内存空间。相当于主动清理了
+
+```power
+#最大可用内存
+maxmemory 1024mb
+#每次选取待删除的个数
+maxmemory-samples 10000
+#淘汰策略
+maxmemory-policy policy
+```
+
+**策略** 
+
+根据不同的指标来删除数据
+
+根据使用时间\使用次数\即将过期，理解：lru->7天内没登录了 lfu->7天只登陆了一次 ttl->登录信息只保存7天，7天快到了
+
+```
+#同一个库
+volatile-lru：挑选最近最少使用的数据淘汰      least recently used
+volatile-lfu：挑选最近使用次数最少的数据淘汰   least frequently used
+volatile-ttl：挑选将要过期的数据淘汰
+volatile-random：任意选择数据淘汰
+#全局 16个库
+allkeys-lru：挑选最近最少使用的数据淘汰
+allkeLyRs-lfu：：挑选最近使用次数最少的数据淘汰
+allkeys-random：任意选择数据淘汰，相当于随机
+#不使用策略 引发OOM内存溢出
+no-enviction
+```
+
+## 主从复制
+
+一台主服务器redis(master)负责写数据，并同步到slave；多台从服务器(slave) 负责读数据。
+
+可实现读写分离\负载均衡\故障恢复\数据热备份\高可用
+
+### 同步过程
+
+首先主从建立socket连接，创建缓冲区用于传输，用一个变量offset来记录从机同步的位置，master先执行一次bgsave RDB全量备份发送给slave后恢复。然后这过程中master操作写入aof，等全量备份完了后，master再把aof的操作日志发送过去，slave执行aof操作日志,这样就达到了主从数据同步的目的
+
+```power
+#主机 连接缓冲区大小设置 内存的30%-50%
+repl-backlog-size 1024mb
+#主机 3表示只有当3个或以上的slave连接到master，master才是可写的
+min-replicas-to-write 3
+#主机 10表示允许slave最长失去连接的时间，如果10秒还没收到slave的响应，则master认为该 slave已断开
+min-replicas-max-lag 10
+
+
+#从机 同步时关闭从机的对外服务
+slave-serve-stale-data no
+```
+
+### 搭建主从复制
+
+假设现在的主机192.168.56.1:6379，然后开启从机,开启的过程指定主机就实现了主从连接
+
+```powershell
+/usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf slaveof 192.168.56.1 6379
+```
+
+
 # MyBatisPlus
 
 # SpringBoot

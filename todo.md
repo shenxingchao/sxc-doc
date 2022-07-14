@@ -3,7 +3,7 @@
 <h2>TODO</h2>  
 <p>php进阶(swoole,laraval)（1月）</p>
 <p>[√]java基础（1.5月）</p>
-<p>[doing spring阶段]javaWeb</p>
+<p>[doing redis阶段]javaWeb</p>
 <p>[√]kotlin基础（0.5月）</p>
 <p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
 <p>typescript强化（1周）</p>
@@ -13,6 +13,7 @@
 <p>维护vite-element-ui\vue-element-visual-layout\vue3-visual-cms</p>
 <p>维护noval-app项目</p>
 <p>flutter-kuwo-music以及添加到播放列表功能\优化歌词校正频率</p>
+<p>jetpack本地存储</p>
 
 # 孤独的道路
 
