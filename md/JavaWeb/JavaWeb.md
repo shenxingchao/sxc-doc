@@ -11788,10 +11788,164 @@ spring:
   redis:
     sentinel:
       #哨兵连接地址
-      nodes: 192.168.48.128:26379,192.168.48.128:26380,192.168.48.128:26381
+      nodes:
+        - 192.168.48.128:26379
+        - 192.168.48.128:26380
+        - 192.168.48.128:26381
       #哨兵名称
-      master:mymaster
+      master: mymaster
+    jedis:
+      pool:
+        max-idle: 10
+        min-idle: 5
+        max-active: 50
+        max-wait: 5000
 ```
+
+## redis集群
+
+cluster集群 本质就是多个redis主服务器，应用于扩容和加大QPS（每秒查询次数）
+
+### 搭建
+
+**创建6个redis服务器(创建过程同主从复制的创建)，并修改redis.conf配置文件**
+
+```powershell
+#端口号 7001~7006
+port 7001
+#运行id 测试才需要
+pidfile /var/run/redis-7001.pid
+#日志文件
+logfile "/usr/local/redis7-7001/log/redis.log"
+#数据备份文件
+dir /usr/local/redis7-7001/data/
+
+#启用集群
+cluster-enabled yes
+#这个文件会自动生成
+cluster-config-file nodes-7001.conf
+#集群超时时间
+cluster-node-timeout 15000
+```
+
+**启动6台服务器**
+
+**组成集群3主3从**
+
+一个master对应n个slave，由最后的参数n决定,这里填1代表1个msater对应一个slave相当于3主3从
+
+```powershell
+redis-cli --cluster create 192.168.48.128:7001 192.168.48.128:7002 192.168.48.128:7003 192.168.48.128:7004 192.168.48.128:7005 192.168.48.128:7006 --cluster-replicas 1
+```
+
+**连接**
+
+需要加一个-c 参数,设置值会跳转到正确的服务器上操作
+
+```
+/usr/local/sentinel/bin/redis-cli -c -h 192.168.48.128 -p 7001
+```
+
+### java操作cluster
+
+```java
+public class TestRedis {
+    public static JedisCluster jedisCluster = null;
+
+    //初始化redis连接
+    @Before
+    public void init() {
+        //创建redis连接 这里用的是虚拟机的ip 本机用localhost即可
+        GenericObjectPoolConfig<Connection> jedisPoolConfig = new GenericObjectPoolConfig<>();
+        //最大空闲连接
+        jedisPoolConfig.setMaxIdle(10);
+        //最小空闲连接
+        jedisPoolConfig.setMinIdle(5);
+        //最大连接数
+        jedisPoolConfig.setMaxTotal(50);
+        //最大等待时间
+        jedisPoolConfig.setMaxWait(Duration.ofSeconds(5));
+
+        //创建集群
+        Set<HostAndPort> nodes = new HashSet<>();
+        nodes.add(new HostAndPort("192.168.48.128", 7001));
+        nodes.add(new HostAndPort("192.168.48.128", 7002));
+        nodes.add(new HostAndPort("192.168.48.128", 7003));
+        nodes.add(new HostAndPort("192.168.48.128", 7004));
+        nodes.add(new HostAndPort("192.168.48.128", 7005));
+        nodes.add(new HostAndPort("192.168.48.128", 7006));
+
+        jedisCluster = new JedisCluster(nodes, jedisPoolConfig);
+    }
+
+    //关闭连接
+    @After
+    public void destroy() {
+        jedisCluster.close();
+    }
+
+    @Test
+    public void test() {
+        jedisCluster.set("key", "value");
+        String keyValue = jedisCluster.get("key");
+        System.out.println(keyValue);//value
+    }
+}
+```
+
+### springboot添加cluster
+
+配置文件resources/application.yml
+
+```yml
+spring:
+  redis:
+    cluster:
+      nodes:
+        - 192.168.48.128:7001
+        - 192.168.48.128:7002
+        - 192.168.48.128:7003
+        - 192.168.48.128:7004
+        - 192.168.48.128:7005
+        - 192.168.48.128:7006
+    jedis:
+      pool:
+        max-idle: 10
+        min-idle: 5
+        max-active: 50
+        max-wait: 5000
+```
+
+## 实战
+
+### 缓存预热
+
+预先把数据放入redis
+
+### 缓存更新同步数据库
+
+先删缓存，再更新数据库，最后用户查的时候缓存中没有再更到缓存
+
+### 缓存雪崩
+
+同一时间大量缓存过期
+
+- 缓存设置的过期时间 有一定间隔如 24小时1秒 24小时2秒,让它的过期时间错峰，防止高并发
+
+- key做LRU LFU过期策略
+
+### 缓存击穿
+
+同一时间大量访问同一个key,key过期
+
+- 对于需要大量访问的key(热点数据处理) 做永久key
+
+### 缓存穿透 
+
+同一时间访问大量不存在的key 
+
+- 使用白名单策略
+- 查询为null 也缓存
 
 # MyBatisPlus
 

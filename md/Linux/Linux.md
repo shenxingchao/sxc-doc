@@ -50,7 +50,11 @@ cp -r 递归复制目录下的所有子目录和文件到指定目录
 
 ## 查看端口号
 
-netstat -antp | grep 6379
+netstat -antp|grep 6379
+
+## 查看进程端口号
+
+ps -ef|grep redis
 
 ## 杀死进程
 
