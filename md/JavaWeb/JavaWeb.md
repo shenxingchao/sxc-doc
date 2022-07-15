@@ -7518,7 +7518,7 @@ public class AppConfig {
 
 表达式就是用来找切入点的
 
-[切入点表达式](https://blog.csdn.net/qq_31854907/article/details/122585195)，常用的是execution和annotation
+[切入点表达式](https://blog.csdn.net/qq_31854907/article/details/122585195)，常用的是execution和@annotation
 
 声明为一个切面和使用切点表达式src/main/java/com/sxc/aspectj/AspectJ.java
 
