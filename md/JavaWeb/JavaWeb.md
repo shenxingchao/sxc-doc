@@ -10208,6 +10208,8 @@ dir /usr/local/redis7/data
 /usr/local/redis7/bin/redis-cli -h 192.168.48.128 shutdown
 #查看reids是否启动成功
 netstat -antp | grep 6379
+#登录
+/usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 6379
 ```
 
 !>tip:Windows访问Linux防火墙需要开放6379端口，且不开启保护模式
@@ -10219,6 +10221,8 @@ netstat -antp | grep 6379
 [命令查询 推荐](https://www.runoob.com/redis/redis-commands.html)
 
 ## 客户端
+
+使用客户端登录。可视化操作
 
 [下载](https://github.com/qishibo/AnotherRedisDesktopManager/releases)
 
@@ -11526,12 +11530,268 @@ slave-serve-stale-data no
 
 ### 搭建主从复制
 
-假设现在的主机192.168.56.1:6379，然后开启从机,开启的过程指定主机就实现了主从连接
+**复制两台从服务器**
 
 ```powershell
-/usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf slaveof 192.168.56.1 6379
+#复制一台redis
+mkdir /usr/local/redis7-6380/
+mkdir /usr/local/redis7-6381/
+cp -r /usr/local/redis7/bin /usr/local/redis7-6380/bin
+cp -r /usr/local/redis7/bin /usr/local/redis7-6381/bin
+#复制配置文件
+cp /usr/local/redis7/redis.conf /usr/local/redis7-6380
+cp /usr/local/redis7/redis.conf /usr/local/redis7-6381
+#创建日志文件夹
+mkdir /usr/local/redis7-6380/log
+mkdir /usr/local/redis7-6381/log
+#创建data目录
+mkdir /usr/local/redis7-6380/data
+mkdir /usr/local/redis7-6381/data
 ```
 
+**修改从服务器配置文件**
+
+```powershell
+port 6380
+#修改进程号  实际多台服务器不需要，单台才这样
+pidfile /var/run/redis_6380.pid
+#日志文件存储路径
+logfile "/usr/local/redis7-6380/log/redis.log"
+#数据存储路径
+dir /usr/local/redis7-6380/data
+
+port 6381
+#修改进程号  实际多台服务器不需要，单台才这样
+pidfile /var/run/redis_6381.pid
+#日志文件存储路径
+logfile "/usr/local/redis7-6381/log/redis.log"
+#数据存储路径
+dir /usr/local/redis7-6381/data
+
+```
+
+
+**开启从服务器指定主服务器**
+
+假设现在的主机192.168.48.128:6379，然后开启从机,开启的过程指定主机就实现了主从连接
+
+```powershell
+/usr/local/redis7-6380/bin/redis-server /usr/local/redis7-6380/redis.conf slaveof 192.168.48.128 6379
+/usr/local/redis7-6381/bin/redis-server /usr/local/redis7-6381/redis.conf slaveof 192.168.48.128 6379
+```
+
+### 安全关闭主服务器
+
+此操作会备份rdb文件 保证下次启动的runid是同一个 让主从连接可持续
+
+```powershell
+/usr/local/redis7/bin/redis-cli -h 192.168.48.128 shutdown save
+```
+
+## 哨兵模式
+
+哨兵(sentinel) 是一个分布式系统，用于对主从结构中的每台服务器进行监控，当master出现故障时通过投票机制选择新的master并将所有slave连接到新的master
+
+### 创建sentinerl
+
+```powershell
+#复制一台redis
+mkdir /usr/local/sentinel/
+cp -r /usr/local/redis7/bin /usr/local/sentinel/bin
+#复制配置文件
+cp /usr/local/src/redis-7.0.2/sentinel.conf /usr/local/sentinel
+#创建日志文件夹
+mkdir /usr/local/sentinel/log
+#创建data目录
+mkdir /usr/local/sentinel/data
+
+#在按上面步骤复制2台从节点哨兵sentinel2和sentinel3，测试用，最少3台，不然无效
+mkdir /usr/local/sentinel2
+mkdir /usr/local/sentinel3
+cp -r /usr/local/redis7/bin /usr/local/sentinel2/bin
+cp -r /usr/local/redis7/bin /usr/local/sentinel3/bin
+cp /usr/local/src/redis-7.0.2/sentinel.conf /usr/local/sentinel2
+cp /usr/local/src/redis-7.0.2/sentinel.conf /usr/local/sentinel3
+mkdir /usr/local/sentinel2/log
+mkdir /usr/local/sentinel3/log
+mkdir /usr/local/sentinel2/data
+mkdir /usr/local/sentinel3/data
+```
+
+**配置**
+
+修改sentinel.conf
+
+```powershell
+#开启保护模式 不允许外网访问
+protected-mode no
+#端口号
+port 26379
+#开启守护进程模式
+daemonize yes
+#日志文件存储路径
+logfile "/usr/local/sentinel/log/sentinel.log"
+#数据目录
+dir /usr/local/sentinel/data
+#设置sentinel监听的主服务器 该哨兵节点监控192.168.48.128.1:6379这个主节点，该主节点的名称是mymaster，最后的2的含义与主节点的故障判定有关：至少需要2个哨兵节点同意，才能判定主节点故障并进行故障转移
+sentinel monitor mymaster 192.168.48.128 6379 2
+#30秒内没有要到主机响应就切换从机为主机
+sentinel down-after-milliseconds mymaster 30000
+#设置故障切换的最大超时时长
+sentinel failover-timeout mymaster 180000
+```
+
+修改从节点的sentinel2/sentinel.conf sentinel3/sentinel.conf 其他复制上面的配置
+
+```powershell
+#端口号
+port 26380
+#改下这个进程号，多态服务器是不需要这么搞的
+pidfile /var/run/redis-sentinel26380.pid
+#日志文件存储路径
+logfile "/usr/local/sentinel2/log/sentinel.log"
+#数据目录
+dir /usr/local/sentinel2/data
+
+#端口号
+port 26381
+#改下这个进程号，多态服务器是不需要这么搞的
+pidfile /var/run/redis-sentinel26381.pid
+#日志文件存储路径
+logfile "/usr/local/sentinel3/log/sentinel.log"
+#数据目录
+dir /usr/local/sentinel3/data
+```
+
+### 开启
+
+**先将一主两从的redis服务器开起来**
+
+**开启sentinel服务器**
+
+```powershell
+#开启sentinel服务器
+/usr/local/sentinel/bin/redis-sentinel /usr/local/sentinel/sentinel.conf
+#查看sentinel是否启动成功
+netstat -antp | grep 26379
+#登录
+/usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 26379
+#查看 master0:name=mymaster,status=ok,address=192.168.48.128:6379,slaves=2,sentinels=1
+info
+#关闭 kill 端口号
+```
+
+**开启从服务器**
+
+```powershell
+/usr/local/sentinel2/bin/redis-sentinel /usr/local/sentinel2/sentinel.conf
+/usr/local/sentinel3/bin/redis-sentinel /usr/local/sentinel3/sentinel.conf
+```
+
+### 测试
+
+**杀掉主机6379kill**
+
+```powershell
+#主机
+netstat -antp | grep 6379
+#kill 端口号
+```
+
+**然后登录6380查看info**
+
+```powershell
+/usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 6380
+info
+# 可见如下信息 6380变成了主机
+# # Replication
+# role:master
+# connected_slaves:1
+```
+
+**再次启动并登录6379查看**
+
+```powershell
+/usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf
+/usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 6379
+info
+
+# 可见如下信息 6379变成了从机
+# # Replication
+# role:slave
+# master_host:192.168.48.128
+# master_port:6380
+
+```
+
+### java操作sentinel
+
+把哨兵都加进去他自己会去找到主机的连接
+
+!>tip:Windows访问Linux防火墙需要开放26379端口，且不开启保护模式
+!>tip:Windows访问Linux防火墙需要开放26380端口，且不开启保护模式
+!>tip:Windows访问Linux防火墙需要开放26381端口，且不开启保护模式
+
+```java
+public class TestRedis {
+    public static Jedis jedis = null;
+
+    //初始化redis连接
+    @Before
+    public void init() {
+        //创建redis连接 这里用的是虚拟机的ip 本机用localhost即可
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        //最大空闲连接
+        jedisPoolConfig.setMaxIdle(10);
+        //最小空闲连接
+        jedisPoolConfig.setMinIdle(5);
+        //最大连接数
+        jedisPoolConfig.setMaxTotal(50);
+        //最大等待时间
+        jedisPoolConfig.setMaxWait(Duration.ofSeconds(5));
+
+        //添加哨兵
+        Set<String> sentinels = new HashSet<>();
+        sentinels.add("192.168.48.128:26379");
+        sentinels.add("192.168.48.128:26380");
+        sentinels.add("192.168.48.128:26381");
+
+        try (
+                //mymaster 哨兵的名称
+                JedisSentinelPool pool = new JedisSentinelPool("mymaster", sentinels, jedisPoolConfig)
+        ) {
+            jedis = pool.getResource();
+        }
+    }
+
+    //关闭连接
+    @After
+    public void destroy() {
+        jedis.close();
+    }
+
+    @Test
+    public void test() {
+        jedis.set("key", "value");
+        String keyValue = jedis.get("key");
+        System.out.println(keyValue);//value
+    }
+}
+```
+
+### springboot添加sentinel
+
+配置文件resources/application.yml
+
+```yml
+spring:
+  redis:
+    sentinel:
+      #哨兵连接地址
+      nodes: 192.168.48.128:26379,192.168.48.128:26380,192.168.48.128:26381
+      #哨兵名称
+      master:mymaster
+```
 
 # MyBatisPlus
 

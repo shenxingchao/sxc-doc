@@ -37,6 +37,8 @@ mv xxx /usr/local/
 
 cp xxx /usr/local
 
+cp -r 递归复制目录下的所有子目录和文件到指定目录
+
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压
@@ -55,6 +57,13 @@ netstat -antp | grep 6379
 kill 端口号
 
 kill -9 端口号 强制杀死
+
+## 开启防火墙
+
+- 永久开放443端口  
+    firewall-cmd --zone=public --add-port=443/tcp --permanent
+- 重启防火墙  
+    firewall-cmd --reload
 
 # vim命令
 创建文件 vim 新建文件名  
