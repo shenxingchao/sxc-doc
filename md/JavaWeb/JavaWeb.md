@@ -10955,6 +10955,32 @@ redis的事务不保证整个事务的原子性，如果是运行时出现错误
     }
 ```
 
+### Spring注册jedisPool
+
+```java
+    /**
+     * 获取一个jedisPool连接池Bean
+     *
+     * @return JedisPool
+     */
+    @Bean
+    public JedisPool jedisPool() {
+        //创建redis连接 这里用的是虚拟机的ip 本机用localhost即可
+        JedisPoolConfig jedisPoolConfig = new JedisPoolConfig();
+        //最大空闲连接
+        jedisPoolConfig.setMaxIdle(10);
+        //最小空闲连接
+        jedisPoolConfig.setMinIdle(5);
+        //最大连接数
+        jedisPoolConfig.setMaxTotal(50);
+        //最大等待时间
+        jedisPoolConfig.setMaxWait(Duration.ofSeconds(5));
+        try (JedisPool jedisPool = new JedisPool(jedisPoolConfig, "192.168.48.128", 6379)) {
+            return jedisPool;
+        }
+    }
+```
+
 ## SpringBoot添加redis
 
 ### 创建
