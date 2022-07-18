@@ -12041,14 +12041,224 @@ spring:
 - 使用白名单策略
 - 查询为null 也缓存
 
-# MyBatisPlus
-
 # SpringBoot
 
 https://start.aliyun.com/ 低版本
 
 https://start.spring.io/ 最新版
 
+## 起步
+
+### 创建
+
+![calc](../../images/java/springboot/01.png)
+
+### 启动并测试
+
+创建一个测试的控制器java/com/sxc/controller/HelloController.java
+
+```java
+package com.sxc.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("/hello")
+public class HelloController {
+
+    @GetMapping("")
+    public String test() {
+        return "hello2";
+    }
+}
+```
+
+![calc](../../images/java/springboot/02.png)
+
+### 配置热更新
+
+1. 开启springboot -> update class and resource
+    ![calc](../../images/java/springboot/03.png)
+
+2. 设置Setting-Build-Compiler-Build project automatically
+
+3. 还需要加上依赖,否则热更新无效
+
+    ```gradle
+    developmentOnly 'org.springframework.boot:spring-boot-devtools'
+    ```
+
+4. debug模式启动
+   
+5. 手动编译ctrl+f9或者自己点build按钮
+
+6. 自动编译,编辑器失去焦点自动编译，建议手动编译更好
+
+    ![calc](../../images/java/springboot/04.png)
+
+### yml自定义配置
+
+```yml
+db:
+  username: "root"
+  password: ""
+```
+
+使用(推荐)
+
+```java
+    @Value("${db.username}")
+    private String username;
+
+    @Value("${db.password}")
+    private String password;
+```
+
+**使用类注解映射到类属性**java/com/sxc/config/DB.java
+
+```java
+package com.sxc.config;
+
+import org.springframework.boot.context.properties.ConfigurationProperties;
+import org.springframework.stereotype.Component;
+
+@Component
+@ConfigurationProperties(prefix = "db")
+public class DB {
+    private String username;
+    private String password;
+}
+```
+
+使用注解需要一个依赖
+
+```gradle
+annotationProcessor "org.springframework.boot:spring-boot-configuration-processor"
+```
+    
+### 打包
+
+![calc](../../images/java/springboot/05.png)
+
+### 运行
+
+```powershell
+java -Dfile.encoding=utf-8 -jar springboot-demo-0.0.1-SNAPSHOT.jar
+```
+
+**查看端口**
+
+```powershell
+netstat -ano | findstr 8080
+taskkill /t /f /pid xxx
+```
+
+### 使用不同环境配置文件
+
+application-dev.yml\application-prod.yml\application-test.yml
+
+**运行**
+
+```powershell
+java -Dfile.encoding=utf-8 -jar springboot-demo-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
+```
+
+## 整合junit
+
+**创建一个测试用的service**
+
+java/com/sxc/service/IUserService.java
+
+```java
+package com.sxc.service;
+
+public interface IUserService {
+    void fn();
+}
+```
+
+java/com/sxc/service/impl/UserService.java
+
+```java
+package com.sxc.service.impl;
+
+import com.sxc.service.IUserService;
+import org.springframework.stereotype.Service;
+
+@Service
+public class UserService implements IUserService {
+    @Override
+    public void fn() {
+        System.out.println("service");
+    }
+}
+```
+
+**编写测试类**
+
+```java
+package com.sxc;
+
+import com.sxc.service.IUserService;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
+
+@SpringBootTest
+class SpringbootDemoApplicationTests {
+    @Resource
+    private IUserService userService;
+
+    @Test
+    void contextLoads() {
+        System.out.println("333");
+    }
+
+    @Test
+    public void fn() {
+        userService.fn();
+    }
+}
+```
+
+## 整合mybatis
+
+mybatis编写和原来一样不需要更改,只不过把配置文件都放到yml中了
+
+```gradle
+    //整合mybatis
+    implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
+    //mysql驱动
+    implementation 'mysql:mysql-connector-java:8.0.29'
+    implementation 'org.springframework.data:spring-data-commons:2.7.1'
+    //德鲁伊数据库连接池
+    implementation 'com.alibaba:druid-spring-boot-starter:1.2.11'
+```
+
+```yml
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: "jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai"
+      username: "root"
+      password: ""
+mybatis:
+  configuration:
+    #日志实现
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    #日志前缀
+    log-prefix: "mybatis.sql."
+    #开启驼峰式命名 goods_name自动转成goodsName
+    map-underscore-to-camel-case: true
+  #配置sql语句xml路径
+  mapper-locations: "classpath:mapper/**/*.xml"
+```
+
+# MyBatisPlus
 
 # 面试题
 
