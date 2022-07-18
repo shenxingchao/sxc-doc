@@ -12258,6 +12258,29 @@ mybatis:
   mapper-locations: "classpath:mapper/**/*.xml"
 ```
 
+## 注解
+
+类似的以@Conditional开头的注解，应用于是否将某个Bean加载到spring容器
+
+```java
+@Configuration
+public class AppConfig {
+
+    @Bean
+    //这个注解的意思是必须有某个class才加载，才注入这个Bean
+    @ConditionalOnClass(UserService.class)
+    //yml配置文件必须有某个变量和值才加载
+    @ConditionalOnProperty(name = "username",havingValue = "password")
+    public User user() {
+        return new User();
+    }
+}
+```
+
+**springboot引入依赖能够注入Bean原理**
+
+![calc](../../images/java/springboot/06.png)
+
 # MyBatisPlus
 
 # 面试题
