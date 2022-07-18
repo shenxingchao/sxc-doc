@@ -12267,8 +12267,10 @@ mybatis:
 public class AppConfig {
 
     @Bean
-    //这个注解的意思是必须有某个class才加载，才注入这个Bean
+    //这个注解的意思是必须有某个class才加载(是否有对应字节码文件)，才注入这个Bean
     @ConditionalOnClass(UserService.class)
+    //和上面的作用一样
+    @ConditionalOnClass(name = {"com.sxc.service.UserService"})
     //yml配置文件必须有某个变量和值才加载
     @ConditionalOnProperty(name = "username",havingValue = "password")
     public User user() {
