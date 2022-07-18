@@ -7478,7 +7478,7 @@ public class UserService implements IUserService {
 
 ### AspectJ
 
-@AspectJ 将java类声明为一个切面
+@Aspect 将java类声明为一个切面
 
 #### 依赖
 
@@ -7686,6 +7686,74 @@ public @interface SXC {
     private void beforeAdvice(JoinPoint joinPoint, String a) {
         System.out.println(a);
     }
+```
+
+#### 使用注解进行权限认证
+
+**在需要加权限的控制器上加上注解**
+
+```java
+package com.sxc.annotation;
+
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.METHOD)
+@Retention(RetentionPolicy.RUNTIME)
+public @interface SXC {
+    String[] value();
+}
+```
+
+**然后在控制器上使用注解，这里就加在service上算了**
+
+```java
+@Service
+public class UserService implements IUserService {
+    @Autowired
+    private UserDao userDao;
+
+    //spring bean必须提供无参构造，用于反射创建对象
+    public UserService() {
+    }
+
+    @Override
+    //接收的是数组传参 可以加多个权限,角色也是同样的做法
+    @SXC({"permission1,permission2"})
+    public void fn() {
+        //使用容器创建的userDao
+        userDao.fn();
+        System.out.println("hello service");
+    }
+}
+```
+
+**编写切面Bean**
+
+```java
+package com.sxc.aspectj;
+
+import com.sxc.annotation.SXC;
+import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Before;
+import org.springframework.stereotype.Component;
+
+@Component
+@Aspect
+public class PermissionAspectJ {
+
+    //通过括号里的参数来接收注解匿名对象
+    @Before("@annotation(sxc)")
+    private void beforeAdvice(JoinPoint joinPoint, SXC sxc) {
+        String[] params = sxc.value();
+        for (String param : params) {
+            System.out.println(param);
+        }//permission1,permission2
+    }
+}
 ```
 
 ## 事务
