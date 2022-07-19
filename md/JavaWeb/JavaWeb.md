@@ -12260,6 +12260,8 @@ mybatis:
 
 ## 注解
 
+### Conditional
+
 类似的以@Conditional开头的注解，应用于是否将某个Bean加载到spring容器
 
 ```java
@@ -12282,6 +12284,98 @@ public class AppConfig {
 **springboot引入依赖能够注入Bean原理**
 
 ![calc](../../images/java/springboot/06.png)
+
+!> tips:只有springboot内置的Bean是能够注入的
+
+### Import
+
+@Import注解作用和@ComponentScan 用来扫描不在项目更路径下的第三方Bean,加在启动类上。麻烦需要知道第三方的配置类名称
+
+```java
+@Import(UserConfig.class)
+// @ComponentScan(basePackages = {"xxx.xxx.config"}) 上面那行等同于下面这行
+@SpringBootApplication
+public class SpringbootDemoApplication {
+}
+```
+
+一般第三方可以写一个注解如,然后直接使用这个注解@EnableUser代替@Import即可
+
+```java
+import org.springframework.context.annotation.Import;
+
+import java.lang.annotation.*;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+@Import(UserConfig.class)
+public @interface EnableUser {
+}
+```
+
+**springboot导入第三bean**是@SpringBootApplication->@EnableAutoConfiguration->@Import->AutoConfigurationImportSelector实现了ImportSelector这个接口，然后读取了
+
+![calc](../../images/java/springboot/07.png)
+
+![calc](../../images/java/springboot/08.png)
+
+## springboot监听器
+
+用于springboot启动监听，崩溃，停止等监听
+
+有很多的监听器接口ApplicationContextInitializer、CommandLineRunner、ApplicationRunner 直接用SpringApplicationRunListener就行了
+
+**SpringApplicationRunListener用法**
+
+resource文件夹下添加META-INF/spring.factories,并添加如下内容
+
+```
+org.springframework.boot.SpringApplicationRunListener=com.sxc.listener.MySpringApplicationRunListener
+```
+
+```java
+public class MySpringApplicationRunListener implements SpringApplicationRunListener {
+
+    public MySpringApplicationRunListener(SpringApplication application, String[] args) {
+    }
+
+    @Override
+    public void starting() {
+        System.out.println("starting...项目启动中");
+    }
+
+    @Override
+    public void environmentPrepared(ConfigurableEnvironment environment) {
+        System.out.println("environmentPrepared...环境对象开始准备");
+    }
+
+    @Override
+    public void contextPrepared(ConfigurableApplicationContext context) {
+        System.out.println("contextPrepared...上下文对象开始准备");
+    }
+
+    @Override
+    public void contextLoaded(ConfigurableApplicationContext context) {
+        System.out.println("contextLoaded...上下文对象开始加载");
+    }
+
+    @Override
+    public void started(ConfigurableApplicationContext context) {
+        System.out.println("started...上下文对象加载完成");
+    }
+
+    @Override
+    public void running(ConfigurableApplicationContext context) {
+        System.out.println("running...项目启动完成，开始运行");
+    }
+
+    @Override
+    public void failed(ConfigurableApplicationContext context, Throwable exception) {
+        System.out.println("failed...项目启动失败");
+    }
+}
+```
 
 # MyBatisPlus
 
