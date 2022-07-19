@@ -6,6 +6,8 @@ json j和son分开读,之前一直读错
 
 digit 小数位数
 
+schema 结构 
+
 ## 动画相关
 
 infinite 无限

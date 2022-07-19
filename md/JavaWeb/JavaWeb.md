@@ -12233,7 +12233,6 @@ mybatis编写和原来一样不需要更改,只不过把配置文件都放到yml
     implementation 'org.mybatis.spring.boot:mybatis-spring-boot-starter:2.2.2'
     //mysql驱动
     implementation 'mysql:mysql-connector-java:8.0.29'
-    implementation 'org.springframework.data:spring-data-commons:2.7.1'
     //德鲁伊数据库连接池
     implementation 'com.alibaba:druid-spring-boot-starter:1.2.11'
 ```
@@ -12378,6 +12377,298 @@ public class MySpringApplicationRunListener implements SpringApplicationRunListe
 ```
 
 # MyBatisPlus
+
+[官网](https://baomidou.com)
+
+## 依赖
+
+```gradle
+    //整合mybatis-plus
+    implementation 'com.baomidou:mybatis-plus-boot-starter:3.5.2'
+    //mysql驱动
+    implementation 'mysql:mysql-connector-java:8.0.29'
+    //德鲁伊数据库连接池
+    implementation 'com.alibaba:druid-spring-boot-starter:1.2.11'
+```
+
+## 配置
+
+```yml
+spring:
+  datasource:
+    druid:
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      url: "jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai"
+      username: "root"
+      password: ""
+mybatis-plus:
+  global-config:
+    db-config:
+      #表名前缀 如果对应可以省略@TableName注解
+      table-prefix: ""
+      #id生成策略 如果配置了就不需要@TableId(type = IdType.AUTO)
+      id-type: auto
+  configuration:
+    #日志实现
+    log-impl: org.apache.ibatis.logging.slf4j.Slf4jImpl
+    #日志前缀
+    log-prefix: "mybatis.sql."
+    #开启驼峰式命名 goods_name自动转成goodsName
+    map-underscore-to-camel-case: true
+    #配置sql语句xml路径
+  mapper-locations: "classpath:mapper/**/*.xml"
+```
+
+新建配置类java/com/sxc/config/MybatisPlusConfig.java
+
+```java
+package com.sxc.config;
+
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+//配置扫包
+@MapperScan("com.sxc.dao")
+public class MybatisPlusConfig {
+
+    //分页拦截器
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.H2));
+        return interceptor;
+    }
+}
+```
+
+## 起步
+
+**创建一个mapper接口**java/com/sxc/mapper/UserMapper.java
+
+```java
+package com.sxc.mapper;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.sxc.entity.User;
+
+public interface UserMapper extends BaseMapper<User> {
+}
+```
+
+**添加实体类**
+
+```java
+package com.sxc.entity;
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
+import lombok.Data;
+
+import java.io.Serializable;
+
+/**
+ * (User)实体类
+ *
+ * @author makejava
+ * @since 2022-07-18 15:00:26
+ */
+//lombok注解
+@Data
+//使用@TableName和数据库表对应上
+@TableName("user")
+public class User implements Serializable {
+    private static final long serialVersionUID = 796670672657171474L;
+    //必须指定主键
+    @TableId(type = IdType.AUTO)
+    private Long id;
+    //数据库字段
+    @TableField("name")
+    private String name;
+    //忽略某个字段
+    @TableField(exist = false)
+    private Integer age;
+}
+```
+
+**启动类配置扫包**
+
+```java
+package com.sxc;
+
+import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+//配置扫包
+@MapperScan("com.sxc.mapper")
+public class SpringbootDemoApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(SpringbootDemoApplication.class, args);
+    }
+}
+```
+
+## 单表增删改查
+
+```java
+package com.sxc;
+
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.sxc.entity.User;
+import com.sxc.mapper.UserMapper;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+@SpringBootTest
+class SpringbootDemoApplicationTests {
+    @Resource
+    private UserMapper userMapper;
+
+    @Test
+    public void fn() {
+        User user = new User();
+        user.setName("测试");
+        user.setAge(18);
+        //新增单条数据
+        System.out.println(userMapper.insert(user));//1
+        //修改某条数据
+        user.setId(4L);
+        System.out.println(userMapper.updateById(user));//1
+        //删除单条数据
+        System.out.println(userMapper.deleteById(4));//4
+        //查询单条数据
+        System.out.println(userMapper.selectById(1));//User(id=1, name=张三, age=1)
+        //分页查询
+        Page<User> userPage = new Page<>(1, 10);
+        userMapper.selectPage(userPage, null);
+        List<User> records = userPage.getRecords();
+        System.out.println(records);//[User(id=1, name=张三, age=null), User(id=2, name=李四, age=null), User(id=3, name=李四, age=null)]
+        System.out.println(userPage.getTotal());
+        //条件查询 其他的都类似
+        QueryWrapper<User> userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .eq("id", 1)
+                .gt("age", 0);
+        System.out.println(userMapper.selectOne(userQueryWrapper));//User(id=1, name=张三, age=null)
+        //过滤字段
+        userQueryWrapper = new QueryWrapper<>();
+        userQueryWrapper
+                .eq("id", 1)
+                .gt("age", 0)
+                .select("name");
+        System.out.println(userMapper.selectOne(userQueryWrapper));//User(id=null, name=张三, age=null)
+        //使用lambda ::函数引用
+        LambdaQueryWrapper<User> userLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        userLambdaQueryWrapper
+                .eq(User::getId, 1)
+                .gt(User::getAge, 0)
+                .select(User::getName);
+        System.out.println(userMapper.selectOne(userQueryWrapper));//User(id=null, name=张三, age=null)
+        //update lambda
+        LambdaUpdateWrapper<User> userLambdaUpdateWrapper = new LambdaUpdateWrapper<>();
+        userLambdaUpdateWrapper
+                //条件
+                .eq(User::getId, 4)
+                //设置值
+                .set(User::getName, "哈哈");
+        System.out.println(userMapper.update(null, userLambdaUpdateWrapper));
+        userLambdaUpdateWrapper
+                //条件
+                .eq(User::getId, 4);
+        //设置值
+        System.out.println(userMapper.update(user, userLambdaUpdateWrapper));
+    }
+}
+```
+
+## 代码生成
+
+结合easycode插件 easycode的controller 模板需要重新定义过 要改成接受json的
+
+![calc](../../images/java/springboot/09.png)
+
+定义一个基础控制器java/com/sxc/controller/ApiController.java模板代码里需要
+
+```java
+package com.sxc.controller;
+
+import com.sxc.entity.R;
+
+public class ApiController {
+    public R success(Object object) {
+        return R.success(object);
+    }
+
+    public R fail(String message, Integer code) {
+        return R.fail(message, code);
+    }
+}
+```
+
+定义一个返回的实体类java/com/sxc/entity/R.java
+
+```java
+package com.sxc.entity;
+
+import lombok.*;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@RequiredArgsConstructor //可以使带有@NonNull生成该参数的构造方法
+@Builder//使用构建者模式
+public class R implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    @NonNull
+    private String message;
+
+    @NonNull
+    private Integer code;
+
+    private Object data;
+
+    //调用Response.success();
+    public static R success() {
+        return R.builder().message("success").code(0).data(null).build();
+    }
+
+    public static R success(Object data) {
+        return R.builder().message("success").code(0).data(data).build();
+    }
+
+    public static R success(String message, Object data) {
+        return R.builder().message(message).code(0).data(data).build();
+    }
+
+    public static R fail() {
+        return R.builder().message("fail").code(10001).data(null).build();
+    }
+
+    public static R fail(String message, Integer code) {
+        return R.builder().message(message).code(code).data(null).build();
+    }
+}
+```
+
 
 # 面试题
 
