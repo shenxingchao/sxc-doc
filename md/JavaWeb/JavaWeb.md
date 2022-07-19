@@ -12448,10 +12448,10 @@ public class MybatisPlusConfig {
 
 ## 起步
 
-**创建一个mapper接口**java/com/sxc/mapper/UserMapper.java
+**创建一个mapper接口**java/com/sxc/dao/UserMapper.java
 
 ```java
-package com.sxc.mapper;
+package com.sxc.dao;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.sxc.entity.User;
@@ -12508,7 +12508,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 //配置扫包
-@MapperScan("com.sxc.mapper")
+@MapperScan("com.sxc.dao")
 public class SpringbootDemoApplication {
 
     public static void main(String[] args) {
@@ -12527,7 +12527,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.sxc.entity.User;
-import com.sxc.mapper.UserMapper;
+import com.sxc.dao.UserMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
@@ -12598,7 +12598,7 @@ class SpringbootDemoApplicationTests {
 
 ## 代码生成
 
-结合easycode插件 easycode的controller 模板需要重新定义过 要改成接受json的
+结合easycode插件 easycode的controller 模板需要重新定义过 要改成接受json的 具体模板根据业务修改，不是定死的
 
 ![calc](../../images/java/springboot/09.png)
 
@@ -12669,6 +12669,30 @@ public class R implements Serializable {
 }
 ```
 
+测试修改一下UserController分页代码
+
+```java
+    /**
+     * 分页查询所有数据
+     *
+     * @param pageNum  当前页
+     * @param pageSize 分页数量
+     * @param user     查询实体
+     * @return 所有数据
+     */
+    @GetMapping
+    public R selectAll(
+            @RequestParam("pageNum") Long pageNum,
+            @RequestParam("pageSize") Long pageSize,
+            @RequestBody(required = false) User user) {
+        Page<User> page = new Page<>(pageNum, pageSize);
+        this.userService.page(page, new QueryWrapper<>(user));
+        HashMap<String, Object> hashMap = new HashMap<>();
+        hashMap.put("record", page.getRecords());
+        hashMap.put("total", page.getTotal());
+        return success(hashMap);
+    }
+```
 
 # 面试题
 
