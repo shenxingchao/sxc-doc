@@ -39,6 +39,12 @@ cp xxx /usr/local
 
 cp -r 递归复制目录下的所有子目录和文件到指定目录
 
+## 修改文件夹权限
+
+-R 表示递归
+
+chmod -R 777/755 /xxx/xxx
+
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压
@@ -47,6 +53,10 @@ cp -r 递归复制目录下的所有子目录和文件到指定目录
 - *.tar.bz2用tar -xjvf 解压
 - *.rar 用 unrar e解压
 - *.zip 用 unzip 解压
+
+## 列出所有tpc监听端口
+
+netstat -ntpl
 
 ## 查看端口号
 

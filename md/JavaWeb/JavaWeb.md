@@ -3089,14 +3089,14 @@ yum install docker -y
 // 启动
 systemctl start docker
 // 修改镜像路径 自己登陆阿里云-》 容器镜像服务 -》 镜像加速器 -》 centos 就可以了
-sudo mkdir -p /etc/docker
-sudo tee /etc/docker/daemon.json <<-'EOF'
+mkdir -p /etc/docker
+tee /etc/docker/daemon.json <<-'EOF'
 {
   "registry-mirrors": ["https://jf8zmt.mirror.aliyuncs.com"]
 }
 EOF
-sudo systemctl daemon-reload
-sudo systemctl restart docker
+systemctl daemon-reload
+systemctl restart docker
 
 
 docker run -d -p 8081:8081 --name nexus3 sonatype/nexus3
@@ -12693,6 +12693,8 @@ public class R implements Serializable {
 
 # linux配置java
 
+[镜像下载](https://mirrors.bfsu.edu.cn/centos/7.9.2009/isos/x86_64/)，虚拟机最小安装，右边选择一些基本的软件
+
 [下载jdk-8u341-linux-x64.tar.gz](https://www.oracle.com/java/technologies/downloads/#java8)
 
 1. 上传到/usr/local/src
@@ -12710,6 +12712,108 @@ public class R implements Serializable {
 5. 检查java环境变量配置是否成功java -version
 6. 创建一个hello.java测试
    ![calc](../../images/java/springboot/11.png)
+
+# docker
+
+类似于vmware 可以创建多个镜像系统(容器)
+
+## 安装
+
+```powershell
+yum install docker -y
+```
+
+## 配置阿里云镜像
+
+```powershell
+#修改镜像路径 自己登陆阿里云-》 容器镜像服务 -》 镜像加速器 -》 centos 就可以了,执行下面所有的命令
+mkdir -p /etc/docker
+tee /etc/docker/daemon.json <<-'EOF'
+{
+  "registry-mirrors": ["https://jf8zmt.mirror.aliyuncs.com"]
+}
+EOF
+systemctl daemon-reload
+systemctl restart docker
+```
+
+## 常用命令
+
+### docker相关
+
+1. 启动
+   ```powershell
+   systemctl start docker
+   ```
+2. 开机启动
+   ```powershell
+   systemctl enable docker
+   ```
+3. 停止
+   ```powershell
+   systemctl stop docker
+   ```
+4. 查看安装的所有镜像(容器)
+   ```powershell
+   # 用这个查容器的Id 就是IMAGE ID
+   docker images
+   ```
+5. 下载软件
+   ```powershell
+   #搜索软件
+   docker search centos
+   # 下载最新版
+   docker pull centos:latest
+   # 指定版本
+   docker pull centos:centos7
+   ```
+
+### 容器相关
+
+6. 启动容器
+   ```powershell
+   # -d后台运行 -it交互方式运行 -p指定端口号 centos22端口映射到本机8081 
+   # /home/local-share:/home/vm-share 本机目录:容器目录，就是虚拟机共享目录
+   # --privileged运行容器的时候，给容器加特权 否则进入容器会报权限不足
+   # eeb6ee3f44bd IMAGE ID
+   # bin/bash必须加
+   docker run -d -it -p 8081:22 --name centos7 -v /home/local-share:/home/vm-share --privileged=true eeb6ee3f44bd /bin/bash
+   ```
+7. 查看容器是否运行
+   ```powershell
+   #不加-a就是运行中的容器 加了就是所有容器 查看CONTAINERID
+   docker ps -a
+   ```
+8. 删除容器
+   ```powershell
+   #先停止
+   docker stop CONTAINERID
+   #再删除
+   docker rm  CONTAINERID
+   ```
+9. 进入容器
+   ```powershell
+   #9ff05fa1623f CONTAINERID  --user root以超级管理员权限登录
+   docker exec -it --user root 9ff05fa1623f /bin/bash
+   ```
+10. 退出容器
+    ```powershell
+    exit
+    ```
+
+### 实战搭建nginx
+
+```powershell
+#下载nginx
+docker pull nginx:latest
+#查看镜像id
+docker images
+#运行 605c77e624dd IMAGEID
+docker run -d -p 8082:80 --name nginx-8082 -v /home/nignx-html:/usr/share/nginx/html --privileged=true 605c77e624dd
+#宿主机（本机）测试nginx是否启动 也可以浏览器访问虚拟机ip:8082
+curl 127.0.0.1:8082
+#已经搭建完了 往主机的/home/nginx-html放静态资源就可以了
+```
 
 # 面试题
 
