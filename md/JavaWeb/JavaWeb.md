@@ -12707,7 +12707,8 @@ public class R implements Serializable {
     PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
     export JAVA_HOME JRE_HOME CLASSPATH PATH
     ```
-5. 创建一个hello.java测试
+5. 检查java环境变量配置是否成功java -version
+6. 创建一个hello.java测试
    ![calc](../../images/java/springboot/11.png)
 
 # 面试题
