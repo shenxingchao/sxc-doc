@@ -2679,11 +2679,8 @@ java.util.logging.ConsoleHandler.encoding = GBK
 ## IDEA配置tomcat热更新
 
 1. tomcat运行配置需要热加载class 第二项配置donothing 失去焦点不要编译
-
 2. 设置Setting-Build-Compiler-Build project automatically
-
 3. tomcat必须debug模式启动
-
 4. 修改代码手动update class and resource既可以,不要自动编译，会变卡
 
 # Maven
@@ -12693,6 +12690,25 @@ public class R implements Serializable {
         return success(hashMap);
     }
 ```
+
+# linux配置java
+
+[下载jdk-8u341-linux-x64.tar.gz](https://www.oracle.com/java/technologies/downloads/#java8)
+
+1. 上传到/usr/local/src
+2. 解压tar -zxvf ./jdk-8u341-linux-x64.tar.gz
+3. 复制cp -r jdk1.8.0_341 /usr/local/java8
+4. 配置环境变量vim /etc/profile
+    ```powershell
+    #java 
+    JAVA_HOME=/usr/local/java8
+    JRE_HOME=$JAVA_HOME/jre
+    CLASSPATH=.:$JAVA_HOME/lib:$JAVA_HOME/lib/tools.jar
+    PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
+    export JAVA_HOME JRE_HOME CLASSPATH PATH
+    ```
+5. 创建一个hello.java测试
+   ![calc](../../images/java/springboot/11.png)
 
 # 面试题
 
