@@ -12776,7 +12776,7 @@ systemctl restart docker
    # /home/local-share:/home/vm-share 本机目录:容器目录，就是虚拟机共享目录
    # --privileged运行容器的时候，给容器加特权 否则进入容器会报权限不足
    # eeb6ee3f44bd IMAGE ID
-   # bin/bash必须加
+   # bin/bash必须加 作用是表示载入容器后运行bash
    docker run -d -it -p 8081:22 --name centos7 -v /home/local-share:/home/vm-share --privileged=true eeb6ee3f44bd /bin/bash
    ```
 7. 查看容器是否运行
@@ -12801,7 +12801,9 @@ systemctl restart docker
     exit
     ```
 
-### 实战搭建nginx
+### 实战
+
+**搭建nginx**
 
 ```powershell
 #下载nginx
@@ -12809,10 +12811,25 @@ docker pull nginx:latest
 #查看镜像id
 docker images
 #运行 605c77e624dd IMAGEID
-docker run -d -p 8082:80 --name nginx-8082 -v /home/nignx-html:/usr/share/nginx/html --privileged=true 605c77e624dd
+docker run -d -p 8082:80 --name nginx-8082 -v /home/nignx-html:/usr/share/nginx/html --privileged=true 605c77e624dd /bin/bash
 #宿主机（本机）测试nginx是否启动 也可以浏览器访问虚拟机ip:8082
 curl 127.0.0.1:8082
 #已经搭建完了 往主机的/home/nginx-html放静态资源就可以了
+```
+
+**搭建java8**
+
+```powershell
+#下载带java环境的镜像
+docker pull openjdk:8
+#查看镜像id
+docker images
+#运行
+docker run -d -it --name jdk8 --privileged=true e24ac15e052e /bin/bash
+#进入容器
+docker exec -it --user root fbf3f32ae14d /bin/bash
+#查看版本
+java -version
 ```
 
 # 面试题
