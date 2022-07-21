@@ -6383,7 +6383,7 @@ public void refresh() throws BeansException, IllegalStateException {
 
 #### Component
 
-使用@Component注解来表示这个类是一个bean
+使用@Component注解来表示这个类是一个bean，他不是一个单例，每次调用都是的不同对象
 
 ```java
 package com.sxc.dao;
@@ -6540,7 +6540,7 @@ public class UserService {
 
 #### 配置类注解
 
-@Configuration就如上节所示，一般是用作配置类，配置多个bean
+@Configuration就如上节所示，一般是用作配置类，配置多个bean,配合@Bean @Value，单例！
 
 #### 引入注解类解耦
 
@@ -12838,6 +12838,8 @@ java -version
 
 [参考](https://blog.csdn.net/qq_27525611/article/details/114291267)
 
+!> tips:根目录自动生成src目录，关掉build sync
+
 1. 创建父工程
    ![calc](../../images/java/gradle/01.png)
    ![calc](../../images/java/gradle/02.png)
@@ -12857,11 +12859,7 @@ java -version
         }
     }
 
-    tasks.named('test') {
-        useJUnitPlatform()
-    }
-
-    //共享的配置信息
+    //所有项目包括根项目配置
     allprojects{
         //组织、版本号、jdk版本
         group = 'com.sxc'
@@ -12875,14 +12873,14 @@ java -version
         }
     }
 
-    //子工程的统一配置
+    //子项目的统一配置
     subprojects{
-        //子工程应用开头引入的插件
+        //子项目应用开头引入的插件
         apply plugin:'org.springframework.boot'
         apply plugin:'io.spring.dependency-management'
         apply plugin:'java'
 
-        //通用依赖
+        //子项目通用依赖
         dependencies {
             implementation 'org.springframework.boot:spring-boot-starter-web'
             compileOnly 'org.projectlombok:lombok'
@@ -12921,6 +12919,54 @@ java -version
 用通俗易懂的话来说，就是每种服务如登录服务，下单服务，缓存，数据库，拆分成独立的服务放在各自的进程中运行，服务之间通过http的RestfulApi进行通信，每种服务可以采用不同的语言进行编写。
 
 ## SpringCloud
+
+### 了解多个服务（不同模块,不同URL Resultful风格）之间相互调用
+
+RestTemplate可以在一个项目中调用另一个项目的接口。其实就是封装好的URL请求工具
+
+```java
+package sxc.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestTemplateConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+**使用**
+
+这里需要创建gradle 2个子springboot项目进行测试，这里就放关键代码
+
+```java
+package sxc.controller;
+
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+    @Resource
+    private RestTemplate restTemplate;
+
+    @GetMapping
+    public Object addOrder(){
+        //调用远程接口
+        return restTemplate.getForObject("http://localhost:8000/goods", Object.class);
+    }
+}
+```
 
 # 面试题
 
