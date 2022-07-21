@@ -12677,10 +12677,10 @@ public class R implements Serializable {
      * @param user     查询实体
      * @return 所有数据
      */
-    @GetMapping
+    @GetMapping("/{pageNum}/{pageSize}")
     public R selectAll(
-            @RequestParam("pageNum") Long pageNum,
-            @RequestParam("pageSize") Long pageSize,
+            @PathVariable Long pageNum,
+            @PathVariable Long pageSize,
             @RequestBody(required = false) User user) {
         Page<User> page = new Page<>(pageNum, pageSize);
         this.userService.page(page, new QueryWrapper<>(user));
@@ -12831,6 +12831,91 @@ docker exec -it --user root fbf3f32ae14d /bin/bash
 #查看版本
 java -version
 ```
+
+# gradle
+
+## springboot父子项目
+
+1. 创建父工程
+   ![calc](../../images/java/gradle/01.png)
+   ![calc](../../images/java/gradle/02.png)
+2. 构件完毕删除src目录并设置idea 编译的gradle为本地的,以及编码什么的
+3. 修改父工程的build.gralde
+    ```gradle
+    //引入插件
+    plugins {
+        id 'org.springframework.boot' version '2.7.1'
+        id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+        id 'java'
+    }
+
+    //组织、版本号、jdk版本
+    group = 'com.sxc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+
+    configurations {
+        compileOnly {
+            extendsFrom annotationProcessor
+        }
+    }
+
+    repositories {
+        //添加阿里云仓库
+        maven { url('https://maven.aliyun.com/repository/central') }
+        mavenCentral()
+    }
+
+    tasks.named('test') {
+        useJUnitPlatform()
+    }
+
+    //子工程的统一配置
+    subprojects{
+        //子工程应用开头引入的插件
+        apply plugin:'org.springframework.boot'
+        apply plugin:'io.spring.dependency-management'
+        apply plugin:'java'
+
+        //通用依赖
+        dependencies {
+            implementation 'org.springframework.boot:spring-boot-starter-web'
+            compileOnly 'org.projectlombok:lombok'
+            developmentOnly 'org.springframework.boot:spring-boot-devtools'
+            annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+            annotationProcessor 'org.projectlombok:lombok'
+            testImplementation 'org.springframework.boot:spring-boot-starter-test'
+        }
+    }
+    ```
+4. 新建子工程
+   ![calc](../../images/java/gradle/03.png)
+5. 修改build.gradle,删除完只保留依赖
+    ```gradle
+    //子工程自己的依赖
+    dependencies {
+    }
+    ```
+6. 创建一个启动文件测试java/com/sxc/DemoApplication.java
+    ```java
+    package com.sxc;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+    @SpringBootApplication
+    public class DemoApplication {
+        public static void main(String[] args) {
+            SpringApplication.run(DemoApplication.class, args);
+        }
+    }
+    ```
+
+# 微服务
+
+用通俗易懂的话来说，就是每种服务如登录服务，下单服务，缓存，数据库，拆分成独立的服务放在各自的进程中运行，服务之间通过http的RestfulApi进行通信，每种服务可以采用不同的语言进行编写。
+
+## SpringCloud
 
 # 面试题
 
