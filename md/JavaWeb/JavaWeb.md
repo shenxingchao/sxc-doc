@@ -12836,6 +12836,8 @@ java -version
 
 ## springboot父子项目
 
+[参考](https://blog.csdn.net/qq_27525611/article/details/114291267)
+
 1. 创建父工程
    ![calc](../../images/java/gradle/01.png)
    ![calc](../../images/java/gradle/02.png)
