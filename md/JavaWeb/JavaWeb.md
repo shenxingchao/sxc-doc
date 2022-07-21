@@ -12851,25 +12851,28 @@ java -version
         id 'java'
     }
 
-    //组织、版本号、jdk版本
-    group = 'com.sxc'
-    version = '0.0.1-SNAPSHOT'
-    sourceCompatibility = '1.8'
-
     configurations {
         compileOnly {
             extendsFrom annotationProcessor
         }
     }
 
-    repositories {
-        //添加阿里云仓库
-        maven { url('https://maven.aliyun.com/repository/central') }
-        mavenCentral()
-    }
-
     tasks.named('test') {
         useJUnitPlatform()
+    }
+
+    //共享的配置信息
+    allprojects{
+        //组织、版本号、jdk版本
+        group = 'com.sxc'
+        version = '0.0.1-SNAPSHOT'
+        sourceCompatibility = '1.8'
+
+        repositories {
+            //添加阿里云仓库
+            maven { url('https://maven.aliyun.com/repository/central') }
+            mavenCentral()
+        }
     }
 
     //子工程的统一配置
