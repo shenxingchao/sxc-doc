@@ -13527,6 +13527,8 @@ discoveryClient.getInstances("consul-provider");
 
 ## 负载均衡
 
+前提：复制一份provider
+
 负载均衡(loadbanlance),对于服务调用(discoveryClient.getInstances 就是这个方法），根据一定的策略去从可用的服务实例中取出实例，这是一个在客户端的负载均衡
 
 ### 使用
