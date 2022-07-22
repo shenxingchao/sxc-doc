@@ -12832,7 +12832,7 @@ docker exec -it --user root fbf3f32ae14d /bin/bash
 java -version
 ```
 
-# gradle
+# Gradle
 
 ## springboot父子项目
 
@@ -12914,13 +12914,13 @@ java -version
     }
     ```
 
-# 微服务
+# SpringCloud
+
+## 微服务
 
 用通俗易懂的话来说，就是每种服务如登录服务，下单服务，缓存，数据库，拆分成独立的服务放在各自的进程中运行，服务之间通过http的RestfulApi进行通信，每种服务可以采用不同的语言进行编写。
 
-## SpringCloud
-
-### 了解多个服务（不同模块,不同URL Resultful风格）之间相互调用
+## 了解多个服务（不同模块,不同URL Resultful风格）之间相互调用
 
 RestTemplate可以在一个项目中调用另一个项目的接口。其实就是封装好的URL请求工具
 
@@ -12966,6 +12966,563 @@ public class OrderController {
         return restTemplate.getForObject("http://localhost:8000/goods", Object.class);
     }
 }
+```
+
+## 注册中心
+
+eureka/consul/zookeeper/nacos 这些都是注册中心组件
+
+- 负责服务注册 把多个服务的ip地址和身份(生产者/消费者)注册到注册中心
+- 服务发现
+- 服务维护
+
+### eureka
+
+#### 创建项目
+
+这里以下单为服务消费者，商品为服务提供者
+
+使用springboot父子项目见gradle创建父子项目流程
+
+**父工程build.gradle**
+
+```gradle
+//引入插件
+plugins {
+    id 'org.springframework.boot' version '2.7.1'
+    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'java'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+//所有项目包括根项目配置
+allprojects{
+    //组织、版本号、jdk版本
+    group = 'com.sxc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+
+    repositories {
+        //添加阿里云仓库
+        maven { url('https://maven.aliyun.com/repository/central') }
+        mavenCentral()
+    }
+}
+
+//设置版本号
+ext {
+    set('springCloudVersion', "2021.0.3")
+}
+
+//子项目的统一配置
+subprojects{
+    //子项目应用开头引入的插件
+    apply plugin:'org.springframework.boot'
+    apply plugin:'io.spring.dependency-management'
+    apply plugin:'java'
+
+    //子项目通用依赖
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    //dependencyManagement
+    dependencyManagement {
+        dependencies {}
+        //这里使用imports后子项目使用spring-could组件不需要加版本号,这里统一管理版本号了
+        imports {
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+}
+```
+
+#### 创建模块
+
+然后新建三个模块（模拟三台服务器），2个客户端（一个作为服务的提供者，一个作为服务的消费者）,1个服务端(注册中心)
+
+如下图项目结构
+
+![calc](../../images/java/spring-cloud/02.png)
+
+**注册中心服务端依赖eureka-server\build.gradle**
+
+```gralde
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-server'
+}
+```
+
+**客户端依赖goods\build.gradle      order\build.gradle**
+
+```gralde
+dependencies {
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+}
+```
+
+#### 编写启动类和Eureka配置文件
+
+**注册中心的配置文件 eureka-server\src\main\resources\application.yml**
+
+```yml
+server:
+  #eureka默认8761端口
+  port: 8761
+spring:
+  application:
+    #实例名称
+    name: eureka-server
+eureka:
+  instance:
+    #主机名
+    hostname: localhost
+    #服务中心ip地址
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+  client:
+    service-url:
+      #是否将自己的路径 注册到eureka上 eureka server 不需要
+      register-with-eureka: false
+      #是否需要从eureka中抓取路径。eureka server 不需要，eureka consumer client 需要
+      fetch-registry: false
+  server:
+    # 60000ms服务实例没有发心跳就清理这个服务
+    eviction-interval-timer-in-ms: 60000
+```
+
+**商品服务的配置文件 goods\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8001
+spring:
+  application:
+    #实例名称
+    name: eureka-provider
+eureka:
+  instance:
+    #主机名
+    hostname: localhost
+    #注册ip名称显示到eureka控制面板
+    prefer-ip-address: true
+    #实例ip地址 一般是当前服务的服务器ip
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    #设置连接的心跳机制s 客户端向服务端发送心跳包
+    lease-renewal-interval-in-seconds: 10
+    #客户端超时断开连接s
+    lease-expiration-duration-in-seconds: 30
+  client:
+    service-url:
+      #eureka服务端地址，将来客户端使用该地址和eureka进行通信
+      defaultZone: http://127.0.0.1:8761/eureka
+```
+
+**订单服务的配置文件 order\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8000
+spring:
+  application:
+    #实例名称
+    name: eureka-consumer
+eureka:
+  instance:
+    #主机名
+    hostname: localhost
+    #注册ip名称显示到eureka控制面板
+    prefer-ip-address: true
+    #实例ip地址 一般是当前服务的服务器ip
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    #设置连接的心跳机制 客户端向服务端发送
+    lease-renewal-interval-in-seconds: 30
+    #客户端超时断开连接
+    lease-expiration-duration-in-seconds: 90
+  client:
+    service-url:
+      #eureka服务端地址，将来客户端使用该地址和eureka进行通信
+      defaultZone: http://127.0.0.1:8761/eureka
+```
+
+**注册中心的启动类 eureka-server\src\main\java\com\sxc\eureka\EurekaApplication.java**
+
+```java
+package com.sxc.eureka;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
+
+@SpringBootApplication
+//开启Eureka注册中心
+@EnableEurekaServer
+public class EurekaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(EurekaApplication.class,args);
+    }
+}
+```
+
+**商品服务的启动类 goods\src\main\java\com\sxc\provider\GoodsApplication.java**
+
+```java
+package com.sxc.provider;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//注册到Eureka注册中心
+@EnableEurekaClient
+public class GoodsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GoodsApplication.class, args);
+    }
+}
+```
+
+**订单服务的启动类 order\src\main\java\com\sxc\consumer\GoodsApplication.java**
+
+```java
+package com.sxc.consumer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//注册到Eureka注册中心
+@EnableEurekaClient
+public class OrderApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderApplication.class, args);
+    }
+}
+```
+
+#### 测试
+
+编写实体类，HTTP远程调用的Bean配置和测试控制器
+
+**商品里的实体类 goods\src\main\java\com\sxc\provider\entity\Goods.java**
+
+```java
+package com.sxc.provider.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Goods implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Integer id;
+    private String goodsName;
+}
+```
+
+**商品里的服务提供的API接口 goods\src\main\java\com\sxc\provider\controller\GoodsController.java**
+
+```java
+package com.sxc.provider.controller;
+
+import com.sxc.provider.entity.Goods;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("goods")
+public class GoodsController {
+    @GetMapping
+    public Goods getGoods(){
+        return new Goods(1,"IPHONE苹果");
+    }
+}
+```
+
+**订单里的HTTP请求配置Bean order\src\main\java\com\sxc\consumer\config\RestTemplateConfig.java**
+
+```java
+package com.sxc.consumer.config;
+
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestTemplateConfig {
+    @Bean
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+**订单里的实体类 order\src\main\java\com\sxc\consumer\entity\Goods.java**
+
+```java
+package com.sxc.consumer.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Goods implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Integer id;
+    private String goodsName;
+}
+```
+
+**最后的测试下单控制器 order\src\main\java\com\sxc\consumer\controller\OrderController.java**
+
+```java
+package com.sxc.consumer.controller;
+
+import com.sxc.consumer.entity.Goods;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+import java.util.List;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+    //发起HTTP请求
+    @Resource
+    private RestTemplate restTemplate;
+
+    //用于从服务中心拿取URl，就是用于服务发现
+    @Resource
+    private DiscoveryClient discoveryClient;
+
+    @GetMapping
+    public Goods addOrder() {
+        //使用服务发现，从Eureka注册中心发现服务的url。。。，就是取个地址而已
+        //传实例名称 配置文件里配置的spring.application.name
+        List<ServiceInstance> instances = discoveryClient.getInstances("eureka-provider");
+        if (instances.size() <= 0) {
+            return null;
+        }
+        //随机取一个实例
+        ServiceInstance serviceInstance = instances.get((int) (Math.random() * instances.size()));
+        String scheme = serviceInstance.getScheme();
+        String host = serviceInstance.getHost();
+        int port = serviceInstance.getPort();
+        //拼接服务的接口地址
+        String url = scheme + "://" + host + ":" + port + "/goods";
+        return restTemplate.getForObject(url, Goods.class);
+    }
+}
+```
+
+#### 最终效果
+
+![calc](../../images/java/spring-cloud/01.png)
+
+![calc](../../images/java/spring-cloud/03.png)
+
+#### 高可用
+
+启动2个注册中心(一般是2台服务器ip不一样)，然后配置文件里面**相互注册**就可以了，把注册中心当成客户端
+
+实例名称设置为相同，组成集群(一个注册中心挂掉还有另一个可用)
+
+**注册中心的配置文件 eureka-server1\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8761
+spring:
+  application:
+    #实例名称
+    name: eureka-server-high-aviliable
+eureka:
+  instance:
+    #主机名
+    hostname: eureka-server1
+  client:
+    service-url:
+      #eureka服务端地址 注册到8762这台服务器
+      defaultZone: http://127.0.0.1:8762/eureka
+```
+
+**注册中心的配置文件 eureka-server2\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8762
+spring:
+  application:
+    #实例名称
+    name: eureka-server-high-aviliable
+eureka:
+  instance:
+    #主机名
+    hostname: eureka-server2
+  client:
+    service-url:
+      #eureka服务端地址 注册到8761这台服务器
+      defaultZone: http://127.0.0.1:8761/eureka
+```
+
+**商品服务的配置文件 goods\src\main\resources\application.yml**
+
+**订单服务的配置文件 order\src\main\resources\application.yml**
+
+```yml
+  client:
+    service-url:
+      #eureka服务端地址 注册到8761和8762这两台服务器
+      defaultZone: http://127.0.0.1:8761/eureka,http://127.0.0.1:8762/eureka
+```
+
+### zookeeper
+
+需要[安装服务端](https://zookeeper.apache.org/releases.html#download)，独立的软件包[linux配置启动](https://blog.csdn.net/AnNanDu/article/details/123914983) windows下面使用zookeeper自带的cmd启动即可，需要配置下data目录；然后修改以下文件即可，别的都和eureka一样,下面就配一个生产者服务为例
+
+#### 客户端依赖
+
+```
+    implementation 'org.springframework.cloud:spring-cloud-starter-zookeeper-discovery'
+```
+
+#### 启用服务发现
+
+```java
+package com.sxc.provider;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//启用服务发现
+@EnableDiscoveryClient
+public class GoodsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GoodsApplication.class, args);
+    }
+}
+```
+
+#### 配置文件
+
+```yml
+server:
+  port: 8004
+
+spring:
+  application:
+    name: zookeeper-provider
+  cloud:
+    #zookeeper配置
+    zookeeper:
+      #连接到服务端
+      connect-string: 127.0.0.1:2181
+```
+
+#### 使用
+
+```java
+discoveryClient.getInstances("zookeeper-provider");
+```
+
+### consul
+
+[下载地址](https://www.consul.io/downloads) [Consul中文文档](https://www.springcloud.cc/spring-cloud-consul.html) 
+
+windows启动
+
+```powershell
+consul.exe agent -dev
+```
+
+修改以下文件即可，别的都和eureka一样,下面就配一个生产者服务为例
+
+#### 客户端依赖
+
+```
+    implementation 'org.springframework.cloud:spring-cloud-starter-consul-discovery'
+```
+
+#### 启用服务发现
+
+```java
+package com.sxc.provider;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//启用服务发现
+@EnableDiscoveryClient
+public class GoodsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GoodsApplication.class, args);
+    }
+}
+```
+
+#### 配置文件
+
+```yml
+server:
+  port: 8001
+
+spring:
+  application:
+    name: consul-provider
+  cloud:
+    #consul客户端服务端口号
+    consul:
+      host: 127.0.0.1
+      port: 8500
+      discovery:
+        service-name: ${spring.application.name}
+```
+
+#### 使用
+
+```java
+discoveryClient.getInstances("consul-provider");
 ```
 
 # 面试题
