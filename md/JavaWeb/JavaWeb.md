@@ -13525,6 +13525,137 @@ spring:
 discoveryClient.getInstances("consul-provider");
 ```
 
+## 负载均衡
+
+负载均衡(loadbanlance),对于服务调用(discoveryClient.getInstances 就是这个方法），根据一定的策略去从可用的服务实例中取出实例，这是一个在客户端的负载均衡
+
+### 使用
+
+改造order\src\main\java\com\sxc\consumer\config\RestTemplateConfig.java
+
+```java
+package com.sxc.consumer.config;
+
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestTemplateConfig {
+    @Bean
+    //开启负载均衡
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+改造order\src\main\java\com\sxc\consumer\controller\OrderController.java
+
+```java
+package com.sxc.consumer.controller;
+
+import com.sxc.consumer.entity.Goods;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+    //发起HTTP请求
+    @Resource
+    private RestTemplate restTemplate;
+
+    //用于从服务中心拿取URl，就是用于服务发现
+    @Resource
+    private DiscoveryClient discoveryClient;
+
+    @GetMapping
+    public Goods addOrder() {
+        //使用服务发现，从Eureka注册中心发现服务的url。。。，就是取个地址而已
+        //传实例名称 配置文件里配置的spring.application.name
+        //List<ServiceInstance> instances = discoveryClient.getInstances("eureka-provider");
+        //if (instances.size() <= 0) {
+        //    return null;
+        //}
+        ////随机取一个实例
+        //ServiceInstance serviceInstance = instances.get((int) (Math.random() * instances.size()));
+        //String scheme = serviceInstance.getScheme();
+        //String host = serviceInstance.getHost();
+        //int port = serviceInstance.getPort();
+        ////拼接服务的接口地址
+        //String url = scheme + "://" + host + ":" + port + "/goods";
+
+        //上面的所有全部简写成下面的一个
+        String url = "http://eureka-provider/goods";
+        return restTemplate.getForObject(url, Goods.class);
+    }
+}
+```
+
+### 修改策略
+
+策略就是用什么方式去挑选可用的服务。。。
+
+springclod的LoadBalance默认只有两种策略，轮询RoundRobinLoadBalancer和随机RandomLoadBalancer
+
+如下操作切换成随机策略
+
+**新增一个策略配置类，这个策略类不需要添加@Configuration**
+
+```java
+package com.sxc.consumer.config;
+
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.loadbalancer.core.RandomLoadBalancer;
+import org.springframework.cloud.loadbalancer.core.ReactorLoadBalancer;
+import org.springframework.cloud.loadbalancer.core.ServiceInstanceListSupplier;
+import org.springframework.cloud.loadbalancer.support.LoadBalancerClientFactory;
+import org.springframework.context.annotation.Bean;
+import org.springframework.core.env.Environment;
+
+//不指定@Configuration 需要注意的是，这个类不能被加载到spring的上下文中
+public class RandomLoadBalancerConfig {
+    @Bean
+    public ReactorLoadBalancer<ServiceInstance> reactorServiceInstanceLoadBalancer(
+            Environment environment,
+            LoadBalancerClientFactory loadBalancerClientFactory){
+            String name = environment.getProperty(LoadBalancerClientFactory.PROPERTY_NAME);
+            return new RandomLoadBalancer(loadBalancerClientFactory.getLazyProvider(name, ServiceInstanceListSupplier.class),name);
+    }
+}
+```
+
+**使用策略**
+
+```java
+package com.sxc.consumer;
+
+import com.sxc.consumer.config.RandomLoadBalancerConfig;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.loadbalancer.annotation.LoadBalancerClient;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//注册到Eureka注册中心
+@EnableEurekaClient
+//使用随机策略 name服务提供者 configuration配置策略  如果要为多个服务配置策略使用LoadBalancerClients
+@LoadBalancerClient(name="eureka-provider",configuration = RandomLoadBalancerConfig.class)
+public class OrderApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(OrderApplication.class, args);
+    }
+}
+```
+
 # 面试题记录
 
 https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
