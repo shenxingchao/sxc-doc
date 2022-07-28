@@ -3,7 +3,7 @@
 <h2>TODO</h2>  
 <p>php进阶(swoole,laraval)（1月）</p>
 <p>[√]java基础（1.5月）</p>
-<p>[doing redis阶段]javaWeb</p>
+<p>[doing spring-cloud阶段]javaWeb</p>
 <p>[√]kotlin基础（0.5月）</p>
 <p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
 <p>typescript强化（1周）</p>
