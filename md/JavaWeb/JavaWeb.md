@@ -13604,11 +13604,40 @@ public class OrderController {
 
 ### 修改策略
 
+前提：复制一份provider
+
 策略就是用什么方式去挑选可用的服务。。。
 
 springclod的LoadBalance默认只有两种策略，轮询RoundRobinLoadBalancer和随机RandomLoadBalancer
 
 如下操作切换成随机策略
+
+**修改提供者的返回数据，增加端口号，用于查看策略是否成功**
+
+java/com/sxc/provider/controller/GoodsController.java
+
+```java
+package com.sxc.provider.controller;
+
+import com.sxc.provider.entity.Goods;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("goods")
+public class GoodsController {
+    //端口号，用于查看策略是否成功
+    @Value("${server.port}")
+    int port;
+
+    @GetMapping
+    public Goods getGoods(){
+        return new Goods(1,"IPHONE苹果" + port);
+    }
+}
+```
 
 **新增一个策略配置类，这个策略类不需要添加@Configuration**
 
@@ -13657,6 +13686,64 @@ public class OrderApplication {
     }
 }
 ```
+
+**测试**
+
+访问http://localhost:8000/order 发现提供服务端口号已经随机了
+
+## 服务接口调用
+
+### OpenFeign
+
+**基于接口注解的方式** 简化HTTP远程调用代码
+
+**声明一个Feign客户端 java/com/sxc/consumer/feign/GoodsFeign.java**
+
+```java
+package com.sxc.consumer.feign;
+
+import com.sxc.consumer.entity.Goods;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient(value = "eureka-provider")
+public interface GoodsFeign {
+    //需要注意的是这里需要写api全路径
+    @GetMapping("goods")
+    Goods getGoods();
+}
+```
+
+**使用**
+
+简化远程调用API的控制器
+
+**java/com/sxc/consumer/controller/OrderController.java**
+
+```java
+package com.sxc.consumer.controller;
+
+import com.sxc.consumer.entity.Goods;
+import com.sxc.consumer.feign.GoodsFeign;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+    @Resource
+    private GoodsFeign goodsFeign;
+
+    @GetMapping
+    public Goods addOrder() {
+        return goodsFeign.getGoods();
+    }
+}
+```
+
 
 # 面试题记录
 
