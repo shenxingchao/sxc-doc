@@ -12254,6 +12254,38 @@ mybatis:
   mapper-locations: "classpath:mapper/**/*.xml"
 ```
 
+## 整合log4j2日志框架
+
+**移除默认的logback日志**
+
+```gradle
+    //移除默认的logback日志 如果是父子项目需要放在subprojects里面
+    configurations.all {
+        exclude group:'org.springframework.boot', module: 'spring-boot-starter-logging'
+        exclude module: 'logback-classic'
+        exclude module: 'logback-core'
+    }
+```
+
+**引入日志起步以来**
+```gradle
+    //使用日志 如果不是父子工程，则需要加版本号
+    implementation 'org.springframework.boot:spring-boot-starter-log4j2'
+```
+
+**配置**
+
+```yml
+logging:
+  #由低到高：trace < debug < info < warn < error 级别越高，详细程度越简略 默认是info
+  level:
+    com.sxc: DEBUG
+  #日志配置文件名称 默认是log4j2-spring.xml 如果不是这个都要配置名称
+  config: classpath:log4j2.xml
+```
+
+然后就和日志里使用一样了，写好配置，使用Lombok注解@Slf4j 调用log.debug即可
+
 ## 注解
 
 ### Conditional
@@ -13533,7 +13565,7 @@ discoveryClient.getInstances("consul-provider");
 
 ### 使用
 
-改造order\src\main\java\com\sxc\consumer\config\RestTemplateConfig.java
+改造**order\src\main\java\com\sxc\consumer\config\RestTemplateConfig.java**
 
 ```java
 package com.sxc.consumer.config;
@@ -13554,7 +13586,7 @@ public class RestTemplateConfig {
 }
 ```
 
-改造order\src\main\java\com\sxc\consumer\controller\OrderController.java
+改造**order\src\main\java\com\sxc\consumer\controller\OrderController.java**
 
 ```java
 package com.sxc.consumer.controller;
@@ -13614,7 +13646,7 @@ springclod的LoadBalance默认只有两种策略，轮询RoundRobinLoadBalancer�
 
 **修改提供者的返回数据，增加端口号，用于查看策略是否成功**
 
-java/com/sxc/provider/controller/GoodsController.java
+**goods\src\main\java\com\sxc\provider\controller\GoodsController.java**
 
 ```java
 package com.sxc.provider.controller;
@@ -13697,7 +13729,7 @@ public class OrderApplication {
 
 **基于接口注解的方式** 简化HTTP远程调用代码
 
-**声明一个Feign客户端 java/com/sxc/consumer/feign/GoodsFeign.java**
+**声明一个Feign客户端 order\src\main\java\com\sxc\consumer\feign\GoodsFeign.java**
 
 ```java
 package com.sxc.consumer.feign;
@@ -13718,7 +13750,7 @@ public interface GoodsFeign {
 
 简化远程调用API的控制器
 
-**java/com/sxc/consumer/controller/OrderController.java**
+**order\src\main\java\com\sxc\consumer\controller\OrderController.java**
 
 ```java
 package com.sxc.consumer.controller;
@@ -13744,6 +13776,228 @@ public class OrderController {
 }
 ```
 
+### 配置
+
+**order\src\main\resources\application.yml**
+
+```yml
+feign:
+  client:
+    config:
+      default:
+        #HTTP远程连接请求超时时间
+        connect-timeout: 5000
+        #服务的业务处理超时时间
+        read-timeout: 5000
+```
+
+### 打印调试日志
+
+**新增配置类 order\src\main\java\com\sxc\consumer\config\FeignLoggerConfiguration.java**
+
+```java
+package com.sxc.consumer.config;
+
+import feign.Logger;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+
+@Configuration
+public class FeignLoggerConfiguration {
+    @Bean
+    Logger.Level feignLoggerLevel() {
+        return Logger.Level.FULL;
+    }
+}
+```
+
+**设置springboot的日志级别 order\src\main\resources\application.yml**
+
+```yml
+logging:
+  #open feign需要设置DEBUG级别以上才能看到
+  level:
+    com.sxc: DEBUG
+```
+
+**某个feign客户端开启日志 order\src\main\java\com\sxc\consumer\feign\GoodsFeign.java**
+
+```java
+package com.sxc.consumer.feign;
+
+import com.sxc.consumer.config.FeignLoggerConfiguration;
+import com.sxc.consumer.entity.Goods;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+//configuration 配置开启日志
+@FeignClient(value = "eureka-provider",configuration = FeignLoggerConfiguration.class)
+public interface GoodsFeign {
+    //需要注意的是这里需要写api全路径
+    @GetMapping("goods")
+    Goods getGoods();
+}
+```
+
+**测试结果**
+
+![calc](../../images/java/spring-cloud/05.png)
+
+## 断路器
+
+### hystrix
+
+主要用于服务提供方或者服务调用方异常或者超时调用指定的备用方法返回给用户，不至于让用户一直等待
+
+#### 服务提供方降级
+
+**goods\build.gradle**
+
+```gradle
+    //服务降级
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.10.RELEASE'
+```
+
+**开启降级 goods\src\main\java\com\sxc\provider\GoodsApplication.java**
+
+```java
+package com.sxc.provider;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.hystrix.EnableHystrix;
+
+@SpringBootApplication
+//注册到Eureka注册中心
+@EnableEurekaClient
+//开启服务降级
+@EnableHystrix
+public class GoodsApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GoodsApplication.class, args);
+    }
+}
+```
+
+**使用降级 java/com/sxc/provider/controller/GoodsController.java**
+
+```java
+package com.sxc.provider.controller;
+
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
+import com.netflix.hystrix.contrib.javanica.annotation.HystrixProperty;
+import com.sxc.provider.entity.Goods;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("goods")
+public class GoodsController {
+    @Value("${server.port}")
+    int port;
+
+    @GetMapping
+    //配置指定降级方法和设置超时多久调用降级方法
+    @HystrixCommand(fallbackMethod = "getGoodsFallback",commandProperties = {
+            //设置Hystrix的超时时间，默认1s 注意这里的时间不要超过服务调用方设置的fegin readtimeout
+            @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value = "2000")
+    })
+    public Goods getGoods(){
+        //模拟异常会调用降级
+        //int i = 1/0;
+        //模拟数据库超时 注意这里的时间不要超过服务调用方设置的fegin readtimeout
+        try {
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
+        return new Goods(1,"IPHONE苹果" + port);
+    }
+
+    /**
+     * 定义降级方法   返回特殊对象
+     * 1.方法的返回值要和原方法一致
+     * 2.方法参数和原方法一样
+     * @return Goods
+     */
+    public Goods getGoodsFallback(){
+        return new Goods(1,"降级了" + port);
+    }
+}
+```
+
+#### 服务调用方降级
+
+**服务调用时超时时走降级方法**
+
+**添加依赖 order\build.gradle**
+
+```gradle
+    //服务降级
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.10.RELEASE'
+```
+
+**开启feign的降级（调用方降级） order\src\main\resources\application.yml**
+
+```yml
+feign:
+  client:
+    config:
+      default:
+        #HTTP远程连接超时时间
+        connect-timeout: 5000
+        #业务处理超时时间
+        read-timeout: 5000
+  #开启服务降级
+  circuit breaker:
+    enabled: true
+```
+
+**添加调用降级回调函数 order\src\main\java\com\sxc\consumer\feign\impl\GoodsFeignFallBack.java**
+
+```java
+package com.sxc.consumer.feign.impl;
+
+import com.sxc.consumer.entity.Goods;
+import com.sxc.consumer.feign.GoodsFeign;
+import org.springframework.stereotype.Component;
+
+@Component
+public class GoodsFeignFallBack  implements GoodsFeign {
+    @Override
+    public Goods getGoods() {
+        return new Goods(1,"服务调用端降级了");
+    }
+}
+```
+
+**将降级回调注册到fegin客户端 order\src\main\java\com\sxc\consumer\feign\GoodsFeign.java**
+
+```java
+package com.sxc.consumer.feign;
+
+import com.sxc.consumer.config.FeignLoggerConfiguration;
+import com.sxc.consumer.entity.Goods;
+import com.sxc.consumer.feign.impl.GoodsFeignFallBack;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+//configuration 配置开启日志
+@FeignClient(
+        value = "eureka-provider",
+        configuration = FeignLoggerConfiguration.class,
+        //配置降级方法
+        fallback = GoodsFeignFallBack.class
+)
+public interface GoodsFeign {
+    //需要注意的是这里需要写api全路径
+    @GetMapping("goods")
+    Goods getGoods();
+}
+```
 
 # 面试题记录
 
