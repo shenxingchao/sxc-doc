@@ -13999,6 +13999,157 @@ public interface GoodsFeign {
 }
 ```
 
+#### 熔断机制
+
+服务提供方的熔断机制(当某个请求失败次数到达指定次数时，让所有接口请求都失败，以保护服务)
+
+用于监控微服务调用情况，当失败（服务降级）的情况达到预定的阈值（5秒失败20次），会打开断路器，拒绝所有请求，直到服务恢复正常为止
+
+**配置熔断机制的监控次数**
+
+```java
+    //配置指定降级方法和设置超时多久调用降级方法
+    @HystrixCommand(fallbackMethod = "getGoodsFallback",commandProperties = {
+            //设置Hystrix的超时时间，默认1s
+            @HystrixProperty(name="execution.isolation.thread.timeoutInMilliseconds",value = "2000"),
+            //监控时间 默认5000 毫秒
+            @HystrixProperty(name="circuitBreaker.sleepWindowInMilliseconds",value = "5000"),
+            //失败次数。默认20次
+            @HystrixProperty(name="circuitBreaker.requestVolumeThreshold",value = "20"),
+            //失败率 默认50%
+            @HystrixProperty(name="circuitBreaker.errorThresholdPercentage",value = "50")
+    })
+```
+
+#### 监控服务的健康状况
+
+新建一个子工程hystrix-dashboard
+
+**添加依赖 hystrix-dashboard\build.gradle**
+
+```gradle
+dependencies {
+    //作为eureka客户端
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    //服务降级
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.10.RELEASE'
+    //Hystrix dashboard
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard:2.2.10.RELEASE'
+    //使用Turbine聚合监控多个Hystrix dashboard功能
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-turbine:2.2.10.RELEASE'
+    //可以用于检测系统的健康情况、当前的Beans、系统的缓存等
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+}
+```
+
+**配置文件 hystrix-dashboard\src\main\resources\application.yml**
+
+```yml
+spring:
+  application:
+    name: hystrix-dashboard
+server:
+  port: 8769
+turbine:
+  combine-host-port: true
+  # 配置需要监控的服务名称列表
+  app-config: eureka-provider,eureka-consumer
+  cluster-name-expression: "'default'"
+  aggregator:
+    cluster-config: default
+  #instanceUrlSuffix: /actuator/hystrix.stream
+eureka:
+  instance:
+    #主机名
+    hostname: eureka-dashboard-hostname
+    #注册ip名称显示到eureka控制面板
+    prefer-ip-address: true
+    #实例ip地址 一般是当前服务的服务器ip
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    #设置连接的心跳机制s 客户端向服务端发送心跳包
+    lease-renewal-interval-in-seconds: 10
+    #客户端超时断开连接s
+    lease-expiration-duration-in-seconds: 30
+  client:
+    serviceUrl:
+      defaultZone: http://127.0.0.1:8761/eureka
+hystrix:
+  dashboard:
+    proxy-stream-allow-list: "*"
+```
+
+**添加监控台的启动类**
+
+```java
+package com.sxc.dashboard;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+import org.springframework.cloud.netflix.hystrix.dashboard.EnableHystrixDashboard;
+import org.springframework.cloud.netflix.turbine.EnableTurbine;
+
+@SpringBootApplication
+@EnableEurekaClient
+@EnableTurbine //开启Turbine 聚合监控功能
+@EnableHystrixDashboard //开启Hystrix仪表盘监控功能
+public class HystrixDashboardApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(HystrixDashboardApplication.class,args);
+    }
+}
+```
+
+**服务提供方和调用方分别添加依赖**
+
+```gradle
+    //服务降级
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix:2.2.10.RELEASE'
+    //Hystrix dashboard
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix-dashboard:2.2.10.RELEASE'
+    //可以用于检测系统的健康情况、当前的Beans、系统的缓存等
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+```
+
+**服务提供方和调用方分别添加配置类 goods\src\main\java\com\sxc\provider\config\HystrixDashboardConfig.java order\src\main\java\com\sxc\consumer\config\HystrixDashboardConfig.java**
+
+```java
+@Configuration
+public class HystrixDashboardConfig {
+    @Bean
+    public ServletRegistrationBean getServlet() {
+        HystrixMetricsStreamServlet streamServlet = new HystrixMetricsStreamServlet();
+        ServletRegistrationBean registrationBean = new ServletRegistrationBean(streamServlet);
+        registrationBean.setLoadOnStartup(1);
+        registrationBean.addUrlMappings("/actuator/hystrix.stream");
+        registrationBean.setName("HystrixMetricsStreamServlet");
+        return registrationBean;
+    }
+}
+```
+
+**服务提供方和调用方启动类添加注解 goods\src\main\java\com\sxc\provider\GoodsApplication.java order\src\main\java\com\sxc\consumer\OrderApplication.java**
+```java
+//启动Hystrix监控dashboard
+@EnableHystrixDashboard
+```
+
+**测试，分别启动eureka注册中心，goods服务提供方，order服务调用方，以及服务监控hystrix-dashboard**
+
+URL输入http://127.0.0.1:8769/hystrix/,然后监控流地址输入http://localhost:8769/turbine.stream
+
+![calc](../../images/java/spring-cloud/06.png)
+
+访问http://localhost:8000/order
+
+可见如下图访问失败的结果
+
+![calc](../../images/java/spring-cloud/07.png)
+
+
 # 面试题记录
 
 https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
