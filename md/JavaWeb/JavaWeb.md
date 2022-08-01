@@ -14150,6 +14150,178 @@ URL输入http://127.0.0.1:8769/hystrix/,然后监控流地址输入http://localh
 ![calc](../../images/java/spring-cloud/07.png)
 
 
+## 网关
+
+**功能：路由（请求转发） + 过滤（权限认证）**
+
+在微服务架构中，不同的微服务可以有不同的网络地址，各个微服务之间通过互相调用完成用户请求，客户端可能通过调用N个微服务的接口完成一个用户请求,网关旨在为微服务架构提供一种简单而有效的统一的API路由管理方式。
+
+### Gateway
+
+网关的一种，spring团队研发
+
+#### 路由
+
+创建一个子项目gateway-server
+
+**添加依赖 gateway-server\build.gradle**
+
+```gradle
+dependencies {
+    //作为eureka客户端
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    //gateway网关 用于路由每个服务的地址
+    implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+}
+//排除父级的依赖，否则无法启动
+configurations.all {
+    exclude group:'org.springframework.boot', module: 'spring-boot-starter-web'
+}
+```
+
+**添加配置文件 gateway-server\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 80
+spring:
+  application:
+    #实例名称
+    name: eureka-gateway
+  cloud:
+    #配置网关
+    gateway:
+      #配置路由转发规则
+      routes:
+        # -开头代表配置是一个List
+        # 配置每个服务的路由转发 id就是个唯一名字,随便起
+        - id: eureka-provider
+          #需要转发的服务api地址
+          #uri: http://127.0.0.1:8001
+          #使用动态路由（lb = LoadBalance 负载均衡哈哈），用名称，这样可以访问同一名称的所有微服务
+          uri: lb://eureka-provider
+          #配置访问127.0.0.1:80/goods/**时转发到127.0.0.1:8000/
+          predicates:
+            - Path=/goods/**
+        - id: eureka-consumer
+          #uri: http://127.0.0.1:8000
+          uri: lb://eureka-consumer
+          predicates:
+            - Path=/order/**
+      # 微服务名称配置 这个没用
+      discovery:
+          locator:
+            enabled: true # 设置为true 请求路径前可以添加微服务名称 http://localhost/eureka-provider/goods
+            lower-case-service-id: true # 允许为小写
+eureka:
+  instance:
+    #主机名
+    hostname: eureka-gateway-hostname
+    #注册ip名称显示到eureka控制面板
+    prefer-ip-address: true
+    #实例ip地址 一般是当前服务的服务器ip
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    #设置连接的心跳机制s 客户端向服务端发送心跳包
+    lease-renewal-interval-in-seconds: 10
+    #客户端超时断开连接s
+    lease-expiration-duration-in-seconds: 30
+  client:
+    service-url:
+      #eureka服务端地址，将来客户端使用该地址和eureka进行通信
+      defaultZone: http://127.0.0.1:8761/eureka
+```
+
+**添加启动类 gateway-server\src\main\java\com\sxc\gateway\GatewayApplication.java**
+
+```java
+package com.sxc.gateway;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.netflix.eureka.EnableEurekaClient;
+
+@SpringBootApplication
+//注册到Eureka注册中心
+@EnableEurekaClient
+public class GatewayApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(GatewayApplication.class, args);
+    }
+}
+```
+
+**启动并测试**
+
+可以通过80端口访问 http://localhost/goods，且可以访问同一种类型的服务(多次访问测试)
+
+#### 过滤器
+
+**内置过滤器**
+
+```yml
+spring:
+  application:
+    #实例名称
+    name: eureka-gateway
+  cloud:
+    #配置网关
+    gateway:
+      #配置路由转发规则
+      routes:
+        - id: eureka-provider
+          #局部内置过滤器 这个查一下就有
+          filters:
+            # 添加响应头
+            - AddResponseHeader=key,value
+      #全局内置过滤器
+      default-filters:
+        - AddResponseHeader=globalKey,globalValue
+```
+
+**自定义全局过滤器**
+
+新增 gateway-server\src\main\java\com\sxc\gateway\filter\CustomFilter.java
+
+```java
+package com.sxc.gateway.filter;
+
+import org.springframework.cloud.gateway.filter.GatewayFilterChain;
+import org.springframework.cloud.gateway.filter.GlobalFilter;
+import org.springframework.core.Ordered;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.server.reactive.ServerHttpRequest;
+import org.springframework.http.server.reactive.ServerHttpResponse;
+import org.springframework.stereotype.Component;
+import org.springframework.web.server.ServerWebExchange;
+import reactor.core.publisher.Mono;
+
+@Component
+public class CustomFilter implements GlobalFilter, Ordered {
+
+    //过滤逻辑 和servlet的过滤器很像
+    @Override
+    public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        ServerHttpRequest request = exchange.getRequest();
+        ServerHttpResponse response = exchange.getResponse();
+        //对request方法进行过滤，假如只允许POST请求
+        if (request.getMethod()!=null && !request.getMethod().matches("POST")) {
+            System.out.println("不是POST方法不放行");
+            response.setStatusCode(HttpStatus.METHOD_NOT_ALLOWED);
+            return response.setComplete();
+        }
+        return null;
+    }
+
+    //返回数值，越小越先执行
+    @Override
+    public int getOrder() {
+        return 0;
+    }
+}
+```
+
 # 面试题记录
 
 https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
