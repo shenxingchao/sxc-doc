@@ -12259,7 +12259,7 @@ mybatis:
 **移除默认的logback日志**
 
 ```gradle
-    //移除默认的logback日志 如果是父子项目需要放在subprojects里面
+    //移除默认的logback日志 如果是父子项目需要放在subprojects里面，也可以子项目单独移除（放在最外面）
     configurations.all {
         exclude group:'org.springframework.boot', module: 'spring-boot-starter-logging'
         exclude module: 'logback-classic'
@@ -12267,7 +12267,7 @@ mybatis:
     }
 ```
 
-**引入日志起步以来**
+**引入日志起步依赖**
 ```gradle
     //使用日志 如果不是父子工程，则需要加版本号
     implementation 'org.springframework.boot:spring-boot-starter-log4j2'
@@ -14545,6 +14545,72 @@ management:
 
 ```powershell
 curl -X POST http://127.0.0.1:9527/actuator/bus-refresh
+```
+
+## SpringColudAlibaba
+
+新建一个springboot工程  示例父项目spring-cloud-alibaba-parent
+
+**spring-cloud-alibaba-parent\build.gradle**
+
+```gradle
+plugins {
+    id 'org.springframework.boot' version '2.7.2'
+    id 'io.spring.dependency-management' version '1.0.12.RELEASE'
+    id 'java'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+//所有项目包括根项目配置
+allprojects{
+    //组织、版本号、jdk版本
+    group = 'com.sxc'
+    version = '0.0.1-SNAPSHOT'
+    sourceCompatibility = '1.8'
+
+    repositories {
+        //添加阿里云仓库
+        maven { url('https://maven.aliyun.com/repository/central') }
+        mavenCentral()
+    }
+}
+
+//设置版本号
+ext {
+    set('springCloudAlibabaVersion', "2021.1")
+}
+
+//子项目的统一配置
+subprojects{
+    //子项目应用开头引入的插件
+    apply plugin:'org.springframework.boot'
+    apply plugin:'io.spring.dependency-management'
+    apply plugin:'java'
+
+    //子项目通用依赖
+    dependencies {
+        implementation 'org.springframework.boot:spring-boot-starter-web'
+        compileOnly 'org.projectlombok:lombok'
+        developmentOnly 'org.springframework.boot:spring-boot-devtools'
+        annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+        annotationProcessor 'org.projectlombok:lombok'
+        testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    }
+
+    //dependencyManagement
+    dependencyManagement {
+        dependencies {}
+        //统一管理版本号了
+        imports {
+            mavenBom "com.alibaba.cloud:spring-cloud-alibaba-dependencies:${springCloudAlibabaVersion}"
+        }
+    }
+}
 ```
 
 # 面试题记录
