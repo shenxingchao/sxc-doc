@@ -14613,6 +14613,21 @@ subprojects{
 }
 ```
 
+### nacos
+
+**注册中心 + 配置中心 + BUS**
+
+[nacos](https://nacos.io/zh-cn/docs/quick-start.html) [下载地址](https://github.com/alibaba/nacos/releases)
+
+#### 启动
+
+windows启动
+
+```powershell
+#以单机模式启动
+startup.cmd -m standalone
+```
+
 # 面试题记录
 
 https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
