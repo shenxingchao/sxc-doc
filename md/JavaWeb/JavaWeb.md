@@ -14311,7 +14311,7 @@ public class CustomFilter implements GlobalFilter, Ordered {
             response.setStatusCode(HttpStatus.METHOD_NOT_ALLOWED);
             return response.setComplete();
         }
-        return null;
+        return chain.filter(exchange);
     }
 
     //返回数值，越小越先执行
@@ -14320,6 +14320,231 @@ public class CustomFilter implements GlobalFilter, Ordered {
         return 0;
     }
 }
+```
+
+## 配置中心
+
+让所有微服务获取存放在外部的统一的配置文件，方便运维不需要重启服务器即可修改配置文件(基本用不到，超大公司，有非常多的微服务集群才用的到)
+
+在github创建一个仓库，存放config-dev.yml，然后搭建一个配置中心服务端，用来读取远程git仓库的配置；所有微服务的配置文件删掉，增加bootstrap.yml，通过配置bootstrap.yml来获取配置中心的配置。
+
+### 起步
+
+创建配置中心服务端config-server
+
+**添加依赖 config-server\build.gradle**
+
+```gradle
+dependencies {
+    //作为配置中心
+    implementation 'org.springframework.cloud:spring-cloud-config-server'
+}
+```
+
+**创建启动类 config-server\src\main\java\com\sxc\config\ConfigServerApplication.java**
+
+```java
+package com.sxc.config;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.config.server.EnableConfigServer;
+
+@SpringBootApplication
+@EnableConfigServer
+public class ConfigServerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConfigServerApplication.class,args);
+    }
+}
+```
+
+**git新建一个config文件**
+
+![calc](../../images/java/spring-cloud/08.png)
+
+**配置中心新增配置文件 config-server\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 9527
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        #git 的 远程仓库地址
+        git:
+          uri: https://gitee.com/shenxingchao/config.git
+          username: gitee账号
+          password: gitee密码
+      label: master #分支配置
+```
+
+测试 访问http://127.0.0.1:9527/master/config-dev.yml
+
+![calc](../../images/java/spring-cloud/09.png)
+
+### 让微服务读取配置中心配置
+
+**新增依赖 goods\build.gradle**
+
+```gradle
+    //可以去读外部配置中心的配置 spring-cloud-starter-bootstrap必须加，不然无法启动
+    implementation 'org.springframework.cloud:spring-cloud-starter-config'
+    implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+```
+
+**微服务项目新增配置文件 goods\src\main\resources\bootstrap.yml**
+
+```yml
+# 配置config-server地址
+# 配置获得配置文件的名称等信息
+spring:
+  cloud:
+    config:
+      #配置config-server地址
+      uri: http://127.0.0.1:9527
+      # 配置获得配置文件的名称等信息
+      name: config #文件名
+      profile: dev #配置描述指定，  config-dev.yml
+      label: master #分支
+```
+
+测试访问http://127.0.0.1:8001/goods
+
+### 集成eureka
+
+高可用
+
+去注册中心的配置中心服务找而不是通过上面固定的地址找了
+
+**配置中心添加依赖 config-server\build.gradle**
+
+```gradle
+    //作为eureka客户端
+    implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+```
+
+**配置中心启动类添加注解 config-server\src\main\java\com\sxc\config\ConfigServerApplication.java**
+
+```java
+@EnableEurekaClient
+```
+
+**配置中心配置文件 注册到注册中心**
+
+```yml
+server:
+  port: 9527
+
+spring:
+  application:
+    name: config-server
+  cloud:
+    config:
+      server:
+        #git 的 远程仓库地址
+        git:
+          uri: https://gitee.com/shenxingchao/config.git
+          username: 864318466@qq.com
+          password: 123456
+      label: master #分支配置
+#让配置中心作为一个服务注册到eureka
+eureka:
+  instance:
+    #主机名
+    hostname: eureka-provider-hostname
+    #注册ip名称显示到eureka控制面板
+    prefer-ip-address: true
+    #实例ip地址 一般是当前服务的服务器ip
+    ip-address: 127.0.0.1
+    #设置web控制台显示的 实例id名字
+    instance-id: ${eureka.instance.ip-address}:${spring.application.name}:${server.port}
+    #设置连接的心跳机制s 客户端向服务端发送心跳包
+    lease-renewal-interval-in-seconds: 10
+    #客户端超时断开连接s
+    lease-expiration-duration-in-seconds: 30
+  client:
+    service-url:
+      #eureka服务端地址，将来客户端使用该地址和eureka进行通信
+      defaultZone: http://127.0.0.1:8761/eureka
+```
+
+**微服务配置文件添加去注册中心找配置中心服务的配置 goods\src\main\resources\bootstrap.yml**
+
+```yml
+# 配置config-server地址
+# 配置获得配置文件的名称等信息
+spring:
+  cloud:
+    config:
+      # 配置config-server地址
+      #uri: http://127.0.0.1:9527
+      # 配置获得配置文件的名称等信息
+      name: config # 文件名
+      profile: dev # 配置描述指定，  config-dev.yml
+      label: master # 分支
+      #去注册中心的配置中心服务找而不是通过上面固定的地址找了
+      discovery:
+        enabled: true
+        service-id: config-server
+#用于端口发现 需要依赖implementation 'org.springframework.boot:spring-boot-starter-actuator'
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+```
+
+到这里截张图
+
+![calc](../../images/java/spring-cloud/10.png)
+
+### 修改外部配置文件刷新微服务
+
+```powershell
+curl -X POST http://localhost:8000/actuator/refresh
+```
+
+### 服务总线
+
+如果要刷新所有微服务，则需要使用BUS（中间件），通过中间件RabbitMQ，让配置中心和微服务通过中间件关联起来，然后只要通知bus去刷新，就能刷新所有的微服务了
+
+**微服务和配置中心都添加依赖**
+
+```gradle
+    //可以用于检测系统的健康情况、当前的Beans、系统的缓存等
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    //服务总线
+    implementation 'org.springframework.cloud:spring-cloud-starter-bus-amqp:3.1.2'
+```
+
+**微服务和配置中心都添加配置**
+
+```yml
+spring:
+  #配置rabbitmq信息 需要启动一个rabbitmq
+  rabbitmq:
+    host: 127.0.0.1
+    port: 5672
+    username: guest
+    password: guest
+    virtual-host: /
+#暴露bus的刷新端点
+management:
+  endpoints:
+    web:
+      exposure:
+        include: 'bus-refresh'
+```
+
+测试，
+
+```powershell
+curl -X POST http://127.0.0.1:9527/actuator/bus-refresh
 ```
 
 # 面试题记录
