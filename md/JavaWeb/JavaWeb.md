@@ -1644,7 +1644,7 @@ public class Demo {
 
 db.properties
 
-```properties
+```java
 user=root
 password=
 url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
@@ -2037,7 +2037,7 @@ public class Demo {
 
 druid.properties
 
-```properties
+```java
 #druid已经可以自动识别常用的驱动，可省略
 driverClassName=com.mysql.jdbc.Driver
 url=jdbc:mysql://localhost:3307/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
@@ -2766,7 +2766,7 @@ pom.xml             Maven工程配置文件
     <groupId>org.sxc</groupId>
     <!-- 版本 快照版 -->
     <version>1.0-SNAPSHOT</version>
-    <!-- 打包后生产war(web)/jar(普通jar包)/pom（父子模块） 默认是jar -->
+    <!-- 打包后生成war(web)/jar(普通jar包)/pom（父子模块） 默认是jar -->
     <packaging>war</packaging>
 
     <!--依赖列表-->
@@ -2978,7 +2978,7 @@ pom.xml             Maven工程配置文件
 | 命令                   | 说明                                                   |
 | :--------------------- | :----------------------------------------------------- |
 | mvn –v                 | 显示版本信息                                           |
-| mvn clean              | 清理项目生产的临时文件,一般是模块下的target目录        |
+| mvn clean              | 清理项目生成的临时文件,一般是模块下的target目录        |
 | mvn compile            | 编译源代码，一般编译模块下的src/main/java目录          |
 | mvn package            | 项目打包工具,会在模块下的target目录生成jar或war等文件  |
 | mvn test               | 测试命令,或执行src/test/java/下junit的测试用例         |
@@ -6627,7 +6627,7 @@ application.xml
 
 druid.properties  com.mysql.jdbc.Driver视mysql版本5.7以上改为com.mysql.cj.jdbc.Driver
 
-```
+```java
 druid.driverClassName=com.mysql.jdbc.Driver
 druid.url=jdbc:mysql://localhost:3306/dbname?useSSL=false&&rewriteBatchedStatements=true&&characterEncoding=utf-8&&serverTimezone=Asia/Shanghai
 druid.username=root
@@ -12741,8 +12741,9 @@ public class R implements Serializable {
     PATH=$PATH:$JAVA_HOME/bin:$JRE_HOME/bin
     export JAVA_HOME JRE_HOME CLASSPATH PATH
     ```
-5. 检查java环境变量配置是否成功java -version
-6. 创建一个hello.java测试
+5. 使环境变量生效 source /etc/profile
+6. 检查java环境变量配置是否成功java -version
+7. 创建一个hello.java测试
    ![calc](../../images/java/springboot/11.png)
 
 # docker
@@ -13561,7 +13562,7 @@ discoveryClient.getInstances("consul-provider");
 
 前提：复制一份provider
 
-负载均衡(loadbanlance),对于服务调用(discoveryClient.getInstances 就是这个方法），根据一定的策略去从可用的服务实例中取出实例，这是一个在客户端的负载均衡
+负载均衡(loadbalance),对于服务调用(discoveryClient.getInstances 就是这个方法），根据一定的策略去从可用的服务实例中取出实例，这是一个在客户端的负载均衡
 
 ### 使用
 
@@ -13662,7 +13663,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class GoodsController {
     //端口号，用于查看策略是否成功
     @Value("${server.port}")
-    int port;
+    Integer port;
 
     @GetMapping
     public Goods getGoods(){
@@ -13897,7 +13898,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("goods")
 public class GoodsController {
     @Value("${server.port}")
-    int port;
+    Integer port;
 
     @GetMapping
     //配置指定降级方法和设置超时多久调用降级方法
@@ -14505,6 +14506,12 @@ management:
 
 ### 修改外部配置文件刷新微服务
 
+获取配置信息类上，添加 @RefreshScope 注解
+
+```java
+@RefreshScope // 开启刷新功能
+```
+
 ```powershell
 curl -X POST http://localhost:8000/actuator/refresh
 ```
@@ -14582,7 +14589,7 @@ allprojects{
 
 //设置版本号
 ext {
-    set('springCloudAlibabaVersion', "2021.1")
+    set('springCloudAlibabaVersion', "2021.0.1.0")
 }
 
 //子项目的统一配置
@@ -14621,11 +14628,751 @@ subprojects{
 
 #### 启动
 
-windows启动
+windows启动 进入bin目录执行
 
 ```powershell
 #以单机模式启动
 startup.cmd -m standalone
+```
+
+访问http://127.0.0.1:8848/nacos/index.html登录控制台，默认账号密码都是nacos
+
+#### 搭建2个相同服务提供者
+
+创建子工程provider1端口号8000 和 privider2端口号8001
+
+**引入依赖 provider1\build.gradle**
+
+```gradle
+dependencies {
+    //作为注册中心客户端
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
+}
+```
+
+**添加配置文件 provider1\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8000
+spring:
+  application:
+    #服务名需相同
+    name: nacos-provider
+  cloud:
+    #nacos 服务发现地址
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+```
+
+**创建启动类 provider1\src\main\java\com\sxc\provider1\Provider1Application.java**
+
+```java
+package com.sxc.provider1;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+//作为注册中心客户端
+@EnableDiscoveryClient
+public class Provider1Application {
+    public static void main(String[] args) {
+        SpringApplication.run(Provider1Application.class,args);
+    }
+}
+```
+
+**创建controller provider1\src\main\java\com\sxc\provider1\controller\GoodsController.java**
+
+```java
+package com.sxc.provider1.controller;
+
+import com.sxc.provider1.entity.Goods;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RestController
+@RequestMapping("goods")
+public class GoodsController {
+    @Value("${server.port}")
+    int port;
+
+    @GetMapping
+    public Goods getGoods(){
+        return new Goods(1,"IPHONE苹果" + port);
+    }
+}
+```
+
+**创建实体类 provider1\src\main\java\com\sxc\provider1\entity\Goods.java**
+
+```java
+package com.sxc.provider1.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Goods implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Integer id;
+    private String goodsName;
+}
+```
+
+访问nacos控制台，出现如下图，即搭建完成，访问http://127.0.0.1:8001/goods调用接口成功
+
+![calc](../../images/java/spring-cloud/11.png)
+
+#### 搭建1个服务调用者
+
+创建子工程 consumer
+
+**父工程添加依赖 用于cloud版本管理，因为需要用到的负载均衡spring-cloud-starter-loadbalancer 是cloud的组件**
+
+**build.gradle**
+
+```gradle
+//设置版本号
+ext {
+    //新增
+    //cloud
+    set('springCloudVersion', "2021.0.3")
+}
+//子项目的统一配置
+subprojects{
+    //dependencyManagement
+    dependencyManagement {
+        dependencies {}
+        ...
+        imports {
+            //新增
+            //cloud
+            mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+        }
+    }
+}
+```
+
+**子工程添加依赖 consumer\build.gradle**
+
+```gradle
+dependencies {
+    //作为注册中心客户端
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
+    //负载均衡
+    implementation 'org.springframework.cloud:spring-cloud-starter-loadbalancer'
+}
+```
+
+**配置文件 consumer\src\main\resources\application.yml**
+
+```yml
+server:
+  port: 8003
+spring:
+  application:
+    name: nacos-consumer
+  cloud:
+    #nacos 服务发现地址
+    nacos:
+      discovery:
+        server-addr: 127.0.0.1:8848
+```
+
+**启动类 consumer\src\main\java\com\sxc\consumer\ConsumerApplication.java**
+
+```java
+package com.sxc.consumer;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+@SpringBootApplication
+//作为注册中心客户端
+@EnableDiscoveryClient
+public class ConsumerApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ConsumerApplication.class,args);
+    }
+}
+```
+
+**实体类 consumer\src\main\java\com\sxc\consumer\entity\Goods.java**
+
+```java
+package com.sxc.consumer.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class Goods implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private Integer id;
+    private String goodsName;
+}
+```
+
+**远程调用类 consumer\src\main\java\com\sxc\consumer\config\RestTemplateConfig.java**
+
+```java
+package com.sxc.consumer.config;
+
+import org.springframework.cloud.client.loadbalancer.LoadBalanced;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.client.RestTemplate;
+
+@Configuration
+public class RestTemplateConfig {
+    @Bean
+    //开启负载均衡
+    @LoadBalanced
+    public RestTemplate restTemplate() {
+        return new RestTemplate();
+    }
+}
+```
+
+**控制器 consumer\src\main\java\com\sxc\consumer\controller\OrderController.java**
+
+```java
+package com.sxc.consumer.controller;
+
+import com.sxc.consumer.entity.Goods;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.client.RestTemplate;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+    @Resource
+    private RestTemplate restTemplate;
+
+    @GetMapping
+    public Goods addOrder() {
+        String url = "http://nacos-provider/goods";
+        return restTemplate.getForObject(url, Goods.class);
+    }
+}
+```
+
+访问nacos控制台，出现如下图，即搭建完成，访问http://127.0.0.1:8003/order调用接口成功
+
+![calc](../../images/java/spring-cloud/12.png)
+
+#### 整合openfeign远程调用
+
+**添加依赖 consumer\build.gradle**
+
+```gradle
+dependencies {
+    ...
+    //openfeign 用于简化http远程调用
+    implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+}
+```
+
+**新增Feign调用接口 consumer\src\main\java\com\sxc\consumer\feign\GoodsFeign.java**
+
+```java
+package com.sxc.consumer.feign;
+
+import com.sxc.consumer.entity.Goods;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+@FeignClient(
+        value = "nacos-provider"
+)
+public interface GoodsFeign {
+    //需要注意的是这里需要写api全路径 这个就是服务提供者的api方法复制过来就可以了
+    @GetMapping("goods")
+    Goods getGoods();
+}
+```
+
+**启动类开启Feign consumer\src\main\java\com\sxc\consumer\ConsumerApplication.java**
+
+```java
+//开启远程OpenFeign HTTP调用
+@EnableFeignClients
+```
+
+**远程调用API修改为类似本地调用,不需要RestTemplate了 consumer\src\main\java\com\sxc\consumer\controller\OrderController.java**
+
+```java
+package com.sxc.consumer.controller;
+
+import com.sxc.consumer.entity.Goods;
+import com.sxc.consumer.feign.GoodsFeign;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+
+    @Resource
+    private GoodsFeign goodsFeign;
+
+    @GetMapping
+    public Goods addOrder() {
+        return goodsFeign.getGoods();
+    }
+}
+```
+
+#### 作为配置中心
+
+**基本使用**
+
+创建一个配置中心的**客户端**config-client
+
+1. 添加依赖config-client\build.gradle
+
+    ```gradle
+    dependencies {
+        //作为注册中心客户端
+        implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-discovery'
+        //作为配置中心的客户端。从nacos去读取配置了
+        implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-nacos-config'
+        //新版版引入这个优先加载bootstrap.yml不然无法启动
+        implementation 'org.springframework.cloud:spring-cloud-starter-bootstrap'
+    }
+    ```
+
+2. 添加配置文件
+
+    config-client\src\main\resources\application.yml
+
+    ```yml
+    spring:
+    profiles:
+        # 这个配置是用于读取nacos中指定的环境的配置 dev/prod/test
+        active: dev
+    ```
+
+    config-client\src\main\resources\bootstrap.yml
+
+    ```yml
+    server:
+    port: 8004
+    spring:
+    application:
+        name: nacos-config-client
+    cloud:
+        #nacos 服务发现地址
+        nacos:
+        discovery:
+            server-addr: 127.0.0.1:8848
+        #nacos作为配置中心的地址
+        config:
+            server-addr: 127.0.0.1:8848
+            file-extension: yaml
+    #自定义配置属性
+    key: value
+    ```
+
+3. 添加启动类 config-client\src\main\java\com\sxc\configclient\ConfigClientApplication.java
+
+    ```java
+    package com.sxc.configclient;
+
+    import org.springframework.boot.SpringApplication;
+    import org.springframework.boot.autoconfigure.SpringBootApplication;
+    import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
+
+    @SpringBootApplication
+    @EnableDiscoveryClient
+    public class ConfigClientApplication {
+        public static void main(String[] args) {
+            SpringApplication.run(ConfigClientApplication.class,args);
+        }
+    }
+    ```
+
+4. 添加测试控制器用于读取配置中心配置 config-client\src\main\java\com\sxc\configclient\controller\ClientController.java
+   
+    ```java
+    package com.sxc.configclient.controller;
+
+    import org.springframework.beans.factory.annotation.Value;
+    import org.springframework.cloud.context.config.annotation.RefreshScope;
+    import org.springframework.web.bind.annotation.GetMapping;
+    import org.springframework.web.bind.annotation.RequestMapping;
+    import org.springframework.web.bind.annotation.RestController;
+
+    @RestController
+    @RequestMapping("test")
+    //可以动态刷新nacos中的配置信息
+    @RefreshScope
+    public class ClientController {
+        @Value("${key}")
+        private String key;
+
+        @GetMapping
+        public String getValue(){
+            return key;
+        }
+    }
+    ```
+
+**配置分类**
+
+三层架构 dataID,group,namespace，利用这三个配置定位配置信息
+
+dataID 配置文件名称：由 boostrap.yml里的spring.application.name + application.yml里的spring.profiles.active + .yaml后缀组成
+
+![calc](../../images/java/spring-cloud/13.png)
+
+group 分组：配置时添加指定group(是哪个机房组的SHANG_JIFANG)并在bootstrap.yml里面添加
+
+```yml
+spring:
+  cloud:
+    nacos:
+      config:
+        group: SHANGHAI_JIFANG
+```
+
+namespace 命名空间：新建命名空间 并在指定命名空间下添加配置,最后在bootrstrap.yml里面添加
+
+```yml
+spring:
+  cloud:
+    nacos:
+      config:
+        #命名空间生成的随机字符串
+        namespace: cf98cf45-efa7-43fc-8c78-65fbeb7d6322
+```
+
+测试三层架构配置
+
+![calc](../../images/java/spring-cloud/14.png)
+
+**配置持久化 集群使用同一配置**
+
+创建数据库名为nacos-config
+
+执行nacos-server-2.1.0\nacos\conf 下的nacos-mysql.sql初始化数据库表格
+
+修改配置文件nacos-server-2.1.0\nacos\conf\application.properties  找到line32 If use MySQL as datasource
+
+```java
+### If use MySQL as datasource:
+spring.datasource.platform=mysql
+
+### Count of DB:
+db.num=1
+
+### Connect URL of DB:  nacos-config数据库名称 3307我这里是3307一般是3306
+db.url.0=jdbc:mysql://127.0.0.1:3307/nacos-config?characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai
+db.user.0=root
+db.password.0=
+```
+
+![calc](../../images/java/spring-cloud/15.png)
+
+
+#### 集群
+
+[部署方式](https://nacos.io/zh-cn/docs/cluster-mode-quick-start.html)
+
+1. linux服务器安装好java
+    [见](#linux配置java)
+2. [下载Linux安装包nacos-server-2.1.0.tar.gz](https://github.com/alibaba/nacos/releases/)
+    ```powershell
+    cd /usr/local/src
+    #上传nacos-server-2.1.0.tar.gz
+    rz -be
+    #解压
+    tar -zxvf ./nacos-server-2.1.0.tar.gz
+    #复制
+    cp -r nacos /usr/local/nacos
+    ```
+
+3. 配置集群
+    cp /usr/local/nacos/conf/cluster.conf.example /usr/local/nacos/conf/cluster.conf
+    编辑cluster.conf 配置nacos服务端地址 至少3台,且端口号不要连续，隔开一点，否则BUG
+    ```powershell
+    192.168.3.128:8848
+    192.168.3.128:8858
+    192.168.3.128:8868
+    ```
+    顺便修改一下启动内存，不然默认的不够
+    ```powershell
+    vim /usr/local/nacos/bin/startup.sh
+    ```
+    ![calc](../../images/java/spring-cloud/16.png)
+
+4. 修改端口号
+    修改/usr/local/nacos/conf/application.properties 配置mysql持久化 见上一章
+
+5. 配置数据源
+    修改/usr/local/nacos/conf/application.properties server.port=8848
+
+6. 复制多分服务端，模拟集群，并修改端口号/usr/local/nacos/conf/application.properties 8858 8868
+    ```powershell
+    cp -r /usr/local/nacos /usr/local/nacos2
+    cp -r /usr/local/nacos /usr/local/nacos3
+    ```
+
+7. 启动
+    ```powershell
+    #单机启动
+    sh /usr/local/nacos/bin/startup.sh -m standalone
+    #集群启动 使用内置数据库
+    sh /usr/local/nacos/bin/startup.sh -p embedded
+    sh /usr/local/nacos2/bin/startup.sh -p embedded
+    sh /usr/local/nacos3/bin/startup.sh -p embedded
+    #集群启动 使用外置数据库mysql
+    sh /usr/local/nacos/bin/startup.sh
+    sh /usr/local/nacos2/bin/startup.sh
+    sh /usr/local/nacos3/bin/startup.sh
+    ```
+
+    查看启动
+    
+    ![calc](../../images/java/spring-cloud/17.png)
+
+8. 防火墙开放端口
+    ```powershell
+    firewall-cmd --zone=public --add-port=8848/tcp --permanent
+    firewall-cmd --zone=public --add-port=8858/tcp --permanent
+    firewall-cmd --zone=public --add-port=8868/tcp --permanent
+    firewall-cmd --reload
+    ```
+    
+    控制 http://192.168.3.128:8848/nacos/index.html
+
+    出现如下图则集群搭建成功
+
+    ![calc](../../images/java/spring-cloud/18.png)
+
+9. 软负载均衡slb(soft loadbalance)
+    [下载nginx](http://nginx.org/en/download.html)
+
+    ```powershell
+    cd /usr/local/src
+    #上传nginx-1.22.0.tar.gz 
+    rz -be
+    #解压
+    tar zxvf ./nginx-1.22.0.tar.gz 
+    #nginx的Rewrite模块和HTTP核心模块会使用到PCRE正则表达式语法
+    yum -y install pcre pcre-devel
+    #nginx的各种模块中需要使用gzip压缩
+    yum -y install zlib zlib-devel
+    #安全套接字层密码库
+    yum -y install openssl openssl-devel
+    #编译安装
+    cd /usr/local/src/nginx-1.22.0
+    ./configure --prefix=/usr/local/nginx-1.22.0
+    make&&make install
+    #安装nginx详细流程参考PHP->lnmp->nginx安装 这里就只是测试
+    #开启80端口
+    firewall-cmd --zone=public --add-port=80/tcp --permanent
+    firewall-cmd --reload
+    #启动
+    /usr/local/nginx-1.22.0/sbin/nginx
+    ```
+
+    修改nginx配置
+
+    ```powershell
+    http {
+        ...
+        #配置负载均衡 下面的地址轮流访问
+        upstream cluster{
+            #启用长连接
+            keepalive 100;
+            server 192.168.3.128:8848;
+            server 192.168.3.128:8858;
+            server 192.168.3.128:8868;
+        }
+        server {
+            ...
+            location / {
+                #root   html;
+                #index  index.html index.htm;
+                #访问/开头的请求转发到集群地址
+                proxy_pass http://cluster;
+            }
+        }
+    }
+    ```
+
+    重启nginx
+
+    ```powershell
+    /usr/local/nginx-1.22.0/sbin/nginx -s reload
+    ```
+
+    最后访问http://192.168.3.128/nacos/index.html#/login 即完成nacos的nginx负载均衡
+
+    ![calc](../../images/java/spring-cloud/19.png)
+
+    测试配置修改bootstrap.yml server-addr 改为 192.168.3.128:80即可
+
+### sentinel
+
+哨兵 监控微服务调用
+
+#### 启动
+
+[下载](https://github.com/alibaba/Sentinel/releases)
+
+```powershell
+java -Dserver.port=8081 -jar sentinel-dashboard-1.8.4.jar
+```
+
+访问 http://127.0.0.1:8081/#/login 默认用户名密码都是sentinel
+
+#### 添加依赖
+
+**consumer\build.gradle**
+
+```gradle
+    //作为sentinel哨兵客户端
+    implementation 'com.alibaba.cloud:spring-cloud-starter-alibaba-sentinel'
+```
+
+#### 启动微服务请求并查看
+
+配置consumer consumer\src\main\resources\application.yml
+
+```yml
+...
+spring:
+  cloud:
+    ...
+    #sentinel配置
+    sentinel:
+      transport:
+        #dashboard端口 这里我启动哨兵的时候用了8081 默认是8080
+        dashboard: 127.0.0.1:8081
+        #哨兵端口
+        port: 8719
+```
+
+启动consumer和provider，访问http://127.0.0.1:8003/order 并查看sentinel控制台
+
+![calc](../../images/java/spring-cloud/20.png)
+
+#### 流量监控
+
+**限流**
+
+1. QPS 每秒访问次数
+    ![calc](../../images/java/spring-cloud/21.png)
+
+2. 并发线程数
+    限制服务处理所用的线程数,如果没有空闲线程，则会阻塞请求，知道空闲
+
+**流控模式**
+
+1. 直连
+    针对单个服务
+
+2. 关联
+    指定A接口关联B接口 且B失败（限制B的QPS）影响A也失败
+
+3. 链路
+    可以限制controller调用service方法，在service层方法上加上注解@SentinelResource("goods"),并加上下面的配置
+
+    ```powershell
+    spring:
+    cloud:
+        sentinel:
+        #配置为false即可根据不同的URL进行链路限流
+        web-context-unify: false
+    ```
+
+**流控效果**
+
+1. 快速失败
+    直接失败
+
+2. Warm Up
+    冷启动 刚开始可能失败，到后面不会失败
+
+3. 排队等待
+    不会失败，阻塞，直到成功
+
+#### 熔断降级
+
+和hystrix差不多的，访问异常或者是慢查询，直接拒绝
+
+![calc](../../images/java/spring-cloud/22.png)
+
+#### 热点key限流
+
+可以限制指定get参数的限流，不常用
+
+#### 系统规则
+
+对整个系统的限流次数
+
+#### 简化规则的名称
+
+使用注解@SentinelResource(value="xxxx",blockHandler="callback") 
+
+value定义某个微服务接口限流规则的名称,callback降级方法
+
+#### 全局拦截返回
+
+```java
+package com.sxc.consumer.handler;
+
+import com.alibaba.csp.sentinel.adapter.spring.webmvc.callback.BlockExceptionHandler;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.alibaba.csp.sentinel.slots.block.flow.FlowException;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
+@Component
+public class BlockHandler implements BlockExceptionHandler {
+    @Override
+    public void handle(HttpServletRequest request, HttpServletResponse response, BlockException e) throws Exception {
+        String msg = null;
+        if(e instanceof FlowException){
+            msg = "接口限流";
+        }else{
+            msg = "未知限流";
+        }
+        response.setStatus(500);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json; charset=utf-8");
+        response.getWriter().write(msg);
+    }
+}
 ```
 
 # 面试题记录

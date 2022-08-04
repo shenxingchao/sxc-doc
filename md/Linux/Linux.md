@@ -19,7 +19,13 @@ clear
 
 ## 上传文件到当前目录
 
-rz -b
+没有命令则先安装工具 yum install lrzsz -y
+
+rz -be
+
+-b：binary 用binary的方式上传下载，不解释字符为ASCII
+
+-e：强制escape 所有控制字符，比如Ctrl+x，DEL等
 
 ## 删除文件
 
