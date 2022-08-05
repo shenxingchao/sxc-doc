@@ -15339,13 +15339,51 @@ spring:
 
 对整个系统的限流次数
 
-#### 简化规则的名称
+#### 拦截限流返回和熔断降级
 
-使用注解@SentinelResource(value="xxxx",blockHandler="callback") 
+**局部**
 
-value定义某个微服务接口限流规则的名称,callback降级方法
+使用注解@SentinelResource(value="xxxx",blockHandler="callback",fallback="fallback") 
 
-#### 全局拦截返回
+value定义某个微服务接口限流规则的名称,callback限流降级方法,fallback异常降级方法
+
+这种局部的基本没意思,感觉根本用不到
+
+```java
+package com.sxc.consumer.controller;
+
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
+import com.alibaba.csp.sentinel.slots.block.BlockException;
+import com.sxc.consumer.entity.Goods;
+import com.sxc.consumer.feign.GoodsFeign;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("order")
+public class OrderController {
+
+    @Resource
+    private GoodsFeign goodsFeign;
+
+    @GetMapping
+    @SentinelResource(value = "test",blockHandler = "callback")
+    public Goods addOrder() {
+        return goodsFeign.getGoods();
+    }
+
+    public Goods callback(BlockException ex) {
+        Goods goods = goodsFeign.getGoods();
+        goods.setGoodsName("降级了");
+        return goods;
+    }
+}
+```
+
+**全局拦截返回**
 
 ```java
 package com.sxc.consumer.handler;
@@ -15373,6 +15411,84 @@ public class BlockHandler implements BlockExceptionHandler {
         response.getWriter().write(msg);
     }
 }
+```
+
+**集成openfeign调用方降级**
+
+激活Sentinel对Feign的支持 consumer\src\main\resources\application.yml
+
+```yml
+feign:
+  sentinel:
+    enabled: true
+```
+
+服务调用方降级同 hystrix->服务调用方降级->添加调用降级回调函数/将降级回调注册到fegin客户端
+
+#### 流控策略持久化
+
+流控策略保存到nacos,这里注意nacos命名空间！！！
+
+**添加依赖 consumer\build.gradle**
+
+```gradle
+    //sentinel流控策略持久化到nacos配置中心
+    implementation 'com.alibaba.csp:sentinel-datasource-nacos:1.8.4'
+```
+
+**添加配置**
+
+```yml
+spring:
+  application:
+    name: nacos-consumer
+  cloud:
+    ...
+    sentinel:
+      ...
+      datasource:
+        # 名字随意
+        ds:
+          nacos:
+            # nacos的访问地址，，根据上面准备工作中启动的实例配置
+            server-addr: 127.0.0.1:8848
+            # nacos中存储规则的groupId
+            groupId: DEFAULT_GROUP
+            # nacos中存储规则的dataId
+            dataId: ${spring.application.name}-rules
+            # 用来定义存储的规则类型
+            rule-type: flow
+            data-type: json
+```
+
+**nacos配置中心 流控配置**
+
+![calc](../../images/java/spring-cloud/23.png)
+
+```json
+[
+    {
+        "resource": "/order",
+        "limitApp": "default",
+        "grade": 1,
+        "count": 1,
+        "strategy": 0,
+        "controlBehavior": 0,
+        "clusterMode": false
+    }
+]
+```
+
+**流控配置注解**
+
+```
+resource: 需要限流的接口路径
+limitApp: 流控针对的调用来源，若为 default 则不区分调用来源
+grade: 限流阈值类型（QPS 或并发线程数）；0代表根据并发数量来限流，1代表根据QPS来进行流量控制
+count: 限流阈值
+strategy: 调用关系限流策略
+controlBehavior: 流量控制效果（直接拒绝、Warm Up、匀速排队）
+clusterMode: 是否为集群模式
 ```
 
 # 面试题记录
