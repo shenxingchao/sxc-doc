@@ -15597,7 +15597,7 @@ public class Producer {
         //启动
         defaultMQProducer.start();
         //2.发送消息
-        SendResult sendResult = defaultMQProducer.send(new Message("topic1", "tags1", "hello rocketmq".getBytes()));
+        SendResult sendResult = defaultMQProducer.send(new Message("topic1", "tag1", "hello rocketmq".getBytes()));
         System.out.println(sendResult);
         //SendResult [sendStatus=SEND_OK, msgId=7F0000013BBC18B4AAC2261E04370000, offsetMsgId=C0A8023E00002A9F000000000005DB24,
         //messageQueue=MessageQueue [topic=topic1, brokerName=DESKTOP-3KABSK9, queueId=3], queueOffset=0]
@@ -15642,7 +15642,7 @@ public class Consumer {
                     String keys = msg.getKeys();
                     String body = new String(msg.getBody());
                     System.out.println("topic + tags + keys + body = " + topic + tags + keys + body);
-                    //topic + tags + keys + body = topic1 tags1 null hello rocketmq
+                    //topic + tags + keys + body = topic1 tag1 null hello rocketmq
                 }
                 return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
             }
@@ -15669,7 +15669,7 @@ public class Consumer {
 假如订单ID为10的订单，需要投递到同一个队列中
 
 ```java
-    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    Message message = new Message("topic1", "tag1", "hello rocketmq".getBytes());
     defaultMQProducer.send(message, new MessageQueueSelector() {
         @Override
         public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
@@ -15716,7 +15716,7 @@ public class Consumer {
 
 ```java
     //发送异步消息 异步执行
-    defaultMQProducer.send(new Message("topic1", "tags1", "hello rocketmq".getBytes()), new SendCallback() {
+    defaultMQProducer.send(new Message("topic1", "tag1", "hello rocketmq".getBytes()), new SendCallback() {
         @Override
         public void onSuccess(SendResult sendResult) {
             System.out.println(sendResult);
@@ -15739,7 +15739,7 @@ public class Consumer {
 
 ```java
     //单向消息
-    defaultMQProducer.sendOneway(new Message("topic1", "tags1", "hello rocketmq".getBytes()));
+    defaultMQProducer.sendOneway(new Message("topic1", "tag1", "hello rocketmq".getBytes()));
 ```
 
 #### 延时消息
@@ -15748,7 +15748,7 @@ public class Consumer {
 
 ```java
     //定时消息
-    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    Message message = new Message("topic1", "tag1", "hello rocketmq".getBytes());
     //设置延时等级(3=>10秒) 共“1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h”，18个level
     message.setDelayTimeLevel(3);
     defaultMQProducer.send(message);
@@ -15762,7 +15762,7 @@ public class Consumer {
     //批量消息
     ArrayList<Message> messages = new ArrayList<>();
     for (int i = 0; i < 10; i++) {
-        messages.add(new Message("topic1", "tags1", ("hello rocketmq" + i ).getBytes()));
+        messages.add(new Message("topic1", "tag1", ("hello rocketmq" + i ).getBytes()));
     }
     defaultMQProducer.send(messages);
 ```
@@ -15797,7 +15797,7 @@ java -jar rocketmq-dashboard-1.0.1-SNAPSHOT.jar
 
 ```java
     //生产者
-    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    Message message = new Message("topic1", "tag1", "hello rocketmq".getBytes());
     //设置属性
     message.putUserProperty("age","18");
     defaultMQProducer.send(message);
@@ -16091,6 +16091,78 @@ public class ConsumerRocketMQListener implements RocketMQListener<User> {
         // User(id=100002, name=订单100002下单, age=18)
         // User(id=100002, name=订单100002付款, age=18)
         // User(id=100002, name=订单100002完成, age=18)
+    }
+}
+```
+
+#### 生产者的事务
+
+可以实现消息的回滚，让消息不发送
+
+```java
+package com.sxc.rocketmqspringboot.controller;
+
+import com.sxc.rocketmqspringboot.entity.User;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("producer")
+public class ProducerController {
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
+
+    @GetMapping
+    public String send() {
+        User user = new User(1, "张三", 18);
+        Message<User> message = MessageBuilder.withPayload(user).build();
+        //发送事务消息
+        rocketMQTemplate.sendMessageInTransaction("topic1:tag1", message, null);
+
+        return "发送成功";
+    }
+}
+```
+
+```java
+package com.sxc.rocketmqspringboot.listen;
+
+import org.apache.rocketmq.spring.annotation.RocketMQTransactionListener;
+import org.apache.rocketmq.spring.core.RocketMQLocalTransactionListener;
+import org.apache.rocketmq.spring.core.RocketMQLocalTransactionState;
+import org.springframework.messaging.Message;
+import org.springframework.stereotype.Component;
+
+@Component
+@RocketMQTransactionListener
+public class ProducerTransactionListener implements RocketMQLocalTransactionListener {
+    @Override
+    public RocketMQLocalTransactionState executeLocalTransaction(Message msg, Object arg) {
+        try {
+            //写入一些日志(就是执行本地事务)
+            System.out.println("写入日志");
+            //事务提交
+            return RocketMQLocalTransactionState.COMMIT;
+        } catch (Exception e) {
+            //回滚
+            return RocketMQLocalTransactionState.ROLLBACK;
+        }
+    }
+
+    //一定时间后检查本地事务 只有上面的返回RocketMQLocalTransactionState.UNKNOW 才会执行
+    @Override
+    public RocketMQLocalTransactionState checkLocalTransaction(Message msg) {
+        System.out.println("检查日志写入是否成功");
+        //成功
+        return RocketMQLocalTransactionState.COMMIT;
+        //失败
+        //return  RocketMQLocalTransactionState.ROLLBACK;
     }
 }
 ```
