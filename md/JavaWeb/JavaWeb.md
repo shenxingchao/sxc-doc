@@ -15491,6 +15491,610 @@ controlBehavior: 流量控制效果（直接拒绝、Warm Up、匀速排队）
 clusterMode: 是否为集群模式
 ```
 
+# Mq
+
+消息队列 先进先出
+
+特点
+
+1. 应用解耦，作为一个中间件，用于存储用户请求，可以分发成多分请求到实际处理程序
+
+2. 异步提速，请求放入队列即完成操作
+
+3. 削峰填谷，缓存大量消息，然后慢慢让后面的系统处理消息
+
+
+
+## RocketMQ
+
+主要分为两块：命名服务器（存储broker ip）和broker服务器（收发消息）
+
+### 安装
+
+[下载](https://www.apache.org/dyn/closer.cgi?path=rocketmq/4.9.4/rocketmq-all-4.9.4-bin-release.zip)
+
+**windows**
+
+配置环境变量
+
+```powershell
+ROCKETMQ_HOME="D:\rocketmq"
+#用户测试
+NAMESRV_ADDR="localhost:9876"
+```
+
+
+### 启动
+
+```powershell
+#windows 进入Bin目录
+#启动命名空间服务器
+mqnamesrv.cmd
+#启动broker服务器
+mqbroker.cmd -n localhost:9876 autoCreateTopicEnable=true
+#测试
+#开启一个消费者接收消息
+tools.cmd  org.apache.rocketmq.example.quickstart.Consumer
+#开启一个生产者生产消息
+tools.cmd  org.apache.rocketmq.example.quickstart.Producer
+```
+
+### 安装控制台
+
+[下载](https://github.com/apache/rocketmq-dashboard) [其他插件](https://github.com/apache/rocketmq-externals)
+
+**修改配置文件 application.yml**
+
+```yml
+rocketmq:
+  config:
+    namesrvAddrs:
+      - 127.0.0.1:9876
+    dataPath: d:/sxc/java/rocketmq-data
+```
+
+打开rocketmq-dashboard 等待安装完依赖 然后点击Maven-> package打包成jar包 rocketmq-dashboard-1.0.1-SNAPSHOT.jar
+
+**运行**
+
+```powershell
+java -jar rocketmq-dashboard-1.0.1-SNAPSHOT.jar
+```
+
+**访问**
+
+访问127.0.0.1:8080 既可以访问控制台页面如下
+
+![cacl](../../images/java/mq/01.png)
+
+### 搭建客户端
+
+创建一个rocketmq-test工程
+
+**添加依赖**
+
+```gradle
+    implementation 'org.apache.rocketmq:rocketmq-client:5.0.0-PREVIEW'
+```
+
+### 创建消息生产者
+
+就是发消息的人
+
+```java
+package com.sxc;
+
+import org.apache.rocketmq.client.producer.DefaultMQProducer;
+import org.apache.rocketmq.client.producer.SendResult;
+import org.apache.rocketmq.common.message.Message;
+
+public class Producer {
+    public static void main(String[] args) throws Exception{
+        //1.创建消息生产者 并设置组
+        DefaultMQProducer defaultMQProducer = new DefaultMQProducer("test-producer-group");
+        //设置rocketmq地址
+        defaultMQProducer.setNamesrvAddr("127.0.0.1:9876");
+        //启动
+        defaultMQProducer.start();
+        //2.发送消息
+        SendResult sendResult = defaultMQProducer.send(new Message("topic1", "tags1", "hello rocketmq".getBytes()));
+        System.out.println(sendResult);
+        //SendResult [sendStatus=SEND_OK, msgId=7F0000013BBC18B4AAC2261E04370000, offsetMsgId=C0A8023E00002A9F000000000005DB24,
+        //messageQueue=MessageQueue [topic=topic1, brokerName=DESKTOP-3KABSK9, queueId=3], queueOffset=0]
+        //3.关闭发送客户端
+        defaultMQProducer.shutdown();
+    }
+}
+```
+
+结果
+
+![cacl](../../images/java/mq/02.png)
+
+### 创建消息接收者
+
+```java
+package com.sxc;
+
+import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyContext;
+import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
+import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
+import org.apache.rocketmq.common.message.MessageExt;
+
+import java.util.List;
+
+public class Consumer {
+    public static void main(String[] args) throws Exception{
+        //创建消息消费者（接收者）并设置组
+        DefaultMQPushConsumer defaultMQPushConsumer = new DefaultMQPushConsumer("test-consumer-group");
+        //设置rocketmq地址
+        defaultMQPushConsumer.setNamesrvAddr("127.0.0.1:9876");
+        //订阅消息主题 tag标签 *表示所有tag（tag1 || tag2）
+        defaultMQPushConsumer.subscribe("topic1","*");
+        //注册消息监听器
+        defaultMQPushConsumer.registerMessageListener(new MessageListenerConcurrently() {
+            @Override
+            public ConsumeConcurrentlyStatus consumeMessage(List<MessageExt> msgs, ConsumeConcurrentlyContext context) {
+                for (MessageExt msg : msgs) {
+                    String topic = msg.getTopic();
+                    String tags = msg.getTags();
+                    String keys = msg.getKeys();
+                    String body = new String(msg.getBody());
+                    System.out.println("topic + tags + keys + body = " + topic + tags + keys + body);
+                    //topic + tags + keys + body = topic1 tags1 null hello rocketmq
+                }
+                return ConsumeConcurrentlyStatus.CONSUME_SUCCESS;
+            }
+        });
+        //启动
+        defaultMQPushConsumer.start();
+    }
+}
+```
+
+### 负载均衡和消息分发
+
+如果消息接收者在同一个组，则每个接收者会争抢消息（负载均衡）。如果是在不同组，则消息会被复制成多份，分发到每个组（消息分发）
+
+如果在同一个组的接收者，想要接收到全部消息，则需要设置组的接收模式为广播模式
+
+```java
+    //设置为广播模式 MessageModel.CLUSTERING(负载均衡，争抢消息)  MessageModel.BROADCASTING（广播模式，同一组接收全部消息）
+    defaultMQPushConsumer.setMessageModel(MessageModel.BROADCASTING);
+```
+
+### 消息投递到同一个队列
+
+假如订单ID为10的订单，需要投递到同一个队列中
+
+```java
+    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    defaultMQProducer.send(message, new MessageQueueSelector() {
+        @Override
+        public MessageQueue select(List<MessageQueue> mqs, Message msg, Object arg) {
+            //队列长度
+            int size = mqs.size();
+            //10为某个订单的id，这样取模之后，可以将所有订单id为10的操作步骤放到一个队列里
+            int id = (int)arg;
+            int index = id % size;
+            //获取这个值
+            return mqs.get(index);
+        }
+    },10);
+```
+
+### 顺序读取
+
+消费者需要按顺序读取消息，保证订单步骤的正确性
+
+```java
+    defaultMQPushConsumer.registerMessageListener(new MessageListenerOrderly() {
+        @Override
+        public ConsumeOrderlyStatus consumeMessage(List<MessageExt> msgs, ConsumeOrderlyContext context) {
+            for (MessageExt msg : msgs) {
+                String topic = msg.getTopic();
+                String tags = msg.getTags();
+                String keys = msg.getKeys();
+                String body = new String(msg.getBody());
+                System.out.println("topic + tags + keys + body = " + topic + tags + keys + body);
+            }
+            return ConsumeOrderlyStatus.SUCCESS;
+        }
+    });
+```
+
+### 消息类型
+
+#### 同步消息
+
+生产者发生消息后使用变量接收，适用于短信，转账等实时性要求较高，且可靠的消息
+
+#### 异步消息
+
+适用于下单等实时性较低的消息
+
+```java
+    //发送异步消息 异步执行
+    defaultMQProducer.send(new Message("topic1", "tags1", "hello rocketmq".getBytes()), new SendCallback() {
+        @Override
+        public void onSuccess(SendResult sendResult) {
+            System.out.println(sendResult);
+        }
+
+        @Override
+        public void onException(Throwable e) {
+            System.out.println(e.getMessage());
+        }
+    });
+    System.out.println("消息发送完毕，先被输出");
+    //等待发送完毕后关闭
+    Thread.sleep(1000);
+    defaultMQProducer.shutdown();
+```
+
+#### 单向消息
+
+不需要知道发生结果的消息
+
+```java
+    //单向消息
+    defaultMQProducer.sendOneway(new Message("topic1", "tags1", "hello rocketmq".getBytes()));
+```
+
+#### 延时消息
+
+延时一定时间后，把消息推送给消费者，适用于如30分钟未下单通知
+
+```java
+    //定时消息
+    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    //设置延时等级(3=>10秒) 共“1s 5s 10s 30s 1m 2m 3m 4m 5m 6m 7m 8m 9m 10m 20m 30m 1h 2h”，18个level
+    message.setDelayTimeLevel(3);
+    defaultMQProducer.send(message);
+```
+
+#### 批量消息
+
+多条消息批量发送，节省带宽
+
+```java
+    //批量消息
+    ArrayList<Message> messages = new ArrayList<>();
+    for (int i = 0; i < 10; i++) {
+        messages.add(new Message("topic1", "tags1", ("hello rocketmq" + i ).getBytes()));
+    }
+    defaultMQProducer.send(messages);
+```
+
+### 消息过滤
+
+接收者对接收的消息进行过滤
+
+#### 标签过滤
+
+```java
+    //订阅消息主题 tag标签 *表示所有tag（tag1 || tag2）
+    defaultMQPushConsumer.subscribe("topic1","*");
+```
+
+#### sql过滤
+
+rocketmq\conf\broker.conf
+
+```powershell
+enablePropertyFilter = true
+```
+
+然后关闭所有rocketmq相关程序，(并删除c:/user/store文件夹 和c:/usr/log/rocketmq 如果不行再删，这个不知道对不对)然后重新启动
+
+```powershell
+mqnamesrv.cmd
+# -c 配置文件生效
+mqbroker.cmd -n localhost:9876 autoCreateTopicEnable=true -c ../conf/broker.conf
+java -jar rocketmq-dashboard-1.0.1-SNAPSHOT.jar
+```
+
+```java
+    //生产者
+    Message message = new Message("topic1", "tags1", "hello rocketmq".getBytes());
+    //设置属性
+    message.putUserProperty("age","18");
+    defaultMQProducer.send(message);
+    //消费者 过滤年龄大于18的消息..
+    defaultMQPushConsumer.subscribe("topic1", MessageSelector.bySql("age >= 18"));
+```
+
+### 集成springboot
+
+创建rocketmq-springboot
+
+添加依赖
+
+```gradle
+    //rocketmq起步依赖
+    implementation 'org.apache.rocketmq:rocketmq-spring-boot-starter:2.2.2'
+```
+
+#### 配置
+
+```yml
+rocketmq:
+  #rocket服务器地址
+  name-server: 127.0.0.1:9876
+  #生产者组
+  producer:
+    group: test-producer-group
+  consumer:
+    #设置为广播模式 MessageModel.CLUSTERING(负载均衡，争抢消息)  MessageModel.BROADCASTING（广播模式，同一组接收全部消息）
+    message-model: BROADCASTING
+server:
+  port: 8088
+```
+
+启动类
+
+```java
+package com.sxc.rocketmqspringboot;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class RocketmqSpringbootApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(RocketmqSpringbootApplication.class, args);
+    }
+}
+```
+
+#### 生产者
+
+**实体类**
+
+```java
+package com.sxc.rocketmqspringboot.entity;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.io.Serializable;
+
+//以下是LomBook的注解
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class User implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private Integer id;
+    private String name;
+    private Integer age;
+}
+```
+
+**生产者控制器**
+
+```java
+package com.sxc.rocketmqspringboot.controller;
+
+import com.sxc.rocketmqspringboot.entity.User;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+
+@RestController
+@RequestMapping("producer")
+public class ProducerController {
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
+
+    @GetMapping
+    public String send() {
+        User user = new User(1, "张三", 18);
+        rocketMQTemplate.convertAndSend("topic1", user);
+        return "发送成功";
+    }
+}
+```
+
+#### 消费者
+
+消费监听器
+
+```java
+package com.sxc.rocketmqspringboot.listen;
+
+import com.sxc.rocketmqspringboot.entity.User;
+import org.apache.rocketmq.spring.annotation.MessageModel;
+import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
+import org.apache.rocketmq.spring.core.RocketMQListener;
+import org.springframework.stereotype.Component;
+
+
+@Component
+//主题 组 过滤 接收模式
+@RocketMQMessageListener(
+        topic = "topic1",
+        consumerGroup = "test-producer-group",
+        selectorExpression = "*",
+        messageModel = MessageModel.BROADCASTING
+)
+public class ConsumerRocketMQListener implements RocketMQListener<User> {
+    @Override
+    public void onMessage(User message) {
+        //接收到消息，处理业务逻辑
+        System.out.println(message);//User(id=1, name=张三, age=18)
+    }
+}
+```
+
+#### 消息类型
+
+```java
+@RestController
+@RequestMapping("producer")
+public class ProducerController {
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
+
+    @GetMapping
+    public String send() {
+        User user = new User(1, "张三", 18);
+        //同步消息，发送字符串
+        SendResult sendResult = rocketMQTemplate.syncSend("topic1", user);
+        System.out.println(sendResult.getSendStatus());
+
+        //异步消息
+        rocketMQTemplate.asyncSend("topic1", user, new SendCallback() {
+            @Override
+            public void onSuccess(SendResult sendResult) {
+                System.out.println(sendResult);
+            }
+
+            @Override
+            public void onException(Throwable e) {
+                System.out.println(e.getMessage());
+            }
+        });
+        System.out.println("消息发送完毕，先被输出");
+
+        //单向消息
+        rocketMQTemplate.sendOneWay("topic1", user);
+
+        //延迟消息 timeout > level
+        Message<User> userMessage = MessageBuilder.withPayload(user).build();
+        rocketMQTemplate.syncSend("topic1", userMessage, 3000, 3);
+
+        //批量发送
+        List<Message<User>> list = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            list.add(MessageBuilder.withPayload(new User(i, "张三", 18)).build());
+        }
+        SendResult sendResult = rocketMQTemplate.syncSend("topic1:tag1", list);
+        System.out.println(sendResult.getSendStatus());
+
+        return "发送成功";
+    }
+}
+```
+
+#### sql过滤
+
+生产者添加自定义属性
+
+```java
+    @GetMapping
+    public String send() {
+        User user = new User(1, "张三", 18);
+        //设置自定义属性
+        rocketMQTemplate.convertAndSend("topic1", user, new HashMap<String, Object>() {{
+            put("age", 18);
+        }});
+        
+        return "发送成功";
+    }
+```
+
+消费者过滤
+
+```java
+@RocketMQMessageListener(
+        ...
+        //过滤
+        selectorExpression = "age >= 18",
+        //sql过滤
+        selectorType = SelectorType.SQL92,
+)
+```
+
+#### 高并发投递到同一队列
+
+```java
+package com.sxc.rocketmqspringboot.controller;
+
+import com.sxc.rocketmqspringboot.entity.User;
+import org.apache.rocketmq.spring.core.RocketMQTemplate;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+
+@RestController
+@RequestMapping("producer")
+public class ProducerController {
+    @Resource
+    private RocketMQTemplate rocketMQTemplate;
+
+    @GetMapping
+    public String send() {
+        //模拟高并发操作
+        List<Message<User>> list = new ArrayList<>();
+        list.add(MessageBuilder.withPayload(new User(100001, "订单100001下单", 18)).build());
+        list.add(MessageBuilder.withPayload(new User(100001, "订单100001付款", 18)).build());
+        list.add(MessageBuilder.withPayload(new User(100001, "订单100001完成", 18)).build());
+        list.add(MessageBuilder.withPayload(new User(100002, "订单100002下单", 18)).build());
+        list.add(MessageBuilder.withPayload(new User(100002, "订单100002付款", 18)).build());
+        list.add(MessageBuilder.withPayload(new User(100002, "订单100002完成", 18)).build());
+
+        //投递到同一队列
+        for (Message<User> userMessage : list) {
+            //hashKey 用来计算决定消息发送到哪个消息队列， 一般是订单ID，产品ID等
+            rocketMQTemplate.syncSendOrderly("topic1:tag1", userMessage, userMessage.getPayload().getId().toString(), 2000);
+        }
+
+        return "发送成功";
+    }
+}
+```
+
+#### 顺序读取
+
+```java
+package com.sxc.rocketmqspringboot.listen;
+
+import com.sxc.rocketmqspringboot.entity.User;
+import org.apache.rocketmq.spring.annotation.ConsumeMode;
+import org.apache.rocketmq.spring.annotation.RocketMQMessageListener;
+import org.apache.rocketmq.spring.core.RocketMQListener;
+import org.springframework.stereotype.Component;
+
+
+@Component
+@RocketMQMessageListener(
+        //主题
+        topic = "topic1",
+        //组
+        consumerGroup = "test-producer-group",
+        //过滤
+        selectorExpression = "*",
+        //消费模式 顺序接收 广播模式是不支持的
+        consumeMode = ConsumeMode.ORDERLY
+)
+public class ConsumerRocketMQListener implements RocketMQListener<User> {
+    @Override
+    public void onMessage(User message) {
+        //接收到消息，处理业务逻辑
+        System.out.println(message);
+        // User(id=100001, name=订单100001下单, age=18)
+        // User(id=100001, name=订单100001付款, age=18)
+        // User(id=100001, name=订单100001完成, age=18)
+        // User(id=100002, name=订单100002下单, age=18)
+        // User(id=100002, name=订单100002付款, age=18)
+        // User(id=100002, name=订单100002完成, age=18)
+    }
+}
+```
+
 # 面试题记录
 
 https://www.bilibili.com/video/BV1yT411G7ku?p=2&spm_id_from=pageDriver&vd_source=18421e41c9234634af852f378d966bde
