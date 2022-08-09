@@ -1,9 +1,9 @@
-<h1>现在真是什么人都有，想念老同事了</h1>
+<h1>定个目标，明年势必换工作</h1>
 
 <h2>TODO</h2>  
 <p>php进阶(swoole,laraval)（1月）</p>
 <p>[√]java基础（1.5月）</p>
-<p>[doing spring-cloud阶段]javaWeb</p>
+<p>[√ 80% es k8s]javaWeb(3月)</p>
 <p>[√]kotlin基础（0.5月）</p>
 <p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
 <p>typescript强化（1周）</p>
