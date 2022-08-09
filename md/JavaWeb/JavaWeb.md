@@ -8704,7 +8704,9 @@ group 'com.sxc'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven { url('https://maven.aliyun.com/repository/central') }//mavenCentral()
+    mavenLocal()
+    maven { url('https://maven.aliyun.com/repository/central') }
+    mavenCentral()
 }
 
 dependencies {
@@ -10669,7 +10671,9 @@ group 'com.sxc'
 version '1.0-SNAPSHOT'
 
 repositories {
-    maven { url('https://maven.aliyun.com/repository/central') }//mavenCentral()
+    mavenLocal()
+    maven { url('https://maven.aliyun.com/repository/central') }
+    mavenCentral()
 }
 
 dependencies {
@@ -12867,6 +12871,10 @@ java -version
 
 # Gradle
 
+## IDEA配置gradle包下载缓存目录
+
+![calc](../../images/java/gradle/04.png)
+
 ## springboot父子项目
 
 [参考](https://blog.csdn.net/qq_27525611/article/details/114291267)
@@ -12900,6 +12908,7 @@ java -version
         sourceCompatibility = '1.8'
 
         repositories {
+            mavenLocal()
             //添加阿里云仓库
             maven { url('https://maven.aliyun.com/repository/central') }
             mavenCentral()
@@ -13041,6 +13050,7 @@ allprojects{
     sourceCompatibility = '1.8'
 
     repositories {
+        mavenLocal()
         //添加阿里云仓库
         maven { url('https://maven.aliyun.com/repository/central') }
         mavenCentral()
@@ -14581,6 +14591,7 @@ allprojects{
     sourceCompatibility = '1.8'
 
     repositories {
+        mavenLocal()
         //添加阿里云仓库
         maven { url('https://maven.aliyun.com/repository/central') }
         mavenCentral()
