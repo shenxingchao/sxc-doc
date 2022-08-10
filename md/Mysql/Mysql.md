@@ -1304,118 +1304,131 @@ FLUSH PRIVILEGES;
 EXIT;
 ```
 
-# 性能优化
-## 查询优化
-1. 使用EXPLAIN
-   ![calc](../../images/explain.png)  
-2. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
-3. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
-4. 查询使用 ORDER BY 变慢
-    查询慢的语句
-    ```sql
-    SELECT * FROM `user` ORDER BY age,id LIMIT 1000000,2;
-    ```
-    输出
-    ```sql
-    > 时间: 1.176s
-    ```
-    优化上面的语句(推荐)
-    ```sql
-    SELECT
-        *
-    FROM
-        `user` INNER JOIN ( SELECT id FROM `user` ORDER BY age,id LIMIT 1000000,2 ) AS u USING ( id );
-    ```
-    输出
-    ```sql
-    > 时间: 0.171s
-    ```
-    上面的写法还能用自连接代替（非常慢）
-    ```sql
-    SELECT
-        u1.name,
-        u1.age,
-        u2.id 
-    FROM
-        `user` AS u1,
-        `user` AS u2 
-    WHERE
-        u1.id = u2.id 
-    ORDER BY
-        u1.age,
-        u1.id 
-        LIMIT 1000000,
-        2;
-    ```
-    输出
-    ```
-    > 时间: 13.634s
-    ```
+# 查询优化
+## EXPLAIN
 
-    另外一个例子
-    优化前
-    ```sql
-    SELECT
-        u.*,
-        ua.address 
-    FROM
-        `user` AS u
-        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
-    ORDER BY
-        u.id
-    LIMIT 100000,20;
-    ```
-    输出
-    ```sql
-    > 时间: 1.954s
-    ```
-    优化后
-    ```sql
-    SELECT
-        u.*,
-        ua.address 
-    FROM
-        ( SELECT * FROM `user` ORDER BY id LIMIT 100000, 20 ) AS u
-        LEFT JOIN `user_address` AS ua ON u.id = ua.user_id;
-    ```
-    输出
-    ```sql
-    > 时间: 0.02s
-    ```
-    可以看到优化速度提升了一倍
-5. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
-6. 连表查询连接的表越多，性能下降越厉害
-7. 优化LIMIT语句
-    使用索引覆盖
-    ```sql
-    SELECT * FROM `user` ORDER BY id LIMIT 1000000,2;
-    ```
-    输出
-    ```sql
-    +---------+--------------+------+
-    | id      | name         | age  |
-    +---------+--------------+------+
-    | 1000001 | 随机数据     |   33 |
-    | 1000002 | 随机数据     |   98 |
-    +---------+--------------+------+
-    2 rows in set (0.20 sec)
-    ```
-    优化后
-    ```sql
-    SELECT * FROM `user` WHERE id >= (
-        SELECT id FROM `user` ORDER BY id LIMIT 1000000,1) ORDER BY id LIMIT 2;
-    ```
-    输出
-    ```sql
-    +---------+--------------+------+
-    | id      | name         | age  |
-    +---------+--------------+------+
-    | 1000001 | 随机数据     |   33 |
-    | 1000002 | 随机数据     |   98 |
-    +---------+--------------+------+
-    2 rows in set (0.16 sec)
-    ```
-8. 排序结果不一样
+分析查询语句
+
+![calc](../../images/explain.png)  
+
+## OrderBy
+
+查询慢的语句
+
+```sql
+SELECT * FROM `user` ORDER BY age,id LIMIT 1000000,2;
+```
+输出
+```sql
+> 时间: 1.176s
+```
+
+优化上面的语句(推荐)
+```sql
+SELECT
+    *
+FROM
+    `user` INNER JOIN ( SELECT id FROM `user` ORDER BY age,id LIMIT 1000000,2 ) AS u USING ( id );
+```
+输出
+```sql
+> 时间: 0.171s
+```
+
+上面的写法还能用自连接代替（非常慢）
+```sql
+SELECT
+    u1.name,
+    u1.age,
+    u2.id 
+FROM
+    `user` AS u1,
+    `user` AS u2 
+WHERE
+    u1.id = u2.id 
+ORDER BY
+    u1.age,
+    u1.id 
+    LIMIT 1000000,
+    2;
+```
+输出
+```
+> 时间: 13.634s
+```
+
+另外一个例子
+优化前
+```sql
+SELECT
+    u.*,
+    ua.address 
+FROM
+    `user` AS u
+    LEFT JOIN `user_address` AS ua ON u.id = ua.user_id 
+ORDER BY
+    u.id
+LIMIT 100000,20;
+```
+输出
+```sql
+> 时间: 1.954s
+```
+优化后
+```sql
+SELECT
+    u.*,
+    ua.address 
+FROM
+    ( SELECT * FROM `user` ORDER BY id LIMIT 100000, 20 ) AS u
+    LEFT JOIN `user_address` AS ua ON u.id = ua.user_id;
+```
+输出
+```sql
+> 时间: 0.02s
+```
+可以看到优化速度提升了一倍
+
+## Limit
+
+使用索引覆盖
+```sql
+SELECT * FROM `user` ORDER BY id LIMIT 1000000,2;
+```
+输出
+```sql
++---------+--------------+------+
+| id      | name         | age  |
++---------+--------------+------+
+| 1000001 | 随机数据     |   33 |
+| 1000002 | 随机数据     |   98 |
++---------+--------------+------+
+2 rows in set (0.20 sec)
+```
+优化后
+```sql
+SELECT * FROM `user` WHERE id >= (
+    SELECT id FROM `user` ORDER BY id LIMIT 1000000,1) ORDER BY id LIMIT 2;
+```
+输出
+```sql
++---------+--------------+------+
+| id      | name         | age  |
++---------+--------------+------+
+| 1000001 | 随机数据     |   33 |
+| 1000002 | 随机数据     |   98 |
++---------+--------------+------+
+2 rows in set (0.16 sec)
+```
+
+## 其他
+
+1. SELECT * 最好不用，除非需要所有的列，因为检索不需要的列会降低性能
+2. LIKE '%xxx%' %放在搜索模式 'xxx' 最前面查询最慢，不会走索引
+3. 查询使用 ORDER BY 变慢
+4. 尽量不写没有WHERE的SQL语句，除非你需要所有数据
+5. 连表查询连接的表越多，性能下降越厉害
+6. 排序结果不一样
     ```sql
     SELECT * FROM `user` WHERE age > 10 ORDER BY age LIMIT 1000000,2;
     ```
@@ -1426,7 +1439,7 @@ EXIT;
     ```sql
     SELECT * FROM `user` WHERE age > 10 ORDER BY age,id LIMIT 1000000,2;
     ```
-9. 启用慢查询（版本mysql5.7）
+7. 启用慢查询（版本mysql5.7）
     my.ini文件里面设置，不同版本配置不同
     ```ini
     #开启慢查询日志
@@ -1438,11 +1451,17 @@ EXIT;
     #记录没有使用索引的查询语句
     log_queries_not_using_indexes=on
     ```
-10. 尽量避免使用 IN 和 NOT IN，会扫描全表，使用 EXISTS 或者 BETWEEN 代替
-11. 尽量避免使用 OR 用 UNION 代替
-12. 如果 GROUP BY 的结果不需要排序 那么显示的加上 GROUP BY NULL 会提高效率
-13. UNION 除非要消除重复行 不然用UNION ALL代替
-14. 尽量使用数字 如1，2 tinyint类型 代表男女 字符串会降低查询和连接的性能
+8.  尽量避免使用 IN 和 NOT IN，会扫描全表，使用 EXISTS 或者 BETWEEN 代替
+9.  尽量避免使用 OR 用 UNION 代替
+10. 如果 GROUP BY 的结果不需要排序 那么显示的加上 GROUP BY NULL 会提高效率
+11. UNION 除非要消除重复行 不然用UNION ALL代替
+12. 尽量使用数字 如1，2 tinyint类型 代表男女 字符串会降低查询和连接的性能
+13. 在外键字段，排序字段，分组字段，频繁查询字段，建立索引
+14. 使用覆盖索引查询，覆盖联合索引，防止回表查询
+15. 使用短索引,指定列的长度
+    ```
+    CREATE INDEX `name_index` ON `user` (`name`(3)) USING BTREE;
+    ```
 
 # 名词
 ## 主键
@@ -1462,3 +1481,9 @@ EXIT;
 底层是二叉树
 
 [二叉树的演示indexing](https://www.cs.usfca.edu/~galles/visualization/Algorithms.html)
+
+## 回表查询
+
+查询条件有非索引列，先根据索引查询，再回表查询聚簇索引上查非索引列，效率低。
+
+避免回表查询，使用覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取。也可以称之为实现了索引覆盖，也就是要建立联合索引。
