@@ -253,7 +253,7 @@
     - 有则卸载  
         rpm -e --nodeps 文件名称
     - 是否存在与mysql相关的文件或目录  
-        whereis mysql find / -name mysql
+        whereis mysql 或 find / -name mysql
         - 是则删除  
             rm -rf /usr/lib/mysql  rm -rf /usr/share/mysql
     - 查看是否存在mariadb  
