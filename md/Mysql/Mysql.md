@@ -5,7 +5,165 @@
 
 [多个版本安装](https://blog.csdn.net/wudinaniya/article/details/82455431)
 
+[mysql8.0](https://blog.csdn.net/qq_35124072/article/details/122867295)
+
 !> 最好安装mysql-5.7.34  因为他支持中文全文索引
+
+### linux安装mysql8
+
+mysql8.0和5.x版本有巨大区别，记录一下
+
+1. 下载安装包并解压到/usr/local/src目录
+
+```powershell
+    //mysql8.0 wget 推荐手动下速度快 https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.29-linux-glibc2.12-x86_64.tar.xz
+    //tar -xvf mysql-8.0.29-linux-glibc2.12-x86_64.tar.xz
+```
+
+2. 复制到/usr/local 目录
+
+```powershell
+cp -r mysql-8.0.29-linux-glibc2.12-x86_64 /usr/local/mysql8.0
+```
+3. 创建数据存储目录
+
+```powershell
+mkdir /usr/local/mysql8.0/data
+chmod 750 /usr/local/mysql8.0/data -R
+```
+
+4. 创建分组和用户并授权
+
+```powershell
+#添加组
+groupadd mysql
+#添加用户并指定用户组
+useradd -M -g mysql -s /sbin/nologin mysql
+#chown -R 组名:用户名 文件的目录
+chown -R mysql:mysql /usr/local/mysql8.0
+```
+
+5. 添加环境变量
+
+```powershell
+vim /etc/profile
+#添加如下
+export PATH=$PATH:/usr/local/mysql-8.0/bin:/usr/local/mysql-8.0/lib
+#环境变量生效
+source /etc/profile
+```
+
+6. 新增配置文件
+
+```powershell
+vim /etc/my.cnf
+
+[mysql]
+default-character-set=utf8mb4
+
+[client]
+#port=3306
+socket=/var/lib/mysql8.0/mysql.sock
+
+[mysqld]
+#port=3306
+#server-id=3306
+user=mysql
+general_log = 1
+general_log_file= /var/log/mysql8.0/mysql.log
+socket=/var/lib/mysql8.0/mysql.sock
+basedir=/usr/local/mysql8.0
+datadir=/usr/local/mysql8.0/data
+log-bin=/usr/local/mysql8.0/data/mysql-bin
+innodb_data_home_dir=/usr/local/mysql8.0/data
+innodb_log_group_home_dir=/usr/local/mysql8.0/data/
+character-set-server=utf8mb4
+lower_case_table_names=1
+autocommit=1
+default_authentication_plugin=mysql_native_password
+symbolic-links=0
+# Disabling symbolic-links is recommended to prevent assorted security risks
+# Settings user and group are ignored when systemd is used.
+# If you need to run mysqld under a different user or group,
+# customize your systemd unit file for mariadb according to the
+# instructions in http://fedoraproject.org/wiki/Systemd
+
+[mysqld_safe]
+log-error=/usr/local/mysql8.0/data/mysql.log
+pid-file=/usr/local/mysql8.0/data/mysql.pid
+```
+
+7. 初始化mysql配置
+
+```powershell
+cd /usr/local/mysql8.0/bin
+./mysqld --user=mysql8.0 --basedir=/usr/local/mysql8.0 --datadir=/usr/local/mysql8.0/data/ --initialize
+#完成后最后一行会有初始密码，复制一下
+````
+
+8. 设置mysql为系统服务
+
+```powershell
+vim /lib/systemd/system/mysql8.service
+
+[Unit]
+Description=mysql8.0
+After=network.target
+[Service]
+Type=forking
+ExecStart=/usr/local/mysql8.0/support-files/mysql.server start
+ExecStop=/usr/local/mysql8.0/support-files/mysql.server stop
+ExecRestart=/usr/local/mysql8.0/support-files/mysql.server restart
+ExecReload=/usr/local/mysql8.0/support-files/mysql.server reload
+PrivateTmp=true
+[Install]
+WantedBy=multi-user.target
+```
+
+9. 设置mysql服务开机自启动
+
+```powershell
+#设置开机启动
+systemctl enable mysql8.service
+
+#启动
+systemctl start mysql8.service
+#停止
+systemctl stop mysql8.service
+#重启
+systemctl restart mysql8.service
+```
+
+10. 创建必要目录
+
+```powershell
+mkdir /var/lib/mysql8.0
+chown -R mysql:mysql /var/lib/mysql8.0/
+```
+
+11. 启动
+
+```powershell
+systemctl start mysql8.service
+```
+
+12. 修改密码并远程访问
+
+```powershell
+mysql -u root -p
+#输入刚才复制的密码
+#修改新密码
+ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '123456';
+#刷新
+flush privileges;
+#修改远程访问
+use mysql;
+update user set host='%' where user='root';
+flush privileges;
+#如需操作开启3306端口 退出exit并执行
+firewall-cmd --zone=public --add-port=3306/tcp --permanent
+firewall-cmd --reload
+```
 
 ## 设置环境变量
 环境变量-用户变量-Path 添加  D:\mysql-5.7.34\bin

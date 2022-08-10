@@ -278,8 +278,8 @@
         cmake --version
 4. 下载mysql包并解压（到/usr/local/src目录）  
     cd /usr/local/src  
-    wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.43.tar.gz  
-    tar -zxvf mysql-5.6.43.tar.gz  
+    wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.43.tar.gz
+    tar -zxvf mysql-5.6.43.tar.gz
 5. 编译安装（到/usr/local/mysql目录）  
     cd mysql-5.6.43  
     cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/usr/local/mysql/data -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock -DMYSQL_TCP_PORT=3306 -DENABLED_LOCAL_INFILE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci  
