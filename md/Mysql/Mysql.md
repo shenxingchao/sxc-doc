@@ -1645,3 +1645,103 @@ SELECT * FROM `user` WHERE id >= (
 查询条件有非索引列，先根据索引查询，再回表查询聚簇索引上查非索引列，效率低。
 
 避免回表查询，使用覆盖索引（covering index）指一个查询语句的执行只用从索引中就能够取得，不必从数据表中读取。也可以称之为实现了索引覆盖，也就是要建立联合索引。
+
+
+# mysql主从服务器搭建
+
+搭建1主(192.168.3.128)1从(192.168.3.130)，虚拟机准备两台centos7，分别按 [##linux安装mysql8] 安装好两台mysql8
+
+利用的是bin-log就是sql日志 然后通过relay-log中继日志写入
+
+## 配置
+
+第一台mysql vim /etc/my.cnf
+
+```powershell
+[mysqld]
+#节点ID，确保唯一
+server-id = 1
+#开启mysql的binlog日志功能
+log-bin=/usr/local/mysql8.0/data/mysql-bin
+```
+
+第二台mysql
+
+```powershell
+[mysqld]
+#节点ID，确保唯一
+server-id=2
+#开启mysql的binlog日志功能
+log-bin=/usr/local/mysql8.0/data/mysql-bin
+#开启中继日志
+relay-log=/usr/local/mysql8.0/data/mysql-relay-bin
+# 忽略系统表
+replicate-wild-ignore-table=mysql.%
+replicate-wild-ignore-table=sys.%
+replicate-wild-ignore-table=information_schema.%
+replicate-wild-ignore-table=performance_schema.%
+```
+
+## 创建master用户
+
+连接到主服务器mysql执行
+
+```sql
+#192.168.3.130 从机ip
+CREATE USER 'slaveUser'@'192.168.3.130' IDENTIFIED BY '123456';
+grant replication slave on *.* to 'slaveUser'@'192.168.3.130';
+FLUSH PRIVILEGES;
+```
+
+记录binlog的起点
+
+```sql
+show master status;
+#mysql-bin.000009  1082
+```
+
+## 让从机链接到主机
+
+先将主数据库的数据导入从数据库，再进行主从复制
+
+连接到从服务器mysql执行
+
+```sql
+CHANGE MASTER TO
+MASTER_HOST = '192.168.3.128',  
+MASTER_USER = 'slaveUser', 
+MASTER_PASSWORD = '123456',
+MASTER_PORT = 3306,
+MASTER_LOG_FILE='mysql-bin.000009',
+MASTER_LOG_POS=1082,
+MASTER_HEARTBEAT_PERIOD = 10000;
+
+#开始跟随
+start slave;
+
+#查看从机状态
+show slave status;
+```
+
+!> tips:先把主机的数据库数据导入到从机，然后让从机链接到主机
+
+如果操作失败(Slave_IO_Running、Slave_SQL_Running 必须都为YES),则重新跟随
+
+```sql
+STOP SLAVE;
+
+RESET SLAVE;
+
+CHANGE MASTER TO
+MASTER_HOST = '192.168.3.128',  
+MASTER_USER = 'slaveUser', 
+MASTER_PASSWORD = '123456',
+MASTER_PORT = 3306,
+MASTER_LOG_FILE='mysql-bin.000009',
+MASTER_LOG_POS=4244,
+MASTER_HEARTBEAT_PERIOD = 10000;
+
+start slave;
+
+show slave status;
+```
