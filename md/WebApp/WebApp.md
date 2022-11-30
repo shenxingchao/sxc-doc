@@ -4654,3 +4654,123 @@ class _HomePageState extends State<HomePage> with WidgetsBindingObserver{
   }
 }
 ```
+
+## json转model
+
+### json_annotation
+
+pubspec.yaml
+
+```ini
+name: index
+
+environment:
+  sdk: ">=2.16.1 <3.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  json_annotation: ^4.7.0
+
+dev_dependencies:
+  build_runner: ^2.3.2
+  json_serializable: ^6.5.4
+```
+
+第一步在lib下创建类 user.dart
+
+```dart
+import 'package:json_annotation/json_annotation.dart';
+
+part 'user.g.dart';
+
+@JsonSerializable()
+class User {
+  User({
+    this.name,
+    this.age,
+  });
+
+  String? name;
+  int? age;
+
+  factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
+
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+}
+```
+
+第二步进入lib目录运行,则会自动生出json映射关系文件user.g.dart
+
+```powershell
+flutter pub run build_runner build
+```
+
+### 使用插件
+
+1. 使用他自带的json映射
+
+ctrl+shift+alt+b  -> create -> Directory -> 然后配置.json_models/models.jsonc文件
+
+```json
+[
+    {   
+        "__className": "User", // 类名
+        "__path": "/lib", // 文件名
+        "r@name": "",//r@表示必填required
+        "d@age": 18 //d@表示default默认值
+    }
+]
+```
+
+最后再按一次ctrl+shift+alt+b生成model文件 lib/user.dart
+
+```dart
+class User {
+  String name;
+  int age;
+
+  User({required this.name, this.age = 18});
+
+  factory User.fromJson(Map<String, dynamic> json) => User(
+        name: json['name'] as String,
+        age: json['age'] as int? ?? 18,
+      );
+
+  Map<String, dynamic> toJson() => {
+        'name': name,
+        'age': age,
+      };
+}
+```
+
+### 插件配合json_serializable
+
+在lib下创建一下json源文件 user.json
+
+```json
+{   
+    "r@name": "",
+    "d@age": 18
+}
+```
+
+然后右键lib文件夹 -> JSON to Dart:从剪贴板创建类
+
+然后输入类名User->JSON Serializable->后面看情况选择，全部选择默认回车即可,最后在lib下生成了user/user.dart 和user/user.g.dart文件
+
+### 快捷键
+
+```
+从剪贴板转换 ( Shift + Ctrl + Alt + V)
+
+从选区转换 ( Shift + Ctrl + Alt + S)
+
+从文件转换 ( Shift + Ctrl + Alt + B)
+
+从剪贴板转换为代码生成支持的类 ( Shift + Ctrl + Alt + G)  //下面两种是用来支持JSON Serializable这个插件的，可用可不用
+
+从选择转换为代码生成支持的类 ( Shift + Ctrl + Alt + H)
+```
+
+!> 都是支持嵌套json的 目前感觉完全不需要用库 用插件更好
