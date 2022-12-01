@@ -958,6 +958,8 @@ int num = 123456;
 print(num.toString());
 print(int.parse(num.toString()));
 print(double.parse(num.toString()));
+//保留两位转字符串
+print(3.1415926.toStringAsFixed(2);)
 ```
 
 ## if判断
