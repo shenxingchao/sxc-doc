@@ -1,6 +1,9 @@
 # Rust
 
 ## 起步
+
+[标准库](https://doc.rust-lang.org/std/index.html)
+
 ### 安装
 
 [windows](https://www.rust-lang.org/tools/install)
@@ -300,4 +303,236 @@ fn main() {
 
 ### 所有权
 
-所有权它使 Rust 能够在不需要垃圾收集器的情况下做出内存安全保证
+#### 概念
+
+> 所有权它使 Rust 能够在不需要垃圾收集器的情况下做出内存安全保证
+
+**变量指针的移动，s2指向s1指向的堆内容**
+
+```rs
+fn main() {
+    let s1 = String::from("hello");
+    let s2 = s1; //S1变量内存被释放，所有权移动到s2，所以后面不能再使用s1
+
+    // println!("{}, world!", s1);//报错F
+    println!("{}, world!", s2);
+}
+```
+
+**深拷贝**
+
+```rs
+fn main() {
+    let mut s1 = String::from("hello");
+    let s2 = s1.clone(); //栈中创建两个指针s2 s1同时指向堆内存"hello"
+    println!("{}, world!", s1); //hello, world!
+    println!("{}, world!", s2); //hello, world!
+    println!("{}", s1 == s2); //true
+    s1.push_str(" haha"); //开辟新的堆内存"hello haha"
+    println!("{}, world!", s1); //hello haha, world!
+    println!("{}", s1 == s2); //false
+}
+```
+
+**基本类型全是深拷贝**
+
+```rs
+fn main() {
+    let x = 5;
+    let y = x;
+    println!("{},{}", x, y); //5,5
+    println!("{}", x == y); //true
+}
+```
+
+**函数所有权**
+
+```rs
+fn main() {
+    let str = String::from("hello ownership!");
+    let num = 5;
+    fn1(str);
+    fn2(num);
+
+    //之后str不能再使用，所有权已经在函数内
+    // println!("{}", str);//报错
+    //num是基本类型可以继续使用
+    println!("{}", num); //5
+
+    //返回值所有权
+    let str2 = fn3();
+    println!("{}", str2);
+}
+
+fn fn1(mut str: String) {
+    println!("{}", str); //hello ownership!
+    str.push_str("!!!"); //函数内部可以继续使用
+    println!("{}", str); //hello ownership!!!!
+}
+
+fn fn2(num: isize) {
+    println!("{}", num); //5
+}
+
+fn fn3() -> String {
+    String::from("hello wolrd!")
+}
+```
+
+#### 引用
+
+```rs
+fn main() {
+    let mut str = String::from("hello ownership!");
+    fn1(&mut str); //使用可变引用则不转移所有权，后面可以继续使用
+    println!("{}", str); //hello ownership!!!!
+
+    let str2 = "hello world";
+    let str3 = &str2;//&str2使用普通引用（借用不能改变值）指向str2在栈里的指针
+    println!("{},{}", str2, str3); //hello world,hello world
+
+    // println!("{}", str2 == str3);//引用后比较报错误...
+}
+
+fn fn1(str: &mut String) {
+    println!("{}", str); //hello ownership!
+    str.push_str("!!!");
+    println!("{}", str); //hello ownership!!!!
+}
+```
+
+!> 可变引用有一个很大的限制：如果你有一个对一个值的可变引用，你就不能有对该值的其他引用。
+
+#### 切片
+
+..操作类似于一个范围，包含开头不包含结尾
+
+```rs
+fn main() {
+    let s = String::from("hello world");
+
+    let hello = &s[0..5];//包含0不包含5
+    let world = &s[6..11];
+    println!("{} {}", hello, world); //hello world
+}
+```
+
+> &str 这是字符串切片的类型
+
+### 结构体
+
+类似于声明一个类 只有属性
+
+#### 普通结构体
+
+```rs
+//类似接口
+struct User {
+    name: String,
+    age: u8,
+}
+fn main() {
+    let mut user = User {
+        name: String::from("张三"),
+        age: 18,
+    };
+    user.name = String::from("李四");
+
+    //..语法混入
+    let user2 = User {
+        name: String::from("王五"),
+        ..user
+    };
+    println!("{}{}{}{}", user.name, user.age, user2.name, user2.age); //李四18王五18
+}
+```
+
+#### 元组结构体
+
+```rs
+//无属性名
+struct Color(u8, u8, u8);
+fn main() {
+    let color = Color(255, 255, 255);
+    println!("{}", color.0);
+}
+```
+
+#### 打印结构体
+
+```rs
+#[derive(Debug)] //加上才能使用{:?}打印结构体
+struct Rect {
+    width: u32,
+    height: u32,
+}
+fn main() {
+    let rect = Rect {
+        width: 30,
+        height: 50,
+    };
+    println!("{}{}", rect.width, rect.height); //3050
+    println!("{:?}", rect); //Rect { width: 30, height: 50 }
+    println!("{:#?}", rect); // Rect {
+                             //     width: 30,
+                             //     height: 50,
+                             // }
+}
+```
+
+#### 接口实现
+
+类似于成员方法 需要实现接口
+
+```rs
+#[derive(Debug)] //加上才能使用{:?}打印结构体
+struct Rect {
+    width: u32,
+    height: u32,
+}
+
+//接口实现
+impl Rect {
+    fn area(&self) -> u32 {
+        self.width * self.height
+    }
+}
+
+fn main() {
+    let rect = Rect {
+        width: 30,
+        height: 50,
+    };
+    println!("{}",rect.area());
+}
+```
+
+
+#### 枚举
+
+```rs
+#[derive(Debug)]
+enum Color {
+    Red(u8),
+    Blue(u8),
+    Green(u8),
+}
+
+#[derive(Debug)]
+struct Car {
+    color: Color,
+}
+
+fn main() {
+    let car = Car {
+        color: Color::Blue(255),
+    };
+    println!("{:#?}{:?}", car, car.color);
+    print!(
+        "{:?}{:?}{:?}",
+        Color::Red(255),
+        Color::Blue(255),
+        Color::Green(255)
+    );
+}
+```
