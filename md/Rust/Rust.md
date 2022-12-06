@@ -939,7 +939,7 @@ fn read_string() -> Result<String, io::Error> {
 }
 ```
 
-### 泛型和特征trait
+### 泛型
 
 **实例：找出集合中的最大值**
 
@@ -953,7 +953,7 @@ fn main() {
     println!("max is {}", get_max(&list)); //max is c
 }
 
-//找到集合中的最大值 PartialOrd特征类型 返回值也需要加& (修改后返回引用类型，避免了参数只能使用实现了Copy特征类型的问题，且不会额外分配内存)
+//找到集合中的最大值 PartialOrd特征 返回值也需要加& (修改后返回引用类型，避免了参数只能使用实现了Copy特征类型的问题，且不会额外分配内存)
 fn get_max<T: PartialOrd>(list: &[T]) -> &T {
     let mut max = &list[0];
     for item in list {
@@ -964,3 +964,6 @@ fn get_max<T: PartialOrd>(list: &[T]) -> &T {
     max
 }
 ```
+
+### 特征trait
+
