@@ -449,7 +449,7 @@ fn main() {
 #### 普通结构体
 
 ```rs
-//类似接口
+//类似User类
 struct User {
     name: String,
     age: u8,
@@ -503,9 +503,9 @@ fn main() {
 }
 ```
 
-#### 接口实现
+#### 类实现
 
-类似于成员方法 需要实现接口
+类似于成员方法 需要实现结构体struct/特征trait(类/接口)
 
 ```rs
 #[derive(Debug)] //加上才能使用{:?}打印结构体
@@ -514,7 +514,7 @@ struct Rect {
     height: u32,
 }
 
-//接口实现
+//类实现
 impl Rect {
     fn area(&self) -> u32 {
         self.width * self.height
