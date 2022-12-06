@@ -4,6 +4,10 @@
 
 [标准库](https://doc.rust-lang.org/std/index.html)
 
+[类库](https://crates.io/)
+
+[example](https://doc.rust-lang.org/rust-by-example/index.html)
+
 ### 安装
 
 [windows](https://www.rust-lang.org/tools/install)
@@ -79,7 +83,7 @@ fn main() {
         let mut number = String::new();
         io::stdin()
             .read_line(&mut number) // & number 引用指向上面的number 因为引用也是不可变的所以要加上mut使其可变
-            .expect("读取错误"); // 对于输入结果Result的异常处理
+            .expect("读取错误"); // 对于输入结果Result的错误处理
 
         // 调用宏! 打印
         println!("输入了 {number}");
@@ -189,6 +193,25 @@ fn main() {
 }
 ```
 
+#### 类型转换
+
+```rs
+fn main() {
+    let str = "18";
+    //string转int
+    let num: u8 = str.parse().expect("转换错误");
+    println!("{}", num);
+    //int转String
+    let str = &num.to_string();
+    println!("{}", str);
+    //int转float
+    let fnum: f32 = num as f32;
+    println!("{}", fnum);
+    //float转int
+    let num: u8 = fnum as u8;
+    println!("{}", num);
+}
+```
 
 ### 常量
 
@@ -514,8 +537,8 @@ fn main() {
 #[derive(Debug)]
 enum Color {
     Red(u8),
-    Blue(u8),
     Green(u8),
+    Blue(u8),
 }
 
 #[derive(Debug)]
@@ -531,8 +554,413 @@ fn main() {
     print!(
         "{:?}{:?}{:?}",
         Color::Red(255),
-        Color::Blue(255),
-        Color::Green(255)
+        Color::Green(255),
+        Color::Blue(255)
     );
+}
+```
+
+枚举使用泛型
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+#[derive(Debug)]
+enum Color<T> {
+    None,
+    Red,
+    Green,
+    Blue,
+    Alpha(T),
+}
+
+fn main() {
+    println!("{:#?}", Color::Alpha(0.5));
+}
+```
+
+### 匹配控制
+
+类似有返回值的switch,必须列出所有匹配，否则报错
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+enum Color {
+    Red,
+    Green,
+    Blue,
+    Alpha(f32),
+}
+
+fn main() {
+    println!("{}", get_color(Color::Green));
+    println!("{}", get_color(Color::Alpha(0.5)));
+    println!("{}", get_other(Color::Blue));
+}
+
+fn get_color(color: Color) -> String {
+    match color {
+        Color::Red => String::from("red"),
+        Color::Green => {
+            println!("匹配到绿色");
+            String::from("green") //返回最后一行
+        }
+        Color::Blue => String::from("blue"),
+        Color::Alpha(alpha) => {
+            println!("匹配到透明度");
+            String::from(alpha.to_string())
+        }
+    }
+}
+
+fn get_other(color: Color) -> String {
+    match color {
+        Color::Red => String::from("red"),
+        //匹配其他结果
+        _ => String::from("未知"),
+    }
+}
+```
+
+### iflet流程控制
+
+相当于只匹配一个结果的match
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+enum Color {
+    Red,
+    Green,
+    Blue,
+    Alpha(f32),
+}
+
+fn main() {
+    let str = "hello world";
+
+    if let "hello world" = str {
+        println!("匹配到了");
+    } else {
+        println!("没匹配到");
+    }
+
+    //等价于
+    if str == "hello world" {
+        println!("匹配到了");
+    } else {
+        println!("没匹配到");
+    }
+
+    //这种可以用来匹配枚举获取枚举的值
+    let color = Color::Alpha(0.5);
+
+    if let Color::Alpha(alpha) = color {
+        print!("{}", alpha);
+    } else {
+        println!("没匹配到");
+    }
+}
+```
+
+### 包
+
+不加pub就是私有
+
+**src\common.rs**
+
+```rs
+//pub 公开一个模块（结构体 方法 枚举 都可以公开 还能具体到每个属性） mod modlue模块缩写
+pub mod common {
+    pub mod util {
+        #[allow(dead_code)]
+        pub fn console(str: &String) {
+            println!("{}", str);
+            super::super::private_fn(); //调用并列父级的其他方法
+        }
+    }
+}
+
+//pub use 称为再导出
+pub use common::util;
+
+pub fn test(str: &String) {
+    crate::common::util::console(str); //绝对路径 crate根目录
+    common::util::console(str); //相对路径
+    util::console(str);
+}
+
+fn private_fn() {}
+```
+
+**src\main.rs**
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+mod common; //引入模块 类似于命名空间
+use common::util;//使用use 用于简化common::util::console -> util::console
+
+fn main() {
+    common::util::console(&String::from("mod - hello package"));
+    common::test(&String::from("mod - test"));
+    util::console(&String::from("use - test"))
+}
+```
+
+### 集合
+
+#### Vector
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+
+fn main() {
+    //初始化 并添加值
+    let mut v: Vec<isize> = Vec::new();
+    v.push(1);
+    v.push(2);
+    println!("{:#?}", v);
+    //初始化并赋值1
+    let v: Vec<isize> = [1, 2, 3].to_vec();
+    println!("{:#?}", v);
+    //初始化并赋值2
+    let mut v: Vec<isize> = vec![1, 2, 3];
+    println!("{:#?}", v);
+    //指定索引读取
+    println!("{}", &v[0]);
+    //方法读取 返回的是枚举Option::Some
+    println!("{:?}", v.get(0)); //Some(1)
+
+    //使用Option 可以匹配上面Some返回的值
+    let third: Option<&isize> = v.get(2);
+    match third {
+        Some(third) => println!("{}", third),
+        None => println!("没有匹配到"),
+    }
+
+    //遍历
+    for &mut item in &mut v {
+        println!("{}", &item + 1);
+    }
+}
+```
+
+#### 字符串
+
+```rs
+use std::ops::Add;
+
+#[allow(dead_code)] //禁止未使用变量报错
+#[allow(unused_variables)] //允许局部变量不使用
+
+fn main() {
+    //初始化
+    let str = String::new();
+    let str = String::from("hello world");
+    let str = "hello world".to_string();
+    println!("{}", str);
+
+    //添加字符串
+    let mut str = String::from("hello");
+    str.push_str(" world");
+    //添加字符
+    str.push('!');
+
+    //拼接字符串1 使用+
+    let str1 = String::from("hello");
+    let str2 = String::from(" world");
+    let str = str1 + &str2; //str1 不能再使用 str2可以继续
+    println!("{}", str);
+    //拼接字符串2 使用+
+    let str = "hello".to_string() + " world";
+    println!("{}", str);
+    //拼接字符串3 使用format!
+    let str1 = String::from("hello");
+    let str2 = String::from(" world");
+    let str = format!("{}{}", str1, str2);
+    println!("{}", str);
+    //拼接字符串4 使用add函数
+    let mut str = String::from("hello world");
+    str = str.add("!");
+    println!("{}", str);
+
+    //字符串切片
+    let str = "hello world";
+    let hello = &str[0..5];
+    println!("{}", str);
+
+    //迭代字符串
+    for ch in "hello world".chars() {
+        println!("{}", ch);
+    }
+}
+```
+
+#### HashMap
+
+```rs
+use std::collections::HashMap;
+
+#[allow(dead_code)] //禁止未使用变量报错
+
+fn main() {
+    //创建hashmap
+    let mut person = HashMap::new();
+    person.insert("name", "张三");
+    person.insert("age", "18");
+    //更新
+    person.insert("age", "20");
+    println!("{:#?}", person);
+
+    //访问
+    println!("{}", person["name"]); //张三
+    println!("{:?}", person.get("name")); //Some("张三")
+
+    //遍历
+    for (key, value) in &person {
+        println!("{}:{}", key, value);
+    }
+    
+    //键不存在则插入
+    person.entry("age").or_insert("30");
+}
+```
+
+### 错误处理
+
+**以文件错误来演示**
+
+#### match处理错误
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    //打开文件
+    let greeting_file_result = File::open("hello.txt");
+    //匹配文件结果
+    let _greeting_file = match greeting_file_result {
+        Ok(file) => file, //返回文件
+        //匹配错误类型
+        Err(error) => match error.kind() {
+            //文件不存在,创建文件
+            ErrorKind::NotFound => match File::create("hello.txt") {
+                //文件创建成功
+                Ok(fc) => fc,
+                //文件创建失败
+                Err(e) => panic!("错误: {:?}", e),
+            },
+            other_error => {
+                //其他错误
+                panic!("错误: {:?}", other_error);
+            }
+        },
+    };
+    println!("{:?}", _greeting_file); //File { handle: 0x90, path: "\\\\?\\D:\\sxc\\rust\\demo\\hello.txt" }
+}
+```
+
+#### unwrap_or_else处理错误
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+use std::fs::File;
+use std::io::ErrorKind;
+
+fn main() {
+    //unwrap_or_else来替代match处理错误
+    let _greeting_file = File::open("hello.txt").unwrap_or_else(|error| {
+        //打开文件失败
+        if error.kind() == ErrorKind::NotFound {
+            //文件不存在,创建文件
+            File::create("hello.txt").unwrap_or_else(|error| {
+                //文件创建失败
+                panic!("错误: {:?}", error);
+            })
+        } else {
+            //其他错误
+            panic!("错误: {:?}", error);
+        }
+    });
+    println!("{:?}", _greeting_file); //File { handle: 0x90, path: "\\\\?\\D:\\sxc\\rust\\demo\\hello.txt" }
+}
+```
+
+#### unwrap直接抛出错误
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+use std::fs::File;
+fn main() {
+    //unwrap 直接抛出错误
+    let _greeting_file = File::open("hello.txt").unwrap();
+    println!("{:?}", _greeting_file);
+}
+```
+
+#### expect直接抛出并给出提示
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+use std::fs::File;
+fn main() {
+    let _greeting_file = File::open("hello.txt").expect("缺少文件hello.txt");
+    println!("{:?}", _greeting_file);
+}
+```
+
+#### 使用?传递错误
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+use std::fs::File;
+use std::{
+    fs,
+    io::{self, Read},
+};
+fn main() -> Result<(), io::Error> {
+    println!("{:?}", read_string()); //Ok("hello world")
+
+    //简单方法读取字符串使用fs模块
+    let str = fs::read_to_string("hello.txt")?;
+    println!("{}", str); //hello world
+
+    //maini函数用问号必须返回
+    let mut str = String::new();
+    File::open("hello.txt")?.read_to_string(&mut str)?;
+    println!("{}", str); //hello world
+    Ok(())
+}
+
+fn read_string() -> Result<String, io::Error> {
+    let mut str = String::new();
+    File::open("hello.txt")?.read_to_string(&mut str)?;
+    Ok(str)
+}
+```
+
+### 泛型和特征trait
+
+**实例：找出集合中的最大值**
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+
+fn main() {
+    let list: Vec<i32> = [11, 222, 33, 44, 555, 6].to_vec();
+    println!("max is {}", get_max(&list)); //max is 555
+    let list: Vec<char> = ['a', 'c', 'b'].to_vec();
+    println!("max is {}", get_max(&list)); //max is c
+}
+
+//找到集合中的最大值 PartialOrd特征类型 返回值也需要加& (修改后返回引用类型，避免了参数只能使用实现了Copy特征类型的问题，且不会额外分配内存)
+fn get_max<T: PartialOrd>(list: &[T]) -> &T {
+    let mut max = &list[0];
+    for item in list {
+        if item > max {
+            max = item;
+        }
+    }
+    max
 }
 ```
