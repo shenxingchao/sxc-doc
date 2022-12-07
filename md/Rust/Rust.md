@@ -953,7 +953,7 @@ fn main() {
     println!("max is {}", get_max(&list)); //max is c
 }
 
-//找到集合中的最大值 PartialOrd特征 返回值也需要加& (修改后返回引用类型，避免了参数只能使用实现了Copy特征类型的问题，且不会额外分配内存)
+//找到集合中的最大值 PartialOrd特征(接口 实现了类型的比较 所以这里可以实现各种类型的比较) 返回值也需要加& (修改后返回引用类型，避免了参数只能使用实现了Copy特征类型的问题，且不会额外分配内存)
 fn get_max<T: PartialOrd>(list: &[T]) -> &T {
     let mut max = &list[0];
     for item in list {
@@ -967,3 +967,160 @@ fn get_max<T: PartialOrd>(list: &[T]) -> &T {
 
 ### 特征trait
 
+特征类似于接口
+
+#### 定义
+
+animal.rs
+
+```rs
+//动物类
+pub struct Animal {
+    pub weight: f32,
+}
+
+//狗狗接口
+pub trait Dog {
+    fn say(&self, str: String) -> String;
+}
+
+//动物类实现狗狗接口说话方法
+impl Dog for Animal {
+    fn say(&self, str: String) -> String {
+        format!("Dog say({} g):{}", self.weight, str)
+    }
+}
+```
+
+main.rs
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+mod animal;
+use animal::{Animal, Dog};
+
+fn main() {
+    println!(
+        "{}",
+        Animal { weight: 10.0 }.say(String::from("hello trait"))
+    );
+}
+```
+
+#### 接口类型
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+mod animal;
+use animal::{Animal, Dog};
+
+fn main() {
+    println!("{}", dog_say(&say()));
+    println!("{}", dog_say2(&say()));
+}
+
+//函数返回一个实现接口的对象
+fn say() -> impl Dog {
+    Animal { weight: 10.0 }
+}
+
+//下面这张的简写
+fn dog_say(dog: &impl Dog) -> String {
+    dog.say(String::from("hello"))
+}
+
+//泛型使用接口类型
+fn dog_say2<T: Dog>(dog: &T) -> String {
+    dog.say(String::from("hello"))
+}
+```
+
+#### 实现Display以更好方式输出
+
+animal.rs
+
+```rs
+use std::fmt::Display;
+
+//skip
+
+//实现Display接口
+impl Display for Animal {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self.weight)
+    }
+}
+```
+
+main.rs
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+mod animal;
+
+use std::fmt::Display;
+
+use animal::{Animal, Dog};
+
+fn main() {
+    println!("{}", dog_say(&say()));
+    println!("{}", dog_say2(&say()));
+}
+
+//函数返回一个实现接口的对象
+fn say() -> impl Dog + Display {
+    Animal { weight: 10.0 }
+}
+
+//下面这张的简写
+fn dog_say(dog: &(impl Dog + Display)) -> String {
+    dog.say(String::from("hello"))
+}
+
+//泛型使用接口类型 还有一例可参考泛型
+fn dog_say2<T: Dog + Display>(dog: &T) -> String {
+    dog.say(String::from("hello"))
+}
+```
+
+### 生命周期
+
+声明周期就是这个变量有没有被内存回收 使用& 借用符号来保证变量不被回收;每个引用都有生命周期
+
+#### 简单的生命周期
+
+```rs
+fn main() {
+    let r;                // ---------+-- 'a  |r的声明周期开始
+                          //          |
+    {                     //          |
+        let x = 5;        // -+-- 'b  |x的声明周期开始
+        r = &x;           //  |       |
+    }                     // -+       |x的声明周期结束
+                          //          |
+    println!("r: {}", r); //          |r的声明周期结束  所以这里引用了x 可是x已经从内存中移除，所以会报错
+}       
+```
+
+#### 泛型引用
+
+```rs
+#[allow(dead_code)] //禁止未使用变量报错
+
+fn main() {
+    let string1 = String::from("hello");
+    let string2 = "world!";
+
+    let result = longest(&string1, &string2);
+    println!("长的字符串是{}", result); //长的字符串是world!
+}
+
+//<'t> 泛型生命周期引用 随便取名，加了这个就可以返回任何类型的引用,否则只能返回一个引用
+fn longest<'t>(x: &'t str, y: &'t str) -> &'t str {
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
+}
+```
