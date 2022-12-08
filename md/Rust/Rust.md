@@ -1124,3 +1124,80 @@ fn longest<'t>(x: &'t str, y: &'t str) -> &'t str {
     }
 }
 ```
+
+### 测试
+
+#### 基本写法
+
+src/lib.rs
+
+```rs
+pub fn add_two(a: i32) -> i32 {
+    a + 2
+}
+
+#[cfg(test)]
+pub mod tests {
+    use super::*; //可以使用外部的任何函数
+
+    #[test]
+    pub fn pass() {
+        assert!(4 == add_two(2), "自定义错误内容"); //普通断言
+    }
+
+    #[test]
+    pub fn eq_pass() {
+        assert_eq!(4, add_two(2)); //相等断言
+    }
+
+    #[test]
+    pub fn not_eq_pass() {
+        assert_ne!(3, add_two(2)); //不等断言
+    }
+
+    #[test]
+    pub fn custom_error_message() -> Result<(), String> {
+        if true {
+            Ok(())
+        } else {
+            Err(String::from("测试不通过"))//返回ERR 而不是 panic
+        }
+    }
+
+    #[test]
+    #[should_panic]
+    pub fn should_panic_fn() {
+        panic!("出现panic终止运行,则测试通过");
+    }
+}
+```
+
+#### 运行
+
+```
+cargo test
+cargo test -- --show-output //查看print输出值
+```
+
+#### 编写测试文件夹
+
+修改src/lib.rs
+
+```rs
+pub fn add_two(a: i32) -> i32 {
+    a + 2
+}
+```
+
+创建/tests/test.rs
+
+```rs
+use demo::{self, add_two};
+
+#[test]
+pub fn pass() {
+    assert!(4 == add_two(2), "自定义错误内容"); //普通断言
+}
+```
+
+之后运行```cargo test 或者cargo test --test test```
