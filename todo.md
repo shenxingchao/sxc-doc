@@ -5,15 +5,14 @@
 <p>[√]java基础（1.5月）</p>
 <p>[√ 80% es k8s]javaWeb(3月)</p>
 <p>[√]kotlin基础（0.5月）</p>
-<p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
+<p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>3
+<p>jetpack本地存储</p>
 <p>typescript强化（1周）</p>
 <p>[√]Python进阶（sanic框架）（1月）</p>
 <p>[√]用flutter写一个音乐app（1月）</p>
 <p>dart强化，flutter跨平台实战（1月）</p>
-<p>维护vite-element-ui\vue-element-visual-layout\vue3-visual-cms</p>
-<p>维护noval-app项目</p>
-<p>flutter-kuwo-music以及添加到播放列表功能\优化歌词校正频率</p>
-<p>jetpack本地存储</p>
+<p>[doing]rust基础（2月）</p>
+<p>[doing]tauri(1月)</p>
 
 # 孤独的道路
 
