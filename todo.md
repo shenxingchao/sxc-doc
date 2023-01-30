@@ -11,7 +11,7 @@
 <p>[√]Python进阶（sanic框架）（1月）</p>
 <p>[√]用flutter写一个音乐app（1月）</p>
 <p>dart强化，flutter跨平台实战（1月）</p>
-<p>[doing]rust基础（2月）</p>
+<p>[doing 60%]rust基础（2月）</p>
 <p>[doing]tauri(1月)</p>
 
 # 孤独的道路

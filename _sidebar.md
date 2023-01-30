@@ -17,6 +17,7 @@
 * [💛 Php](/md/Php/Php#Php)
 * [💚 Python](/md/Python/Python#Python)
 * [💥 PySide](/md/PySide/PySide#PySide)
+* [💥 Rust](/md/Rust/Rust#Rust)
 * [🙄 Web服务器](/md/Web服务器/Web服务器#Web服务器)
 * [😪 微信](/md/微信/微信#微信)
 * [💦 软件](/md/软件/软件#软件)
