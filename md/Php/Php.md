@@ -557,8 +557,18 @@ __统一下载路径cd /usr/local/src__
   
 8. nginx支持php8  
     第四大点第5小点 nginx配置127.0.0.1:9000改为127.0.0.1:9002即可  
+
+9. 设置环境变量
+    ```
+    vim /etc/profile
+    export PATH=$PATH:/usr/local/php8/bin
+    source /etc/profile
+    重启
+    查看
+    php -v
+    ```
   
-9. php8开启opcache 和jit  
+10. php8开启opcache 和jit  
     vim /usr/local/php8/etc/php.ini  
     - 末尾加上下面配置  
         ```  
@@ -666,7 +676,7 @@ function getRand($proArr){
 此步骤所有文件参考原项目即可 http://demo.o8o8o8.com/vue-admin-thinkphp6/#/
 
 ## composer
-[composer安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481)
+[composer安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481) [windows直接下载安装](https://getcomposer.org/download/)
 
 ## 创建项目
 切换到网站根目录运行
@@ -764,3 +774,124 @@ composer require topthink/think-multi-app
 ## 新建路由
 新建app\admin\route\route.php 
 路由文件随便起怎么起，只要在这下面都会加载
+
+# swoole
+
+## 安装扩展
+
+[下载扩展源代码](https://github.com/swoole/swoole-src/releases)
+
+建议直接下载，然后扔到/usr/local/src目录
+
+1. 解压
+    tar -zxvf swoole-src-5.0.2.tar.gz
+2. 编译(PHP扩展都可以用这种方法安装)
+    cd swoole-src-5.0.2
+    phpize 
+    ./configure 
+    make && make install
+3. vim /usr/local/php8/etc/php.ini  加入 extension=swoole.so 且添加swoole.use_shortname='Off' 
+4. 查看扩展是否添加成功
+   php -m
+5. 还需要安装进程控制扩展pcntl
+    cd /usr/local/src/php-8.0.1/ext/pcntl
+    phpize 
+    ./configure 
+    make && make install
+6. vim /usr/local/php8/etc/php.ini  加入 extension=pcntl.so
+7. 查看扩展是否添加成功
+   php -m
+
+
+# Hyperf
+
+## 创建环境
+
+### windows
+
+windows先安装docker，就不需要其他环境了
+
+[下载](https://www.docker.com/)
+
+安装到其他盘 
+1. 创建D:\docker
+2. 创建软链 mklink /j "C:\Program Files\Docker" "D:\docker"
+最后安装exe
+3. 安装后重启电脑才能启动
+
+4. 拉取官方镜像
+
+    cmd输入 docker pull hyperf/hyperf
+
+    运行容器hyperf/hyperf 就是你拉取的镜像 并绑定项目目录
+
+    ```
+    docker run --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
+    ```
+5. docker
+   ```
+   #查看容器ID
+   docker ps -a
+   #退出
+   exit
+   #启动
+   docker start 容器ID
+   #进入
+   docker exec -it --user root 容器ID /bin/bash
+   #先停止
+   docker stop 容器ID
+   #再删除
+   docker rm  容器ID
+   ```
+
+### linux
+
+直接安装composer，并且已经安装好php8,mysql
+
+```
+#安装程序
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+php -r "if (hash_file('sha384', 'composer-setup.php') === '55ce33d7678c5a611085589f1f3ddf8b3c52d662cd01d4ba75c0ee0459970c2200a51f492d557530c71c15d8dba01eae') { echo 'Installer verified'; } else { echo 'Installer corrupt'; unlink('composer-setup.php'); } echo PHP_EOL;"
+php composer-setup.php
+php -r "unlink('composer-setup.php');"
+#可以全局使用 有环境变量
+mv composer.phar /usr/local/bin/composer
+#查看版本
+composer -v
+#配置阿里云
+composer config -g repo.packagist composer https://mirrors.aliyun.com/composer
+```
+
+composer常用命令
+
+```
+ 1、composer list：获取帮助信息；
+ 2、composer init：以交互方式填写composer.json文件信息；
+ 3、composer install：从当前目录读取composer.json文件，处理依赖关系，并安装到vendor目录下；
+ 4、composer update：获取依赖的最新版本，升级composer.lock文件；
+ 5、composer require：添加新的依赖包到composer.json文件中并执行更新；
+       composer remove twbs/bootstrap; 卸载依赖包
+ 6、composer search：在当前项目中搜索依赖包；
+ 7、composer show：列举所有可用的资源包；
+ 8、composer validate：检测composer.json文件是否有效；
+ 9、composer self-update：将composer工具更新到最新版本；
+       composer self-update -r ：回滚到安装的上一个版本
+10、composer diagnose：执行诊断命令
+11、composer clear：清除缓存
+12、composer create-project：基于composer创建一个新的项目；
+13、composer dump-autoload：在添加新的类和目录映射是更新autoloader
+```
+
+## 起步
+
+### 创建项目
+
+```
+#除了mysql redis 其他全部n
+composer create-project hyperf/hyperf-skeleton hyperf-test
+cd hyperf-test
+#docker 的话是cd /data/project/hyperf-test
+php bin/hyperf.php start
+```
+
+访问 http://127.0.0.1:9501/
