@@ -11,6 +11,40 @@
 # 常用命令
 ## 切换超级管理员
 su
+
+## 查看操作系统版本
+
+cat /proc/version
+
+## 安装命令
+
+### Centos
+
+1. yum install xxx
+2. yum remove xxx
+3. yum update xxx
+4. yum list installed
+
+### Ubuntu
+
+1. apt-get install xxx
+2. apt-get remove xxx
+3. apt-get update xxx
+
+### Alpine
+
+1. apk search xxx #查询xxx相关的软件包
+2. apk add xxx #安装一个软件包
+3. apk del xxx #删除已安装的xxx软件包
+4. apk update #更新软件包索引文件
+5. apk info #查看已安装软件
+
+例如安装ssh：apk add openssh 
+
+## 下载工具
+
+wget 下载地址
+
 ## 创建多级目录
 mkdir -p
 
@@ -71,6 +105,14 @@ netstat -antp|grep 6379
 ## 查看进程端口号
 
 ps -ef|grep redis
+
+## 查找文件
+
+whereis php whereis命令用于查找文件。该指令会在特定目录中查找符合条件的文件
+
+which php which指令会在环境变量$PATH设置的目录里查找符合条件的文件
+
+find / -name php*  模糊查找
 
 ## 杀死进程
 

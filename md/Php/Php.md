@@ -823,7 +823,8 @@ windows先安装docker，就不需要其他环境了
 
     cmd输入 docker pull hyperf/hyperf
 
-    运行容器hyperf/hyperf 就是你拉取的镜像 并绑定项目目录
+    运行容器hyperf/hyperf 就是你拉取的镜像 
+    并绑定项目目录 D:/sxc/hyperf-demo本机共享目录 /data/projectlinux共享目录
 
     ```
     docker run --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
@@ -843,6 +844,10 @@ windows先安装docker，就不需要其他环境了
    #再删除
    docker rm  容器ID
    ```
+6. 安装mysql容器
+   启动参数需要加上MYSQL_ROOT_PASSWORD 123456 否则无法启动
+
+!> windows是无法ping通容器内的ip的，传文件的话直接利用共享目录,另外需要注意Linux内核版本，查看不同的安装命令
 
 ### linux
 
