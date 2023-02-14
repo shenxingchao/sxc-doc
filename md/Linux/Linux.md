@@ -65,6 +65,27 @@ rz -be
 
 rm -rf xxxx
 
+## 修改文件权限
+
+chown -R 
+
+修改文件的用户组 -R表示递归所有子文件
+
+chmod
+
+-r 可读
+
+-w 可写
+
+-x 可执行
+
+chmod 777 所有权限
+chmod 644 当前用户可写可读 用户组可读 其它用户可读
+
+## 列出当前目录
+
+pwd
+
 ## 下载命令
 wget `http://download.com` 
 一般下载路径放在`/usr/local/src/`
@@ -136,6 +157,7 @@ kill -9 端口号 强制杀死
 搜索 esc + / + search_string  
 移动到末尾 G  
 移动到开始 g
+删除一行 dd
 
 # 直播或监控解决方案
 1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流
