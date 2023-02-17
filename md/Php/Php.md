@@ -522,7 +522,7 @@ __统一下载路径cd /usr/local/src__
         --with-config-file-scan-dir=/usr/local/php8/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --enable-gd  
         --enable-xml --with-jpeg --with-freetype --enable-mbstring --with-zip --enable-mysqlnd --with-mysqli=mysqlnd  
         --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-bcmath --without-pear --enable-opcache  
-    - 编译安装  
+    - 编译安装，这里会缺很多扩展，[参考](https://www.jianshu.com/p/3c721f4e9075)
         make && make install  
         等待20~30分钟  
 3. 复制配置文件  
