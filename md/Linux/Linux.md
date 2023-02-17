@@ -12,6 +12,9 @@
 ## 切换超级管理员
 su
 
+## 修改密码
+passwd root 输入两次密码
+
 ## 查看操作系统版本
 
 cat /proc/version
@@ -39,7 +42,7 @@ cat /proc/version
 4. apk update #更新软件包索引文件
 5. apk info #查看已安装软件
 
-例如安装ssh：apk add openssh 
+例如安装ssh：apk add openssh-server
 
 ## 下载工具
 

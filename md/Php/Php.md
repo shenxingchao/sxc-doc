@@ -813,6 +813,16 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
 [下载](https://www.docker.com/)
 
+镜像源加速设置json docker桌面版 setting->docker engine
+
+```
+ "registry-mirrors": [
+    "http://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://registry.docker-cn.com"
+  ]
+```
+
 安装到其他盘 
 1. 创建D:\docker
 2. 创建软链 mklink /j "C:\Program Files\Docker" "D:\docker"
@@ -824,13 +834,13 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
     cmd输入 docker pull hyperf/hyperf
 
     运行容器hyperf/hyperf 就是你拉取的镜像 
-    并绑定项目目录 D:/sxc/hyperf-demo本机共享目录 /data/projectlinux共享目录
+    并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
 
     ```
-    官方的是php7.4
-    docker run -d --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
-    #centos
-    docker run -d --name centos7 -v D:/sxc/hyperf:/data/project -p 8888:22 -it --privileged -u root --entrypoint /bin/sh centos:7
+    #官方php8.0
+    docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
+    #centos手动安装php8也可以 推荐
+    docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
     ```
 5. docker
    ```
@@ -856,7 +866,7 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
 1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展
 
-2. 容器启动SSH 需要在最后加上&符号 /usr/sbin/sshd -D &
+2. 容器启动SSH ssh-keygen -A 需要在最后加上&符号 /usr/sbin/sshd -D &
 
 3. Docker可以通过多个-p 映射多个win到docker容器的端口  数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
 
