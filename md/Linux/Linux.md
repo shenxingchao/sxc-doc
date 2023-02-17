@@ -149,10 +149,22 @@ kill -9 端口号 强制杀死
 
 ## 开启防火墙
 
+centos7使用firewalld 旧版本使用iptables
+
 - 永久开放443端口  
     firewall-cmd --zone=public --add-port=443/tcp --permanent
 - 重启防火墙  
     firewall-cmd --reload
+- 查看
+    firewall-cmd --state 
+    firewall-cmd --list-all
+    firewall-cmd --list-services
+- 启动
+    systemctl start firewalld
+- 停止
+    systemctl stop firewalld
+- 查看状态
+    systemctl status firewalld
 
 # vim命令
 创建文件 vim 新建文件名  
