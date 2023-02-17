@@ -828,9 +828,9 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
     ```
     官方的是php7.4
-    docker run --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
+    docker run -d --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
     #centos
-    docker run --name centos7 -v D:/sxc/hyperf:/data/project -p 8888:22 -it --privileged -u root --entrypoint /bin/sh centos:7
+    docker run -d --name centos7 -v D:/sxc/hyperf:/data/project -p 8888:22 -it --privileged -u root --entrypoint /bin/sh centos:7
     ```
 5. docker
    ```
