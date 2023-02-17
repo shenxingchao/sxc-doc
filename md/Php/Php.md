@@ -392,7 +392,7 @@ yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcur
 ### 安装PHP7.4.13
 __统一下载路径cd /usr/local/src__
 1. 前置1安装re2c 不然编译会报错 PHP （语法分析器re2c）  
-    Wget https://github.com/skvadrik/re2c/releases/download/1.0.2/re2c-1.0.2.tar.gz  
+    wget https://github.com/skvadrik/re2c/releases/download/1.0.2/re2c-1.0.2.tar.gz  
     解压：tar -zxvf re2c-1.0.2.tar.gz  
     进入cd ./re2c-1.0.2  
     编译安装./configure && make && make install  
@@ -633,12 +633,12 @@ __统一下载路径cd /usr/local/src__
 
 1. cd /usr/local/src  
 2. 下载 wget http://pecl.php.net/get/redis-2.2.7.tgz  
-3. 解压 tar zxvf redis-2.2.7.tgz  
+3. 解压 tar -zxvf redis-2.2.7.tgz  
 4. cd redis-2.2.7  
 5. find / -name phpize   
 6. /usr/local/php/bin/phpize  
 7. ./configure --with-php-config=/usr/local/php/bin/php-config  
-8. make install  
+8. make && make install  
 9. 编辑php.ini 加入redis.so  
     /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
 10. systemctl restart php-fpm  
@@ -809,7 +809,7 @@ composer require topthink/think-multi-app
 
 ### windows
 
-windows先安装docker，就不需要其他环境了
+windows先安装docker，就不需要其他环境了，前置条件只需开启hyper-V(wsl/wsl2是装linux子系统的还得下系统,开启后夜神模拟器无法启动需关闭)
 
 [下载](https://www.docker.com/)
 
@@ -827,7 +827,10 @@ windows先安装docker，就不需要其他环境了
     并绑定项目目录 D:/sxc/hyperf-demo本机共享目录 /data/projectlinux共享目录
 
     ```
-    docker run --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
+    官方的是php7.4
+    docker run --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
+    #centos
+    docker run --name centos7 -v D:/sxc/hyperf:/data/project -p 8888:22 -it --privileged -u root --entrypoint /bin/sh centos:7
     ```
 5. docker
    ```
@@ -848,6 +851,26 @@ windows先安装docker，就不需要其他环境了
    启动参数需要加上MYSQL_ROOT_PASSWORD 123456 否则无法启动
 
 !> windows是无法ping通容器内的ip的，传文件的话直接利用共享目录,另外需要注意Linux内核版本，查看不同的安装命令
+
+### yasdDebug
+
+1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展
+
+2. 容器启动SSH 需要在最后加上&符号 /usr/sbin/sshd -D &
+
+3. Docker可以通过多个-p 映射多个win到docker容器的端口  数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
+
+4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername"
+
+5. 调试只需要配置PHP->Servers即可,别的都不需要
+
+6. 调试先用php -e bin/hyperf.php start 启动，接着打开小电话，最后浏览器访问
+
+7. yasd 需要用低版本扩展0.2.5版本,配置的端口为IDE的端口，IP为主机的局域网IP
+
+8. 如需要配置IDE PHP版本为容器php则需要容器启动ssh去配置
+
+9. hyper只能调试缓存代理类
 
 ### linux
 
@@ -900,3 +923,5 @@ php bin/hyperf.php start
 ```
 
 访问 http://127.0.0.1:9501/
+
+!> 直接用服务器的composer下载依赖，vendor提交到git
