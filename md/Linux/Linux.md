@@ -123,9 +123,15 @@ netstat -ntpl
 
 netstat -antp|grep 6379
 
+lsof -i:8080 lsof(list open files)是一个列出当前系统打开文件的工具
+
 ## 查看进程端口号
 
 ps -ef|grep redis
+
+ps -e|grep php
+
+grep就是过滤名称 -e : 显示所有进程 -f : 全格式 
 
 ## 查找文件
 
