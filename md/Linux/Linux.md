@@ -169,9 +169,9 @@ find / -name php*  模糊查找
 
 ## 杀死进程
 
-kill 端口号
+kill PID
 
-kill -9 端口号 强制杀死
+kill -9 PID 强制杀死
 
 ## 开启防火墙
 
