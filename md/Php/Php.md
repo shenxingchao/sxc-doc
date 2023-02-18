@@ -641,7 +641,7 @@ __统一下载路径cd /usr/local/src__
 8. make && make install  
 9. 编辑php.ini 加入redis.so  
     /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
-10. systemctl restart php-fpm  
+10. systemctl restart php-fpm
 
 # 算法
 ## PHP之抽奖概率算法
@@ -864,23 +864,27 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
 ### yasdDebug
 
-1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展
+1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展,或者直接下载官方的镜像
 
 2. 容器启动SSH ssh-keygen -A 需要在最后加上&符号 /usr/sbin/sshd -D &
 
 3. Docker可以通过多个-p 映射多个win到docker容器的端口  数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
 
-4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername"
+4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername",或者发现监听不到了重新执行一下
 
-5. 调试只需要配置PHP->Servers即可,别的都不需要
+5. 调试只需要配置PHP->DEBUG的端口,别的都不需要
 
-6. 调试先用php -e bin/hyperf.php start 启动，接着打开小电话，最后浏览器访问
+6. 调试先打开小电话开启监听9000，在缓存类打上断点，接着用php -e bin/hyperf.php start 启动，最后浏览器访问
 
 7. yasd 需要用低版本扩展0.2.5版本,配置的端口为IDE的端口，IP为主机的局域网IP
 
 8. 如需要配置IDE PHP版本为容器php则需要容器启动ssh去配置
 
 9. hyper只能调试缓存代理类
+
+10. Aphine内核安装php编译工具 apk add autoconf dpkg-dev file g++ gcc libc-dev make php8-dev php8-pear re2c pcre pcre-dev,注意使用时 phpize8 [如果缺少config.m4](https://zhuanlan.zhihu.com/p/565444042)
+
+11. Aphine boost: apk add --no-cache boost boost-dev
 
 ### linux
 
