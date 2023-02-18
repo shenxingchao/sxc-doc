@@ -837,7 +837,7 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
     并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
 
     ```
-    #官方php8.0
+    #官方php8.0 他的镜像是Alpine不友好
     docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
     #centos手动安装php8也可以 推荐
     docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
