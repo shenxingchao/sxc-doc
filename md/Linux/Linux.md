@@ -12,6 +12,9 @@
 ## 切换超级管理员
 su
 
+## 修改密码
+passwd root 输入两次密码
+
 ## 查看操作系统版本
 
 cat /proc/version
@@ -39,7 +42,30 @@ cat /proc/version
 4. apk update #更新软件包索引文件
 5. apk info #查看已安装软件
 
-例如安装ssh：apk add openssh 
+    例如安装ssh([参考](https://www.cnblogs.com/zpcdbky/p/15568702.html#ref03))：
+    ```
+    apk add --no-cache openssh-server
+    apk add vim
+    vim /etc/ssh/sshd_config
+    apk add --no-cache openrc
+    rc-update add sshd
+    ssh-keygen -A
+    rc-status
+    touch /run/openrc/softlevel
+    /etc/init.d/sshd restart
+    /etc/init.d/sshd status
+
+    具体的sshd_config 配置
+    Port 22
+    ListenAddress 0.0.0.0
+    ListenAddress ::
+    PermitRootLogin yes
+    PasswordAuthentication
+    # 不设置下面这个，无法查看目录
+    Subsystem sftp internal-sftp
+    ```
+
+
 
 ## 下载工具
 
@@ -143,9 +169,9 @@ find / -name php*  模糊查找
 
 ## 杀死进程
 
-kill 端口号
+kill PID
 
-kill -9 端口号 强制杀死
+kill -9 PID 强制杀死
 
 ## 开启防火墙
 
@@ -165,6 +191,15 @@ centos7使用firewalld 旧版本使用iptables
     systemctl stop firewalld
 - 查看状态
     systemctl status firewalld
+
+## 环境变量
+
+```
+vim /etc/profile
+export PATH=$PATH:/usr/local/php8/bin
+source /etc/profile
+echo $PATH
+```
 
 # vim命令
 创建文件 vim 新建文件名  

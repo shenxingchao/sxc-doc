@@ -627,6 +627,12 @@ __统一下载路径cd /usr/local/src__
 
 !> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后性能提升的原因，因为不需要重新编译php脚本了
 
+# PHPSTROM
+
+## 代码格式化
+
+CODESTYLE->PHP->set from ->Drupal
+
 # 扩展
 ## linux为php添加redis扩展
 <p align="left" style="color:#777777;">发布日期：2020-07-23</p>
@@ -641,7 +647,7 @@ __统一下载路径cd /usr/local/src__
 8. make && make install  
 9. 编辑php.ini 加入redis.so  
     /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
-10. systemctl restart php-fpm  
+10. systemctl restart php-fpm
 
 # 算法
 ## PHP之抽奖概率算法
@@ -813,6 +819,16 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
 [下载](https://www.docker.com/)
 
+镜像源加速设置json docker桌面版 setting->docker engine
+
+```
+ "registry-mirrors": [
+    "http://hub-mirror.c.163.com",
+    "https://docker.mirrors.ustc.edu.cn",
+    "https://registry.docker-cn.com"
+  ]
+```
+
 安装到其他盘 
 1. 创建D:\docker
 2. 创建软链 mklink /j "C:\Program Files\Docker" "D:\docker"
@@ -824,13 +840,13 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
     cmd输入 docker pull hyperf/hyperf
 
     运行容器hyperf/hyperf 就是你拉取的镜像 
-    并绑定项目目录 D:/sxc/hyperf-demo本机共享目录 /data/projectlinux共享目录
+    并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
 
     ```
-    官方的是php7.4
-    docker run -d --name hyperf -v D:/sxc/hyperf-demo:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf
-    #centos
-    docker run -d --name centos7 -v D:/sxc/hyperf:/data/project -p 8888:22 -it --privileged -u root --entrypoint /bin/sh centos:7
+    #官方php8.0 他的镜像是Alpine不友好
+    docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
+    #centos手动安装php8也可以 推荐
+    docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
     ```
 5. docker
    ```
@@ -854,23 +870,27 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
 
 ### yasdDebug
 
-1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展
+1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展,或者直接下载官方的镜像
 
-2. 容器启动SSH 需要在最后加上&符号 /usr/sbin/sshd -D &
+2. 容器启动SSH ssh-keygen -A 需要在最后加上&符号 /usr/sbin/sshd -D &
 
 3. Docker可以通过多个-p 映射多个win到docker容器的端口  数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
 
-4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername"
+4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername",或者发现监听不到了重新执行一下
 
-5. 调试只需要配置PHP->Servers即可,别的都不需要
+5. 调试只需要配置PHP->DEBUG的端口,别的都不需要
 
-6. 调试先用php -e bin/hyperf.php start 启动，接着打开小电话，最后浏览器访问
+6. 调试先打开小电话开启监听9000，在缓存类打上断点，接着用php -e bin/hyperf.php start 启动，最后浏览器访问
 
 7. yasd 需要用低版本扩展0.2.5版本,配置的端口为IDE的端口，IP为主机的局域网IP
 
 8. 如需要配置IDE PHP版本为容器php则需要容器启动ssh去配置
 
 9. hyper只能调试缓存代理类
+
+10. Aphine内核安装php编译工具 apk add autoconf dpkg-dev file g++ gcc libc-dev make php8-dev php8-pear re2c pcre pcre-dev,注意使用时 phpize8 [如果缺少config.m4](https://zhuanlan.zhihu.com/p/565444042)
+
+11. Aphine boost: apk add --no-cache boost boost-dev
 
 ### linux
 
