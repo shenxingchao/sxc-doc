@@ -1569,10 +1569,11 @@ use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
 
 class AuthMiddleware implements MiddlewareInterface {
 
-  /**
-   * @var ContainerInterface
-   */
-  protected $container;
+  protected ContainerInterface $container;
+
+  protected RequestInterface $request;
+
+  protected HttpResponse $response;
 
   public function __construct(ContainerInterface $container, HttpResponse $response, RequestInterface $request) {
     $this->container = $container;
