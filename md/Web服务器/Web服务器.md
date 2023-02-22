@@ -162,3 +162,19 @@ host文件
 ```
 那么我通过请求 http://www.b.com:80 ，就能访问到 https://www.a.com ，而且对方服务器只能抓取到你的代理服务器ip 127.0.0.1 不能获取到你的真实ip。
 相当于你的nginx变成了代理服务器 这个时候请求的时候不用带上代理，直接请求你自己的代理服务器就完事了
+
+## Nginx开启跨域
+
+```ini
+location / {
+    add_header Access-Control-Allow-Origin *;
+    add_header Access-Control-Allow-Methods 'GET, POST, OPTIONS';
+    add_header Access-Control-Allow-Headers 'Origin, X-Requested-With, Content-Type, Accept,  X-Token';
+    add_header Access-Control-Expose-Headers 'Token,Code';
+    add_header Access-Control-Max-Age 3600;
+
+    if ($request_method = 'OPTIONS') {
+        return 204;
+    }
+}
+```

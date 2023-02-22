@@ -65,6 +65,9 @@ cat /proc/version
     Subsystem sftp internal-sftp
     ```
 
+镜像 vi /etc/apk/repositories
+https://mirrors.aliyun.com/alpine/v3.15/main
+https://mirrors.aliyun.com/alpine/v3.15/community
 
 
 ## 下载工具
@@ -211,6 +214,7 @@ echo $PATH
 移动到末尾 G  
 移动到开始 g
 删除一行 dd
+gdG删除光标以下所有内容
 
 # 直播或监控解决方案
 1. [nginx-http-flv-module](https://github.com/winshining/nginx-http-flv-module)+[flv.js](https://github.com/bilibili/flv.js)+ffmpeg或obs推流

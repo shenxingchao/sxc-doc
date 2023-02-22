@@ -629,9 +629,20 @@ __统一下载路径cd /usr/local/src__
 
 # PHPSTROM
 
+## 快捷键
+
+键盘映射:下载vscode键盘方案
+然后配一下层次结构ctrl+h 替换ctrl+r
+
+shift+shift搜索
+shift+alt+o优化导入
+alt+7结构
+
 ## 代码格式化
 
 CODESTYLE->PHP->set from ->Drupal
+
+保存时格式化  编辑->录制宏 操作一下格式化和保存，然后去设置->格式化配置里选用宏
 
 # 扩展
 ## linux为php添加redis扩展
@@ -815,7 +826,7 @@ composer require topthink/think-multi-app
 
 ### windows
 
-windows先安装docker，就不需要其他环境了，前置条件只需开启hyper-V(wsl/wsl2是装linux子系统的还得下系统,开启后夜神模拟器无法启动需关闭)
+windows先安装docker，就不需要其他环境了，前置条件只需控制面板-程序功能-启用或关闭Windows功能:开启hyper-V(wsl/wsl2是装linux子系统的还得下系统,开启后夜神模拟器无法启动需关闭)
 
 [下载](https://www.docker.com/)
 
@@ -843,9 +854,9 @@ windows先安装docker，就不需要其他环境了，前置条件只需开启h
     并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
 
     ```
-    #官方php8.0 他的镜像是Alpine不友好
+    #官方php8.0 他的镜像是Alpine
     docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
-    #centos手动安装php8也可以 推荐
+    #centos手动安装php8也可以 这样可以保持环境完全一致
     docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
     ```
 5. docker
@@ -945,3 +956,696 @@ php bin/hyperf.php start
 访问 http://127.0.0.1:9501/
 
 !> 直接用服务器的composer下载依赖，vendor提交到git
+
+### 热更新
+
+```
+composer require hyperf/watcher --dev
+#生成配置文件
+php bin/hyperf.php vendor:publish hyperf/watcher
+#启动
+php bin/hyperf.php server:watch
+```
+
+### 部署
+
+```
+# 优化 Composer 索引
+composer dump-autoload -o
+# 生成代理类和注解缓存
+php bin/hyperf.php
+```
+
+## 核心架构
+
+### 启动执行流程
+
+第一个生命周期
+
+```
+启动入口 bin/hyperf.php
+↓
+container.php 中 new DefinitionSourceFactory(true))()调用DefinitionSourceFactory中的invoke方法
+↓
+ProviderConfig::load()加载所有插件配置 然后/autoload/dependencies.php引入自己的配置两者合并 得到容器中的名称和插件(如Redis)配置的键值对，用于从容器中获取类实例的
+↓
+$container->get(Hyperf\Contract\ApplicationInterface::class) 从容器中获取vendor/hyperf/framework/src/ApplicationFactory.php类实例,并调用invoke方法
+↓
+注册命令行代码类 包括服务器启动的命令行类vendor/hyperf/server/src/Command/StartServer.php
+↓
+最终$application->run()调用vendor/hyperf/server/src/Server.php的initServers()->makeServer()初始化各种swoole的服务器(http/websocket)
+下
+↓
+swoole的start()启动服务器
+```
+
+### 请求执行流程
+
+```
+vendor/hyperf/server/src/Server.php中$this->registerSwooleEvents注册了vendor/hyperf/http-server/src/Server.php中的onRequest回调方法
+↓
+$this->dispatcher->dispatch分发请求，中间件
+↓
+vendor/hyperf/dispatcher/src/AbstractRequestHandler.php中的$handler->process($request, $this->next())执行处理请求
+↓
+进入vendor/hyperf/http-server/src/CoreMiddleware.php中调用
+$this->handleFound()->$controllerInstance->{$action}(...$parameters)执行控制器方法
+↓
+最后执行完返回输出浏览器响应结果
+```
+
+### 协程
+
+协程与线程很相似，都有自己的上下文，可以共享全局变量，但不同之处在于，在同一时间可以有多个线程处于运行状态，但对于 Swoole 协程来说只能有一个，其它的协程都会处于暂停的状态。此外，普通线程是抢占式的，哪个线程能得到资源由操作系统决定，而协程是协作式的，执行权由用户态自行分配。
+
+#### 创建协程
+
+```php
+co(function () {
+    sleep(10);
+    echo "10S后输出";
+});
+
+go(function () {
+    sleep(5);
+    echo "5S后输出";
+});
+
+Coroutine::create(function () {
+    sleep(2);
+    echo "2秒后输出";
+});
+```
+
+#### 协程间通讯
+
+```php
+$channel = new Channel();
+
+Coroutine::create(function () use ($channel) {
+    sleep(10);
+    echo "10秒后输出";
+    $channel->push("data");
+});
+
+Coroutine::create(function () use ($channel) {
+    echo $channel->pop();
+    echo "我被阻塞";
+});
+```
+
+#### 等待所有协程结束
+
+```php
+$wg = new WaitGroup();
+$wg->add(2);//计数器加2
+
+co(function () use ($wg) {
+    sleep(5);
+    echo "5秒后输出";
+    $wg->done();//计数器减1
+});
+
+co(function () use ($wg) {
+    sleep(5);
+    echo "10秒后输出";
+    $wg->done();//计数器减1
+});
+
+$wg->wait();//等待计数器为0
+echo "我被阻塞";
+```
+
+parallel相同功能也是等待所有协程执行完毕后输出 下面的是简写 也有wait写法类似
+
+```php
+$result = parallel([
+    function () {
+    sleep(5);
+    return "5秒后输出";
+    },
+    function () {
+    sleep(10);
+    return "10秒后输出";
+    },
+]);
+var_dump($result);
+echo "我被阻塞";
+```
+
+#### 协程上下文
+
+```php
+use Hyperf\Context\Context;
+
+$foo = Context::set('foo', 'bar');
+echo $foo;//bar
+echo Context::get('foo');
+Context::destroy('foo');
+echo Context::has('foo');//1
+```
+
+### 配置
+
+获取配置在config/config.php 或者/config/autoload/xxx.php(通过文件名.配置)
+
+#### 通过对象获取
+   
+```php
+#[Inject()]
+private ConfigInterface $config;
+
+var_dump($this->config->get('app_name'));//app_name_test
+var_dump($this->config->get('server.mode'));//2
+```
+
+#### 通过注解赋值
+   
+```php
+#[Value("config.app_name")]
+private $appName;
+
+#[Value("config.server.mode")]
+private $mode;
+
+echo $this->appName;
+echo $this->mode;
+```
+
+### 注解
+
+#### 定义
+
+```php
+<?php
+
+
+namespace App\Annotation;
+
+use Attribute;
+use Hyperf\Di\Annotation\AbstractAnnotation;
+
+#[Attribute(Attribute::TARGET_CLASS | Attribute::TARGET_METHOD)]
+class SxcAnnotation extends AbstractAnnotation {
+
+  //注解传入的参数
+  public array $values = [];
+
+}
+```
+
+#### 使用
+
+```php
+use App\Annotation\SxcAnnotation;
+
+#[SxcAnnotation(values: ["permission1", "permission2"])]
+public function index() {}
+```
+
+### 依赖注入DI
+
+相当于把类放入一个容器中，想用就拿一下
+
+#### 构造方法注入
+
+```php
+private UserService $userService;
+
+// 通过在构造函数的参数上声明参数类型完成自动注入
+public function __construct(UserService $userService)
+{
+    $this->userService = $userService;
+}
+```
+
+#### 注解注入
+
+```php
+#[Inject]
+private UserService $userService;
+
+#[Inject(required: FALSE)]//不退在时注入null而不是抛出异常
+private UserService $userService;
+
+#[Inject]
+private $userService;//可省略 可读性差不推荐
+```
+
+#### 懒加载
+
+调用时才会实例化对象
+
+```php
+#[Inject(lazy: true)]
+private UserService $userService;
+```
+
+#### 获取容器对象
+
+**构造方法获取**
+
+```php
+use Psr\Container\ContainerInterface;
+
+protected ContainerInterface $container;
+
+// 通过在构造函数的参数上声明参数类型完成自动注入
+public function __construct(ContainerInterface $container)
+{
+    $this->container = $container;
+}
+```
+
+**注解获取**
+
+```php
+#[Inject]
+protected ContainerInterface $container;
+```
+
+**通过应用上下文静态方法获取**
+
+```php
+$container = ApplicationContext::getContainer();
+```
+
+### 事件
+
+事件就是一个普通类，比如用户注册事件；用户注册后，实例化事件类，然后将注册事件分发给指定监听器，然后这个监听器只要监听了这个类，就会执行监听器里的回调方法
+
+#### 定义事件
+
+App\Event\UserRegister.php
+
+```php
+<?php
+
+
+namespace App\Event;
+
+
+/**
+ * Class UserRegister
+ * 用户注册事件类 就是一个管理数据的普通类 类似于前端的store状态类
+ *
+ * @package App\Event
+ */
+class UserRegister {
+
+  public string $username = "";//声明为public
+
+  public function __construct($username) {
+    $this->username = $username;
+  }
+
+}
+```
+
+#### 定义监听器
+
+App\Listener\UserRegisterListener.php
+
+```php
+<?php
+
+
+namespace App\Listener;
+
+
+use App\Event\UserRegister;
+use Hyperf\Event\Annotation\Listener;
+use Hyperf\Event\Contract\ListenerInterface;
+
+/*
+ * 通过注解注册这个监听器，让Dispatcher事件调度器发现
+ * 也可以把  \App\Listener\UserRegisteredListener::class
+ * 配置在config/autoload/listeners.php数组中
+ */
+
+#[Listener]
+class UserRegisterListener implements ListenerInterface {
+
+  /**
+   * 监听器返回事件数组 就是你要监听哪个类写在数组里
+   */
+  public function listen(): array {
+    return [
+      UserRegister::class,
+    ];
+  }
+
+  /**
+   * 这里是监听器执行触发的方法在这里相当于vue emit触发的方法
+   */
+  public function process(object $event) {
+    echo $event->username;//张三
+    //这里就可以用来写比如注册成功短信通知等逻辑
+  }
+
+}
+```
+
+#### 触发事件
+
+也就是分发事件
+
+```php
+use App\Event\UserRegister;
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+#[Inject]
+private EventDispatcherInterface $eventDispatcher;
+
+//分发事件 相当于emit触发监听器的方法
+$this->eventDispatcher->dispatch(new UserRegister("张三"));
+```
+
+### AOP切面
+
+可以用来做权限处理，或者对某些方法增强
+
+#### 定义
+
+app/Aspect/DemoAspect.php
+
+SxcAnnotation参考注解章节
+
+```php
+<?php
+
+
+namespace App\Aspect;
+
+
+use App\Annotation\SxcAnnotation;
+use Hyperf\Di\Annotation\Aspect;
+use Hyperf\Di\Aop\AbstractAspect;
+use Hyperf\Di\Aop\ProceedingJoinPoint;
+
+#[Aspect] //定义为切面注解
+class DemoAspect extends AbstractAspect {
+
+  //要切入的类
+  public $classes = [
+    //SomeClass::class,
+  ];
+
+  // 要切入的注解，仅可切入类注解和类方法注解
+  public $annotations = [
+    SxcAnnotation::class,
+  ];
+
+
+  /**
+   * @inheritDoc
+   */
+  public function process(ProceedingJoinPoint $proceedingJoinPoint) {
+    // 切面切入后，执行对应的方法会由此来负责
+    // $proceedingJoinPoint 为连接点，通过该类的 process() 方法调用原方法并获得结果
+
+    // 前置钩子
+    //比如这里可以获取权限注解参数，获取不到注意是否有缓存
+    $annotaions = $proceedingJoinPoint->getAnnotationMetadata()->method;
+    foreach ($annotaions as $key => $item) {
+      if ($key == SxcAnnotation::class) {
+        var_dump($item->values);//这里就可以去判断当前账号是否有这个角色或权限 进行返回 可以修改响应内容
+        /* array(2) {
+                   [0]=>
+           string(11) "permission1"
+                   [1]=>
+           string(11) "permission2"
+         }*/
+
+      }
+    }
+
+    $result = $proceedingJoinPoint->process();
+    var_dump($result);//就是Response内容
+    // 后置钩子
+    return $result;
+  }
+
+}
+```
+
+## 基础功能
+
+### 路由
+
+#### 定义
+
+```php
+Router::addRoute([
+  'GET',
+  'POST',
+  'HEAD',
+  'OPTIONS',
+  'TRACE',
+  'CONNECT',
+], '/', 'App\Controller\IndexController@index');
+```
+
+#### 分组路由
+
+```php
+//http://127.0.0.1:9501/index/xxxFn
+Router::addGroup('/index', function () {
+  Router::addRoute(['GET'], "/getFn", 'App\Controller\IndexController@getFn');
+  Router::addRoute(['POST'], "/postFn", 'App\Controller\IndexController@postFn');
+  Router::addRoute(['PUT'], "/putFn", 'App\Controller\IndexController@putFn');
+  Router::addRoute(['DELETE'], "/deleteFn", 'App\Controller\IndexController@deleteFn');
+});
+```
+
+
+#### 注解路由
+
+**自动生成GET/POST路由**(控制器名称+方法名)小写全拼+下划线方式)
+适用于简单的方法,感觉用不到
+
+```php
+use Hyperf\HttpServer\Annotation\AutoController;
+
+#[AutoController]
+class IndexController extends AbstractController {
+}
+```
+
+**手动编写**
+
+```php
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\GetMapping;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  //http://127.0.0.1:9501/index/getFnTwo
+  #[GetMapping(path: "getFnTwo")]
+  public function getFnTwo() {
+    return ["data" => "getFnTwo"];
+  }
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  public function requestFn() {
+    return ["data" => "requestFn all methods"];
+  }
+}
+```
+
+!> #[Controller] 和 #[AutoController] 都提供了 prefix 和 server 两个参数。默认为控制器名小写下划线
+
+#### 传参
+
+**定义**
+
+```php
+Router::get('/getFn/{id}', 'App\Controller\IndexController@getFn');
+```
+
+**获取1**
+
+```php
+public function getFn(int $id) {
+    return ["data" => "hello get methods id:" . $id];
+}
+```
+
+**获取2**
+
+```php
+use Hyperf\HttpServer\Contract\RequestInterface;
+
+public function getFn(RequestInterface $request) {
+    return ["data" => "hello get methods id:" . $request->route("id", 0)];
+}
+```
+
+**推荐**
+
+```php
+use Hyperf\HttpServer\Contract\RequestInterface;
+
+//http://127.0.0.1:9501/index/requestFn/1
+#[RequestMapping(path: "requestFn/{id}", methods: "get,post,put,delete")]
+public function requestFn(RequestInterface $request) {
+    return ["data" => "requestFn all methods id:" . $request->route("id", 0)];
+}
+```
+
+**选填参数**
+
+```php
+/user/[{id}]
+```
+
+### 中间件
+
+#### 常用中间件
+
+**跨域中间件**
+
+跨域配置也可以直接挂在 Nginx 上
+
+```php
+<?php
+
+
+namespace App\Middleware;
+
+
+use Hyperf\Context\Context;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+
+class CorsMiddleware implements MiddlewareInterface {
+
+  /**
+   * 拦截处理方法
+   */
+  public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+    $response = Context::get(ResponseInterface::class);
+    $response = $response->withHeader('Access-Control-Allow-Origin', '*')
+      ->withHeader('Access-Control-Allow-Credentials', 'true')
+      // Headers 可以根据实际情况进行改写。
+      ->withHeader('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept,  X-Token')
+      ->withHeader('Access-Control-Expose-Headers', 'Token,Code')
+      ->withHeader('Access-Control-Max-Age', 3600);
+
+    Context::set(ResponseInterface::class, $response);
+
+    if ($request->getMethod() == 'OPTIONS') {
+      return $response;
+    }
+    
+    return $handler->handle($request);
+  }
+
+}
+```
+
+**权限中间件**
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Middleware;
+
+
+use Psr\Container\ContainerInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\RequestHandlerInterface;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface as HttpResponse;
+
+class AuthMiddleware implements MiddlewareInterface {
+
+  /**
+   * @var ContainerInterface
+   */
+  protected $container;
+
+  public function __construct(ContainerInterface $container, HttpResponse $response, RequestInterface $request) {
+    $this->container = $container;
+    $this->response = $response;
+    $this->request = $request;
+  }
+
+  public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface {
+    // 根据具体业务判断逻辑走向，这里假设用户携带的token有效
+    $isValidToken = TRUE;
+    if ($isValidToken) {
+      return $handler->handle($request);
+    }
+
+    return $this->response->json(
+      [
+        'code' => -1,
+        'data' => [
+          'error' => '中间件验证token无效，阻止继续向下执行',
+        ],
+      ]
+    );
+  }
+
+}
+```
+
+#### 全局中间件
+
+只能在配置文件中config/autoload/middlewares.php声明，一般用这个
+
+#### 配置文件路由中间件
+
+```php
+//http://127.0.0.1:9501/index/xxxFn
+Router::addGroup('/index', function () {
+  Router::addRoute(['GET'], "/getFn", 'App\Controller\IndexController@getFn');
+  Router::addRoute(['POST'], "/postFn", 'App\Controller\IndexController@postFn');
+  Router::addRoute(['PUT'], "/putFn", 'App\Controller\IndexController@putFn');
+  Router::addRoute(['DELETE'], "/deleteFn", 'App\Controller\IndexController@deleteFn');
+}, ['middleware' => [CorsMiddleware::class]]);
+```
+
+#### 注解路由中间件
+
+**类单个中间件**
+
+```php
+use App\Middleware\CorsMiddleware;
+use Hyperf\HttpServer\Annotation\Middleware;
+
+#[Middleware(CorsMiddleware::class)]
+class IndexController extends AbstractController {}
+```
+
+**类多个中间件**
+
+```php
+//使用这种方式即可
+#[Middleware(CorsMiddleware1::class)]
+#[Middleware(CorsMiddleware2::class)]
+#[Middleware(CorsMiddleware3::class)]
+class IndexController extends AbstractController {}
+
+#[Middlewares([CorsMiddleware::class])]//实测无效
+```
+
+**方法中间件**
+
+同类上定义即可,类中间件先执行，然后执行方法中间件
+
+#### 快速生成中间件
+
+```
+php ./bin/hyperf.php gen:middleware AuthMiddleware
+```

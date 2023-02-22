@@ -7,3 +7,4 @@
   - [Nginx配置php可访问](/md/Web服务器/Web服务器#nginx配置php可访问)
   - [Nginx配置Https](/md/Web服务器/Web服务器#nginx配置https)
   - [Nginx配置反向代理服务器](/md/Web服务器/Web服务器#nginx配置反向代理服务器)
+  - [Nginx开启跨域](/md/Web服务器/Web服务器#nginx开启跨域)
