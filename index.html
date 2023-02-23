@@ -34,10 +34,8 @@
       }
     </style>
     <link rel="stylesheet" href="./static/style.css" />
-    <!-- <link rel="stylesheet" href="./static/mermaid.min.css" /> -->
-    <!-- <script src="./static/mermaid.min.js"></script> -->
-    <script src="//unpkg.com/mermaid/dist/mermaid.js"></script>
-    <script src="//unpkg.com/docsify-mermaid@latest/dist/docsify-mermaid.js"></script>
+    <link rel="stylesheet" href="./static/mermaid.min.css" />
+    <script src="./static/mermaid.min.js"></script>
   </head>
   <body>
     <nav style="position: fixed">
@@ -49,7 +47,7 @@
     <div id="app"></div>
     <script>
       let num = 0;
-      mermaid.initialize({ startOnLoad: true });
+      mermaid.initialize({ startOnLoad: false });
       window.$docsify = {
         //配置使其支持流程图
         markdown: {
