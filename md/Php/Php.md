@@ -1182,6 +1182,8 @@ public function __construct(UserService $userService)
 #### 注解注入
 
 ```php
+use Hyperf\Di\Annotation\Inject;
+
 #[Inject]
 private UserService $userService;
 
@@ -1650,3 +1652,317 @@ class IndexController extends AbstractController {}
 ```
 php ./bin/hyperf.php gen:middleware AuthMiddleware
 ```
+
+### 控制器
+
+#### 定义
+
+`$request和$response`对象是由依赖注入容器自动注入了，直接使用，且是单例
+
+```php
+<?php
+
+declare(strict_types=1);
+
+
+namespace App\Controller;
+
+
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  public function requestFn(RequestInterface $request, ResponseInterface $response) {
+    return ["data" => "requestFn all methods"];
+  }
+
+}
+```
+
+### 请求
+
+#### URL相关方法
+
+```php
+//获取请求路径 /index/requestFn
+echo $request->path();
+//获取请求完整路径 http://127.0.0.1:9501/index/requestFn?
+echo $request->fullUrl();
+//获取请求方法 POST
+echo $request->getMethod();
+//判断请求方法 1
+echo $request->isMethod('post');
+```
+
+#### 获取传参相关方法
+
+假设json传参
+```json
+{
+    "form": {
+        "id": 1
+    }
+}
+```
+
+```php
+//获取路由GET参数 不存在默认为0
+echo $request->route('id',0);
+//获取所有传参 GET/POST会合并到一个数组里面
+var_dump($request->all());
+//获取指定key 不存在默认为0 
+echo $request->input("id", 0);
+//获取多个key GET/POST会合并到一个数组里面
+var_dump($request->inputs(["id", "name"], ["0", "默认名称"]));
+//只获取GET传参
+echo $request->query('id', 0);
+//获取所有GET传参
+var_dump($request->query());
+//获取json
+var_dump($request->input('form.id'));
+//获取所有json 同样会把GET参数也获取到
+var_dump($request->all());
+//判断参数是否存在
+var_dump($request->has('id'));
+var_dump($request->has(['id', 'name']));
+```
+
+#### 文件上传相关方法
+
+```php
+//判断请求中文件是否存在 && 验证是否上传有效
+if ($request->hasFile('imgFile') && $request->file('imgFile')->isValid()) {
+    //获取文件对象
+    $file = $request->file('imgFile');
+    var_dump($file);
+    //获取临时路径
+    $path = $file->getPath();
+    echo $path;
+    //获取扩展名
+    $extension = $file->getExtension();
+    echo $extension;
+    //保存文件 需要目录实际存在 实际可以按日期建目录保存
+    $file->moveTo(BASE_PATH . '/public/upload/' . $file->getClientFilename());
+    //判断保存文件是否成功
+    if ($file->isMoved()) {
+    echo "上传成功";
+    }
+}
+```
+
+### 响应
+
+#### 定义
+
+```php
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
+
+public function json(ResponseInterface $response): Psr7ResponseInterface {
+    ...
+}
+```
+
+#### 返回json
+
+```php
+<?php
+
+declare(strict_types=1);
+
+
+namespace App\Controller;
+
+
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  public function requestFn(RequestInterface $request, ResponseInterface $response): Psr7ResponseInterface {
+    return $response->json(["data" => "requestFn all methods"]);
+  }
+
+}
+
+```
+
+#### 重定向
+
+```php
+return $response->redirect('https://www.baidu.com');
+```
+
+#### 文件下载
+
+```php
+return $response->download(BASE_PATH . '/public/upload/1.txt', '1.txt');
+```
+
+### 异常拦截器
+
+#### 自定义异常
+
+```php
+<?php
+
+
+namespace App\Exception;
+
+
+use RuntimeException;
+
+class CustomException extends RuntimeException {
+}
+```
+
+#### 自定义拦截器
+
+```php
+<?php
+
+
+namespace App\Exception\Handler;
+
+
+use App\Exception\CustomException;
+use Hyperf\ExceptionHandler\ExceptionHandler;
+use Hyperf\HttpMessage\Stream\SwooleStream;
+use Psr\Http\Message\ResponseInterface;
+use Throwable;
+
+class CustomExceptionHandler extends ExceptionHandler {
+
+  public function handle(Throwable $throwable, ResponseInterface $response) {
+    // 判断被捕获到的异常是希望被捕获的异常
+    if ($throwable instanceof CustomException) {
+      // 阻止异常冒泡
+      $this->stopPropagation();
+      //返回自定义信息
+      $data = json_encode([
+        'code' => $throwable->getCode(),
+        'message' => $throwable->getMessage(),
+      ], JSON_UNESCAPED_UNICODE);
+      //返回给浏览器
+      return $response->withStatus(500)->withBody(new SwooleStream($data));
+    }
+
+    // 交给下一个异常处理器
+    return $response;
+  }
+
+  public function isValid(Throwable $throwable): bool {
+    return TRUE;
+  }
+
+}
+```
+
+#### 注册异常拦截器
+
+config/autoload/exceptions.php
+
+```php
+return [
+  'handler' => [
+    'http' => [
+      CustomExceptionHandler::class,
+      XXXX::class,
+    ],
+  ],
+];
+```
+
+
+### redis缓存
+
+#### 配置redis
+
+config/autoload/redis.php
+
+#### 使用
+
+假如缓存数据库用户信息app/Service/UserService.php,当调用$this->userService->getInfoById(1)该方法时，就会缓存
+
+```php
+<?php
+
+
+namespace App\Service;
+
+
+use Hyperf\Cache\Annotation\Cacheable;
+
+class UserService {
+
+  //热点数据 比如首页信息，热点新闻等等,缓存存入redis key为hot-data:id 过期时间为1小时 listener用于更新数据 触发该方法
+  #[Cacheable(prefix: "user-data", ttl: 3600, listener: "user-data-update")]
+  public function getInfoById(int $id): array {
+    return ["id" => $id];
+  }
+
+}
+```
+
+#### 清除缓存
+
+一般写一个类，想要清除时，去清除一下就行了
+**定义**
+
+```php
+<?php
+
+
+namespace App\Service;
+
+
+namespace App\Service;
+
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\Cache\Listener\DeleteListenerEvent;
+use Psr\EventDispatcher\EventDispatcherInterface;
+
+class SystemService {
+
+  #[Inject]
+  protected EventDispatcherInterface $dispatcher;
+
+  /**
+   *
+   * 用于清除指定key缓存
+   *
+   * @param $id
+   *
+   * @return bool
+   */
+  public function flushCache($id) {
+    $this->dispatcher->dispatch(new DeleteListenerEvent('user-data-update', [$id]));
+    return TRUE;
+  }
+
+}
+```
+
+**使用**
+
+```php
+use App\Service\SystemService;
+
+#[Inject()]
+private SystemService $systemService;
+
+$this->systemService->flushCache(1);
+```
+

@@ -52,6 +52,9 @@ cat /proc/version
     ssh-keygen -A
     rc-status
     touch /run/openrc/softlevel
+    #需要先停止
+    /etc/init.d/sshd stop
+    /etc/init.d/sshd status
     /etc/init.d/sshd restart
     /etc/init.d/sshd status
 

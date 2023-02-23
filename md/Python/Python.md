@@ -5628,7 +5628,7 @@ pip install selenium
 ```
 chrome://version/
 ```
-[下载地址](https://npm.taobao.org/mirrors/chromedriver)
+[下载地址](http://chromedriver.storage.googleapis.com/index.html)
 找到对应版本的驱动，解压后配置.exe路径的环境变量
 如
 ```
