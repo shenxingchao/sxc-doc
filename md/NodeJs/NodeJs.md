@@ -41,10 +41,19 @@
 
 # yarn
 ## yarn基本操作
-- 安装
+- 安装yarn
   ```
   npm install -g yarn
   yarn --version
+  ```
+- 安装包
+  ```
+  安装所有依赖
+  yarn || yarn install
+  #生产环境
+  yarn install XXX
+  #开发环境
+  yarn install XXX -D
   ```
 - 更新包
   ```
