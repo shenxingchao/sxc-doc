@@ -165,6 +165,16 @@ ps -e|grep php
 
 grep就是过滤名称 -e : 显示所有进程 -f : 全格式 
 
+## 关闭FIN_WAIT1
+
+sysctl -a |grep tcp_max_orph   记下net.ipv4.tcp_max_orphans的值赋给orig_orphans
+
+sysctl -w net.ipv4.tcp_max_orphans=0
+
+sysctl -w net.ipv4.tcp_max_orphans=$orig_orphans
+
+FIN_WAIT1状态就是强制关闭端口号出现的 tcp_max_orph应该就是tcp连接的回收时间
+
 ## 查找文件
 
 whereis php whereis命令用于查找文件。该指令会在特定目录中查找符合条件的文件
