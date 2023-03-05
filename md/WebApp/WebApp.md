@@ -1034,6 +1034,12 @@ Manager manager2 = Manager.instance;
 参考地址 https://flutter.cn/docs/get-started/install/windows  
 创建项目 https://flutter.cn/docs/get-started/test-drive?tab=vscode#create-app
 
+更新所有包 flutter pub outdated
+
+更新 flutter flutter upgrade 更新后会导致很多库不能用，除非是新项目
+
+获取包 flutter pub get
+
 ## vscode配置
 
 1. 安装flutter插件 安装过程会自动安装dart插件
@@ -1182,7 +1188,8 @@ adb connect 127.0.0.1:62001
 
 打开模拟器，在项目根目录按F5运行 或运行 flutter run命令
 
-?> 解决Flutter编译一直显示Running Gradle task 'assembleDebug'  
+?> 解决Flutter编译一直显示Running Gradle task 'assembleDebug',如果还不行则翻墙
+
 D:\flutter\packages\flutter_tools\gradle\flutter.gradle  
 
 ```java
@@ -1222,6 +1229,25 @@ rootProject.allprojects {
       }
   }
 ```
+
+D:\flutter\packages\flutter_tools\gradle\resolve_dependencies.gradle
+```java
+repositories {
+    // google()
+    // mavenCentral()
+    //新增
+    maven { url 'https://maven.aliyun.com/repository/google' }
+    maven { url 'https://maven.aliyun.com/repository/jcenter' }
+    maven { url 'http://maven.aliyun.com/nexus/content/groups/public' }
+
+    maven {
+        // url "$storageUrl/download.flutter.io"
+        //新增
+        url "https://storage.flutter-io.cn/download.flutter.io"
+    }
+}
+```
+
 
 D:\项目根目录\android\build.gradle  
 
