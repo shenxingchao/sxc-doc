@@ -138,6 +138,8 @@ cp -r 递归复制目录下的所有子目录和文件到指定目录
 
 chmod -R 777/755 /xxx/xxx
 
+chmod -R git:1004 /xxx/xxx 递归修改文件用户和用户组(git/1004)
+
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压

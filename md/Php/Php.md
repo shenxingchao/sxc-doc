@@ -1966,3 +1966,132 @@ private SystemService $systemService;
 $this->systemService->flushCache(1);
 ```
 
+### 日志
+
+#### 基础使用
+
+```php
+<?php
+
+declare(strict_types=1);
+
+
+namespace App\Controller;
+
+
+use App\Log\CustomLog;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
+use Hyperf\Logger\LoggerFactory;
+use Psr\Log\LoggerInterface;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  protected LoggerInterface $logger;
+
+  public function __construct(LoggerFactory $loggerFactory) {
+    parent::__construct();
+    // 第一个参数对应日志的 name, 第二个参数对应 config/autoload/logger.php 内的 key
+    $this->logger = $loggerFactory->get('logname', 'default');
+  }
+
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  public function requestFn(RequestInterface $request, ResponseInterface $response): Psr7ResponseInterface {
+    //这种基本不用
+    $this->logger->info("访问" . $request->getUri());
+    $this->logger->warning("warning");
+    $this->logger->debug("debug");
+    $this->logger->error("error");
+
+    //推荐从容器里拿
+    CustomLog::get("logname")->info("容器中拿的日志实例写入");
+    return $response->json(["data" => "requestFn all methods"]);
+  }
+
+}
+```
+
+#### 关于封装CustomLog有两种方法
+
+app/Log/CustomLog.php
+
+1. 普通方法
+
+```php
+<?php
+
+
+namespace App\Log;
+
+
+use Hyperf\Logger\LoggerFactory;
+use Hyperf\Utils\ApplicationContext;
+
+class CustomLog {
+
+  public static function get(string $name = 'app') {
+    return ApplicationContext::getContainer()
+      ->get(LoggerFactory::class)
+      ->get($name);
+  }
+
+}
+```
+
+2. 魔术方法(推荐)
+
+魔术方法就是当静态方法不存在时，会调用魔术方法，并把方法和参数传入，__call也是相同的作用
+
+```php
+<?php
+
+
+namespace App\Log;
+
+
+use Hyperf\Logger\LoggerFactory;
+use Hyperf\Utils\ApplicationContext;
+
+class CustomLog {
+
+  /**
+   * 魔术方法 当静态方法CustomLog::XXX(arg)不存在时，自动调用并传入参数 (XXX,[arg])
+   *
+   * @param string $name 方法名
+   * @param array $arguments 参数
+   *
+   * @return mixed
+   * @throws \Psr\Container\ContainerExceptionInterface
+   * @throws \Psr\Container\NotFoundExceptionInterface
+   */
+  public static function __callStatic(string $name, array $arguments) {
+    $instance = ApplicationContext::getContainer()->get(LoggerFactory::class);
+    return $instance->$name(...$arguments);
+  }
+
+}
+```
+
+#### 配置日志按日期保存
+
+config/autoload/logger.php
+
+```php
+...
+'default' => [
+    'handler' => [
+      'class' => Monolog\Handler\RotatingFileHandler::class,
+      'constructor' => [
+        'filename' => BASE_PATH . '/runtime/logs/hyperf.log',
+        'level' => Monolog\Logger::DEBUG,
+      ],
+    ],
+    ...
+]
+```
