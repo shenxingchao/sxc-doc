@@ -99,13 +99,15 @@ rm -rf xxxx
 
 ## 修改文件权限
 
+1. chown
+
 -R 表示递归
 
 chown -R 777/755 /xxx/xxx
 
 chown -R git:1004 /xxx/xxx 递归修改文件用户和用户组(git/1004)
 
-chmod
+2. chmod
 
 -r 可读
 
