@@ -947,7 +947,10 @@ composer常用命令
 
 ```
 #除了mysql redis 其他全部n
+#这个是2.2
 composer create-project hyperf/hyperf-skeleton hyperf-test
+#升级3.0 最好一开始就升级
+composer.json 中的 hyperf/* 统一修改为 3.0.0 然后执行composer update -o即可。
 cd hyperf-test
 #docker 的话是cd /data/project/hyperf-test
 php bin/hyperf.php start
@@ -2270,3 +2273,20 @@ class IndexController extends AbstractController {
 ```
 
 访问http://127.0.0.1:9501/index/requestFn 页面提示username 字段是必须的
+
+
+#### 场景
+
+使用方法
+
+```php
+    //从容器里拿到请求
+    $request = $this->container->get(UserRequest::class);
+    //切换场景验证
+    $request->scene('edit')->validateResolved();
+    //验证通过 获取验证通过的字段
+    $validated = $request->validated();
+```
+
+
+使用注解 推荐 3.0.0版本以上才支持

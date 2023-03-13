@@ -136,6 +136,8 @@ cp xxx /usr/local
 
 cp -r 递归复制目录下的所有子目录和文件到指定目录
 
+cp -r /home/packageA/* /home/cp/packageB/
+
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
 - *.gz 用 gzip -d或者gunzip 解压
