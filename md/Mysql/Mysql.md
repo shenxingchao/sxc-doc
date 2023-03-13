@@ -99,7 +99,7 @@ pid-file=/usr/local/mysql8.0/data/mysql.pid
 cd /usr/local/mysql8.0/bin
 ./mysqld --user=mysql8.0 --basedir=/usr/local/mysql8.0 --datadir=/usr/local/mysql8.0/data/ --initialize
 #完成后最后一行会有初始密码，复制一下
-````
+```
 
 8. 设置mysql为系统服务
 

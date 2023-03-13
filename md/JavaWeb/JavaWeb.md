@@ -6269,7 +6269,7 @@ tips:不需要注入@Autowired(required = false)
 ```xml
     <bean class="com.sxc.service.UserService"/>
     <bean class="com.sxc.dao.UserDao" name="userDao"/>
-````
+```
 
 ```java
 package com.sxc.service;
