@@ -2101,7 +2101,7 @@ config/autoload/logger.php
 #### 安装
 
 需要安装的扩展
-```
+```shell
 composer require hyperf/validation
 ```
 
@@ -2120,7 +2120,7 @@ return [
 ];
 ```
 
-配置验证失败异常处理类 config/autoload/exceptions.php
+配置自带的验证失败异常处理类 config/autoload/exceptions.php
 
 ```php
 use Hyperf\Validation\ValidationExceptionHandler;
@@ -2128,17 +2128,145 @@ use Hyperf\Validation\ValidationExceptionHandler;
 return [
   'handler' => [
     'http' => [
-      //异常处理器主要对 Hyperf\Validation\ValidationException 异常进行处理
-      ValidationExceptionHandler::class,
+      //使用内置的验证器异常处理类 这个一般不行
+      ValidationExceptionHandler::class,    
+      //使用自定义的验证器异常处理类 推荐
+      CustomValidationExceptionHandler::class,
     ],
   ],
 ];
 ```
 
+也可以配置自己的异常处理器去捕获验证器异常（用这个，因为一般验证不通过也是返回json）app/Exception/Handler/CustomValidationExceptionHandler.php
+
+```php
+<?php
+
+
+namespace App\Exception\Handler;
+
+
+use Hyperf\ExceptionHandler\ExceptionHandler;
+use Hyperf\HttpMessage\Stream\SwooleStream;
+use Hyperf\Validation\ValidationException;
+use Psr\Http\Message\ResponseInterface;
+use Throwable;
+
+class CustomValidationExceptionHandler extends ExceptionHandler {
+
+  public function handle(Throwable $throwable, ResponseInterface $response) {
+    // 判断被捕获到的异常是希望被捕获的异常
+    if ($throwable instanceof ValidationException) {
+      // 阻止异常冒泡
+      $this->stopPropagation();
+      //返回自定义信息
+      $data = json_encode([
+        'code' => 1001,
+        'message' => $throwable->validator->errors()->first(),
+      ], JSON_UNESCAPED_UNICODE);
+      //返回给浏览器
+      if (!$response->hasHeader('content-type')) {
+        $response = $response->withAddedHeader('content-type', 'application/json; charset=utf-8');
+      }
+      return $response->withStatus(200)->withBody(new SwooleStream($data));
+    }
+
+    // 交给下一个异常处理器
+    return $response;
+  }
+
+  public function isValid(Throwable $throwable): bool {
+    return TRUE;
+  }
+
+}
 ```
-#验证器的消息依赖多语言需要创建一个语言文件,文件生成在storage/languages目录下面
+
+
+验证器的消息依赖多语言组件
+
+```shell
+#生成多语言config文件 config/autoload/translation.php
 php bin/hyperf.php vendor:publish hyperf/translation
-#最后生成验证器类
+#生成验证器的语言文件 storage/languages
 php bin/hyperf.php vendor:publish hyperf/validation
 ```
 
+#### 使用
+
+生成验证器类
+
+```shell
+php bin/hyperf.php gen:request UserRequest
+```
+
+app/Request/UserRequest.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Request;
+
+use Hyperf\Validation\Request\FormRequest;
+
+class UserRequest extends FormRequest {
+
+  /**
+   * Determine if the user is authorized to make this request.
+   */
+  public function authorize(): bool {
+    return TRUE;
+  }
+
+  /**
+   * 增加rules方法添加验证规则
+   *
+   * @return string[]
+   */
+  public function rules(): array {
+    return [
+      'username' => 'required|max:3',
+      'password' => 'required',
+    ];
+  }
+
+}
+
+```
+
+使用验证器类替换原来的RequestInterface app/Controller/IndexController.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+
+namespace App\Controller;
+
+
+use App\Request\UserRequest;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  public function requestFn(UserRequest $request, ResponseInterface $response): Psr7ResponseInterface {
+    //验证通过 获取验证通过的字段
+    $validated = $request->validated();
+    print_r($validated);
+
+    return $response->json(["data" => "requestFn all methods"]);
+  }
+
+}
+```
+
+访问http://127.0.0.1:9501/index/requestFn 页面提示username 字段是必须的
