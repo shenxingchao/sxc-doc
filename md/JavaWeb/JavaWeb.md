@@ -3083,7 +3083,7 @@ son pom.xml
 
 ## docker搭建maven本地服务器
 
-```powershell
+```shell
 // 安装docker
 yum install docker -y
 // 启动
@@ -10214,19 +10214,19 @@ redis-cli.exe -h localhost -p 6379
 
 需要安装c++编译工具
 
-```powershell
+```shell
 yum install gcc gcc-c++
 ```
 
 需要安装tcl
 
-```powershell
+```shell
 yum -y install tcl 
 ```
 
 然后下载redi并编译
 
-```powershell
+```shell
 cd /usr/local/src
 wget http://download.redis.io/releases/redis-7.0.2.tar.gz
 tar -zxvf redis-7.0.2.tar.gz
@@ -10238,7 +10238,7 @@ make test && make install PREFIX=/usr/local/redis7/
 
 **配置**
 
-```powershell
+```shell
 cd  /usr/local/redis7/
 #用于存放redis日志
 mkdir log
@@ -10250,7 +10250,7 @@ cp /usr/local/src/redis-7.0.2/redis.conf ./
 
 修改redis.conf
 
-```powershell
+```shell
 #服务器绑定的ip地址
 bind xxx.xxx.xxx.xxx
 #开启守护进程模式
@@ -10267,7 +10267,7 @@ dir /usr/local/redis7/data
 
 **开启redis服务器**
 
-```powershell
+```shell
 #开启redis服务器
 /usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf
 #关闭reids；(这个是redis.conf配置里的bind地址) 或使用kill 端口号
@@ -10320,7 +10320,7 @@ OK
 
 ### String
 
-```powershell
+```shell
 #设置值
 > set key value
 OK
@@ -10369,7 +10369,7 @@ OK
 
 这个也可以用来统计登录uv 还能统计某个用户是否连续7天签到等等
 
-```powershell
+```shell
 #设置id为1，2，3，4的登录状态 1表示登录
 > setbit uv:20220711 1 1
 0
@@ -10406,7 +10406,7 @@ OK
 
 值是一个HashMap
 
-```powershell
+```shell
 #设置值 也可设置多个 hmset已经弃用
 > hset key username 张三 age 18
 2
@@ -10456,7 +10456,7 @@ lpush lpop /rpush rpop 栈 先进后出
 
 lpush rpop /消息队列 先进先出
 
-```powershell
+```shell
 #往头部插入
 > lpush key 1 2 3 4
 4
@@ -10521,7 +10521,7 @@ brpop key 1000
 
 ### Set
 
-```powershell
+```shell
 #设置值
 > sadd key 1 2 3 4 5
 5
@@ -10557,7 +10557,7 @@ brpop key 1000
 
 比如统计登录用户数
 
-```powershell
+```shell
 #设置当前登录用户的id
 > sadd uv:20220711 1 2 3
 3
@@ -10570,7 +10570,7 @@ brpop key 1000
 
 HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量，但是他不能取值,且不是非常精确的统计
 
-```powershell
+```shell
 > pfadd pageUv:20220712 1 2 3 4 5
 1
 > pfcount pageUv:20220712
@@ -10581,7 +10581,7 @@ HyperLogLog类似于set元素不能重复，可以统计页面每天的访问量
 
 可以用来统计pv 每个页面的访问量，且可以排序，以下权重改为访问量，value1，value2改为页面名称，set也能统计但是不能排序
 
-```powershell
+```shell
 #设置值 100，200是权重值 ZSet会根据这个权重值排序
 > zadd key 100 value1 200 value2
 2
@@ -10623,7 +10623,7 @@ value2
 
 **统计pv**
 
-```powershell
+```shell
 #添加每天的页面访问量
 > zadd pv:20220712 10 page1.html 20 page2.html 5 page3.html
 3
@@ -10645,7 +10645,7 @@ page2.html
 
 redis的事务不保证整个事务的原子性，如果是运行时出现错误，则前面执行的不会回滚
 
-```powershell
+```shell
 > multi
 OK
 > set key 3
@@ -11510,7 +11510,7 @@ Redis会定期保存数据快照至一个rbd文件中，并在启动时自动加
 
 cd  /usr/local/redis7/ 修改redis.conf
 
-```powershell
+```shell
 # save 10秒 执行100次操作 就备份一次 备份文件会被放到配置的data目录见 #安装linux
 save 3600 1
 save 300 100
@@ -11533,14 +11533,14 @@ save 60 10000
 
 配置文件开启aof
 
-```powershell
+```shell
 #开启aof
 appendonly  yes
 ```
 
 **多少时间写入一次**
 
-```powershell
+```shell
 # appendfsync always #每写入一条日志就进行一次fsync操作，数据安全性最高，但速度最慢
 appendfsync everysec #交由后台线程每秒fsync一次
 # appendfsync no #交给操作系统决定，速度最快
@@ -11554,7 +11554,7 @@ appendfsync everysec #交由后台线程每秒fsync一次
 
 - auto-aof-rewrite-min-size最开始的AOF文件必须要触发这个文件才触发，后面的每次重写就不会根据这个变量了。该变量仅初始化启动Redis有效。
 
-```powershell
+```shell
 auto-aof-rewrite-percentage 100
 auto-aof-rewrite-min-size 64mb
 ```
@@ -11627,7 +11627,7 @@ slave-serve-stale-data no
 
 **复制两台从服务器**
 
-```powershell
+```shell
 #复制一台redis
 mkdir /usr/local/redis7-6380/
 mkdir /usr/local/redis7-6381/
@@ -11646,7 +11646,7 @@ mkdir /usr/local/redis7-6381/data
 
 **修改从服务器配置文件**
 
-```powershell
+```shell
 port 6380
 #修改进程号  实际多台服务器不需要，单台才这样
 pidfile /var/run/redis_6380.pid
@@ -11670,7 +11670,7 @@ dir /usr/local/redis7-6381/data
 
 假设现在的主机192.168.48.128:6379，然后开启从机,开启的过程指定主机就实现了主从连接
 
-```powershell
+```shell
 /usr/local/redis7-6380/bin/redis-server /usr/local/redis7-6380/redis.conf slaveof 192.168.48.128 6379
 /usr/local/redis7-6381/bin/redis-server /usr/local/redis7-6381/redis.conf slaveof 192.168.48.128 6379
 ```
@@ -11679,7 +11679,7 @@ dir /usr/local/redis7-6381/data
 
 此操作会备份rdb文件 保证下次启动的runid是同一个 让主从连接可持续
 
-```powershell
+```shell
 /usr/local/redis7/bin/redis-cli -h 192.168.48.128 shutdown save
 ```
 
@@ -11689,7 +11689,7 @@ dir /usr/local/redis7-6381/data
 
 ### 创建sentinerl
 
-```powershell
+```shell
 #复制一台redis
 mkdir /usr/local/sentinel/
 cp -r /usr/local/redis7/bin /usr/local/sentinel/bin
@@ -11717,7 +11717,7 @@ mkdir /usr/local/sentinel3/data
 
 修改sentinel.conf
 
-```powershell
+```shell
 #开启保护模式 不允许外网访问
 protected-mode no
 #端口号
@@ -11738,7 +11738,7 @@ sentinel failover-timeout mymaster 180000
 
 修改从节点的sentinel2/sentinel.conf sentinel3/sentinel.conf 其他复制上面的配置
 
-```powershell
+```shell
 #端口号
 port 26380
 #改下这个进程号，多态服务器是不需要这么搞的
@@ -11764,7 +11764,7 @@ dir /usr/local/sentinel3/data
 
 **开启sentinel服务器**
 
-```powershell
+```shell
 #开启sentinel服务器
 /usr/local/sentinel/bin/redis-sentinel /usr/local/sentinel/sentinel.conf
 #查看sentinel是否启动成功
@@ -11778,7 +11778,7 @@ info
 
 **开启从服务器**
 
-```powershell
+```shell
 /usr/local/sentinel2/bin/redis-sentinel /usr/local/sentinel2/sentinel.conf
 /usr/local/sentinel3/bin/redis-sentinel /usr/local/sentinel3/sentinel.conf
 ```
@@ -11787,7 +11787,7 @@ info
 
 **杀掉主机6379kill**
 
-```powershell
+```shell
 #主机
 netstat -antp | grep 6379
 #kill 端口号
@@ -11795,7 +11795,7 @@ netstat -antp | grep 6379
 
 **然后登录6380查看info**
 
-```powershell
+```shell
 /usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 6380
 info
 # 可见如下信息 6380变成了主机
@@ -11806,7 +11806,7 @@ info
 
 **再次启动并登录6379查看**
 
-```powershell
+```shell
 /usr/local/redis7/bin/redis-server /usr/local/redis7/redis.conf
 /usr/local/sentinel/bin/redis-cli -h 192.168.48.128 -p 6379
 info
@@ -11905,7 +11905,7 @@ cluster集群 本质就是多个redis主服务器，应用于扩容和加大QPS�
 
 **创建6个redis服务器(创建过程同主从复制的创建)，并修改redis.conf配置文件**
 
-```powershell
+```shell
 #端口号 7001~7006
 port 7001
 #运行id 测试才需要
@@ -11929,7 +11929,7 @@ cluster-node-timeout 15000
 
 一个master对应n个slave，由最后的参数n决定,这里填1代表1个msater对应一个slave相当于3主3从
 
-```powershell
+```shell
 redis-cli --cluster create 192.168.48.128:7001 192.168.48.128:7002 192.168.48.128:7003 192.168.48.128:7004 192.168.48.128:7005 192.168.48.128:7006 --cluster-replicas 1
 ```
 
@@ -12145,13 +12145,13 @@ annotationProcessor "org.springframework.boot:spring-boot-configuration-processo
 
 ### 运行
 
-```powershell
+```shell
 java -Dfile.encoding=utf-8 -jar springboot-demo-0.0.1-SNAPSHOT.jar
 ```
 
 **查看端口**
 
-```powershell
+```shell
 netstat -ano | findstr 8080
 taskkill /t /f /pid xxx
 ```
@@ -12162,7 +12162,7 @@ application-dev.yml\application-prod.yml\application-test.yml
 
 **运行**
 
-```powershell
+```shell
 java -Dfile.encoding=utf-8 -jar springboot-demo-0.0.1-SNAPSHOT.jar --spring.profiles.active=dev
 ```
 
@@ -12737,7 +12737,7 @@ public class R implements Serializable {
 2. 解压tar -zxvf ./jdk-8u341-linux-x64.tar.gz
 3. 复制cp -r jdk1.8.0_341 /usr/local/java8
 4. 配置环境变量vim /etc/profile
-    ```powershell
+    ```shell
     #java 
     JAVA_HOME=/usr/local/java8
     JRE_HOME=$JAVA_HOME/jre
@@ -12756,13 +12756,13 @@ public class R implements Serializable {
 
 ## 安装
 
-```powershell
+```shell
 yum install docker -y
 ```
 
 ## 配置阿里云镜像
 
-```powershell
+```shell
 #修改镜像路径 自己登陆阿里云-》 容器镜像服务 -》 镜像加速器 -》 centos 就可以了,执行下面所有的命令
 mkdir -p /etc/docker
 tee /etc/docker/daemon.json <<-'EOF'
@@ -12779,24 +12779,24 @@ systemctl restart docker
 ### docker相关
 
 1. 启动
-   ```powershell
+   ```shell
    systemctl start docker
    ```
 2. 开机启动
-   ```powershell
+   ```shell
    systemctl enable docker
    ```
 3. 停止
-   ```powershell
+   ```shell
    systemctl stop docker
    ```
 4. 查看安装的所有镜像(容器)
-   ```powershell
+   ```shell
    # 用这个查容器的Id 就是IMAGE ID
    docker images
    ```
 5. 下载软件
-   ```powershell
+   ```shell
    #搜索软件
    docker search centos
    # 下载最新版
@@ -12808,7 +12808,7 @@ systemctl restart docker
 ### 容器相关
 
 6. 启动容器
-   ```powershell
+   ```shell
    # -d后台运行 -it交互方式运行 -p指定端口号 centos22端口映射到本机8081 
    # /home/local-share:/home/vm-share 本机目录:容器目录，就是虚拟机共享目录
    # --privileged运行容器的时候，给容器加特权 否则进入容器会报权限不足
@@ -12817,24 +12817,24 @@ systemctl restart docker
    docker run -d -it -p 8081:22 --name centos7 -v /home/local-share:/home/vm-share --privileged=true eeb6ee3f44bd /bin/bash
    ```
 7. 查看容器是否运行
-   ```powershell
+   ```shell
    #不加-a就是运行中的容器 加了就是所有容器 查看CONTAINERID
    docker ps -a
    ```
 8. 删除容器
-   ```powershell
+   ```shell
    #先停止
    docker stop CONTAINERID
    #再删除
    docker rm  CONTAINERID
    ```
 9. 进入容器
-   ```powershell
+   ```shell
    #9ff05fa1623f CONTAINERID  --user root以超级管理员权限登录
    docker exec -it --user root 9ff05fa1623f /bin/bash
    ```
 10. 退出容器
-    ```powershell
+    ```shell
     exit
     ```
 
@@ -12842,7 +12842,7 @@ systemctl restart docker
 
 **搭建nginx**
 
-```powershell
+```shell
 #下载nginx
 docker pull nginx:latest
 #查看镜像id
@@ -12856,7 +12856,7 @@ curl 127.0.0.1:8082
 
 **搭建java8**
 
-```powershell
+```shell
 #下载带java环境的镜像
 docker pull openjdk:8
 #查看镜像id
@@ -13512,7 +13512,7 @@ discoveryClient.getInstances("zookeeper-provider");
 
 windows启动
 
-```powershell
+```shell
 consul.exe agent -dev
 ```
 
@@ -14522,7 +14522,7 @@ management:
 @RefreshScope // 开启刷新功能
 ```
 
-```powershell
+```shell
 curl -X POST http://localhost:8000/actuator/refresh
 ```
 
@@ -14560,7 +14560,7 @@ management:
 
 测试，
 
-```powershell
+```shell
 curl -X POST http://127.0.0.1:9527/actuator/bus-refresh
 ```
 
@@ -14641,7 +14641,7 @@ subprojects{
 
 windows启动 进入bin目录执行
 
-```powershell
+```shell
 #以单机模式启动
 startup.cmd -m standalone
 ```
@@ -15119,7 +15119,7 @@ db.password.0=
 1. linux服务器安装好java
     [见](#linux配置java)
 2. [下载Linux安装包nacos-server-2.1.0.tar.gz](https://github.com/alibaba/nacos/releases/)
-    ```powershell
+    ```shell
     cd /usr/local/src
     #上传nacos-server-2.1.0.tar.gz
     rz -be
@@ -15132,13 +15132,13 @@ db.password.0=
 3. 配置集群
     cp /usr/local/nacos/conf/cluster.conf.example /usr/local/nacos/conf/cluster.conf
     编辑cluster.conf 配置nacos服务端地址 至少3台,且端口号不要连续，隔开一点，否则BUG
-    ```powershell
+    ```shell
     192.168.3.128:8848
     192.168.3.128:8858
     192.168.3.128:8868
     ```
     顺便修改一下启动内存，不然默认的不够
-    ```powershell
+    ```shell
     vim /usr/local/nacos/bin/startup.sh
     ```
     ![calc](../../images/java/spring-cloud/16.png)
@@ -15150,13 +15150,13 @@ db.password.0=
     修改/usr/local/nacos/conf/application.properties server.port=8848
 
 6. 复制多分服务端，模拟集群，并修改端口号/usr/local/nacos/conf/application.properties 8858 8868
-    ```powershell
+    ```shell
     cp -r /usr/local/nacos /usr/local/nacos2
     cp -r /usr/local/nacos /usr/local/nacos3
     ```
 
 7. 启动
-    ```powershell
+    ```shell
     #单机启动
     sh /usr/local/nacos/bin/startup.sh -m standalone
     #集群启动 使用内置数据库
@@ -15174,7 +15174,7 @@ db.password.0=
     ![calc](../../images/java/spring-cloud/17.png)
 
 8. 防火墙开放端口
-    ```powershell
+    ```shell
     firewall-cmd --zone=public --add-port=8848/tcp --permanent
     firewall-cmd --zone=public --add-port=8858/tcp --permanent
     firewall-cmd --zone=public --add-port=8868/tcp --permanent
@@ -15190,7 +15190,7 @@ db.password.0=
 9. 软负载均衡slb(soft loadbalance)
     [下载nginx](http://nginx.org/en/download.html)
 
-    ```powershell
+    ```shell
     cd /usr/local/src
     #上传nginx-1.22.0.tar.gz 
     rz -be
@@ -15216,7 +15216,7 @@ db.password.0=
 
     修改nginx配置
 
-    ```powershell
+    ```shell
     http {
         ...
         #配置负载均衡 下面的地址轮流访问
@@ -15241,7 +15241,7 @@ db.password.0=
 
     重启nginx
 
-    ```powershell
+    ```shell
     /usr/local/nginx-1.22.0/sbin/nginx -s reload
     ```
 
@@ -15259,7 +15259,7 @@ db.password.0=
 
 [下载](https://github.com/alibaba/Sentinel/releases)
 
-```powershell
+```shell
 java -Dserver.port=8081 -jar sentinel-dashboard-1.8.4.jar
 ```
 
@@ -15317,7 +15317,7 @@ spring:
 3. 链路
     可以限制controller调用service方法，在service层方法上加上注解@SentinelResource("goods"),并加上下面的配置
 
-    ```powershell
+    ```shell
     spring:
     cloud:
         sentinel:
@@ -15528,7 +15528,7 @@ clusterMode: 是否为集群模式
 
 配置环境变量
 
-```powershell
+```shell
 ROCKETMQ_HOME="D:\rocketmq"
 #用户测试
 NAMESRV_ADDR="localhost:9876"
@@ -15537,7 +15537,7 @@ NAMESRV_ADDR="localhost:9876"
 
 ### 启动
 
-```powershell
+```shell
 #windows 进入Bin目录
 #启动命名空间服务器
 mqnamesrv.cmd
@@ -15568,7 +15568,7 @@ rocketmq:
 
 **运行**
 
-```powershell
+```shell
 java -jar rocketmq-dashboard-1.0.1-SNAPSHOT.jar
 ```
 
@@ -15793,13 +15793,13 @@ public class Consumer {
 
 rocketmq\conf\broker.conf
 
-```powershell
+```shell
 enablePropertyFilter = true
 ```
 
 然后关闭所有rocketmq相关程序，(并删除c:/user/store文件夹 和c:/usr/log/rocketmq 如果不行再删，这个不知道对不对)然后重新启动
 
-```powershell
+```shell
 mqnamesrv.cmd
 # -c 配置文件生效
 mqbroker.cmd -n localhost:9876 autoCreateTopicEnable=true -c ../conf/broker.conf
@@ -16184,7 +16184,7 @@ public class ProducerTransactionListener implements RocketMQLocalTransactionList
 
 1. 配置2台主机的host ip映射名称，方便配置
 
-```powershell
+```shell
 vim /etc/hosts
 
 #nameserver
@@ -16202,7 +16202,7 @@ systemctl restart network
 
 2. 添加环境变量
 
-```powershell
+```shell
 vim /etc/profile
 
 #rocketmq
@@ -16218,7 +16218,7 @@ source /etc/profile
 
 上传rocketmq-all-4.9.4-bin-release.zip 到2台主机的/usr/local/src目录
 
-```powershell
+```shell
 #解压
 cd /usr/local/src/
 unzip rocketmq-all-4.9.4-bin-release.zip
@@ -16227,7 +16227,7 @@ cp -r rocketmq-all-4.9.4-bin-release /usr/local/rocketmq
 
 4. 创建主从消息存储目录
 
-```powershell
+```shell
 #master 数据存储目录
 mkdir /usr/local/rocketmq/store
 mkdir /usr/local/rocketmq/store/commitlog
@@ -16245,7 +16245,7 @@ mkdir /usr/local/rocketmq/store-slave/index
 
 先配置第一台虚拟主机
 
-```powershell
+```shell
 # 2m-2s-sync 两主两从同步 a.properties a代表第一台虚拟主机的主服务器
 vim /usr/local/rocketmq/conf/2m-2s-sync/broker-a.properties
 
@@ -16319,7 +16319,7 @@ flushDiskType=SYNC_FLUSH
 #pullMessageThreadPoolNums=128
 ```
 
-```powershell
+```shell
 #b-s代表第二台虚拟主机的从服务器
 vim /usr/local/rocketmq/conf/2m-2s-sync/broker-b-s.properties
 ```
@@ -16389,7 +16389,7 @@ flushDiskType=ASYNC_FLUSH
 
 配置第二台虚拟主机
 
-```powershell
+```shell
 vim /usr/local/rocketmq/conf/2m-2s-sync/broker-b.properties
 
 #删除多余配置文件 这个在第二台上配置
@@ -16462,7 +16462,7 @@ flushDiskType=SYNC_FLUSH
 #pullMessageThreadPoolNums=128
 ```
 
-```powershell
+```shell
 vim /usr/local/rocketmq/conf/2m-2s-sync/broker-a-s.properties
 ```
 
@@ -16531,7 +16531,7 @@ flushDiskType=ASYNC_FLUSH
 
 6. 修改每台机器的启动内存
 
-```powershell
+```shell
 vim /usr/local/rocketmq/bin/runbroker.sh
 #修改如下
 JAVA_OPT="${JAVA_OPT} -server -Xms256m -Xmx256m
@@ -16542,7 +16542,7 @@ JAVA_OPT="${JAVA_OPT} -XX:MaxDirectMemorySize=128m"
 
 nohup ... & 挂起启动
 
-```powershell
+```shell
 #启动第一台128
 nohup sh mqnamesrv &
 nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-sync/broker-a.properties &
@@ -16558,7 +16558,7 @@ nohup sh mqbroker -c /usr/local/rocketmq/conf/2m-2s-sync/broker-b.properties &
 
 关闭防火墙，否则会出现各种启动不了发不过去的问题
 
-```powershell
+```shell
 # 关闭防火墙
 systemctl stop firewalld.service
 # 查看防火墙的状态
@@ -16584,7 +16584,7 @@ systemctl disable firewalld.service
 
 然后以外部配置文件启动
 
-```powershell
+```shell
 #测试可以先去掉nohup
 nohup java -jar /usr/local/rocketmq/rocketmq-dashboard-1.0.1-SNAPSHOT.jar --spring.config.location=/usr/local/rocketmq/application.yml &
 ```

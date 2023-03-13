@@ -1177,7 +1177,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
 ## adb连接到夜神模拟器
 
-```powershell
+```shell
 adb disconnect 127.0.0.1:62001 # 断开连接
 adb connect 127.0.0.1:62001
 ```
@@ -4306,7 +4306,7 @@ flutter_icons:
 
 运行创建图标  
 
-```powershell
+```shell
 flutter pub run flutter_launcher_icons:main 
 ```
 
@@ -4327,7 +4327,7 @@ flutter_native_splash:
 然后在项目根目录新建assets/images/splashscreen.png
 运行创建闪屏页 
 
-```powershell
+```shell
 flutter pub run flutter_native_splash:create
 ```
 
@@ -4347,7 +4347,7 @@ flutter pub run flutter_native_splash:create
 keytool工具会在安装android stido一起安装的  
 创建命令如下
 
-```powershell
+```shell
 #创建
 keytool -genkey -v -keystore demo.keystore -alias demo -keyalg RSA -keysize 2048 -validity 10000
 #格式转换
@@ -4406,7 +4406,7 @@ buildTypes {
 
 生成release版本，生成过程中会自动签名
 
-```powershell
+```shell
 flutter build apk
 or
 flutter build apk --split-per-abi #这种会生成三个
@@ -4416,7 +4416,7 @@ flutter build apk --split-per-abi #这种会生成三个
 
 ### 查看是否签名
 
-```powershell
+```shell
 keytool -list -printcert -jarfile .\app-release.apk
 ```
 
@@ -4730,7 +4730,7 @@ class User {
 
 第二步进入lib目录运行,则会自动生出json映射关系文件user.g.dart
 
-```powershell
+```shell
 flutter pub run build_runner build
 ```
 

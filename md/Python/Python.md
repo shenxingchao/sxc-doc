@@ -53,7 +53,7 @@
 ## linux安装python
 1. wget https://www.python.org/ftp/python/3.9.10/Python-3.9.10.tar 最好直接windows下载完放到/usr/local/src/目录下比较快
 2. 解压文件
-   ```powershell
+   ```shell
    cd /usr/local/src/
    tar -zxvf Python-3.9.10.tgz
    ```
@@ -89,11 +89,11 @@
 print("hello,world!")
 ```
 命令行运行 
-```powershell
+```shell
 python hello.py
 ```
 或 
-```powershell
+```shell
 py hello.py
 ```
 输出 hello,world！
@@ -3922,7 +3922,7 @@ print(
 ```
 上面的例子包含了input和print的用法，还有占位符%,输出字符f的用法,推荐f用法，简单高效
 输出
-```powershell
+```shell
 您输入了：a=1,b=2,c=3,d=4.000000,a+b=3
 a=1,b=2,c=3,d=4.000,a+b=3
 ```
@@ -4058,7 +4058,7 @@ pip list --outdated --trusted-host mirrors.aliyun.com
 ```
 
 ### 更新库命令
-```powershell
+```shell
 pip install --upgrade 库名称
 ```
 
@@ -4074,18 +4074,18 @@ trusted-host=mirrors.aliyun.com
 ```
 
 ### pip升级
-```powershell
+```shell
 pip install --upgrade pip
 ```
 !> 如果升级出现错误ModuleNotFoundError: No module named 'pip'
-```powershell
+```shell
 python -m ensurepip
 python -m pip install --upgrade pip
 ```
 [找到其来源](https://docs.python.org/3/library/ensurepip.html#command-line-interface)
 
 ### 代码格式化库black
-```powershell
+```shell
 pip install black
 ```
 vscode格式化配置
@@ -4142,7 +4142,7 @@ if __name__ == "__main__":
 
 ### beautifulsoup4
 - 安装
-    ```powershell
+    ```shell
     pip install beautifulsoup4
     pip install lxml
     ```
@@ -5618,7 +5618,7 @@ plt.show()
 
 ## 自动化测试工具selenium
 ### 安装
-```powershell
+```shell
 pip install selenium
 ```
 
@@ -5797,7 +5797,7 @@ selenium鼠标键盘事件 https://www.selenium.dev/documentation/en/support_pac
 ### 爬取ajax数据
 - 安装
 
-```powershell
+```shell
 pip install browsermob-proxy
 ```
 下载browsermob-proxy 并放到项目目录下
@@ -6046,7 +6046,7 @@ if __name__ == "__main__":
     main()
 ```
 !>  安装AES解密模块 [参考地址](https://www.pycryptodome.org/en/latest/src/installation.html#windows-from-sources-python-3-5-and-newer)  x不要即可 需要vs2019环境
-```powershell
+```shell
 pip install pycryptodome --no-binary :all: 
 ```
 
@@ -6187,12 +6187,12 @@ if __name__ == "__main__":
 ## 自动化测试工具playwright
 
 1. 安装
-   ```powershell
+   ```shell
     pip install playwright
     playwright install
    ```
 2. 打开谷歌浏览器，并开启录制
-   ```powershell
+   ```shell
    playwright codegen -b chromium http://rc.aiyunc.cn
    ```
 3. 文档地址
@@ -6200,45 +6200,45 @@ if __name__ == "__main__":
 
 ## 移动端自动化工具appium
 ### 安装服务端
-```powershell
+```shell
 npm install -g appium
 ```
 ### 开启
-```powershell
+```shell
 appium
 ```
 
 ### 安装python客户端
-```powershell
+```shell
 pip install Appium-Python-Client
 ```
 
 !> 其他安卓环境参考App开发那块
 
 ### 连接夜神模拟器
-```powershell
+```shell
 abd connect 127.0.0.1:62001
 ```
 
 ### 检测环境是否安装完成
-```powershell
+```shell
 npm install -g appium-doctor
 appium-doctor # 有警告无所谓不影响使用
 ```
 
 ### 获取必要的参数
 1. 获取设备名称
-   ```powershell
+   ```shell
    adb devices
    ```
 2. 获取包名和启动页面
    先打开测试app，然后执行下面的命令
-   ```powershell
+   ```shell
    adb shell
    dumpsys activity | grep mFocusedActivity # 如 mFocusedActivity: ActivityRecord{a20305f u0 com.example.novalapp/.MainActivity t5}
    ```
 3. 查看手机型号
-   ```powershell
+   ```shell
    adb shell getprop ro.build.version.release #7.1.2
    ```
 
@@ -6263,7 +6263,7 @@ driver = webdriver.Remote("http://localhost:4723/wd/hub", desired_caps)
 使用安卓adk目录下的uiautomatorviewer
 位置androidsdk\tools\bin\uiautomatorviewer.bat,双击打开  
 出现错误，关闭bat下面命令后重新打开:  
-```powershell
+```shell
 adb root
 ```
 不行的话重启模拟器，真机的话打开手机开发者权限，将USB调试按钮重新启动就好了
@@ -6512,19 +6512,19 @@ if __name__ == "__main__":
 3. 使用IDE编写脚本
 4. IDE运行
 5. 或使用脚本运行
-   ```powershell
+   ```shell
    "D:\AirtestIDE\AirtestIDE" runner "C:\xxx\taobao.air"  --device android://127.0.0.1:5037/设备名
    ```
 
 ## pyinstaller打包python脚本
 
 ### 安装
-```powershell
+```shell
 pip install pyinstaller
 ```
 
 ### 使用
-```powershell
+```shell
 pyinstaller -F filename.py
 ```
 
@@ -6544,7 +6544,7 @@ pyinstaller -F filename.py
 ## python图表pyecharts
 
 ### 安装
-```powershell
+```shell
 pip install pyecharts
 ```
 ### 使用
@@ -6793,7 +6793,7 @@ Application(backend="win32").connect(process=21564)
 # Sanic
 支持异步请求的web框架
 ## 安装
-```powershell
+```shell
 pip install sanic
 ```
 
@@ -7631,7 +7631,7 @@ def protected():
 
 ## sqlalchemy和aiomysql配合使用
 1. 安装
-   ```powershell
+   ```shell
    pip install sqlalchemy
    pip install aiomysql
    ```
@@ -7901,12 +7901,12 @@ async def cors(request: Request, response: HTTPResponse):
 ## linux部署
 1. 安装python3环境（前面有）
 2. 安装sanic
-   ```powershell
+   ```shell
    pip3 install sanic
    ```
 3. 将后台目录上传到/usr/local/sanic/demo下
 4. 服务器启动作为服务运行
-    ```powershell
+    ```shell
     vim /etc/systemd/system/sanic_demo.service
     # 复制以下内容
     [Unit]
@@ -7921,7 +7921,7 @@ async def cors(request: Request, response: HTTPResponse):
     [Install]
     WantedBy=multi-user.target
    ```
-   ```powershell
+   ```shell
    # 注册服务
    systemctl enable sanic_demo.service
    # 重新载入sanic_demo.service配置 修改.service文件才需执行

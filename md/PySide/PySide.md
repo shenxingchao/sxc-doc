@@ -1,7 +1,7 @@
 # PySide
 # 安装
 1. 安装PySide6
-```powershell
+```shell
 pip install PySide6
 ```
 
@@ -4323,7 +4323,7 @@ pyinstall -w -D ./index.py --distpath ./dist
 然后将输出的./dist/index 目录用 [enigmaprotector](https://enigmaprotector.com/cn/downloads.html) 打包 这样打包的体积虽然大，但是启动速度会和文件夹里的exe启动速度一样快
 
 更好的打包方式
-```powershell
+```shell
 # 安装
 pip install nuitka
 # 打包调试

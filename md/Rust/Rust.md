@@ -37,7 +37,7 @@ Windows 10 或 11 SDK
 
 cargo是构建系统和包管理器，cargo会随rust一起安装
 
-```powershell
+```shell
 cargo new demo
 ```
 
@@ -54,7 +54,7 @@ cargo build --release //构建发布项目，生成release文件
 
 ### 运行
 
-```powershell
+```shell
 cd src
 rustc main.rs
 ```

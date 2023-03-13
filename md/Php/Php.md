@@ -105,7 +105,7 @@
     执行mysqld --install（需管理员权限的cmd）
 5. 编写wnmp启动脚本bat
     - 编写server_start.bat
-        ```powershell
+        ```shell
         @echo off
 
         F:
@@ -121,7 +121,7 @@
         echo Start php-cgi success
         ```
     - 编写server_stop.bat
-        ```powershell
+        ```shell
         @echo off
         taskkill /F /IM nginx.exe > nul
         echo Stop nginx success
@@ -137,7 +137,7 @@
 !>以上脚本需管理员权限启动
 
 6. 查看进程
-    ```powershell
+    ```shell
     tasklist /fi "imagename eq nginx.exe"
     tasklist /fi "imagename eq php-cgi.exe"
     netstat -ano | findstr "3306"
@@ -697,13 +697,13 @@ function getRand($proArr){
 
 ## 创建项目
 切换到网站根目录运行
-```powershell
+```shell
 composer create-project topthink/think demo
 ```
 
 ## 更新框架
 切换到应用根目录
-```powershell
+```shell
 composer update topthink/framework
 ```
 
@@ -784,7 +784,7 @@ class Cors {
 
 ## 多应用模式
 需要安装think-multi-app 不然无法访问，默认是单应用模式
-```powershell
+```shell
 composer require topthink/think-multi-app
 ```
 
@@ -2095,3 +2095,50 @@ config/autoload/logger.php
     ...
 ]
 ```
+
+### 验证器
+
+#### 安装
+
+需要安装的扩展
+```
+composer require hyperf/validation
+```
+
+#### 配置
+
+配置验证器为全局中间件 config/autoload/middlewares.php
+
+```php
+use Hyperf\Validation\Middleware\ValidationMiddleware;
+
+return [
+  'http' => [
+    //验证器组件
+    ValidationMiddleware::class,
+  ],
+];
+```
+
+配置验证失败异常处理类 config/autoload/exceptions.php
+
+```php
+use Hyperf\Validation\ValidationExceptionHandler;
+
+return [
+  'handler' => [
+    'http' => [
+      //异常处理器主要对 Hyperf\Validation\ValidationException 异常进行处理
+      ValidationExceptionHandler::class,
+    ],
+  ],
+];
+```
+
+```
+#验证器的消息依赖多语言需要创建一个语言文件,文件生成在storage/languages目录下面
+php bin/hyperf.php vendor:publish hyperf/translation
+#最后生成验证器类
+php bin/hyperf.php vendor:publish hyperf/validation
+```
+

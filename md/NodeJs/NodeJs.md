@@ -83,11 +83,11 @@
 ## 使用express快速搭建本地测试服务器
 1. 创建应用文件夹
 2. 初始化
-    ```powershell
+    ```shell
     npm init
     ```
 3. 安装express
-    ```powershell
+    ```shell
     yarn add express
     ```
     或者
@@ -118,7 +118,7 @@
     }
     ```
 6. 运行
-    ```powershell
+    ```shell
     yarn dev
     ```
     或者
@@ -127,11 +127,11 @@
     ```
 7. 访问html
     安装ejs
-    ```powershell
+    ```shell
     yarn add ejs
     ```
     或者
-    ```powershell
+    ```shell
     npm instal ejs --save
     ```
     在项目根目录新建views 放入index.html  

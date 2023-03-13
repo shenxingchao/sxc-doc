@@ -466,11 +466,11 @@ export default defineConfig({
 
 - 创建
   
-  ```powershell
+  ```shell
   vue create project-name
   ```
   
-  ```powershell
+  ```shell
   1.手动选择需要添加的包Manually select features
     Choose Vue version # 选择Vue版本
     TypeScript # 使用TypeScript
@@ -493,12 +493,12 @@ export default defineConfig({
 
 - 添加electron builder
   
-  ```powershell
+  ```shell
   cd project-name
   vue add electron-builder
   ```
   
-  ```powershell
+  ```shell
   选择Electron版本 Choose Electron Version
     ^13.0.0 √
   ```
@@ -695,7 +695,7 @@ for (const name of Object.keys(defines)) {
 
 ## 创建
 
-```powershell
+```shell
 yarn create vite
 ?Project name: app
 ?Select a framework:vue

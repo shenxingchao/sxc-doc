@@ -15,26 +15,26 @@ mysql8.0和5.x版本有巨大区别，记录一下
 
 1. 下载安装包并解压到/usr/local/src目录
 
-```powershell
+```shell
     //mysql8.0 wget 推荐手动下速度快 https://downloads.mysql.com/archives/get/p/23/file/mysql-8.0.29-linux-glibc2.12-x86_64.tar.xz
     //tar -xvf mysql-8.0.29-linux-glibc2.12-x86_64.tar.xz
 ```
 
 2. 复制到/usr/local 目录
 
-```powershell
+```shell
 cp -r mysql-8.0.29-linux-glibc2.12-x86_64 /usr/local/mysql8.0
 ```
 3. 创建数据存储目录
 
-```powershell
+```shell
 mkdir /usr/local/mysql8.0/data
 chmod 750 /usr/local/mysql8.0/data -R
 ```
 
 4. 创建分组和用户并授权
 
-```powershell
+```shell
 #添加组
 groupadd mysql
 #添加用户并指定用户组
@@ -45,7 +45,7 @@ chown -R mysql:mysql /usr/local/mysql8.0
 
 5. 添加环境变量
 
-```powershell
+```shell
 vim /etc/profile
 #添加如下
 export PATH=$PATH:/usr/local/mysql-8.0/bin:/usr/local/mysql-8.0/lib
@@ -55,7 +55,7 @@ source /etc/profile
 
 6. 新增配置文件
 
-```powershell
+```shell
 vim /etc/my.cnf
 
 [mysql]
@@ -95,7 +95,7 @@ pid-file=/usr/local/mysql8.0/data/mysql.pid
 
 7. 初始化mysql配置
 
-```powershell
+```shell
 cd /usr/local/mysql8.0/bin
 ./mysqld --user=mysql8.0 --basedir=/usr/local/mysql8.0 --datadir=/usr/local/mysql8.0/data/ --initialize
 #完成后最后一行会有初始密码，复制一下
@@ -103,7 +103,7 @@ cd /usr/local/mysql8.0/bin
 
 8. 设置mysql为系统服务
 
-```powershell
+```shell
 vim /lib/systemd/system/mysql8.service
 
 [Unit]
@@ -122,7 +122,7 @@ WantedBy=multi-user.target
 
 9. 设置mysql服务开机自启动
 
-```powershell
+```shell
 #设置开机启动
 systemctl enable mysql8.service
 
@@ -136,20 +136,20 @@ systemctl restart mysql8.service
 
 10. 创建必要目录
 
-```powershell
+```shell
 mkdir /var/lib/mysql8.0
 chown -R mysql:mysql /var/lib/mysql8.0/
 ```
 
 11. 启动
 
-```powershell
+```shell
 systemctl start mysql8.service
 ```
 
 12. 修改密码并远程访问
 
-```powershell
+```shell
 mysql -u root -p
 #输入刚才复制的密码
 #修改新密码
@@ -170,13 +170,13 @@ firewall-cmd --reload
 
 ## 连接到Mysql
 打开cmd
-```powershell
+```shell
 mysql -h localhost -P 3306 -u root -p ;
 ```
 > 初始密码去 D:\mysql\data\xxx.err 文件里 搜索 temporary password 为临时密码 登录后修改密码,参考[这里](/md/Mysql?id=访问控制)
 
 ##  退出连接
-```powershell
+```shell
 quit or exit
 ```
 ## 下载工具
@@ -1657,7 +1657,7 @@ SELECT * FROM `user` WHERE id >= (
 
 第一台mysql vim /etc/my.cnf
 
-```powershell
+```shell
 [mysqld]
 #节点ID，确保唯一
 server-id = 1
@@ -1667,7 +1667,7 @@ log-bin=/usr/local/mysql8.0/data/mysql-bin
 
 第二台mysql
 
-```powershell
+```shell
 [mysqld]
 #节点ID，确保唯一
 server-id=2
