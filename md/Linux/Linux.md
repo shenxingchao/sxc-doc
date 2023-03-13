@@ -99,11 +99,15 @@ rm -rf xxxx
 
 ## 修改文件权限
 
-chown -R 
+1. chown
 
-修改文件的用户组 -R表示递归所有子文件
+-R 表示递归
 
-chmod
+chown -R 777/755 /xxx/xxx
+
+chown -R git:1004 /xxx/xxx 递归修改文件用户和用户组(git/1004)
+
+2. chmod
 
 -r 可读
 
@@ -131,14 +135,6 @@ mv xxx /usr/local/
 cp xxx /usr/local
 
 cp -r 递归复制目录下的所有子目录和文件到指定目录
-
-## 修改文件夹权限
-
--R 表示递归
-
-chmod -R 777/755 /xxx/xxx
-
-chmod -R git:1004 /xxx/xxx 递归修改文件用户和用户组(git/1004)
 
 ## 解压 文件
 - *.tar 用 tar –xvf 解压
