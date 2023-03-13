@@ -947,10 +947,9 @@ composer常用命令
 
 ```
 #除了mysql redis 其他全部n
-#这个是2.2
-composer create-project hyperf/hyperf-skeleton hyperf-test
-#升级3.0 最好一开始就升级
-composer.json 中的 hyperf/* 统一修改为 3.0.0 然后执行composer update -o即可。
+
+composer create-project hyperf/hyperf-skeleton:dev-master hyperf-test
+
 cd hyperf-test
 #docker 的话是cd /data/project/hyperf-test
 php bin/hyperf.php start
@@ -2277,7 +2276,63 @@ class IndexController extends AbstractController {
 
 #### 场景
 
-使用方法
+app/Request/UserRequest.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Request;
+
+use Hyperf\Validation\Request\FormRequest;
+
+class UserRequest extends FormRequest {
+
+  //添加和编辑场景 编辑场景需要额外的id参数
+  protected $scenes = [
+    'add' => ['username', 'password'],
+    'edit' => ['id', 'username', 'password'],
+  ];
+
+  /**
+   * Determine if the user is authorized to make this request.
+   */
+  public function authorize(): bool {
+    return TRUE;
+  }
+
+  /**
+   * 增加rules方法添加验证规则
+   *
+   * @return string[]
+   */
+  public function rules(): array {
+    return [
+      'id' => 'required',
+      'username' => 'required|max:3',
+      'password' => 'required',
+    ];
+  }
+
+  /**
+   * 自定义错误提示
+   *
+   * @return array
+   */
+  public function messages(): array {
+    return [
+      'id.required' => "缺少字段id",
+      'username.required' => '用户名必填',
+      'username.max' => '用户名最多3个字符',
+      'password.required' => '密码必填',
+    ];
+  }
+
+}
+```
+
+使用方法验证场景
 
 ```php
     //从容器里拿到请求
@@ -2290,3 +2345,36 @@ class IndexController extends AbstractController {
 
 
 使用注解 推荐 3.0.0版本以上才支持
+```php
+<?php
+
+declare(strict_types=1);
+
+
+namespace App\Controller;
+
+
+use App\Request\UserRequest;
+use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Hyperf\Validation\Annotation\Scene;
+use Psr\Http\Message\ResponseInterface as Psr7ResponseInterface;
+
+#[Controller]
+class IndexController extends AbstractController {
+
+  //http://127.0.0.1:9501/index/requestFn
+  #[RequestMapping(path: "requestFn", methods: "get,post,put,delete")]
+  //使用注解
+  #[Scene(scene: 'add')]
+  public function requestFn(UserRequest $request, ResponseInterface $response): Psr7ResponseInterface {
+    //验证通过 获取验证通过的字段
+    $validated = $request->validated();
+    print_r($validated);
+
+    return $response->json(["data" => "requestFn all methods"]);
+  }
+
+}
+```
