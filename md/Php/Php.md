@@ -2378,3 +2378,186 @@ class IndexController extends AbstractController {
 
 }
 ```
+
+## ORM
+
+### 配置
+
+主要配置一下几个 注意编码如果是utfmb4也配置这个即可
+
+```php
+<?php
+
+declare(strict_types=1);
+
+return [
+  'default' => [
+    'host' => env('DB_HOST', 'localhost'),//连接地址
+    'database' => env('DB_DATABASE', 'hyperf'),//数据库名
+    'port' => env('DB_PORT', 3306),//端口
+    'username' => env('DB_USERNAME', 'root'),//用户名
+    'password' => env('DB_PASSWORD', ''),//密码
+    'collation' => env('DB_COLLATION', 'utf8_general_ci'),//编码
+    'prefix' => env('DB_PREFIX', ''),//前缀
+    ...
+  ],
+];
+
+```
+
+### 原生查询
+
+```php
+//增
+Db::insert("INSERT INTO user (name,age) VALUES (?,?)", ['王五', 18]);
+//改
+DB::update("UPDATE user SET name = ? where name = ?", ["王六", "王五"]);
+//删
+Db::delete("DELETE FROM user WHERE name = ?", ["王六"]);
+//查
+Db::select("SELECT * FROM user ");
+```
+
+### 输出最后一条sql语句
+
+仅限开发环境
+
+```php
+Db::enableQueryLog();
+$res = Db::select("SELECT * FROM user ");
+var_dump(Arr::last(Db::getQueryLog()));
+/*
+array(3) {
+  ["query"]=>
+  string(19) "SELECT * FROM user "
+  ["bindings"]=>
+  array(0) {
+  }
+  ["time"]=>
+  float(0.86)
+}
+*/
+```
+
+### 事务
+
+#### 自动事务
+
+```php
+Db::transaction(function () {
+   ...
+});
+```
+
+#### 手动事务
+
+```php
+Db::beginTransaction();
+try{
+    ...
+    Db::commit();
+} catch(\Throwable $exception){
+    Db::rollBack();
+}
+```
+
+### 查询构造器
+
+#### 查询多条
+
+```php
+//返回数组
+$users = Db::table('user')->get();
+foreach ($users as $user) {
+    var_dump($user);//默认是stdClass对象 所有对象的父类 就是类似java的Object对象
+}
+//查询指定列 并 返回数组
+$usersColumn = Db::table('user')->select("name", "age")->get();
+
+return $response->json([
+    "data" => [
+        'users' => $users,
+        'usersColumn' => $usersColumn,
+    ],
+]);
+```
+
+如果要返回纯数组则需要创建一个监听器 并监听修改数据 app/Listener/FetchModeListener.php
+
+```php
+<?php
+declare(strict_types=1);
+
+namespace App\Listener;
+
+use Hyperf\Database\Events\StatementPrepared;
+use Hyperf\Event\Annotation\Listener;
+use Hyperf\Event\Contract\ListenerInterface;
+use PDO;
+
+#[Listener]
+class FetchModeListener implements ListenerInterface {
+
+  public function listen(): array {
+    return [
+      StatementPrepared::class,
+    ];
+  }
+
+  public function process(object $event): void {
+    if ($event instanceof StatementPrepared) {
+      $event->statement->setFetchMode(PDO::FETCH_ASSOC);
+    }
+  }
+
+}
+```
+
+然后触发监听器
+
+```php
+//分发事件 相当于emit触发监听器的方法
+$this->eventDispatcher->dispatch(new FetchModeListener());
+
+//返回数组
+$users = Db::table('user')->get();
+foreach ($users as $user) {
+    var_dump($user);//默认是stdClass对象 所有对象的父类 就是类似java的Object对象
+}
+```
+
+#### 查询单条
+
+```php
+$user = Db::table("user")->first();
+return $response->json([
+    "data" => [
+    'user' => $user,
+    ],
+]);
+```
+
+#### 查询单个值
+
+```php
+$name = Db::table('user')->value("name");
+return $response->json([
+    "data" => [
+    'name' => $name,
+    ],
+]);
+```
+#### 查询单列
+
+```php
+//单列
+$column = Db::table('user')->pluck("name");
+//单列指定索引
+$columnKeyValue = Db::table('user')->pluck('name', 'id');
+return $response->json([
+    "data" => [
+    'column' => $column,
+    'columnKeyValue' => $columnKeyValue,
+    ],
+]);
+```
