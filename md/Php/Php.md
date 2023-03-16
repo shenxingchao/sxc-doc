@@ -2954,3 +2954,27 @@ $bool = UserAddress::query()->update([
     "address" => '浙江杭州',
   ]);
 ```
+
+### 模型间关系
+
+可以简化操作join操作 在模型中定义关系的方法 就可以在控制直接调用方法
+
+#### 基本关系定义
+
+app/Model/User.php
+
+```php
+//定义一对一
+public function userAddress(): HasMany {
+  return $this->hasMany(UserAddress::class, 'user_id', 'id');
+}
+```
+
+调用
+
+```php
+$user = User::query()->find(1)->userAddress;
+```
+
+类似的还有hasOne/belongsTo/belongsToMany 具体要用到在[查看文档](https://hyperf.wiki/3.0/#/zh-cn/db/relationship?id=%e5%a4%9a%e5%af%b9%e5%a4%9a)即可
+
