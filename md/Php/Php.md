@@ -2523,6 +2523,8 @@ foreach ($users as $user) {
 
 ```php
 $user = Db::table("user")->first();
+//find(id,column)
+$users = Db::table('user')->find(1);
 ```
 
 #### 查询单个值
@@ -2772,3 +2774,183 @@ select * from user for update
 ### 删除
 
 delete 如果要清空表使用truncate且重置自增id
+
+### 模型
+
+#### 配置
+
+config/autoload/databases.php
+
+```php
+<?php
+
+declare(strict_types=1);
+use Hyperf\Database\Commands\ModelOption;
+return [
+  'default' => [
+    ...
+    'commands' => [
+      'gen:model' => [
+        'path' => 'app/Model',//生成模型的路径
+        'inheritance' => 'Model',//父类
+        'force_casts' => TRUE,//是否强制重置生成Model类中 casts 参数
+        'refresh_fillable' => TRUE,//是否刷新生成Model类中 fillable 参数
+        'table_mapping' => [],//为表名 -> 模型增加映射关系 比如 ['users:Account']
+        'with_comments' => TRUE,//是否增加字段注释
+        'property_case' => ModelOption::PROPERTY_CAMEL_CASE,//数据库字段转驼峰
+      ],
+    ],
+  ],
+];
+
+```
+
+#### 生成模型
+
+```shell
+php bin/hyperf.php gen:model 表名
+```
+
+比如生成用户地址model如下，驼峰记得引入tarit CamelCase 否则无效
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Model;
+
+use Hyperf\DbConnection\Model\Model;
+
+//引入trait公共方法 查询结果自动转换为驼峰式
+use  Hyperf\Database\Model\Concerns\CamelCase;
+
+/**
+ * @property int $id id
+ * @property string $address 地址
+ * @property int $userId userId
+ */
+class UserAddress extends Model {
+
+  use CamelCase;
+
+  /**
+   * The table associated with the model.
+   */
+  protected ?string $table = 'user_address';
+
+  /**
+   * The attributes that are mass assignable.
+   */
+  protected array $fillable = ['id', 'address', 'user_id'];
+
+  /**
+   * The attributes that should be cast to native types.
+   */
+  protected array $casts = ['id' => 'integer', 'user_id' => 'integer'];
+
+}
+```
+
+#### 时间戳
+
+表格创建时固定创建两个字段created_at 和 updated_at 框架自动维护这两个时间
+
+created_at  timestamp notnull 默认值为CURRENT_TIMESTAMP 创建时间
+
+updated_at timestamp null 默认值为NULL 勾上根据当前时间更新 更新时间
+
+!> 如果发现时区不对在启动文件中加上date_default_timezone_set('Asia/Shanghai');即可
+
+#### 刷新模型
+
+##### 复制模型
+
+复制一个模型对象 深拷贝
+
+```php
+$newUser = User::query()->fresh();
+```
+
+##### 重置模型
+
+重置一个模型对象为查询出来的初始数据
+
+```php
+$user = User::query();
+$user->refresh();
+```
+
+
+#### 查询
+
+用法都差不多 可以省略query() 还是不要省略好
+
+```php
+$users = User::query()->get();
+
+foreach ($users as $user) {
+  var_dump($user);//返回User模型对象 object(App\Model\User)
+}
+```
+
+##### 数据不存时抛出异常
+
+不存在会抛出Hyperf\Database\Model\ModelNotFoundException 配合异常拦截器可以统一返回数据
+
+```php
+$users = User::query()
+  ->where("id", 9999)
+  ->firstOrFail();
+```
+
+#### 新增
+
+##### 新增单条
+
+```php
+//模型对象用法 注意命名需要驼峰
+$userAddress = new UserAddress([
+  "address" => "test",
+  "userId" => 18,
+]);
+$bool = $userAddress->save();
+```
+
+或者下面这种批量赋值,如果已经有一个对象可以用fill([])来填充
+
+```php
+//返回新增的记录
+$address = UserAddress::create(['address' => '上海', "userId" => 18]);
+```
+
+#### 批量新增
+
+这个新增时不会复制updated_at字段 无语
+
+```php
+$bool = UserAddress::query()
+  ->insert([[
+    "address" => "test",
+    "user_id" => 18,
+  ]]);
+```
+
+
+#### 更新
+
+##### 单条更新
+
+```php
+$userAddress = UserAddress::query()->find(2);
+$userAddress->address = "上海杭州";
+$bool = $userAddress->save();
+```
+
+##### 批量更新
+
+```php
+$bool = UserAddress::query()->update([
+    "address" => '浙江杭州',
+  ]);
+```
