@@ -2473,13 +2473,6 @@ foreach ($users as $user) {
 }
 //查询指定列 并 返回数组
 $usersColumn = Db::table('user')->select("name", "age")->get();
-
-return $response->json([
-    "data" => [
-        'users' => $users,
-        'usersColumn' => $usersColumn,
-    ],
-]);
 ```
 
 如果要返回纯数组则需要创建一个监听器 并监听修改数据 app/Listener/FetchModeListener.php
@@ -2530,22 +2523,12 @@ foreach ($users as $user) {
 
 ```php
 $user = Db::table("user")->first();
-return $response->json([
-    "data" => [
-    'user' => $user,
-    ],
-]);
 ```
 
 #### 查询单个值
 
 ```php
 $name = Db::table('user')->value("name");
-return $response->json([
-    "data" => [
-    'name' => $name,
-    ],
-]);
 ```
 #### 查询单列
 
@@ -2554,10 +2537,238 @@ return $response->json([
 $column = Db::table('user')->pluck("name");
 //单列指定索引
 $columnKeyValue = Db::table('user')->pluck('name', 'id');
-return $response->json([
-    "data" => [
-    'column' => $column,
-    'columnKeyValue' => $columnKeyValue,
-    ],
-]);
 ```
+
+#### 查询数量或判断存在
+
+```php
+//统计数量
+$count = Db::table('user')->count();
+//判断记录是否存在
+$exists = Db::table('user')->exists();
+$doesntExist = Db::table('user')->doesntExist();
+```
+
+#### 指定列去重
+
+```php
+//查询指定name和age列不重复的所有记录
+$users = Db::table('user')->select('name', 'age')->distinct()->get();
+```
+
+#### 查询指定别名
+
+```php
+$users = Db::table('user')->select('name as n', 'age as a')->get();
+```
+
+#### 强制索引
+
+EXPLAIN执行后没有使用的索引的可以使用查询索引，一些情况下会破坏索引，例如使用!=,<>
+
+```php
+$users = Db::table('user')->forceIndexes(['age_index'])
+    ->where('age', '!=', 18)
+    ->get();
+```
+
+### 连接查询
+
+#### 连接查询
+
+内连查询两表公共部分
+
+```php
+$users = Db::table('user as u')
+    ->join('user_address as ua', 'u.id', '=', 'ua.user_id')
+    ->select('u.*', 'ua.address', 'ua.id as user_address_id')
+    ->get();
+```
+
+左连右连查询leftJoin/rightJoin
+
+#### 子查询
+
+```php
+$sub = Db::table('user')->select('id')->where('age', '=', 18);
+$users = Db::table('user')
+  ->joinSub($sub, 'sub', 'sub.id', '=', 'user.id')
+  ->get();
+```
+
+类似方法还有leftJoinSub/rightJoinSub 
+
+### 条件语句
+
+#### 基本where查询
+
+```php
+//简单等值比较
+$users = Db::table('user')->where('age', 18)->get();
+//其他比较 第二参数是运算符 > < = >= <= <> like等
+$users = Db::table('user')->where('age', '>', '18')->get();
+//多个条件使用数组
+$users = Db::table('user')
+  ->where([
+    ['id', '=', 1],
+    ['age', '=', 18],
+  ])
+  ->get();
+```
+
+#### and查询
+
+```php
+$users = Db::table('user')
+  ->where('name', "张三")
+  ->where('age', 18)
+  ->get();
+```
+
+#### or查询
+
+```php
+$users = Db::table('user')
+  ->where('name', "张三")
+  ->orWhere('age', 18)
+  ->get();
+```
+
+#### andor查询
+
+条件结构类似 1 and (2 or 3) 使用闭包来构造此类查询
+
+```php
+$users = Db::table('user')
+  ->where('name', '李四')
+  ->where(function ($query) {
+    $query->where('age', 18)
+      ->orWhere('age', 20);
+  })
+  ->get();
+```
+
+生成的sql语句
+
+```sql
+select * from `user` where `name` = ? and (`age` = ? or `age` = ?)
+```
+
+#### 区间查询
+
+```php
+$users = Db::table('user')
+  ->whereBetween('id', [1, 2])
+  ->get();
+```
+
+类似方法还有whereNotBetween/whereIn/whereNotIn
+
+#### exists存在查询
+
+exists只查询连接表中的左表 类似与leftjoin 只返回主表内容
+
+比如我要查询所有有地址的用户
+
+```php
+$users = Db::table('user as u')
+    ->whereExists(function ($query) {
+      //Db::raw(1) 就是select 1 这样写对匹配的记录返回的是1 效率最快
+      $query->select(Db::raw(1))
+        ->from("user_address as ua")
+        //whereRaw 使用原生sql
+        ->whereRaw("u.id = ua.user_id");
+    })
+    ->get();
+```
+
+生成的sql语句
+
+```sql
+select * from `user` as `u` where exists (select 1 from `user_address` as `ua` where u.id = ua.user_id)
+```
+
+#### 原生查询条件
+
+selectRaw/whereRaw/orWhereRaw 分别替代select/where/orWhere方法
+
+#### 排序
+
+```php
+$users = Db::table('user')
+  ->orderBy('id', 'desc')
+  ->get();
+```
+
+#### groupBy
+
+一般用于指定字段进行分组统计,也可用于去重，效率优于distinct
+
+配合having 及统计函数count/sum/等使用
+
+```php
+    $users = Db::table('user')
+      ->select("*")
+      ->selectRaw('count(*) as count')
+      ->groupBy(['name'])
+      ->having('age', '=', '18')
+      ->get();
+
+```
+
+#### 限制数量查询
+
+limit/offset
+
+```php
+$users = Db::table("user")->limit(2)->get();
+```
+
+### 新增
+
+```php
+//插入单条 返回bool
+$bool = Db::table('user')
+  ->insert(['name' => '王五', 'age' => 1]);
+//插入单条并返回Id
+$id = Db::table('user')
+  ->insertGetId(['name' => '王五', 'age' => 1]);
+//插入多条 返回bool
+$bool = Db::table('user')
+  ->insert([
+    ['name' => '王五', 'age' => 1],
+    ['name' => '王五', 'age' => 1],
+  ]);
+```
+
+### 更新
+
+#### 修改
+
+```php
+//更新 返回受影响的行数
+$rows = Db::table('user')
+  ->where("name", "王五")
+  ->update(["age" => 99]);
+```
+
+#### 自增自减
+
+increment/decrement
+
+#### 修改数据加锁
+
+可以防止修改时 数据被其他操作篡改
+
+sharedLock(共享锁 大家都能读 但修改只能是自己 容易死锁 使用场景：事务期间查询最新数据且不允许修改)
+
+lockForUpdate（排他锁 只能是自己增删该查 别人无法操作 使用场景：事务期间查询数据且可以修改）
+
+```sql
+select * from user lock in share mode
+select * from user for update
+```
+
+### 删除
+
+delete 如果要清空表使用truncate且重置自增id

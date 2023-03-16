@@ -646,7 +646,6 @@ SELECT name,age,COUNT(*) AS row_count FROM `user` GROUP BY age;
 2 rows in set (0.00 sec)
 ```
 
-!> 同样是聚合,区别 DISTINCT 是作用于所有列，而 GROUP BY 作用于一个字段
 !> NULL值也会作为一个分组出现
 !> GROUP BY 必须在ORDER BY之前
 
@@ -722,6 +721,17 @@ WHERE
 |  3 | 李五   |    2 |
 +----+--------+------+
 2 rows in set (0.00 sec)
+```
+
+这里的sql可以优化为先语句 效率更快,SELECT 1 表示返回的是 1
+
+```sql
+SELECT
+	* 
+FROM
+	`user` u 
+WHERE
+	EXISTS ( SELECT 1 FROM `user_address` ua WHERE u.id = ua.user_id );
 ```
 
 ## INNER JOIN
@@ -1578,6 +1588,14 @@ SELECT * FROM `user` WHERE id >= (
 +---------+--------------+------+
 2 rows in set (0.16 sec)
 ```
+
+## 强制索引
+```sql
+#这条没使用索引 因为查询条件!=破坏了索引
+SELECT * FROM `user` WHERE `age` != 18
+#强制使用索引
+SELECT * FROM `user` FORCE INDEX (`age_index`) WHERE `age` != 18
+···
 
 ## 其他
 
