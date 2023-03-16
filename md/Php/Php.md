@@ -2978,3 +2978,17 @@ $user = User::query()->find(1)->userAddress;
 
 类似的还有hasOne/belongsTo/belongsToMany 具体要用到在[查看文档](https://hyperf.wiki/3.0/#/zh-cn/db/relationship?id=%e5%a4%9a%e5%af%b9%e5%a4%9a)即可
 
+#### 预加载
+
+比如要查所有用户的所有地址 不使用左连接查询,需要查1 * n次，可以简化为 2次
+
+```php
+$users = User::query()->with('userAddress')->get();
+```
+
+生成的sql类似
+
+```sql
+SELECT * FROM `user`;
+SELECT * FROM `user_address` WHERE id in (1, 2, 3, ...);
+```
