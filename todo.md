@@ -1,16 +1,16 @@
-<h1>定个目标，明年势必换工作</h1>
+<h1>已辞职 倒计时9天</h1>
 
 <h2>TODO</h2>  
-<p>php进阶(swoole,laraval)（1月）</p>
+<p>[doing]php进阶(swoole,hyperf,webman,laraval)（1月）</p>
 <p>[√]java基础（1.5月）</p>
-<p>[√ 80% es k8s]javaWeb(3月)</p>
+<p>[x 80% es k8s]javaWeb(3月)</p>
 <p>[√]kotlin基础（0.5月）</p>
-<p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>3
-<p>jetpack本地存储</p>
-<p>typescript强化（1周）</p>
+<p>[√]kotlin安卓框架JetpackCompose(0.3月)</p>
+<p>[×]jetpack本地存储</p>
+<p>[×]typescript强化（1周）</p>
 <p>[√]Python进阶（sanic框架）（1月）</p>
 <p>[√]用flutter写一个音乐app（1月）</p>
-<p>dart强化，flutter跨平台实战（1月）</p>
+<p>[×]dart强化，flutter跨平台实战（1月）</p>
 <p>[doing 60%]rust基础（2月）</p>
 <p>[doing]tauri(1月)</p>
 
@@ -22,4 +22,4 @@
 
 ## 如果有一天你觉得自己牛逼了，那么你的技术不会再增长了
 
-## 加油！人生而艰辛，快乐是因为你努力了（楠哥）
+## 加油！人生而艰辛，快乐是因为你努力了
