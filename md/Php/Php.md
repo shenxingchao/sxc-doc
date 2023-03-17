@@ -1097,6 +1097,8 @@ echo "我被阻塞";
 
 #### 协程上下文
 
+用户信息可以保存在协程上下文里面 具体可以在权限中间中进行保存用户信息
+
 ```php
 use Hyperf\Context\Context;
 
@@ -2098,6 +2100,12 @@ config/autoload/logger.php
 ]
 ```
 
+#### sql日志
+
+默认已经写好了app/Listener/DbQueryExecutedListener.php，注意如果要事务的日志自己加一下就行
+
+https://hyperf.wiki/3.0/#/zh-cn/db/event?id=%e8%bf%90%e8%a1%8c%e4%ba%8b%e4%bb%b6
+
 ### 验证器
 
 #### 安装
@@ -2418,7 +2426,7 @@ Db::delete("DELETE FROM user WHERE name = ?", ["王六"]);
 Db::select("SELECT * FROM user ");
 ```
 
-### 输出最后一条sql语句
+### 输出最后sql语句
 
 仅限开发环境
 
@@ -2426,6 +2434,7 @@ Db::select("SELECT * FROM user ");
 Db::enableQueryLog();
 $res = Db::select("SELECT * FROM user ");
 var_dump(Arr::last(Db::getQueryLog()));
+var_dump(Db::getQueryLog());
 /*
 array(3) {
   ["query"]=>
@@ -2574,9 +2583,9 @@ $users = Db::table('user')->forceIndexes(['age_index'])
     ->get();
 ```
 
-### 连接查询
-
 #### 连接查询
+
+##### 连接查询
 
 内连查询两表公共部分
 
@@ -2589,7 +2598,7 @@ $users = Db::table('user as u')
 
 左连右连查询leftJoin/rightJoin
 
-#### 子查询
+##### 子查询
 
 ```php
 $sub = Db::table('user')->select('id')->where('age', '=', 18);
@@ -2600,9 +2609,9 @@ $users = Db::table('user')
 
 类似方法还有leftJoinSub/rightJoinSub 
 
-### 条件语句
+#### 条件语句
 
-#### 基本where查询
+##### 基本where查询
 
 ```php
 //简单等值比较
@@ -2618,7 +2627,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-#### and查询
+##### and查询
 
 ```php
 $users = Db::table('user')
@@ -2627,7 +2636,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-#### or查询
+##### or查询
 
 ```php
 $users = Db::table('user')
@@ -2636,7 +2645,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-#### andor查询
+##### andor查询
 
 条件结构类似 1 and (2 or 3) 使用闭包来构造此类查询
 
@@ -2656,7 +2665,7 @@ $users = Db::table('user')
 select * from `user` where `name` = ? and (`age` = ? or `age` = ?)
 ```
 
-#### 区间查询
+##### 区间查询
 
 ```php
 $users = Db::table('user')
@@ -2666,7 +2675,7 @@ $users = Db::table('user')
 
 类似方法还有whereNotBetween/whereIn/whereNotIn
 
-#### exists存在查询
+##### exists存在查询
 
 exists只查询连接表中的左表 类似与leftjoin 只返回主表内容
 
@@ -2690,11 +2699,11 @@ $users = Db::table('user as u')
 select * from `user` as `u` where exists (select 1 from `user_address` as `ua` where u.id = ua.user_id)
 ```
 
-#### 原生查询条件
+##### 原生查询条件
 
 selectRaw/whereRaw/orWhereRaw 分别替代select/where/orWhere方法
 
-#### 排序
+##### 排序
 
 ```php
 $users = Db::table('user')
@@ -2702,7 +2711,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-#### groupBy
+##### groupBy
 
 一般用于指定字段进行分组统计,也可用于去重，效率优于distinct
 
@@ -2718,7 +2727,7 @@ $users = Db::table('user')
 
 ```
 
-#### 限制数量查询
+##### 限制数量查询
 
 limit/offset
 
@@ -2726,7 +2735,22 @@ limit/offset
 $users = Db::table("user")->limit(2)->get();
 ```
 
-### 新增
+#### 分页
+
+```php
+//假设pageSize为10 当前页默认传page字段即可
+$pageSize = 10;
+//返回分页对象
+$users = Db::table('user')->paginate($pageSize);
+//获取总记录数
+$total = $users->total();
+//是否还有更多记录
+$hasMorePages = $users->hasMorePages();
+//模型分页
+$users = User::query()->paginate($pageSize);
+```
+
+#### 新增
 
 ```php
 //插入单条 返回bool
@@ -2743,9 +2767,9 @@ $bool = Db::table('user')
   ]);
 ```
 
-### 更新
+#### 更新
 
-#### 修改
+##### 修改
 
 ```php
 //更新 返回受影响的行数
@@ -2754,11 +2778,11 @@ $rows = Db::table('user')
   ->update(["age" => 99]);
 ```
 
-#### 自增自减
+##### 自增自减
 
 increment/decrement
 
-#### 修改数据加锁
+##### 修改数据加锁
 
 可以防止修改时 数据被其他操作篡改
 
@@ -2771,7 +2795,7 @@ select * from user lock in share mode
 select * from user for update
 ```
 
-### 删除
+#### 删除
 
 delete 如果要清空表使用truncate且重置自增id
 
@@ -2955,11 +2979,11 @@ $bool = UserAddress::query()->update([
   ]);
 ```
 
-### 模型N对N的关系
+#### 模型N对N的关系
 
 可以简化操作join操作 在模型中定义关系的方法 就可以在控制直接调用方法
 
-#### 基本关系定义
+##### 基本关系定义
 
 app/Model/User.php
 
@@ -2978,7 +3002,7 @@ $user = User::query()->find(1)->userAddress;
 
 类似的还有hasOne/belongsTo/belongsToMany 具体要用到在[查看文档](https://hyperf.wiki/3.0/#/zh-cn/db/relationship?id=%e5%a4%9a%e5%af%b9%e5%a4%9a)即可
 
-#### 预加载
+##### 预加载
 
 比如要查所有用户的所有地址 不使用左连接查询,需要查1 * n次，可以简化为 2次
 
@@ -2992,3 +3016,13 @@ $users = User::query()->with('userAddress')->get();
 SELECT * FROM `user`;
 SELECT * FROM `user_address` WHERE id in (1, 2, 3, ...);
 ```
+
+#### 模型事件
+
+#### 模型增删改查钩子函数
+
+在模型里可以添加各种[钩子函数](https://hyperf.wiki/3.0/#/zh-cn/db/event?id=%e9%92%a9%e5%ad%90%e5%87%bd%e6%95%b0) 在新增修改删除等操作前后进行扩展方法
+
+#### 模型增删改查监听
+
+本来想用他来实现操作日志，发现批量新增修改不监听 以及原生语句不监听等，所以操作日志还是用一个方法去记录比较好

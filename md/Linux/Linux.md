@@ -217,6 +217,11 @@ source /etc/profile
 echo $PATH
 ```
 
+## 查看文件内容
+
+cat xxx
+tail -f xxx 实时监控
+
 # vim命令
 创建文件 vim 新建文件名  
 回到命令行状态 esc  
