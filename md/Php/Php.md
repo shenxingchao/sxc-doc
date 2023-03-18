@@ -810,6 +810,7 @@ composer require topthink/think-multi-app
 3. vim /usr/local/php8/etc/php.ini  加入 extension=swoole.so 且添加swoole.use_shortname='Off' 
 4. 查看扩展是否添加成功
    php -m
+   php --ri swoole
 5. 还需要安装进程控制扩展pcntl
     cd /usr/local/src/php-8.0.1/ext/pcntl
     phpize 
@@ -854,7 +855,7 @@ windows先安装docker，就不需要其他环境了，前置条件只需控制�
     并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
 
     ```
-    #官方php8.0 他的镜像是Alpine
+    #官方php8.0 他的镜像是Alpine hyperf3.0需要swoole5.0+ 安装后需要重新安装swoole扩展
     docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
     #centos手动安装php8也可以 这样可以保持环境完全一致
     docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
