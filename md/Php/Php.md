@@ -632,7 +632,6 @@ __统一下载路径cd /usr/local/src__
 ## 快捷键
 
 键盘映射:下载vscode键盘方案
-然后配一下层次结构ctrl+h 替换ctrl+r
 
 shift+shift搜索
 shift+alt+o优化导入
@@ -3027,3 +3026,91 @@ SELECT * FROM `user_address` WHERE id in (1, 2, 3, ...);
 #### 模型增删改查监听
 
 本来想用他来实现操作日志，发现批量新增修改不监听 以及原生语句不监听等，所以操作日志还是用一个方法去记录比较好
+
+### 资源构造器
+
+这玩意除非你的响应里只要data不需要状态码和message否则还是使用之前的返回方法
+
+#### 安装扩展
+
+composer require hyperf/resource
+
+
+#### 生成单个实体类
+
+```shell
+php bin/hyperf.php gen:resource User
+```
+
+#### 自定义返回数据
+
+app/Resource/User.php 修改生成的User类的toArray方法
+
+```php
+  public function toArray(): array {
+    return [
+      'data' => [
+        'id' => $this->id,
+        'name' => $this->name,
+        'age' => $this->age,
+      ],
+    ];
+    //    return parent::toArray();
+  }
+```
+
+##### 单个对象
+
+然后使用需要使用toResponse返回数据 这里只能返回单条记录
+
+```php
+$user = User::query()
+  ->select('*')
+  ->first();
+
+return (new \App\Resource\User($user))->toResponse();
+```
+
+##### 数组
+
+返回数组使用collection方法 也可以使用上面的方法 注意：两种方法都不能自定义返回数据
+
+```php
+$users = User::query()
+    ->select('*')
+    ->get();
+
+return (new \App\Resource\User($users))->toResponse();
+return \App\Resource\User::collection($users)->toResponse();
+```
+
+#### 生成复杂实体类
+
+```shell
+#php bin/hyperf.php gen:resource Users --collection
+php bin/hyperf.php gen:resource UserCollection
+```
+
+##### 数组
+
+app/Resource/UserCollection.php 修改生成的UserCollection类的toArray方法
+
+注意这里$this->collection会映射单个User实体类 所以单个User实体类不能添加额外的属性
+
+```php
+public function toArray(): array {
+  return [
+    'data' => $this->collection,
+  ];
+  //    return parent::toArray();
+}
+```
+
+使用
+
+```php
+$pageSize = 10;
+//返回分页对象
+$users = User::query()->paginate($pageSize);
+return (new UserCollection($users))->toResponse();
+```
