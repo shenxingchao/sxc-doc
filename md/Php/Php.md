@@ -3033,7 +3033,9 @@ SELECT * FROM `user_address` WHERE id in (1, 2, 3, ...);
 
 #### 安装扩展
 
+```shell
 composer require hyperf/resource
+```
 
 
 #### 生成单个实体类
@@ -3200,6 +3202,10 @@ $result = $this->container->get(RedisFactory::class)
 ## 消息队列
 
 ### redis异步队列
+
+```shell
+composer require hyperf/async-queue
+```
 
 提供异步延时处理,原理就是启动消费进程去监听消息队列，然后把消息主动投递到队列里，消费进程去执行job任务，消费这个消息
 
@@ -3428,4 +3434,52 @@ class QueueServiceAnnotation {
 
 ```php
 Hyperf\AsyncQueue\Listener\ReloadChannelListener::class
+```
+
+## 定时任务
+
+定时发送优惠券，定时修改商品价格，定时删除日志，定时备份数据等等
+
+### 安装
+
+```shell
+composer require hyperf/crontab
+```
+
+### 配置
+
+config/autoload/processes.php 添加定时任务进程处理类
+
+```php
+Hyperf\Crontab\Process\CrontabDispatcherProcess::class
+```
+
+创建config/autoload/crontab.php 并开启定时任务
+
+```php
+<?php
+return [
+  // 是否开启定时任务
+  'enable' => TRUE,
+];
+```
+
+### 创建定时任务
+
+```php
+<?php
+
+namespace App\Crontab;
+
+use Carbon\Carbon;
+use Hyperf\Crontab\Annotation\Crontab;
+
+#[Crontab(rule: "*\/5 * * * * *", name: "CustomCrontab", callback: "execute", memo: "描述", enable: TRUE)]
+class CustomCrontab {
+
+  public function execute() {
+    var_dump(Carbon::now()->toDateTimeString());
+  }
+
+}
 ```
