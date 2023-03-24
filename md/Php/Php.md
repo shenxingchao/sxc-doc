@@ -3423,7 +3423,7 @@ class QueueServiceAnnotation {
 
 #### 超时消息重启时自动消费
 
-配置listener  config/autoload/listeners.php
+保证消息是幂等的才能开启 就是这个消息执行一次或执行多次的结果是一样的 配置listener  config/autoload/listeners.php
 
 
 ```php
