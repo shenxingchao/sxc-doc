@@ -3114,3 +3114,318 @@ $pageSize = 10;
 $users = User::query()->paginate($pageSize);
 return (new UserCollection($users))->toResponse();
 ```
+
+## 客户端
+
+### redis
+
+#### 配置
+
+config/autoload/redis.php
+
+```php
+return [
+  'default' => [
+    'host' => env('REDIS_HOST', '119.45.19.125'),
+    'auth' => env('REDIS_AUTH', "password"),
+    'port' => (int) env('REDIS_PORT', 6379),
+    'db' => (int) env('REDIS_DB', 0),
+    'pool' => [
+      'min_connections' => 1,
+      'max_connections' => 10,
+      'connect_timeout' => 10.0,
+      'wait_timeout' => 3.0,
+      'heartbeat' => -1,
+      'max_idle_time' => (float) env('REDIS_MAX_IDLE_TIME', 60),
+    ],
+  ],
+  //Pool 的 key 值
+  'custom'=>[
+      'db' => (int) env('REDIS_DB', 1),
+  ]
+  ...可以配置多个redis db redis有16个db
+];
+```
+
+#### 切换redisdb库
+
+##### 使用Redis代理类切换
+
+自定义一个Redis类通过继承Redis类，重写poolName属性。完成对Redis db的切换
+
+```php
+<?php
+use Hyperf\Redis\Redis;
+
+class CustomRedis extends Redis {
+    // 对应的 Pool 的 key 值
+    protected $poolName = 'custom';
+}
+
+// 通过 DI 容器获取或直接注入当前类
+$redis = $this->container->get(CustomRedis::class);
+
+$result = $redis->keys('*');
+```
+
+##### 使用工厂类切换
+
+```php
+  private Redis $redis;
+
+  public function __construct(RedisFactory $redisFactory) {
+    $this->redis = $redisFactory->get('custom');
+    parent::__construct();
+  }
+```
+
+或者 直接从容器里拿
+
+```php
+$result = $this->container->get(RedisFactory::class)
+    ->get('custom')
+    ->getDbNum();
+```
+
+#### 示例
+
+存储用户token 10秒过期
+
+```php
+   $result = $this->container->get(RedisFactory::class)
+      ->get('default')
+      ->set("token:user-id", "123456", 10);
+```
+
+## 消息队列
+
+### redis异步队列
+
+提供异步延时处理,原理就是启动消费进程去监听消息队列，然后把消息主动投递到队列里，消费进程去执行job任务，消费这个消息
+
+#### redis队列驱动配置
+
+创建 config/autoload/async_queue.php
+
+```php
+<?php
+
+return [
+  'default' => [
+    'driver' => Hyperf\AsyncQueue\Driver\RedisDriver::class,
+    'redis' => [
+      'pool' => 'default',//redis 连接池
+    ],
+    'channel' => 'queue',//队列前缀
+    'timeout' => 2,//pop 消息的超时时间
+    'retry_seconds' => [1, 5, 10, 20],//失败后重新尝试间隔
+    'handle_timeout' => 10,//消息处理超时时间
+    'processes' => 1,//消费进程数
+    'concurrent' => [
+      'limit' => 5,//同时处理消息数
+    ],
+  ],
+];
+```
+
+#### 消费进程配置
+
+配置一个类到进程文件或再消费进程类上写上async_queue的注解,来表示该类是消费进程类
+
+config/autoload/processes.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+return [
+  Hyperf\AsyncQueue\Process\ConsumerProcess::class,
+];
+```
+
+或创建一个消费进程类app/Process/AsyncQueueConsumer.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Process;
+
+use Hyperf\AsyncQueue\Process\ConsumerProcess;
+use Hyperf\Process\Annotation\Process;
+
+#[Process(name: "async-queue")]
+class AsyncQueueConsumer extends ConsumerProcess {
+
+}
+```
+
+#### 生产消息
+
+就是消息投递
+
+##### 传统方式
+
+直接序列化对象 存入redis队列 投递的是延时的消息 存储的数据结构是zset 
+
+如果对象的属性值完全一致，则前面的会覆盖后面的,会重新计时延迟的消费时间，唯一，如果想要不覆盖,再参数里添加一个uniqid即可 用"uniqId" => uniqid()
+
+新建一个任务类 app/Job/ExampleJob.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Job;
+
+use Hyperf\AsyncQueue\Job;
+
+class ExampleJob extends Job {
+
+  //成员变量为消费的数据
+  public $params;
+
+  //任务执行失败后的重试次数，即最大执行次数为 $maxAttempts+1 次
+  protected int $maxAttempts = 2;
+
+  public function __construct($params) {
+    // 这里最好是普通数据，不要使用携带 IO 的对象，比如 PDO 对象
+    $this->params = $params;
+  }
+
+  //这个就是消费的逻辑
+  public function handle() {
+    // 根据参数处理具体逻辑
+    // 通过具体参数获取模型等
+    // 这里的逻辑会在 ConsumerProcess 进程中执行
+    var_dump($this->params);
+  }
+
+}
+
+```
+
+投递消息的Service
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use App\Job\ExampleJob;
+use Hyperf\AsyncQueue\Driver\DriverFactory;
+use Hyperf\AsyncQueue\Driver\DriverInterface;
+
+class QueueService {
+
+  protected DriverInterface $driver;
+
+  public function __construct(DriverFactory $driverFactory) {
+    $this->driver = $driverFactory->get('default');
+  }
+
+  /**
+   * 生产消息.
+   *
+   * @param $params string|array|object 数据
+   * @param int $delay 延时时间 单位秒
+   */
+  public function push($params, int $delay = 0): bool {
+    // 这里的 `ExampleJob` 会被序列化存到 Redis 中，所以内部变量最好只传入普通数据
+    // 同理，如果内部使用了注解 @Value 会把对应对象一起序列化，导致消息体变大。
+    // 所以这里也不推荐使用 `make` 方法来创建 `Job` 对象。
+    return $this->driver->push(new ExampleJob($params), $delay);
+  }
+
+}
+```
+
+接下去投递消息
+
+```php
+  #[Inject]
+  protected QueueService $service;
+
+  $this->service->push([
+    "name" => "下单",
+    "userId" => 1,
+  ], 5);
+  $this->service->push([
+    "name" => "下单",
+    "userId" => 2,
+  ], 10);
+  $this->service->push([
+    "name" => "下单",
+    "userId" => 3,
+  ], 10);
+  $this->service->push([
+    "name" => "下单",
+    "userId" => 4,
+  ], 15);
+```
+
+显示再redis中就是key为queue:delayed的zset数据结构，每个数据是一个,会根据设定的延时时间，逐个执行
+
+```
+O:28:"Hyperf\AsyncQueue\JobMessage":2:{i:0;O:18:"App\Job\ExampleJob":2:{s:6:"params";a:2:{s:4:"name";s:6:"下单";s:6:"userId";i:4;}s:14:"*maxAttempts";i:2;}i:1;i:0;}
+```
+
+##### 注解方式
+
+这种方式是即使消费，不能设置延时时间，且可以重复进入队列，数据结构是list,只要写一个投递消费的类即可，直接在这个类里面执行任务
+
+app/Service/QueueServiceAnnotation.php
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Service;
+
+use Hyperf\AsyncQueue\Annotation\AsyncQueueMessage;
+
+class QueueServiceAnnotation {
+
+  #[AsyncQueueMessage]
+  public function push($params) {
+    // 需要异步执行的代码逻辑
+    // 这里的逻辑会在 ConsumerProcess 进程中执行
+    var_dump($params["userId"]);
+  }
+
+}
+```
+
+调用他投递消息并消费消息
+
+```php
+  #[Inject]
+  protected QueueServiceAnnotation $service;
+
+  for ($i = 0; $i < 1000; $i++) {
+    go(function () use ($i) {
+      $this->service->push([
+        "name" => "下单",
+        "userId" => $i,
+        "uniqId" => uniqid(),
+      ]);
+    });
+  }
+```
+
+或者去掉循环使用ab测试 ab -n 1000 -c 1000 http://127.0.0.1:9501/index/requestFn
+
+#### 超时消息重启时自动消费
+
+配置listener  config/autoload/listeners.php
+
+
+```php
+Hyperf\AsyncQueue\Listener\ReloadChannelListener::class
+```
