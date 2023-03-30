@@ -143,47 +143,43 @@ vux 管理一个cachedViews 路由名称的缓存数组就可以了
    
    - 编写svg插件Index.ts
      
-     ```typescript
-     import SvgIcon from './SvgIcon.vue'
-     ```
+    ```typescript
+    import SvgIcon from './SvgIcon.vue'
    
-   const componentPlugin: any = {
-    install: function (vue: any, options: any) {
-      if (
-   
-        options &&
-        options.imports &&
-        Array.isArray(options.imports) &&
-        options.imports.length > 0
-   
-      ) {
-   
-        // 按需引入图标
-        const { imports } = options
-        imports.forEach((name: any) => {
-          require(`@/assets/svg/${name}.svg`)
-        })
-   
-      } else {
-   
-        // 全量引入图标
-        const ctx = require.context('@/assets/svg', false, /\.svg$/)
-        ctx.keys().forEach(path => {
-          const temp = path.match(/\.\/([A-Za-z0-9\-_]+)\.svg$/)
-          if (!temp) return
-          const name = temp[1]
-          require(`@/assets/svg/${name}.svg`)
-        })
-   
+    const componentPlugin: any = {
+      install: function (vue: any, options: any) {
+        if (
+    
+          options &&
+          options.imports &&
+          Array.isArray(options.imports) &&
+          options.imports.length > 0
+    
+        ) {
+    
+          // 按需引入图标
+          const { imports } = options
+          imports.forEach((name: any) => {
+            require(`@/assets/svg/${name}.svg`)
+          })
+    
+        } else {
+    
+          // 全量引入图标
+          const ctx = require.context('@/assets/svg', false, /\.svg$/)
+          ctx.keys().forEach(path => {
+            const temp = path.match(/\.\/([A-Za-z0-9\-_]+)\.svg$/)
+            if (!temp) return
+            const name = temp[1]
+            require(`@/assets/svg/${name}.svg`)
+          })
+    
+        }
+        vue.component(SvgIcon.name, SvgIcon)
       }
-      vue.component(SvgIcon.name, SvgIcon)
     }
-   }
-   export default componentPlugin
-   
-   ```
-   
-   ```
+    export default componentPlugin
+    ```
 
 4. 使用插件
    main.ts使用
