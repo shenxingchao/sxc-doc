@@ -12761,20 +12761,11 @@ UserVo.java
 ```java
 package com.sxc.vo;
 
-
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
+import com.sxc.entity.User;
 import lombok.Data;
 
 @Data
-public class UserVo {
-    private static final long serialVersionUID = 796670672657171474L;
-    //必须指定主键
-    @TableId(type = IdType.AUTO)
-    //数据库字段
-    @TableField("name")
-    private String name;
+public class UserVo extends User {
 }
 ```
 
@@ -12788,6 +12779,44 @@ public interface UserDao extends BaseMapper<User> {
     UserVo getOneById(@Param("id") Serializable id);
 }
 ```
+
+## 连接查询
+
+直接用[插件](https://github.com/yulichang/mybatis-plus-join)，多简单这年头谁手写sql谁sx
+
+UserController.java
+
+```java
+    @GetMapping("/one/{id}")
+    public R getOneById(@PathVariable Serializable id) {
+        MPJQueryWrapper<User> wrapper = new MPJQueryWrapper<User>()
+                .selectAll(User.class)
+                .select( "ua.address")
+                .leftJoin("user_address ua on t.id = ua.user_id")
+                .eq("t.id", id);
+        //列表查询
+        List<UserVo> list = this.userService.selectJoinList(UserVo.class, wrapper);
+        //分页查询 （需要启用 mybatis plus 分页插件）
+        Page<UserVo> listPage = this.userService.selectJoinListPage(new Page<>(1, 10), UserVo.class, wrapper);
+        return success(listPage);
+    }
+```
+
+UserVo.java
+
+```java
+package com.sxc.vo;
+
+import com.sxc.entity.User;
+import lombok.Data;
+
+@Data
+public class UserVo extends User {
+    private String address;
+}
+```
+
+
 
 # linux配置java
 
