@@ -10101,10 +10101,10 @@ gradle在C:\Users\doudou\.gradle\caches\modules-2\files-2.1\mysql\mysql-connecto
 
 修改模板
 
-- controller层添加参数@RequestBody 接收json
+- controller层添加参数@RequestBody 只要接收json的都要改
 - controller层返回类型修改
 
-他自动生成的dao有问题，有一个queryAllByLimit方法，他有两个参数，实际运行时会异常```org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [arg0, pageable, param1, param2]```，因为Mybatis的参数匹配机制有关，当传递多个参数的时候，映射机制并不清楚如何匹配到正确的参数；解决办法是将参数加上@Param("user"),然后sql语句用到的地方改为user.xxx,这需要改模板
+他自动生成的dao有问题，有一个queryAllByLimit方法，他有两个参数，实际运行时会异常```org.apache.ibatis.binding.BindingException: Parameter 'id' not found. Available parameters are [arg0, pageable, param1, param2]```，因为Mybatis的参数匹配机制有关，当传递多个参数的时候，映射机制并不清楚如何匹配到正确的参数；解决办法是将参数加上@Param("user"),然后sql语句用到的地方改为user.xxx(包括if语句也要改)这需要改模板,然后工具用postman，其他工具似乎不支持get带参数
 
 ### 分页参数问题
 
