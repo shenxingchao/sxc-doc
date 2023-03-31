@@ -12727,6 +12727,68 @@ public class R implements Serializable {
     }
 ```
 
+## 使用注解写原生sql以及Vo
+
+UserController.java
+
+```java
+    @GetMapping("/one/{id}")
+    public R getOneById(@PathVariable Serializable id) {
+        return success(this.userService.getOneById(id));
+    }
+```
+
+UserServiceImpl.java
+
+```java
+    @Autowired
+    UserDao userDao;
+
+    @Override
+    public UserVo getOneById(Serializable id) {
+        return userDao.getOneById(id);
+    }
+```
+
+UserService.java
+
+```java
+    UserVo getOneById(Serializable id);
+```
+
+UserVo.java
+
+```java
+package com.sxc.vo;
+
+
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import lombok.Data;
+
+@Data
+public class UserVo {
+    private static final long serialVersionUID = 796670672657171474L;
+    //必须指定主键
+    @TableId(type = IdType.AUTO)
+    //数据库字段
+    @TableField("name")
+    private String name;
+}
+```
+
+UserDao.java
+
+```java
+@Repository
+public interface UserDao extends BaseMapper<User> {
+
+    @Select("SELECT * FROM user WHERE id = #{id}")
+    UserVo getOneById(@Param("id") Serializable id);
+}
+```
+
 # linux配置java
 
 [镜像下载](https://mirrors.bfsu.edu.cn/centos/7.9.2009/isos/x86_64/)，虚拟机最小安装，右边选择一些基本的软件
