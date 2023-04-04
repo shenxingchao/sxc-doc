@@ -1590,12 +1590,13 @@ SELECT * FROM `user` WHERE id >= (
 ```
 
 ## 强制索引
+
 ```sql
 #这条没使用索引 因为查询条件!=破坏了索引
 SELECT * FROM `user` WHERE `age` != 18
 #强制使用索引
 SELECT * FROM `user` FORCE INDEX (`age_index`) WHERE `age` != 18
-···
+```
 
 ## 其他
 
