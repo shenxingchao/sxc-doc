@@ -3483,3 +3483,34 @@ class CustomCrontab {
 
 }
 ```
+
+# CodeIgniter4
+
+## 创建项目
+
+```shell
+composer create-project codeigniter4/appstarter project-root
+```
+
+### 运行
+
+PHP>7.2 开启扩展 
+
+```ini
+extension=intl
+extension=curl
+```
+
+配置url app/Config/App.php
+
+```php
+public string $baseURL = 'http://www.ci4.com/';
+```
+
+配置自动路由app/Config/Routes.php
+
+```php
+$routes->setAutoRoute(TRUE);
+```
+
+最后nginx配置public为root目录 重写.php,pathinfo等,最后即可访问
