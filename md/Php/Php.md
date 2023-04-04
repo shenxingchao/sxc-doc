@@ -176,11 +176,11 @@
 
 ### 安装nginx
 1. 安装nginx依赖包  
-    - nginx的Rewrite模块和HTTP核心模块会使用到PCRE正则表达式语法  
+    - pcre正则表达式语法
         yum -y install pcre pcre-devel
-    - nginx的有些模块中需要使用gzip压缩  
+    - zip压缩
         yum -y install zlib zlib-devel
-    - 安全套接字层密码库  
+    - ssl 
         yum -y install openssl openssl-devel
 2. 下载nginx安装包 并解压  
     - cd  /usr/local/src  
