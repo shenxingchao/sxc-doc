@@ -234,17 +234,7 @@
     - 查看nginx是否启动成功  
         ps aux | grep nginx
     - 访问服务器地址 welcome to nginx 至此安装完成
-8. 开启fh墙  
-    systemctl start firewalld
-    fh墙开放80端口（nginx默认使用80端口，可在nginx.conf中配置，若无需进行远程访问则不需要开放端口）
-    - 永久开放80端口  
-        firewall-cmd --zone=public --add-port=80/tcp --permanent
-    - 重启fh墙  
-        firewall-cmd --reload
-    - 查看fh墙开启状态  
-        systemctl status firewalld
-    - 查看80端口是否开放成功  
-        firewall-cmd --zone=public --query-port=80/tcp
+
 
 ### 安装Mysql
 1. 卸载已有mysql  
@@ -333,7 +323,6 @@
 
 13.  重启mysql  
     service mysql restart
-14.  查看防火墙对外开放了哪些端口（看3306有没有被开启）这里是centos7的命令
     firewall-cmd --zone=public --list-ports
 15.  打开端口  
     firewall-cmd --zone=public --add-port=3306/tcp --permanent    （--permanent永久生效，没有此参数重启后失效）  
