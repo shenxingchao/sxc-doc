@@ -158,7 +158,26 @@
 !>windows下项目目录命名为tp前缀会打不开
 
 
+## lnmp搭建
+<p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
 
+
+2. 下载nginx安装包 并解压  
+    - cd  /usr/local/src  
+    - wget http://nginx.org/download/nginx-1.12.2.tar.gz  
+    - tar –zxvf nginx-1.12.2.tar.gz
+3. 编译安装  
+    - cd nginx-1.12.2
+    - ./configure  --prefix=/usr/local/nginx
+    - ./configure  --prefix=/usr/local/nginx  --with-http_ssl_module  --with-http_gzip_static_module (要openssl模块的话)
+    - make （重新编译只要执行这一个就可以了，不然会覆盖安装cp ./objs/nginx  /usr/local/nginx/sbin/nginx）
+    - make install
+4. 创建并设置nginx运行账号  
+    - groupadd nginx
+    - useradd -M -g nginx -s /sbin/nologin nginx
+    - cd /usr/local/nginx/conf
+    - vim nginx.conf，设置user参数如下  
+        user nginx nginx
 5. 设置nginx为系统服务  
     - vim /lib/systemd/system/nginx.service
     - 文件内容
