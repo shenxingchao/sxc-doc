@@ -1,3 +1,178 @@
+# Php
+# 环境搭建
+
+## lnmp搭建
+<p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
+
+### 准备
+1. 下载putty工具  
+2. yum -y update（升级所有软件包）  
+3. df –lh（查看磁盘空间）  
+4. 查看是否已安装wget  
+    rpm -qa wget  
+    - 否则安装  
+        yum install wget  
+5. 查看是否已安装编译器  
+    rpm -qa gcc    
+    - 否则安装  
+        yum install gcc gcc-c++
+
+### 安装nginx
+1. 安装nginx依赖包  
+    - nginx的Rewrite模块和HTTP核心模块会使用到PCRE正则表达式语法  
+        yum -y install pcre pcre-devel
+    - nginx的各种模块中需要使用gzip压缩  
+        yum -y install zlib zlib-devel
+    - 安全套接字层密码库  
+        yum -y install openssl openssl-devel
+2. 下载nginx安装包 并解压  
+    - cd  /usr/local/src  
+    - wget http://nginx.org/download/nginx-1.12.2.tar.gz  
+    - tar –zxvf nginx-1.12.2.tar.gz
+3. 编译安装  
+    - cd nginx-1.12.2
+    - ./configure  --prefix=/usr/local/nginx
+    - ./configure  --prefix=/usr/local/nginx  --with-http_ssl_module  --with-http_gzip_static_module (要openssl模块的话)
+    - make （重新编译只要执行这一个就可以了，不然会覆盖安装cp ./objs/nginx  /usr/local/nginx/sbin/nginx）
+    - make install
+4. 创建并设置nginx运行账号  
+    - groupadd nginx
+    - useradd -M -g nginx -s /sbin/nologin nginx
+    - cd /usr/local/nginx/conf
+    - vim nginx.conf，设置user参数如下  
+        user nginx nginx
+5. 设置nginx为系统服务  
+    - vim /lib/systemd/system/nginx.service
+    - 文件内容
+        ```
+        [Unit]
+        Description=nginx
+        After=network.target
+        [Service]
+        Type=forking
+        ExecStart=/usr/local/nginx/sbin/nginx
+        ExecReload=/usr/local/nginx/sbin/nginx -s reload
+        ExecStop=/usr/local/nginx/sbin/nginx -s stop
+        PrivateTmp=true
+        [Install]
+        WantedBy=multi-user.target
+        ```
+    - 解释
+      - [Unit]:服务的说明
+      - Description:描述服务
+      - After:描述服务类别
+      - [Service]服务运行参数的设置
+      - Type=forking是后台运行的形式
+      - ExecStart为服务的具体运行命令
+      - ExecReload为重启命令
+      - ExecStop为停止命令
+      - PrivateTmp=True表示给服务分配独立的临时空间
+      - 注意：[Service]的启动、重启、停止命令全部要求使用绝对路径
+      - [Install]运行级别下服务安装的相关设置，可设置为多用户，即系统运行级别为3
+    - 保存退出。
+6. 设置nginx开机自启动  
+    systemctl enable nginx.service
+7. 开启nginx服务  
+    systemctl start nginx.service
+    - 查看nginx是否启动成功  
+        ps aux | grep nginx
+    - 访问服务器地址 welcome to nginx 至此安装完成
+8. 开启防火墙  
+    systemctl start firewalld
+    防火墙开放80端口（nginx默认使用80端口，可在nginx.conf中配置，若无需进行远程访问则不需要开放端口）
+    - 永久开放80端口  
+        firewall-cmd --zone=public --add-port=80/tcp --permanent
+    - 重启防火墙  
+        firewall-cmd --reload
+    - 查看防火墙开启状态  
+        systemctl status firewalld
+    - 查看80端口是否开放成功  
+        firewall-cmd --zone=public --query-port=80/tcp
+
+### 安装Mysql
+1. 卸载已有mysql  
+    - 查看是否已安装mysql  
+        rpm -qa mysql
+    - 有则卸载  
+        rpm -e --nodeps 文件名称
+    - 是否存在与mysql相关的文件或目录  
+        whereis mysql 或 find / -name mysql
+        - 是则删除  
+            rm -rf /usr/lib/mysql  rm -rf /usr/share/mysql
+    - 查看是否存在mariadb  
+        rpm -qa | grep mariadb
+        - 存在则卸载  
+            rpm -e --nodeps 文件名 //文件名是上一个命令查询结果
+    - 存在/etc/my.cnf，则需要先删除  
+        rm /etc/my.cnf
+2. 安装编译mysql需要的依赖包  
+    yum install libevent* libtool* autoconf* libstd* ncurse* bison* openssl*
+3. 安装cmake（mysql5.5之后需要用cmake支持编译安装）  
+    - 查看是否已安装cmake
+        rpm -qa cmake
+        - 没有则下载编译安装  
+            cd /usr/local/src  
+            wget http://www.cmake.org/files/v2.8/cmake-2.8.12.1.tar.gz  
+            tar -xf cmake-2.8.12.1.tar.gz  
+            cd cmake-2.8.12.1  
+            ./configure  
+            make&&make install  
+    - 检查cmake是否安装成功  
+        cmake --version
+4. 下载mysql包并解压（到/usr/local/src目录）  
+    cd /usr/local/src  
+    wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.43.tar.gz
+    tar -zxvf mysql-5.6.43.tar.gz
+5. 编译安装（到/usr/local/mysql目录）  
+    cd mysql-5.6.43  
+    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/usr/local/mysql/data -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock -DMYSQL_TCP_PORT=3306 -DENABLED_LOCAL_INFILE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci  
+    make（此过程需花费大概20-30分钟）  
+    make install  
+6. 配置mysql  
+    groupadd mysql  
+    useradd -M -g mysql -s /sbin/nologin mysql  
+    chown -R mysql:mysql /usr/local/mysql  
+7. 初始化配置  
+    cd /usr/local/mysql/scripts  
+    ./mysql_install_db --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql  
+8. 设置mysql为系统服务  
+    vim /lib/systemd/system/mysql.service  
+    - 文件内容  
+        ```
+        [Unit]
+        Description=mysql
+        After=network.target
+        [Service]
+        Type=forking
+        ExecStart=/usr/local/mysql/support-files/mysql.server start
+        ExecStop=/usr/local/mysql/support-files/mysql.server stop
+        ExecRestart=/usr/local/mysql/support-files/mysql.server restart
+        ExecReload=/usr/local/mysql/support-files/mysql.server reload
+        PrivateTmp=true
+        [Install]
+        WantedBy=multi-user.target
+        ```
+9. 设置mysql服务开机自启动  
+    systemctl enable mysql.service  
+10. 启动mysql  
+    systemctl start mysql.service  
+    - 创建不存在的目录即可  
+        mkdir /var/lib/mysql  
+        chown -R mysql:mysql /var/lib/mysql  
+    - 再次启动  
+        systemctl start mysql.service  
+    - 查看  
+        ps aux | grep mysql  
+        
+!>(启动失败使用/usr/local/mysql/support-files/mysql.server restart启动可以看到详细错误原因)
+
+11.  登录mysql并设置root密码
+    /usr/local/mysql/bin/mysql -u root  set password=password('123456');  
+12.  创建远程连接用户  
+    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;  
+    flush privileges;
+
+!>(%也可换成ip)
 
 13.  重启mysql  
     service mysql restart
