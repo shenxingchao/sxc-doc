@@ -499,7 +499,7 @@ __统一下载路径cd /usr/local/src__
         务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果  
         ;强烈建议你在生产环境中设置为0，更新代码后，再平滑重启PHP和web服务器。  
         opcache.validate_timestamps=0  
-        ;开启Opcache File Cache(实验性), 通过开启这个, 我们可以让Opcache把opcode缓存缓存到外部文件中, 对于一些脚本, 会有很明显的性能提升.  
+        ;开启Opcache File Cache(实验性), 通过开启这个, 我们可以让Opcache把opcode缓存缓存到外部文件中, 对于一些脚本, 会有很明显的效率提升.  
         ;这样PHP就会在/tmp目录下Cache一些Opcode的二进制导出文件, 可以跨PHP生命周期存在.  
         opcache.file_cache=/tmp  
     - 重启  
@@ -625,7 +625,7 @@ __统一下载路径cd /usr/local/src__
     查看是否启动 ps aux | grep php-fpm  
     Php配置目录  /usr/local/php8/etc/php.ini   
 
-!> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后性能提升的原因，因为不需要重新编译php脚本了
+!> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后效率提升的原因，因为不需要重新编译php脚本了
 
 # PHPSTROM
 
