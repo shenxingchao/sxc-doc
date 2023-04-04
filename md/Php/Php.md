@@ -161,6 +161,22 @@
 ## lnmp搭建
 <p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
 
+### 准备
+
+1. 下载putty工具
+2. yum -y update（升级所有软件包）
+3. df –lh（查看磁盘空间）
+4. 查看是否已安装wget
+    rpm -qa wget
+    - 否则安装
+      yum install wget
+5. 查看是否已安装编译器
+    rpm -qa gcc
+    - 否则安装
+      yum install gcc gcc-c++
+
+### 安装nginx
+
 
 2. 下载nginx安装包 并解压  
     - cd  /usr/local/src  
