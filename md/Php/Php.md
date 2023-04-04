@@ -158,64 +158,8 @@
 !>windows下项目目录命名为tp前缀会打不开
 
 
-## lnmp搭建
-<p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
 
-### 准备
-1. 下载putty工具  
-2. yum -y update（升级所有软件包）  
-3. df –lh（查看磁盘空间）  
-4. 查看是否已安装wget  
-    rpm -qa wget  
-    - 否则安装  
-        yum install wget  
-5. 查看是否已安装编译器  
-    rpm -qa gcc    
-    - 否则安装  
-        yum install gcc gcc-c++
-
-### 安装nginx
-1. 安装nginx依赖包  
-    - nginx的Rewrite模块和HTTP核心模块会使用到PCRE正则表达式语法  
-        yum -y install pcre pcre-devel
-    - nginx的各种模块中需要使用gzip压缩  
-        yum -y install zlib zlib-devel
-    - 安全套接字层密码库  
-        yum -y install openssl openssl-devel
-2. 下载nginx安装包 并解压  
-    - cd  /usr/local/src  
-    - wget http://nginx.org/download/nginx-1.12.2.tar.gz  
-    - tar –zxvf nginx-1.12.2.tar.gz
-3. 编译安装  
-    - cd nginx-1.12.2
-    - ./configure  --prefix=/usr/local/nginx
-    - ./configure  --prefix=/usr/local/nginx  --with-http_ssl_module  --with-http_gzip_static_module (要openssl模块的话)
-    - make （重新编译只要执行这一个就可以了，不然会覆盖安装cp ./objs/nginx  /usr/local/nginx/sbin/nginx）
-    - make install
-4. 创建并设置nginx运行账号  
-    - groupadd nginx
-    - useradd -M -g nginx -s /sbin/nologin nginx
-    - cd /usr/local/nginx/conf
-    - vim nginx.conf，设置user参数如下  
-        user nginx nginx
-5. 设置nginx为系统服务  
-    - vim /lib/systemd/system/nginx.service
-    - 文件内容
-        ```
-        [Unit]
-        Description=nginx
-        After=network.target
-        [Service]
-        Type=forking
-        ExecStart=/usr/local/nginx/sbin/nginx
-        ExecReload=/usr/local/nginx/sbin/nginx -s reload
-        ExecStop=/usr/local/nginx/sbin/nginx -s stop
-        PrivateTmp=true
-        [Install]
-        WantedBy=multi-user.target
-        ```
     - 解释
-      ```
       - [Unit]:服务的说明
       - Description:描述服务
       - After:描述服务类别
@@ -227,7 +171,6 @@
       - PrivateTmp=True表示给服务分配独立的临时空间
       - 注意：[Service]的启动、重启、停止命令全部要求使用绝对路径
       - [Install]运行级别下服务安装的相关设置，可设置为多用户，即系统运行级别为3
-      ```
     - 保存退出。
 6. 设置nginx开机自启动  
     systemctl enable nginx.service
