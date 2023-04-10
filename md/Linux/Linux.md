@@ -251,3 +251,59 @@ gdG删除光标以下所有内容
 4. 新服务器选择重装系统，选择自定义镜像
 5. 安装完毕后 启动相应Web服务
 6. 域名解析全部替换为新服务器的ip地址
+
+
+# 宝塔
+
+## 一键部署
+
+```
+docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/data/project -p 80:80 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:8.4.2105
+
+docker exec -it --user root 容器ID /bin/bash
+#yum解决下载问题
+sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
+sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+#安装宝塔
+yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
+#提交镜像删除旧容器
+docker commit centos8-4-1 centos8-4-1:v1
+#重新创建新容器
+docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/data/project -p 80:80 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos8-4-1:v1
+#进入容器
+docker exec -it --user root 容器ID /bin/bash
+#修改宝塔配置
+bt
+13
+bt
+5 123456
+bt
+6 btadmin
+
+外网面板地址: http://10.10.11.43:22071/2dacf2ec
+内网面板地址: http://127.0.0.1:22071/2dacf2ec
+username: btadmin
+password: 123456
+
+
+安装ssh
+yum install -y openssh* 失败的话看提示信息 加上跳过参数--skip-broken
+vim /etc/ssh/sshd_config
+Port 22
+ListenAddress 0.0.0.0
+ListenAddress ::
+PermitRootLogin yes
+PasswordAuthentication yes
+
+然后执行
+mkdir -p /var/run/sshd
+ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' 
+ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
+ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
+启动
+/usr/sbin/sshd -D & 
+
+修改密码
+yum install -y passwd
+passwd root
+```
