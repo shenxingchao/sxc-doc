@@ -17,7 +17,9 @@ passwd root 输入两次密码
 
 ## 查看操作系统版本
 
-cat /proc/version
+cat /proc/version 查看内核
+
+- lsb_release -a 查看内核版本
 
 ## 安装命令
 
