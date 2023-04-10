@@ -21,6 +21,10 @@ cat /proc/version 查看内核
 
 - lsb_release -a 查看内核版本
 
+## 查看服务器访问量
+
+netstat -pnt | grep :80 | wc -l
+
 ## 安装命令
 
 ### Centos
