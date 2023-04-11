@@ -274,18 +274,22 @@ gdG删除光标以下所有内容
 ## 一键部署
 
 ```
-docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/data/project -p 80:80 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:8.4.2105
+docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/www/wwwroot -p 80:80 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:8.4.2105
 
 docker exec -it --user root 容器ID /bin/bash
-#yum解决下载问题
+#yum解决下载问题 修改镜像源
 sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
+#建立搜索缓存
+yum makecache
+#-y跳过询问
+yum update -y
 #安装宝塔
 yum install -y wget && wget -O install.sh https://download.bt.cn/install/install_6.0.sh && sh install.sh ed8484bec
 #提交镜像删除旧容器
 docker commit centos8-4-1 centos8-4-1:v1
-#重新创建新容器
-docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/data/project -p 80:80 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos8-4-1:v1
+#重新创建新容器80 http 443 https 22 ssh 6379 redis 3306数据库 22071 宝塔
+docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/www/wwwroot -p 80:80 -p 22:22 -p 443:443 -p 6379:6379 -p 3306:3306 -p 22071:22071 -it --privileged -u root --entrypoint /bin/sh centos8-4-1:v1
 #进入容器
 docker exec -it --user root 容器ID /bin/bash
 #修改宝塔配置
