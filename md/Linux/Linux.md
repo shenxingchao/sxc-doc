@@ -228,6 +228,22 @@ echo $PATH
 cat xxx
 tail -f xxx 实时监控
 
+## 查看系统信息
+
+df -h 查看分区容量
+
+## 个性化命令配置
+
+vim ~/.bashrc
+
+例如加上ll命令
+
+```shell
+alias ll='ls -l'
+```
+
+source ~/.bashrc
+
 # vim命令
 创建文件 vim 新建文件名  
 回到命令行状态 esc  
