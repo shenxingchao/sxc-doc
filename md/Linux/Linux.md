@@ -306,7 +306,7 @@ username: btadmin
 password: 123456
 
 
-安装ssh
+#安装ssh
 yum install -y openssh* 失败的话看提示信息 加上跳过参数--skip-broken
 vim /etc/ssh/sshd_config
 Port 22
@@ -315,18 +315,22 @@ ListenAddress ::
 PermitRootLogin yes
 PasswordAuthentication yes
 
-然后执行
+#然后执行
 mkdir -p /var/run/sshd
 ssh-keygen -q -t rsa -b 2048 -f /etc/ssh/ssh_host_rsa_key -N '' 
 ssh-keygen -q -t ecdsa -f /etc/ssh/ssh_host_ecdsa_key -N ''
 ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
-启动
+#启动
 /usr/sbin/sshd -D & 
+#或者使用systemctl
+systemctl start sshd.service
+#设置为开机启动
+systemctl enable sshd.service
 
-修改root密码
+#修改root密码
 yum install -y passwd
 passwd root
 
-设置时区
+#设置时区
 timedatectl set-timezone Asia/Shanghai
 ```
