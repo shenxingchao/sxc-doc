@@ -319,7 +319,7 @@ ssh-keygen -t dsa -f /etc/ssh/ssh_host_ed25519_key -N ''
 启动
 /usr/sbin/sshd -D & 
 
-修改密码
+修改root密码
 yum install -y passwd
 passwd root
 ```
