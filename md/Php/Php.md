@@ -3569,3 +3569,9 @@ function helperFn() {
 helper('test');
 helperFn();
 ```
+
+或者在控制器中定义属性
+
+```php
+protected $helpers = ['test'];
+```
