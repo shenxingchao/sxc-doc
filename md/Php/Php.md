@@ -3582,6 +3582,8 @@ protected $helpers = ['test'];
 
 ### 响应
 
+返回json
+
 ```php
 $this->response->setStatusCode(200)
         ->setBody(json_encode(["hello" => "test1"], TRUE))
