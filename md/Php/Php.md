@@ -3514,3 +3514,35 @@ $routes->setAutoRoute(TRUE);
 ```
 
 最后nginx配置public为root目录 重写.php,pathinfo等,最后即可访问
+
+## 自动加载
+
+如果不配置自动加载，则引入第三方类或者是自定义类时需要require_once
+
+配置自动加载 /app/Config/Autoload.php 配置命名空间映射对应的所在类的目录
+
+```php
+public $psr4
+    = [
+        APP_NAMESPACE => APPPATH, // For custom app namespace
+        'Config'      => APPPATH . 'Config',
+        'Libraries'   => APPPATH . 'Libraries',
+        'ThirdParty'  => APPPATH . 'ThirdParty',
+    ];
+```
+
+例如Libraries下有一个Library，接下去就能在controller或者是model中正常使用该类了
+
+```php
+<?php
+
+namespace Libraries;
+
+class Library {
+
+    public function fn() {
+        echo "Test";
+    }
+
+}
+```
