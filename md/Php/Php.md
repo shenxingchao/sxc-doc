@@ -3575,3 +3575,17 @@ helperFn();
 ```php
 protected $helpers = ['test'];
 ```
+
+## 请求和响应
+
+### 请求
+
+### 响应
+
+```php
+$this->response->setStatusCode(200)
+        ->setBody(json_encode(["hello" => "test1"], TRUE))
+        ->setContentType("application/json")
+        ->send();
+    $this->response->setJSON(["hello" => "test1"])->send();
+```
