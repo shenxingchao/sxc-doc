@@ -634,8 +634,11 @@ __统一下载路径cd /usr/local/src__
 键盘映射:下载vscode键盘方案
 
 shift+shift搜索
+
 shift+alt+o优化导入
+
 alt+7结构
+
 随便选中一个空格或者字符，然后按住shift+alt并拖动鼠标左键 多行编辑
 
 ## 代码格式化
