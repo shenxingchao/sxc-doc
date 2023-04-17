@@ -636,10 +636,11 @@ __统一下载路径cd /usr/local/src__
 shift+shift搜索
 shift+alt+o优化导入
 alt+7结构
+随便选中一个空格或者字符，然后按住shift+alt并拖动鼠标左键 多行编辑
 
 ## 代码格式化
 
-CODESTYLE->PHP->set from ->Drupal
+CODESTYLE->PHP->set from ->Drupal 并设置缩进为4个space
 
 保存时格式化  编辑->录制宏 操作一下格式化和保存，然后去设置->格式化配置里选用宏
 
