@@ -3550,3 +3550,22 @@ class Library {
 
 }
 ```
+
+## 辅助函数
+
+创建 /app/Helpers/test_helper.php
+
+```php
+<?php
+
+function helperFn() {
+    echo 333;
+}
+```
+
+使用
+
+```php
+helper('test');
+helperFn();
+```
