@@ -3636,16 +3636,17 @@ class Home extends BaseController {
     use RequestTrait;
 
     public function index(): ResponseInterface {
-        var_dump($this->request->getPost());//表单请求
+        var_dump(Services::router()->controllerName() . "\\" . Services::router()->methodName());//***重点 获取方法
+        var_dump($this->request->isAJAX());//是异步请求 请求头中带上X-Requested-With XMLHttpRequest 看实际需求，只是异步判断标志
         var_dump($this->request->getGet());//表单请求
+        var_dump($this->request->getPost());//表单请求
         var_dump($this->request->getPostGet());//表单请求
-        var_dump($this->request->getJSON(TRUE));//*重点 TRUE 则是转PHP数组 否则是std对象
+        var_dump($this->request->getJSON(TRUE));//***重点 TRUE 则是转PHP数组 否则是std对象
         var_dump($this->request->getVar("name"));//JSON或者表单都可以
         var_dump($this->request->getRawInput());
         var_dump($this->request->getFile("fileName"));
-        var_dump(Services::router()->controllerName() . "\\" . Services::router()->methodName());
         var_dump($this->getIPAddress());
-        var_dump($this->getServer("HTTP_TOKEN"));
+        var_dump($this->getServer("HTTP_TOKEN"));//***重点 获取TOKEN
         var_dump($this->fetchGlobal("get"));//表单请求
         var_dump($this->fetchGlobal("post"));//表单请求
         var_dump($this->fetchGlobal("request"));//表单请求
