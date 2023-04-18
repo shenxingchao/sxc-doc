@@ -1,719 +1,755 @@
 # Php
+
 # 环境搭建
-## wnmp搭建
+
+## wnmp 搭建
+
 <p align="left" style="color:#777777;">发布日期：2020-05-08</p>
 
-!>安装根目录这里都设为F:\Ul\  替换为自己的安装目录即可
+!>安装根目录这里都设为 F:\Ul\ 替换为自己的安装目录即可
 
-1. 分别下载nginx,mysql,php
-    - [nginx 1.12.2](http://nginx.org/en/download.html)
-    - [mysql 5.6.43](https://downloads.mysql.com/archives/community/)
-        > mysql可以安装更高版本，性能更好，但取决于你服务器的内存
-    - [php 5.6.0](https://windows.php.net/downloads/releases/archives/)
-2. 配置php
-    - 复制php.ini-development 改名为php.ini
-    - 找到extension_dir 随便一个改为 extension_dir = './ext (设置php扩展目录)
-    - 设置时区date.timezone = Asia/Shanghai
-    - 开启以下扩展或配置
-        ```ini
-        ;always_populate_raw_post_data = -1 //开启post_data
-        ;cgi.fix_pathinfo=1 //开启phpcgi 这个又漏洞
-        ;extension=php_curl.dll //curl远程抓取
-        ;extension=php_fileinfo.dll//文件类处理函数
-        ;extension=php_gd2.dll//gd库
-        ;extension=php_mbstring.dll//处理多字节字符串
-        ;extension=php_mysql.dll   //php支持mysql
-        ;extension=php_mysqli.dll //php支持mysqli（i代表优化过的）
-        ;extension=php_openssl.dll//openssl 加密解密用的
-        ;extension=php_pdo_mysql.dll //mysql pdo 连接
-        ;extension=php_sockets.dll//Socket 函数库
-        #差一个redis
-        ```
-3. 配置nginx.conf
-    找到conf
-    配置localhost如下
-    > 以下F:/Ul/html 可以切换成你自己的服务器代码根目录
-    ```nginx
-    #user  nobody;
-    worker_processes  1;
+1. 分别下载 nginx,mysql,php
+   - [nginx 1.12.2](http://nginx.org/en/download.html)
+   - [mysql 5.6.43](https://downloads.mysql.com/archives/community/)
+     > mysql 可以安装更高版本，性能更好，但取决于你服务器的内存
+   - [php 5.6.0](https://windows.php.net/downloads/releases/archives/)
+2. 配置 php
+   - 复制 php.ini-development 改名为 php.ini
+   - 找到 extension_dir 随便一个改为 extension_dir = './ext (设置 php 扩展目录)
+   - 设置时区 date.timezone = Asia/Shanghai
+   - 开启以下扩展或配置
+     ```ini
+     ;always_populate_raw_post_data = -1 //开启post_data
+     ;cgi.fix_pathinfo=1 //开启phpcgi 这个又漏洞
+     ;extension=php_curl.dll //curl远程抓取
+     ;extension=php_fileinfo.dll//文件类处理函数
+     ;extension=php_gd2.dll//gd库
+     ;extension=php_mbstring.dll//处理多字节字符串
+     ;extension=php_mysql.dll   //php支持mysql
+     ;extension=php_mysqli.dll //php支持mysqli（i代表优化过的）
+     ;extension=php_openssl.dll//openssl 加密解密用的
+     ;extension=php_pdo_mysql.dll //mysql pdo 连接
+     ;extension=php_sockets.dll//Socket 函数库
+     #差一个redis
+     ```
+3. 配置 nginx.conf
+   找到 conf
+   配置 localhost 如下
 
-    events {
-        worker_connections  1024;
-    }
+   > 以下 F:/Ul/html 可以切换成你自己的服务器代码根目录
 
-    http {
-        #这里要注意域名的长度过长会报错，所以要配置这个
-        server_names_hash_bucket_size 64;
-        include       mime.types;
-        default_type  application/octet-stream;
-        sendfile        on;
-        keepalive_timeout  65;
+   ```nginx
+   #user  nobody;
+   worker_processes  1;
 
-        server {
-            listen       80;
-            server_name  localhost;
-            root   F:\UI\html;
-            #以下是上传文件
-            client_max_body_size 2m;
+   events {
+       worker_connections  1024;
+   }
 
-            location / {
-                index  index.php index.html index.htm;
-                if (!-e $request_filename) {
-                    rewrite  ^(.*)$  /index.php?s=/$1  last;
-                    break;
-                }
-            }
+   http {
+       #这里要注意域名的长度过长会报错，所以要配置这个
+       server_names_hash_bucket_size 64;
+       include       mime.types;
+       default_type  application/octet-stream;
+       sendfile        on;
+       keepalive_timeout  65;
 
-            error_page   500 502 503 504  /50x.html;
-            location = /50x.html {
-                root   html;
-            }
+       server {
+           listen       80;
+           server_name  localhost;
+           root   F:\UI\html;
+           #以下是上传文件
+           client_max_body_size 2m;
 
-            location ~ \.php {
-                fastcgi_index   index.php;
-                fastcgi_pass    127.0.0.1:9000;
+           location / {
+               index  index.php index.html index.htm;
+               if (!-e $request_filename) {
+                   rewrite  ^(.*)$  /index.php?s=/$1  last;
+                   break;
+               }
+           }
 
-                fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
-                fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
+           error_page   500 502 503 504  /50x.html;
+           location = /50x.html {
+               root   html;
+           }
 
-                #以下是Pathinfo
-                fastcgi_split_path_info ^(.+\.php)(.*)$;
-                fastcgi_param   PATH_INFO $fastcgi_path_info;
-                fastcgi_param   PATH_TRANSLATED $document_root$fastcgi_path_info;
-                include         fastcgi_params;
+           location ~ \.php {
+               fastcgi_index   index.php;
+               fastcgi_pass    127.0.0.1:9000;
 
-                #以下是上传文件
-                client_max_body_size 2m;
-            }
+               fastcgi_param   SCRIPT_FILENAME    $document_root$fastcgi_script_name;
+               fastcgi_param   SCRIPT_NAME        $fastcgi_script_name;
 
-            #配置图片跨域访问
-            location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
-                #允许跨域请求
-                add_header Access-Control-Allow-Origin '*';
-                add_header Access-Control-Allow-Headers X-Requested-With;
-                add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
+               #以下是Pathinfo
+               fastcgi_split_path_info ^(.+\.php)(.*)$;
+               fastcgi_param   PATH_INFO $fastcgi_path_info;
+               fastcgi_param   PATH_TRANSLATED $document_root$fastcgi_path_info;
+               include         fastcgi_params;
 
-                expires 30d;
-                access_log off;
-            }
-        }
-    }
-    ```
-    > 检查配置是否正确nginx.exe -t -c ./conf/nginx.conf
-4. 安装mysql为系统服务
-    找到mysqld
-    执行mysqld --install（需管理员权限的cmd）
-5. 编写wnmp启动脚本bat
-    - 编写server_start.bat
-        ```shell
-        @echo off
+               #以下是上传文件
+               client_max_body_size 2m;
+           }
 
-        F:
-        cd F:\UI\wnmp\nginx-1.12.2
-        start nginx
-        echo Start nginx success
+           #配置图片跨域访问
+           location ~ .*\.(gif|jpg|jpeg|png|bmp|swf|flv|mp4|ico)$ {
+               #允许跨域请求
+               add_header Access-Control-Allow-Origin '*';
+               add_header Access-Control-Allow-Headers X-Requested-With;
+               add_header Access-Control-Allow-Methods GET,POST,OPTIONS;
 
-        net start mysql
-        echo Start mysql success
+               expires 30d;
+               access_log off;
+           }
+       }
+   }
+   ```
 
-        cd F:\UI\wnmp\php-5.6.0
-        php-cgi.exe -b 127.0.0.1:9000 -c php.ini
-        echo Start php-cgi success
-        ```
-    - 编写server_stop.bat
-        ```shell
-        @echo off
-        taskkill /F /IM nginx.exe > nul
-        echo Stop nginx success
+   > 检查配置是否正确 nginx.exe -t -c ./conf/nginx.conf
 
-        taskkill /F /IM php-cgi.exe > nul
-        echo Stop PHP FastCGI success
+4. 安装 mysql 为系统服务
+   找到 mysqld
+   执行 mysqld --install（需管理员权限的 cmd）
+5. 编写 wnmp 启动脚本 bat
 
-        net stop mysql
-        echo Stop mysql success
-        pause
-        ```
+   - 编写 server_start.bat
+
+     ```shell
+     @echo off
+
+     F:
+     cd F:\UI\wnmp\nginx-1.12.2
+     start nginx
+     echo Start nginx success
+
+     net start mysql
+     echo Start mysql success
+
+     cd F:\UI\wnmp\php-5.6.0
+     php-cgi.exe -b 127.0.0.1:9000 -c php.ini
+     echo Start php-cgi success
+     ```
+
+   - 编写 server_stop.bat
+
+     ```shell
+     @echo off
+     taskkill /F /IM nginx.exe > nul
+     echo Stop nginx success
+
+     taskkill /F /IM php-cgi.exe > nul
+     echo Stop PHP FastCGI success
+
+     net stop mysql
+     echo Stop mysql success
+     pause
+     ```
 
 !>以上脚本需管理员权限启动
 
 6. 查看进程
-    ```shell
-    tasklist /fi "imagename eq nginx.exe"
-    tasklist /fi "imagename eq php-cgi.exe"
-    netstat -ano | findstr "3306"
-    ```
 
-7. 为php安装redis扩展
-    - 用phpinfo(） 查看php extension build 是ts版还是nts版 （线程安全不安全版）
-    - 下载redis [下载地址](http://pecl.php.net/package/redis/2.2.7/windows)
-        - 选择对应的tsORnts
-        - 解压后将php_redis.dll放入php\ext文件夹中
-        - 为php.ini 加上扩展extension=php_redis.dll
-    - 下载redis客户端[下载地址](https://github.com/MicrosoftArchive/redis/releases)
-8. PHP7\PHP8的搭建方式一样
-    > 有一些配置不同了而已
-    - php7.4.13 [下载地址](https://windows.php.net/downloads/releases/php-7.4.13-nts-Win32-vc15-x64.zip)
-    - php8.0.1 [下载地址](https://windows.php.net/downloads/releases/php-8.0.1-nts-Win32-vs16-x64.zip)
+   ```shell
+   tasklist /fi "imagename eq nginx.exe"
+   tasklist /fi "imagename eq php-cgi.exe"
+   netstat -ano | findstr "3306"
+   ```
 
-!>windows下项目目录命名为tp前缀会打不开
+7. 为 php 安装 redis 扩展
+   - 用 phpinfo(） 查看 php extension build 是 ts 版还是 nts 版 （线程安全不安全版）
+   - 下载 redis [下载地址](http://pecl.php.net/package/redis/2.2.7/windows)
+     - 选择对应的 tsORnts
+     - 解压后将 php_redis.dll 放入 php\ext 文件夹中
+     - 为 php.ini 加上扩展 extension=php_redis.dll
+   - 下载 redis 客户端[下载地址](https://github.com/MicrosoftArchive/redis/releases)
+8. PHP7\PHP8 的搭建方式一样
+   > 有一些配置不同了而已
+   - php7.4.13 [下载地址](https://windows.php.net/downloads/releases/php-7.4.13-nts-Win32-vc15-x64.zip)
+   - php8.0.1 [下载地址](https://windows.php.net/downloads/releases/php-8.0.1-nts-Win32-vs16-x64.zip)
 
+!>windows 下项目目录命名为 tp 前缀会打不开
 
-## lnmp搭建
+## lnmp 搭建
+
 <p align="left" style="color:#777777;">发布日期：2019-04-01 更新日期：2021-02-06</p>
 
 ### 准备
-1. 下载putty工具  
-2. yum -y update（升级所有软件包）  
-3. df –lh（查看磁盘空间）  
-4. 查看是否已安装wget  
-    rpm -qa wget  
-    - 否则安装  
-        yum install wget  
+
+1. 下载 putty 工具
+2. yum -y update（升级所有软件包）
+3. df –lh（查看磁盘空间）
+4. 查看是否已安装 wget  
+   rpm -qa wget
+   - 否则安装  
+      yum install wget
 5. 查看是否已安装编译器  
-    rpm -qa gcc    
-    - 否则安装  
-        yum install gcc gcc-c++
+   rpm -qa gcc
+   - 否则安装  
+      yum install gcc gcc-c++
 
-### 安装nginx
-1. 安装nginx依赖包  
-    - pcre正则表达式语法
-        yum -y install pcre pcre-devel
-    - zip压缩
-        yum -y install zlib zlib-devel
-    - ssl 
-        yum -y install openssl openssl-devel
-2. 下载nginx安装包 并解压  
-    - cd  /usr/local/src  
-    - wget http://nginx.org/download/nginx-1.12.2.tar.gz  
-    - tar –zxvf nginx-1.12.2.tar.gz
-3. 编译安装  
-    - cd nginx-1.12.2
-    - ./configure  --prefix=/usr/local/nginx
-    - ./configure  --prefix=/usr/local/nginx  --with-http_ssl_module  --with-http_gzip_static_module (要openssl模块的话)
-    - make （重新编译只要执行这一个就可以了，不然会覆盖安装cp ./objs/nginx  /usr/local/nginx/sbin/nginx）
-    - make install
-4. 创建并设置nginx运行账号  
-    - groupadd nginx
-    - useradd -M -g nginx -s /sbin/nologin nginx
-    - cd /usr/local/nginx/conf
-    - vim nginx.conf，设置user参数如下  
-        user nginx nginx
-5. 设置nginx为系统服务  
-    - vim /lib/systemd/system/nginx.service
-    - 文件内容
-        ```
-        [Unit]
-        Description=nginx
-        After=network.target
-        [Service]
-        Type=forking
-        ExecStart=/usr/local/nginx/sbin/nginx
-        ExecReload=/usr/local/nginx/sbin/nginx -s reload
-        ExecStop=/usr/local/nginx/sbin/nginx -s stop
-        PrivateTmp=true
-        [Install]
-        WantedBy=multi-user.target
-        ```
-    - 解释
-      - [Unit]:服务的说明
-      - Description:描述服务
-      - After:描述服务类别
-      - [Service]服务运行参数的设置
-      - Type=forking是后台运行的形式
-      - ExecStart为服务的具体运行命令
-      - ExecReload为重启命令
-      - ExecStop为停止命令
-      - PrivateTmp=True表示给服务分配独立的临时空间
-      - 注意：[Service]的启动、重启、停止命令全部要求使用绝对路径
-      - [Install]运行级别下服务安装的相关设置，可设置为多用户，即系统运行级别为3
-    - 保存退出。
-6. 设置nginx开机自启动  
-    systemctl enable nginx.service
-7. 开启nginx服务  
-    systemctl start nginx.service
-    - 查看nginx是否启动成功  
-        ps aux | grep nginx
-    - 访问服务器地址 welcome to nginx 至此安装完成
+### 安装 nginx
+
+1. 安装 nginx 依赖包
+   - pcre 正则表达式语法
+     yum -y install pcre pcre-devel
+   - zip 压缩
+     yum -y install zlib zlib-devel
+   - ssl
+     yum -y install openssl openssl-devel
+2. 下载 nginx 安装包 并解压
+   - cd /usr/local/src
+   - wget http://nginx.org/download/nginx-1.12.2.tar.gz
+   - tar –zxvf nginx-1.12.2.tar.gz
+3. 编译安装
+   - cd nginx-1.12.2
+   - ./configure --prefix=/usr/local/nginx
+   - ./configure --prefix=/usr/local/nginx --with-http_ssl_module --with-http_gzip_static_module (要 openssl 模块的话)
+   - make （重新编译只要执行这一个就可以了，不然会覆盖安装 cp ./objs/nginx /usr/local/nginx/sbin/nginx）
+   - make install
+4. 创建并设置 nginx 运行账号
+   - groupadd nginx
+   - useradd -M -g nginx -s /sbin/nologin nginx
+   - cd /usr/local/nginx/conf
+   - vim nginx.conf，设置 user 参数如下  
+      user nginx nginx
+5. 设置 nginx 为系统服务
+   - vim /lib/systemd/system/nginx.service
+   - 文件内容
+     ```
+     [Unit]
+     Description=nginx
+     After=network.target
+     [Service]
+     Type=forking
+     ExecStart=/usr/local/nginx/sbin/nginx
+     ExecReload=/usr/local/nginx/sbin/nginx -s reload
+     ExecStop=/usr/local/nginx/sbin/nginx -s stop
+     PrivateTmp=true
+     [Install]
+     WantedBy=multi-user.target
+     ```
+   - 解释
+     - [unit]: 服务的说明
+     - Description:描述服务
+     - After:描述服务类别
+     - [Service]服务运行参数的设置
+     - Type=forking 是后台运行的形式
+     - ExecStart 为服务的具体运行命令
+     - ExecReload 为重启命令
+     - ExecStop 为停止命令
+     - PrivateTmp=True 表示给服务分配独立的临时空间
+     - 注意：[Service]的启动、重启、停止命令全部要求使用绝对路径
+     - [Install]运行级别下服务安装的相关设置，可设置为多用户，即系统运行级别为 3
+   - 保存退出。
+6. 设置 nginx 开机自启动  
+   systemctl enable nginx.service
+7. 开启 nginx 服务  
+   systemctl start nginx.service
+   - 查看 nginx 是否启动成功  
+      ps aux | grep nginx
+   - 访问服务器地址 welcome to nginx 至此安装完成
 8. 开启防火墙  
-    systemctl start firewalld
-    防火墙开放80端口（nginx默认使用80端口，可在nginx.conf中配置，若无需进行远程访问则不需要开放端口）
-    - 永久开放80端口  
-        firewall-cmd --zone=public --add-port=80/tcp --permanent
-    - 重启防火墙  
-        firewall-cmd --reload
-    - 查看防火墙开启状态  
-        systemctl status firewalld
-    - 查看80端口是否开放成功  
-        firewall-cmd --zone=public --query-port=80/tcp
+   systemctl start firewalld
+   防火墙开放 80 端口（nginx 默认使用 80 端口，可在 nginx.conf 中配置，若无需进行远程访问则不需要开放端口）
+   - 永久开放 80 端口  
+      firewall-cmd --zone=public --add-port=80/tcp --permanent
+   - 重启防火墙  
+      firewall-cmd --reload
+   - 查看防火墙开启状态  
+      systemctl status firewalld
+   - 查看 80 端口是否开放成功  
+      firewall-cmd --zone=public --query-port=80/tcp
 
-### 安装Mysql
-1. 卸载已有mysql  
-    - 查看是否已安装mysql  
-        rpm -qa mysql
-    - 有则卸载  
-        rpm -e --nodeps 文件名称
-    - 是否存在与mysql相关的文件或目录  
-        whereis mysql 或 find / -name mysql
-        - 是则删除  
-            rm -rf /usr/lib/mysql  rm -rf /usr/share/mysql
-    - 查看是否存在mariadb  
-        rpm -qa | grep mariadb
-        - 存在则卸载  
-            rpm -e --nodeps 文件名 //文件名是上一个命令查询结果
-    - 存在/etc/my.cnf，则需要先删除  
-        rm /etc/my.cnf
-2. 安装编译mysql需要的依赖包  
-    yum install libevent* libtool* autoconf* libstd* ncurse* bison* openssl*
-3. 安装cmake（mysql5.5之后需要用cmake支持编译安装）  
-    - 查看是否已安装cmake
-        rpm -qa cmake
-        - 没有则下载编译安装  
-            cd /usr/local/src  
-            wget http://www.cmake.org/files/v2.8/cmake-2.8.12.1.tar.gz  
-            tar -xf cmake-2.8.12.1.tar.gz  
-            cd cmake-2.8.12.1  
-            ./configure  
-            make&&make install  
-    - 检查cmake是否安装成功  
-        cmake --version
-4. 下载mysql包并解压（到/usr/local/src目录）  
-    cd /usr/local/src  
-    wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.43.tar.gz
-    tar -zxvf mysql-5.6.43.tar.gz
-5. 编译安装（到/usr/local/mysql目录）  
-    cd mysql-5.6.43  
-    cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/usr/local/mysql/data -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock -DMYSQL_TCP_PORT=3306 -DENABLED_LOCAL_INFILE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci  
-    make（此过程需花费大概20-30分钟）  
-    make install  
-6. 配置mysql  
-    groupadd mysql  
-    useradd -M -g mysql -s /sbin/nologin mysql  
-    chown -R mysql:mysql /usr/local/mysql  
+### 安装 Mysql
+
+1. 卸载已有 mysql
+   - 查看是否已安装 mysql  
+      rpm -qa mysql
+   - 有则卸载  
+      rpm -e --nodeps 文件名称
+   - 是否存在与 mysql 相关的文件或目录  
+      whereis mysql 或 find / -name mysql
+     - 是则删除  
+        rm -rf /usr/lib/mysql rm -rf /usr/share/mysql
+   - 查看是否存在 mariadb  
+      rpm -qa | grep mariadb
+     - 存在则卸载  
+        rpm -e --nodeps 文件名 //文件名是上一个命令查询结果
+   - 存在/etc/my.cnf，则需要先删除  
+      rm /etc/my.cnf
+2. 安装编译 mysql 需要的依赖包  
+   yum install libevent* libtool* autoconf* libstd* ncurse* bison* openssl\*
+3. 安装 cmake（mysql5.5 之后需要用 cmake 支持编译安装）
+   - 查看是否已安装 cmake
+     rpm -qa cmake
+     - 没有则下载编译安装  
+        cd /usr/local/src  
+        wget http://www.cmake.org/files/v2.8/cmake-2.8.12.1.tar.gz  
+        tar -xf cmake-2.8.12.1.tar.gz  
+        cd cmake-2.8.12.1  
+        ./configure  
+        make&&make install
+   - 检查 cmake 是否安装成功  
+      cmake --version
+4. 下载 mysql 包并解压（到/usr/local/src 目录）  
+   cd /usr/local/src  
+   wget https://dev.mysql.com/get/Downloads/MySQL-5.6/mysql-5.6.43.tar.gz
+   tar -zxvf mysql-5.6.43.tar.gz
+5. 编译安装（到/usr/local/mysql 目录）  
+   cd mysql-5.6.43  
+   cmake -DCMAKE_INSTALL_PREFIX=/usr/local/mysql -DMYSQL_DATADIR=/usr/local/mysql/data -DSYSCONFDIR=/etc -DWITH_MYISAM_STORAGE_ENGINE=1 -DWITH_INNOBASE_STORAGE_ENGINE=1 -DWITH_MEMORY_STORAGE_ENGINE=1 -DWITH_READLINE=1 -DMYSQL_UNIX_ADDR=/var/lib/mysql/mysql.sock -DMYSQL_TCP_PORT=3306 -DENABLED_LOCAL_INFILE=1 -DWITH_PARTITION_STORAGE_ENGINE=1 -DEXTRA_CHARSETS=all -DDEFAULT_CHARSET=utf8 -DDEFAULT_COLLATION=utf8_general_ci  
+   make（此过程需花费大概 20-30 分钟）  
+   make install
+6. 配置 mysql  
+   groupadd mysql  
+   useradd -M -g mysql -s /sbin/nologin mysql  
+   chown -R mysql:mysql /usr/local/mysql
 7. 初始化配置  
-    cd /usr/local/mysql/scripts  
-    ./mysql_install_db --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql  
-8. 设置mysql为系统服务  
-    vim /lib/systemd/system/mysql.service  
-    - 文件内容  
-        ```
-        [Unit]
-        Description=mysql
-        After=network.target
-        [Service]
-        Type=forking
-        ExecStart=/usr/local/mysql/support-files/mysql.server start
-        ExecStop=/usr/local/mysql/support-files/mysql.server stop
-        ExecRestart=/usr/local/mysql/support-files/mysql.server restart
-        ExecReload=/usr/local/mysql/support-files/mysql.server reload
-        PrivateTmp=true
-        [Install]
-        WantedBy=multi-user.target
-        ```
-9. 设置mysql服务开机自启动  
-    systemctl enable mysql.service  
-10. 启动mysql  
-    systemctl start mysql.service  
+   cd /usr/local/mysql/scripts  
+   ./mysql_install_db --basedir=/usr/local/mysql --datadir=/usr/local/mysql/data --user=mysql
+8. 设置 mysql 为系统服务  
+   vim /lib/systemd/system/mysql.service
+   - 文件内容
+     ```
+     [Unit]
+     Description=mysql
+     After=network.target
+     [Service]
+     Type=forking
+     ExecStart=/usr/local/mysql/support-files/mysql.server start
+     ExecStop=/usr/local/mysql/support-files/mysql.server stop
+     ExecRestart=/usr/local/mysql/support-files/mysql.server restart
+     ExecReload=/usr/local/mysql/support-files/mysql.server reload
+     PrivateTmp=true
+     [Install]
+     WantedBy=multi-user.target
+     ```
+9. 设置 mysql 服务开机自启动  
+   systemctl enable mysql.service
+10. 启动 mysql  
+    systemctl start mysql.service
     - 创建不存在的目录即可  
-        mkdir /var/lib/mysql  
-        chown -R mysql:mysql /var/lib/mysql  
+       mkdir /var/lib/mysql  
+       chown -R mysql:mysql /var/lib/mysql
     - 再次启动  
-        systemctl start mysql.service  
+       systemctl start mysql.service
     - 查看  
-        ps aux | grep mysql  
-        
-!>(启动失败使用/usr/local/mysql/support-files/mysql.server restart启动可以看到详细错误原因)
+       ps aux | grep mysql
 
-11.  登录mysql并设置root密码
-    /usr/local/mysql/bin/mysql -u root  set password=password('123456');  
-12.  创建远程连接用户  
-    GRANT ALL PRIVILEGES ON *.* TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;  
+!>(启动失败使用/usr/local/mysql/support-files/mysql.server restart 启动可以看到详细错误原因)
+
+11. 登录 mysql 并设置 root 密码
+    /usr/local/mysql/bin/mysql -u root set password=password('123456');
+12. 创建远程连接用户  
+    GRANT ALL PRIVILEGES ON _._ TO 'root'@'%' IDENTIFIED BY 'password' WITH GRANT OPTION;  
     flush privileges;
 
-!>(%也可换成ip)
+!>(%也可换成 ip)
 
-13.  重启mysql  
+13. 重启 mysql  
     service mysql restart
-14.  查看防火墙对外开放了哪些端口（看3306有没有被开启）这里是centos7的命令
+14. 查看防火墙对外开放了哪些端口（看 3306 有没有被开启）这里是 centos7 的命令
     firewall-cmd --zone=public --list-ports
-15.  打开端口  
-    firewall-cmd --zone=public --add-port=3306/tcp --permanent    （--permanent永久生效，没有此参数重启后失效）  
+15. 打开端口  
+    firewall-cmd --zone=public --add-port=3306/tcp --permanent （--permanent 永久生效，没有此参数重启后失效）  
     firewall-cmd --reload  
     在查看一次端口即可  
-    yum update导致mysql服务不能启动，解决办法mv /etc/my.cnf /etc/my.cnf.bak  
+    yum update 导致 mysql 服务不能启动，解决办法 mv /etc/my.cnf /etc/my.cnf.bak
 
-### 安装PHP
-1. 安装php依赖包  
-yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcurl libcurl-devel libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel gmp gmp-devel libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel
-2. 下载php包并解压  
-    cd /usr/local/src  
-    - 下载  
-        wget http://cn2.php.net/distributions/php-5.6.0.tar.xz  
-    - 解压  
-        tar -zxvf php-5.6.0.tar.gz  
-    - 进入  
-        cd php-5.6.0  
-    - 配置  
-        ./configure --prefix=/usr/local/php --disable-fileinfo --enable-fpm --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --with-gd --with-xmlrpc --with-jpeg-dir --with-png-dir --with-freetype-dir --enable-gd-native-ttf --enable-mbstring --with-mcrypt=/usr/local/libmcrypt --enable-zip --enable-mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --without-pear  --enable-bcmath  
-    - 编译  
-        make（此过程需花费大概20分钟）  
-        make install  
+### 安装 PHP
 
-!>（注意：--with-mcrypt参数指定的是libmcrypt的安装目录。Php7不再使用mysql的库来支持mysql的连接，而是启用了mysqlnd来支持，所以php7的编译已经不再使用--with-mysql参数指定mysql的安装位置了，若想支持mysql，需要设置--enable-mysqlnd、--with-mysqli和--with-pdo-mysql=mysqlnd参数，--with-mysql-sock指定的是编译mysql时-DMYSQL_UNIX_ADDR参数指定的文件）
+1. 安装 php 依赖包  
+   yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcurl libcurl-devel libjpeg libjpeg-devel libpng libpng-devel freetype freetype-devel gmp gmp-devel libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel
+2. 下载 php 包并解压  
+   cd /usr/local/src
+   - 下载  
+      wget http://cn2.php.net/distributions/php-5.6.0.tar.xz
+   - 解压  
+      tar -zxvf php-5.6.0.tar.gz
+   - 进入  
+      cd php-5.6.0
+   - 配置  
+      ./configure --prefix=/usr/local/php --disable-fileinfo --enable-fpm --with-config-file-path=/etc --with-config-file-scan-dir=/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --with-gd --with-xmlrpc --with-jpeg-dir --with-png-dir --with-freetype-dir --enable-gd-native-ttf --enable-mbstring --with-mcrypt=/usr/local/libmcrypt --enable-zip --enable-mysqlnd --with-mysqli=mysqlnd --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --without-pear --enable-bcmath
+   - 编译  
+      make（此过程需花费大概 20 分钟）  
+      make install
 
-3. 将php包解压目录中的配置文件放置到正确位置  
-    cp php.ini-development /etc/php.ini  
+!>（注意：--with-mcrypt 参数指定的是 libmcrypt 的安装目录。Php7 不再使用 mysql 的库来支持 mysql 的连接，而是启用了 mysqlnd 来支持，所以 php7 的编译已经不再使用--with-mysql 参数指定 mysql 的安装位置了，若想支持 mysql，需要设置--enable-mysqlnd、--with-mysqli 和--with-pdo-mysql=mysqlnd 参数，--with-mysql-sock 指定的是编译 mysql 时-DMYSQL_UNIX_ADDR 参数指定的文件）
 
-!>configure命令中的--with-config-file-path设置的位置 这里的目录可以直接设为/usr/local/php/etc 没必要放外面的
+3. 将 php 包解压目录中的配置文件放置到正确位置  
+   cp php.ini-development /etc/php.ini
 
-4. 创建并设置php-fpm运行账号  
-    groupadd www-data  
-    useradd -M -g www-data -s /sbin/nologin www-data  
-    cd /usr/local/php/etc  
-    cp php-fpm.conf.default php-fpm.conf  
-    vim php-fpm.conf  
-    搜索user/group   (esc 输入/string搜索)  
-    设置  
-    user=www-data  
-    group=www-data  
-5. 配置nginx支持php  
-    vim /usr/local/nginx/conf/nginx.conf  
-    ![calc](../../images/nginx_php.png)  
-    重启nigix  
-    systemctl start nginx.service  
-6. 设置php-fpm为系统服务  
-    vim /etc/systemd/system/php-fpm.service  
-7. 设置php-fpm服务开机自启动  
-    systemctl enable php-fpm.service  
-8. 启动php-fpm  
-    systemctl start php-fpm.service  
-    查看是否启动成功：  
-    ps aux | grep php-fpm  
+!>configure 命令中的--with-config-file-path 设置的位置 这里的目录可以直接设为/usr/local/php/etc 没必要放外面的
 
-### 安装PHP7.4.13
-__统一下载路径cd /usr/local/src__
-1. 前置1安装re2c 不然编译会报错 PHP （语法分析器re2c）  
-    wget https://github.com/skvadrik/re2c/releases/download/1.0.2/re2c-1.0.2.tar.gz  
-    解压：tar -zxvf re2c-1.0.2.tar.gz  
-    进入cd ./re2c-1.0.2  
-    编译安装./configure && make && make install  
-2. 前置2No package 'sqlite3' found  
-    sudo yum install -y sqlite-devel.x86_64  
-3. 前置3No package 'oniguruma' found  
-    wget https://github.com/kkos/oniguruma/archive/v6.9.4.tar.gz -O oniguruma-6.9.4.tar.gz   
-    tar -xvf oniguruma-6.9.4.tar.gz   
-    cd oniguruma-6.9.4/  
-    ./autogen.sh  
-    ./configure --prefix=/usr --libdir=/lib64&&make && make install //64位的系统一定要标识  --libdir=/lib64 否则还是不行  
-4. 前置4 No package 'libzip' found  
-    #卸载老版本的libzip  
-    yum remove libzip  
-    #下载安装libzip-1.2.0  
-    wget https://libzip.org/download/libzip-1.2.0.tar.gz  
-    tar -zxvf libzip-1.2.0.tar.gz  
-    cd libzip-1.2.0  
-    ./configure  
-    make && make install  
-    安装完成后，查看是否存在/usr/local/lib/pkgconfig目录,如果存在，执行如下命令来设置PKG_CONFIG_PATH：  
-    Php 编译配置前执行   
-    export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"  
-5. 安装php依赖包(此处5.6上面已经安装了可以跳过)  
-    yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcurl libcurl-devel libjpeg libjpeg-devel libpng  
-    libpng-devel freetype freetype-devel gmp gmp-devel libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel  
-6. 下载php包并解压  
-    cd /usr/local/src  
-    - 下载  
-        wget https://www.php.net/distributions/php-7.4.13.tar.gz   
-    建议直接下载，然后再通过ftp扔到src目录，有时候网速不好,会缺少文件  
-    - 解压  
-        tar -zxvf php-7.4.13.tar.gz  
-    - 进入  
-        cd php-7.4.13  
-    - 复制配置文件  
-        cp php.ini-production /usr/local/php7/etc/php.ini  
-    - 配置    
-        先执行  
-        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"  
-        再执行  
-        ./configure --prefix=/usr/local/php7 --disable-fileinfo --enable-fpm --with-config-file-path=/usr/local/php7/etc  
-        --with-config-file-scan-dir=/usr/local/php7/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --enable-gd  
-        --with-xmlrpc --with-jpeg   --with-freetype  --enable-mbstring --with-zip --enable-mysqlnd --with-mysqli=mysqlnd  
-        --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-bcmath --without-pear --enable-opcache  
-        (删除一些没用的，启用一些必要的)  
+4. 创建并设置 php-fpm 运行账号  
+   groupadd www-data  
+   useradd -M -g www-data -s /sbin/nologin www-data  
+   cd /usr/local/php/etc  
+   cp php-fpm.conf.default php-fpm.conf  
+   vim php-fpm.conf  
+   搜索 user/group (esc 输入/string 搜索)  
+   设置  
+   user=www-data  
+   group=www-data
+5. 配置 nginx 支持 php  
+   vim /usr/local/nginx/conf/nginx.conf  
+   ![calc](../../images/nginx_php.png)  
+   重启 nigix  
+   systemctl start nginx.service
+6. 设置 php-fpm 为系统服务  
+   vim /etc/systemd/system/php-fpm.service
+7. 设置 php-fpm 服务开机自启动  
+   systemctl enable php-fpm.service
+8. 启动 php-fpm  
+   systemctl start php-fpm.service  
+   查看是否启动成功：  
+   ps aux | grep php-fpm
+
+### 安装 PHP7.4.13
+
+**统一下载路径 cd /usr/local/src**
+
+1. 前置 1 安装 re2c 不然编译会报错 PHP （语法分析器 re2c）  
+   wget https://github.com/skvadrik/re2c/releases/download/1.0.2/re2c-1.0.2.tar.gz  
+   解压：tar -zxvf re2c-1.0.2.tar.gz  
+   进入 cd ./re2c-1.0.2  
+   编译安装./configure && make && make install
+2. 前置 2No package 'sqlite3' found  
+   sudo yum install -y sqlite-devel.x86_64
+3. 前置 3No package 'oniguruma' found  
+   wget https://github.com/kkos/oniguruma/archive/v6.9.4.tar.gz -O oniguruma-6.9.4.tar.gz  
+   tar -xvf oniguruma-6.9.4.tar.gz  
+   cd oniguruma-6.9.4/  
+   ./autogen.sh  
+   ./configure --prefix=/usr --libdir=/lib64&&make && make install //64 位的系统一定要标识 --libdir=/lib64 否则还是不行
+4. 前置 4 No package 'libzip' found  
+   #卸载老版本的 libzip  
+   yum remove libzip  
+   #下载安装 libzip-1.2.0  
+   wget https://libzip.org/download/libzip-1.2.0.tar.gz  
+   tar -zxvf libzip-1.2.0.tar.gz  
+   cd libzip-1.2.0  
+   ./configure  
+   make && make install  
+   安装完成后，查看是否存在/usr/local/lib/pkgconfig 目录,如果存在，执行如下命令来设置 PKG_CONFIG_PATH：  
+   Php 编译配置前执行  
+   export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"
+5. 安装 php 依赖包(此处 5.6 上面已经安装了可以跳过)  
+   yum install libxml2 libxml2-devel openssl openssl-devel bzip2 bzip2-devel libcurl libcurl-devel libjpeg libjpeg-devel libpng  
+   libpng-devel freetype freetype-devel gmp gmp-devel libmcrypt libmcrypt-devel readline readline-devel libxslt libxslt-devel
+6. 下载 php 包并解压  
+   cd /usr/local/src
+   - 下载  
+      wget https://www.php.net/distributions/php-7.4.13.tar.gz  
+     建议直接下载，然后再通过 ftp 扔到 src 目录，有时候网速不好,会缺少文件
+   - 解压  
+      tar -zxvf php-7.4.13.tar.gz
+   - 进入  
+      cd php-7.4.13
+   - 复制配置文件  
+      cp php.ini-production /usr/local/php7/etc/php.ini
+   - 配置  
+      先执行  
+      export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"  
+      再执行  
+      ./configure --prefix=/usr/local/php7 --disable-fileinfo --enable-fpm --with-config-file-path=/usr/local/php7/etc  
+      --with-config-file-scan-dir=/usr/local/php7/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --enable-gd  
+      --with-xmlrpc --with-jpeg --with-freetype --enable-mbstring --with-zip --enable-mysqlnd --with-mysqli=mysqlnd  
+      --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-bcmath --without-pear --enable-opcache  
+      (删除一些没用的，启用一些必要的)
 7. 编译安装  
-    make && make install  
-    等待20~30分钟  
-8. 配置fpm  
-    cd /usr/local/php7/etc  
-    - 首先复制出一份php-fpm.conf  
-        #cp php-fpm.conf.default php-fpm.conf  
-    - 切换到/usr/local/php7/etc/php-fpm.d复制配置文件  
-        #cp www.conf.default www.conf  
-    - 修改fpm监听端口  
-        vim  /usr/local/php7/etc/php-fpm.d/www.conf  
-        listen = 127.0.0.1:9000  
-    - 将其端口修改为   
-        listen = 127.0.0.1:9001  
-    - :wq 保存编辑退出.   
-    然后配置nginx或apache支持php7即可.  
-9. 配置php7的fpm自动启动  
-    - 复制5.6的自启文件  
-        cp /etc/systemd/system/php-fpm.service /etc/systemd/system/php7-fpm.service  
-    - 编辑改为7的目录  
-        vim /etc/systemd/system/php7-fpm.service  
-10. 设置php7-fpm服务开机自启动：  
-    systemctl enable php7-fpm.service  
-11. 启动php-fpm：  
-    systemctl start php7-fpm.service  
+   make && make install  
+   等待 20~30 分钟
+8. 配置 fpm  
+   cd /usr/local/php7/etc
+   - 首先复制出一份 php-fpm.conf  
+      #cp php-fpm.conf.default php-fpm.conf
+   - 切换到/usr/local/php7/etc/php-fpm.d 复制配置文件  
+      #cp www.conf.default www.conf
+   - 修改 fpm 监听端口  
+      vim /usr/local/php7/etc/php-fpm.d/www.conf  
+      listen = 127.0.0.1:9000
+   - 将其端口修改为  
+      listen = 127.0.0.1:9001
+   - :wq 保存编辑退出.  
+     然后配置 nginx 或 apache 支持 php7 即可.
+9. 配置 php7 的 fpm 自动启动
+   - 复制 5.6 的自启文件  
+      cp /etc/systemd/system/php-fpm.service /etc/systemd/system/php7-fpm.service
+   - 编辑改为 7 的目录  
+      vim /etc/systemd/system/php7-fpm.service
+10. 设置 php7-fpm 服务开机自启动：  
+    systemctl enable php7-fpm.service
+11. 启动 php-fpm：  
+     systemctl start php7-fpm.service
     - 查看是否启动成功  
-        ps aux | grep php-fpm  
-    就能看到5.6的和7的同时启动成功了  
-12.nginx支持php7  
-    第四大点第5小点 nginx配置127.0.0.1:9000改为127.0.0.1:9001即可  
-13.php7开启opcache  
-    vim /usr/local/php7/etc/php.ini  
+       ps aux | grep php-fpm  
+       就能看到 5.6 的和 7 的同时启动成功了  
+      12.nginx 支持 php7  
+       第四大点第 5 小点 nginx 配置 127.0.0.1:9000 改为 127.0.0.1:9001 即可  
+      13.php7 开启 opcache  
+       vim /usr/local/php7/etc/php.ini
     - 末尾加上下面配置  
-        zend_extension=opcache.so  
-        [opcache]  
-        ;开启opcache  
-        opcache.enable=1  
-        ;CLI环境下，PHP启用OPcache  
-        opcache.enable_cli=1  
-        ;OPcache共享内存存储大小,单位MB  
-        opcache.memory_consumption=128  
-        ;PHP使用了一种叫做字符串驻留（string interning）的技术来改善性能。例如，如果你在代码中使用了1000次字符串“foobar”，在PHP内部只会在第一  
-        用这个字符串的时候分配一个不可变的内存区域来存储这个字符串，其他的999次使用都会直接指向这个内存区域。>这个选项则会把这个特性提升一个层次—  
-        默认情况下这个不可变的内存区域只会存在于单个php-fpm的进程中，如果设置了这个选项，那么它将会在所有的php-fpm进程中共享。在比较大的应用中，  
-        可以非常有效地节约内存，提高应用的性能。  
-        ;这个选项的值是以兆字节（megabytes）作为单位，如果把它设置为16，则表示16MB，默认是4MB  
-        opcache.interned_strings_buffer=8  
-        ;这个选项用于控制内存中最多可以缓存多少个PHP文件。这个选项必须得设置得足够大，大于你的项目中的所有PHP文件的总和。  
-        ;设置值取值范围最小值是 200，最大值在 PHP 5.5.6 之前是 100000，PHP 5.5.6 及之后是 1000000。也就是说在200到1000000之间。  
-        ;opcache.max_accelerated_files=4000  
-        ;设置缓存的过期时间（单位是秒）,为0的话每次都要检查  
-        opcache.revalidate_freq=60  
-        ;从字面上理解就是“允许更快速关闭”。它的作用是在单个请求结束时提供一种更快速的机制来调用代码中的析构器，从而加快PHP的响应速度和PHP进程资  
-        的回收速度，这样应用程序可以更快速地响应下一个请求。把它设置为1就可以使用这个机制了。  
-        opcache.fast_shutdown=1  
-        ;如果启用（设置为1），OPcache会在opcache.revalidate_freq设置的秒数去检测文件的时间戳（timestamp）检查脚本是否更新。  
-        ;如果这个选项被禁用（设置为0），opcache.revalidate_freq会被忽略，PHP文件永远不会被检查。这意味着如果你修改了你的代码，然后你把它更新到  
-        务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果  
-        ;强烈建议你在生产环境中设置为0，更新代码后，再平滑重启PHP和web服务器。  
-        opcache.validate_timestamps=0  
-        ;开启Opcache File Cache(实验性), 通过开启这个, 我们可以让Opcache把opcode缓存缓存到外部文件中, 对于一些脚本, 会有很明显的性能提升.  
-        ;这样PHP就会在/tmp目录下Cache一些Opcode的二进制导出文件, 可以跨PHP生命周期存在.  
-        opcache.file_cache=/tmp  
+      zend_extension=opcache.so  
+      [opcache]  
+      ;开启 opcache  
+      opcache.enable=1  
+      ;CLI 环境下，PHP 启用 OPcache  
+      opcache.enable_cli=1  
+      ;OPcache 共享内存存储大小,单位 MB  
+      opcache.memory_consumption=128  
+      ;PHP 使用了一种叫做字符串驻留（string interning）的技术来改善性能。例如，如果你在代码中使用了 1000 次字符串“foobar”，在 PHP 内部只会在第一  
+      用这个字符串的时候分配一个不可变的内存区域来存储这个字符串，其他的 999 次使用都会直接指向这个内存区域。>这个选项则会把这个特性提升一个层次—  
+      默认情况下这个不可变的内存区域只会存在于单个 php-fpm 的进程中，如果设置了这个选项，那么它将会在所有的 php-fpm 进程中共享。在比较大的应用中，  
+      可以非常有效地节约内存，提高应用的性能。  
+      ;这个选项的值是以兆字节（megabytes）作为单位，如果把它设置为 16，则表示 16MB，默认是 4MB  
+      opcache.interned_strings_buffer=8  
+      ;这个选项用于控制内存中最多可以缓存多少个 PHP 文件。这个选项必须得设置得足够大，大于你的项目中的所有 PHP 文件的总和。  
+      ;设置值取值范围最小值是 200，最大值在 PHP 5.5.6 之前是 100000，PHP 5.5.6 及之后是 1000000。也就是说在 200 到 1000000 之间。  
+      ;opcache.max_accelerated_files=4000  
+      ;设置缓存的过期时间（单位是秒）,为 0 的话每次都要检查  
+      opcache.revalidate_freq=60  
+      ;从字面上理解就是“允许更快速关闭”。它的作用是在单个请求结束时提供一种更快速的机制来调用代码中的析构器，从而加快 PHP 的响应速度和 PHP 进程资  
+      的回收速度，这样应用程序可以更快速地响应下一个请求。把它设置为 1 就可以使用这个机制了。  
+      opcache.fast_shutdown=1  
+      ;如果启用（设置为 1），OPcache 会在 opcache.revalidate_freq 设置的秒数去检测文件的时间戳（timestamp）检查脚本是否更新。  
+      ;如果这个选项被禁用（设置为 0），opcache.revalidate_freq 会被忽略，PHP 文件永远不会被检查。这意味着如果你修改了你的代码，然后你把它更新到  
+      务器上，再在浏览器上请求更新的代码对应的功能，你会看不到更新的效果  
+      ;强烈建议你在生产环境中设置为 0，更新代码后，再平滑重启 PHP 和 web 服务器。  
+      opcache.validate_timestamps=0  
+      ;开启 Opcache File Cache(实验性), 通过开启这个, 我们可以让 Opcache 把 opcode 缓存缓存到外部文件中, 对于一些脚本, 会有很明显的性能提升.  
+      ;这样 PHP 就会在/tmp 目录下 Cache 一些 Opcode 的二进制导出文件, 可以跨 PHP 生命周期存在.  
+      opcache.file_cache=/tmp
     - 重启  
-        systemctl restart php7-fpm  
+      systemctl restart php7-fpm
 
-### 安装PHP8.0.1
-__统一下载路径cd /usr/local/src__  
-1. 和php7一样的前置条件安装  
-2. 下载php包并解压  
-    https://www.php.net/distributions/php-8.0.1.tar.gz  
-    建议直接下载，然后扔到/usr/local/src目录  
-    - 解压  
-        tar -zxvf php-8.0.1.tar.gz  
-    - 进入  
-        cd php-8.0.1  
-    - 先执行  
-        export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"  
-    - 再执行（编译错误每个编译项之间只能有一个空格，编译项和7略微不同，如Xml）  
-        ./configure --prefix=/usr/local/php8 --disable-fileinfo --enable-fpm --with-config-file-path=/usr/local/php8/etc  
-        --with-config-file-scan-dir=/usr/local/php8/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --enable-gd  
-        --enable-xml --with-jpeg --with-freetype --enable-mbstring --with-zip --enable-mysqlnd --with-mysqli=mysqlnd  
-        --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-bcmath --without-pear --enable-opcache  
-    - 编译安装，这里会缺很多扩展，[参考](https://www.jianshu.com/p/3c721f4e9075)
-        make && make install  
-        等待20~30分钟  
+### 安装 PHP8.0.1
+
+**统一下载路径 cd /usr/local/src**
+
+1. 和 php7 一样的前置条件安装
+2. 下载 php 包并解压  
+   https://www.php.net/distributions/php-8.0.1.tar.gz  
+   建议直接下载，然后扔到/usr/local/src 目录
+   - 解压  
+      tar -zxvf php-8.0.1.tar.gz
+   - 进入  
+      cd php-8.0.1
+   - 先执行  
+      export PKG_CONFIG_PATH="/usr/local/lib/pkgconfig/"
+   - 再执行（编译错误每个编译项之间只能有一个空格，编译项和 7 略微不同，如 Xml）  
+      ./configure --prefix=/usr/local/php8 --disable-fileinfo --enable-fpm --with-config-file-path=/usr/local/php8/etc  
+      --with-config-file-scan-dir=/usr/local/php8/etc/php.d --with-openssl --with-zlib --with-curl --enable-ftp --enable-gd  
+      --enable-xml --with-jpeg --with-freetype --enable-mbstring --with-zip --enable-mysqlnd --with-mysqli=mysqlnd  
+      --with-pdo-mysql=mysqlnd --with-mysql-sock=/var/lib/mysql/mysql.sock --enable-bcmath --without-pear --enable-opcache
+   - 编译安装，这里会缺很多扩展，[参考](https://www.jianshu.com/p/3c721f4e9075)
+     make && make install  
+      等待 20~30 分钟
 3. 复制配置文件  
-    cp php.ini-production /usr/local/php8/etc/php.ini  
-4. 配置fpm  
-    cd /usr/local/php8/etc  
-    - 首先复制出一份php-fpm.conf  
-        #cp php-fpm.conf.default php-fpm.conf  
-    - 切换到  
-        /usr/local/php8/etc/php-fpm.d  
-    - 复制配置文件  
-        #cp www.conf.default www.conf  
-    - 修改fpm监听端口  
-        vim /usr/local/php8/etc/php-fpm.d/www.conf  
-        listen = 127.0.0.1:9000  
-        将其端口修改为   
-        listen = 127.0.0.1:9002  
-        :wq 保存编辑退出.   
-    - 然后配置nginx或apache支持php8即可.  
-5. 配置php8的fpm自动启动  
-    - 复制5.6的自启文件  
-        cp /etc/systemd/system/php-fpm.service /etc/systemd/system/php8-fpm.service  
-    - 编辑改为8的目录  
-        vim /etc/systemd/system/php8-fpm.service  
-6. 设置php8-fpm服务开机自启动：  
-    systemctl enable php7-fpm.service  
-7. 启动php-fpm  
-    systemctl start php8-fpm.service  
-    - 查看是否启动成功  
-        ps aux | grep php-fpm  
-        就能看到5.6的和7的同时启动成功了  
-  
-8. nginx支持php8  
-    第四大点第5小点 nginx配置127.0.0.1:9000改为127.0.0.1:9002即可  
+   cp php.ini-production /usr/local/php8/etc/php.ini
+4. 配置 fpm  
+   cd /usr/local/php8/etc
+   - 首先复制出一份 php-fpm.conf  
+      #cp php-fpm.conf.default php-fpm.conf
+   - 切换到  
+      /usr/local/php8/etc/php-fpm.d
+   - 复制配置文件  
+      #cp www.conf.default www.conf
+   - 修改 fpm 监听端口  
+      vim /usr/local/php8/etc/php-fpm.d/www.conf  
+      listen = 127.0.0.1:9000  
+      将其端口修改为  
+      listen = 127.0.0.1:9002  
+      :wq 保存编辑退出.
+   - 然后配置 nginx 或 apache 支持 php8 即可.
+5. 配置 php8 的 fpm 自动启动
+   - 复制 5.6 的自启文件  
+      cp /etc/systemd/system/php-fpm.service /etc/systemd/system/php8-fpm.service
+   - 编辑改为 8 的目录  
+      vim /etc/systemd/system/php8-fpm.service
+6. 设置 php8-fpm 服务开机自启动：  
+   systemctl enable php7-fpm.service
+7. 启动 php-fpm  
+   systemctl start php8-fpm.service
+
+   - 查看是否启动成功  
+      ps aux | grep php-fpm  
+      就能看到 5.6 的和 7 的同时启动成功了
+
+8. nginx 支持 php8  
+   第四大点第 5 小点 nginx 配置 127.0.0.1:9000 改为 127.0.0.1:9002 即可
 
 9. 设置环境变量
-    ```
-    vim /etc/profile
-    export PATH=$PATH:/usr/local/php8/bin
-    source /etc/profile
-    重启
-    查看
-    php -v
-    ```
-  
-10. php8开启opcache 和jit  
-    vim /usr/local/php8/etc/php.ini  
-    - 末尾加上下面配置  
-        ```  
-        zend_extension=opcache  
-        [opcache]  
-        ;开启opcache  
-        opcache.enable=1  
-        opcache.enable_cli=1  
-        opcache.memory_consumption=128  
-        opcache.interned_strings_buffer=8  
-        ;opcache.max_accelerated_files=4000  
-        opcache.revalidate_freq=60  
-        opcache.fast_shutdown=1  
-        opcache.validate_timestamps=0  
-        opcache.file_cache=/tmp  
-        ;支持jit  
-        opcache.jit=1255  
-        opcache.jopcache.jit_buffer_size=32M  
-        ```  
-    - 重启  
-        systemctl restart php8-fpm  
 
-!>jit_buffer_size设置过大会报错
+   ```
+   vim /etc/profile
+   export PATH=$PATH:/usr/local/php8/bin
+   source /etc/profile
+   重启
+   查看
+   php -v
+   ```
+
+10. php8 开启 opcache 和 jit  
+    vim /usr/local/php8/etc/php.ini
+    - 末尾加上下面配置
+      ```
+      zend_extension=opcache
+      [opcache]
+      ;开启opcache
+      opcache.enable=1
+      opcache.enable_cli=1
+      opcache.memory_consumption=128
+      opcache.interned_strings_buffer=8
+      ;opcache.max_accelerated_files=4000
+      opcache.revalidate_freq=60
+      opcache.fast_shutdown=1
+      opcache.validate_timestamps=0
+      opcache.file_cache=/tmp
+      ;支持jit
+      opcache.jit=1255
+      opcache.jopcache.jit_buffer_size=32M
+      ```
+    - 重启  
+       systemctl restart php8-fpm
+
+!>jit_buffer_size 设置过大会报错
 
 ### 常用
-- nginx  
-    启动 systemctl start nginx.service  
-    停止 systemctl stop nginx.service  
-    重启 systemctl restart nginx.service  
-    查看是否启动 ps aux | grep nginx  
-    配置目录/usr/local/nginx/conf/nginx.conf  
-- Php  
-    启动 systemctl start php-fpm.service  
-    停止 systemctl stop php-fpm.service  
-    重启 systemctl restart php-fpm.service  
-    查看是否启动 ps aux | grep php-fpm  
-    Php配置目录 /etc/php.ini  
-- Mysql  
-    启动 systemctl start mysql.service  
-    停止 systemctl stop mysql.service  
-    重启 systemctl start mysql.service  
-    查看是否启动 ps aux | grep mysql  
-    配置目录/usr/local/mysql/my.cnf  
-- php7  
-    启动 systemctl start php7-fpm.service  
-    停止 systemctl stop php7-fpm.service  
-    重启 systemctl restart php7-fpm.service  
-    查看是否启动 ps aux | grep php-fpm  
-    Php配置目录  /usr/local/php7/etc/php.ini  
-- Php8  
-    启动 systemctl start php8-fpm.service  
-    停止 systemctl stop php8-fpm.service  
-    重启 systemctl restart php8-fpm.service  
-    查看是否启动 ps aux | grep php-fpm  
-    Php配置目录  /usr/local/php8/etc/php.ini   
 
-!> 注意开启php opcache后 如果设置了缓存，那么请求的php脚本会被缓存，缓存时间内php脚本不会更新，如果要立即生效，需要重启fpm，这也是开启opcache后性能提升的原因，因为不需要重新编译php脚本了
+- nginx  
+   启动 systemctl start nginx.service  
+   停止 systemctl stop nginx.service  
+   重启 systemctl restart nginx.service  
+   查看是否启动 ps aux | grep nginx  
+   配置目录/usr/local/nginx/conf/nginx.conf
+- Php  
+   启动 systemctl start php-fpm.service  
+   停止 systemctl stop php-fpm.service  
+   重启 systemctl restart php-fpm.service  
+   查看是否启动 ps aux | grep php-fpm  
+   Php 配置目录 /etc/php.ini
+- Mysql  
+   启动 systemctl start mysql.service  
+   停止 systemctl stop mysql.service  
+   重启 systemctl start mysql.service  
+   查看是否启动 ps aux | grep mysql  
+   配置目录/usr/local/mysql/my.cnf
+- php7  
+   启动 systemctl start php7-fpm.service  
+   停止 systemctl stop php7-fpm.service  
+   重启 systemctl restart php7-fpm.service  
+   查看是否启动 ps aux | grep php-fpm  
+   Php 配置目录 /usr/local/php7/etc/php.ini
+- Php8  
+   启动 systemctl start php8-fpm.service  
+   停止 systemctl stop php8-fpm.service  
+   重启 systemctl restart php8-fpm.service  
+   查看是否启动 ps aux | grep php-fpm  
+   Php 配置目录 /usr/local/php8/etc/php.ini
+
+!> 注意开启 php opcache 后 如果设置了缓存，那么请求的 php 脚本会被缓存，缓存时间内 php 脚本不会更新，如果要立即生效，需要重启 fpm，这也是开启 opcache 后性能提升的原因，因为不需要重新编译 php 脚本了
 
 # PHPSTROM
 
 ## 快捷键
 
-键盘映射:下载vscode键盘方案
+键盘映射:下载 vscode 键盘方案
 
-shift+shift搜索
+shift+shift 搜索
 
-shift+alt+o优化导入
+shift+alt+o 优化导入
 
-alt+7结构
+alt+7 结构
 
-按住shift+alt并拖动鼠标左键上下移动 多行编辑
+按住 shift+alt 并拖动鼠标左键上下移动 多行编辑
 
 ## 代码格式化
 
-CODESTYLE->PHP->set from ->Drupal 并设置缩进为4个space
+CODESTYLE->PHP->set from ->Drupal 并设置缩进为 4 个 space
 
-保存时格式化  编辑->录制宏 操作一下格式化和保存，然后去设置->格式化配置里选用宏
+保存时格式化 编辑->录制宏 操作一下格式化和保存，然后去设置->格式化配置里选用宏
 
 # 扩展
-## linux为php添加redis扩展
+
+## linux 为 php 添加 redis 扩展
+
 <p align="left" style="color:#777777;">发布日期：2020-07-23</p>
 
-1. cd /usr/local/src  
-2. 下载 wget http://pecl.php.net/get/redis-2.2.7.tgz  
-3. 解压 tar -zxvf redis-2.2.7.tgz  
-4. cd redis-2.2.7  
-5. find / -name phpize   
-6. /usr/local/php/bin/phpize  
-7. ./configure --with-php-config=/usr/local/php/bin/php-config  
-8. make && make install  
-9. 编辑php.ini 加入redis.so  
-    /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so  
+1. cd /usr/local/src
+2. 下载 wget http://pecl.php.net/get/redis-2.2.7.tgz
+3. 解压 tar -zxvf redis-2.2.7.tgz
+4. cd redis-2.2.7
+5. find / -name phpize
+6. /usr/local/php/bin/phpize
+7. ./configure --with-php-config=/usr/local/php/bin/php-config
+8. make && make install
+9. 编辑 php.ini 加入 redis.so  
+   /usr/local/php/lib/php/extensions/no-debug-non-zts-20131226/redis.so
 10. systemctl restart php-fpm
 
 # 算法
-## PHP之抽奖概率算法
+
+## PHP 之抽奖概率算法
+
 <p align="left" style="color:#777777;">发布日期：2019-03-27</p>
 
 无论是任何抽奖的小游戏，例如转盘，九宫格，砸金蛋，刮刮卡，都是基于抽奖算法来抽奖，都可以基于同一种抽奖算法。无非就是前端的展现形式不一样。目前只看到过一种，附上。
+
 ```php
 function getRand($proArr){
-    $data = ''; 
-    $proSum = array_sum($proArr); //概率数组的总概率精度  
-    foreach ($proArr as $k => $v) { //概率数组循环 
+    $data = '';
+    $proSum = array_sum($proArr); //概率数组的总概率精度
+    foreach ($proArr as $k => $v) { //概率数组循环
         $randNum = mt_rand(1, $proSum); //重点
         if($randNum <= $v){ //重点
-            $data = $k; 
+            $data = $k;
             break;
-        } else { 
-            $proSum -= $v; 
-        } 
-    } 
-    unset($proArr); 
-    return $data; 
+        } else {
+            $proSum -= $v;
+        }
+    }
+    unset($proArr);
+    return $data;
 }
 ```
-这个被人称之为经典概率算法，$proArr就是概率数组。例如('1','2','3','4')这个概率数组，那么他的总概率为10  
-那么抽中1对应的概率就为1/10 。那怎么计算这个概率呢？  
-就是用1到10的随机数，随机一个整数，那么随机到小于等于2的概率不就是2/10。这里牵涉到mt_rand这个函数，有兴趣的研究下。  
+
+这个被人称之为经典概率算法，$proArr 就是概率数组。例如('1','2','3','4')这个概率数组，那么他的总概率为 10  
+那么抽中 1 对应的概率就为 1/10 。那怎么计算这个概率呢？  
+就是用 1 到 10 的随机数，随机一个整数，那么随机到小于等于 2 的概率不就是 2/10。这里牵涉到 mt_rand 这个函数，有兴趣的研究下。  
 九宫格抽奖：http://www.cnblogs.com/starof/p/4933907.html  
-转盘抽奖：http://www.thinkphp.cn/code/1153.html  
+转盘抽奖：http://www.thinkphp.cn/code/1153.html
 
+# thinkphp6 后端框架
 
-# thinkphp6后端框架
 此步骤所有文件参考原项目即可 http://demo.o8o8o8.com/vue-admin-thinkphp6/#/
 
 ## composer
-[composer安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481) [windows直接下载安装](https://getcomposer.org/download/)
+
+[composer 安装](https://www.kancloud.cn/manual/thinkphp6_0/1037481) [windows 直接下载安装](https://getcomposer.org/download/)
 
 ## 创建项目
+
 切换到网站根目录运行
+
 ```shell
 composer create-project topthink/think demo
 ```
 
 ## 更新框架
+
 切换到应用根目录
+
 ```shell
 composer update topthink/framework
 ```
 
-!> 运行出现No input file specified 可能是nginx root目录配置的有问题 最好用\\双斜杠去表示\就不会出问题了
+!> 运行出现 No input file specified 可能是 nginx root 目录配置的有问题 最好用\\双斜杠去表示\就不会出问题了
 
 ## 配置域名绑定模块
+
 配置/config/app.php(上线需要更改的一块)
+
 ```php
 <?
 return [
@@ -724,7 +760,9 @@ return [
 ```
 
 ## 配置路由
+
 /config/route.php
+
 ```php
 <?php
 return [
@@ -742,14 +780,18 @@ return [
 ```
 
 ## 新建模块
+
 /app/admin
 
 ## 配置数据库连接
-/app/admin/config/database.php 和/.env配置文件(上线需要更改的一块)
-!> 上线还要重启php8 不然数据库连不上出现localhsot no Password错误,很坑
+
+/app/admin/config/database.php 和/.env 配置文件(上线需要更改的一块)
+!> 上线还要重启 php8 不然数据库连不上出现 localhsot no Password 错误,很坑
 
 ## 配置路由中间件
-/app/admin/config/route.php 配置路由中间件设置跨域规则。如果要鉴权的也可以在这里设置priority优先中间件，设置方法参考以前的项目
+
+/app/admin/config/route.php 配置路由中间件设置跨域规则。如果要鉴权的也可以在这里设置 priority 优先中间件，设置方法参考以前的项目
+
 ```php
 <?php
 //路由
@@ -762,6 +804,7 @@ return [
 ```
 
 app\admin\middleware\Cors.php
+
 ```php
 <?php
 declare (strict_types = 1);
@@ -786,13 +829,16 @@ class Cors {
 ```
 
 ## 多应用模式
-需要安装think-multi-app 不然无法访问，默认是单应用模式
+
+需要安装 think-multi-app 不然无法访问，默认是单应用模式
+
 ```shell
 composer require topthink/think-multi-app
 ```
 
 ## 新建路由
-新建app\admin\route\route.php 
+
+新建 app\admin\route\route.php
 路由文件随便起怎么起，只要在这下面都会加载
 
 # swoole
@@ -801,28 +847,27 @@ composer require topthink/think-multi-app
 
 [下载扩展源代码](https://github.com/swoole/swoole-src/releases)
 
-建议直接下载，然后扔到/usr/local/src目录
+建议直接下载，然后扔到/usr/local/src 目录
 
 1. 解压
-    tar -zxvf swoole-src-5.0.2.tar.gz
-2. 编译(PHP扩展都可以用这种方法安装)
-    cd swoole-src-5.0.2
-    phpize 
-    ./configure 
-    make && make install
-3. vim /usr/local/php8/etc/php.ini  加入 extension=swoole.so 且添加swoole.use_shortname='Off' 
+   tar -zxvf swoole-src-5.0.2.tar.gz
+2. 编译(PHP 扩展都可以用这种方法安装)
+   cd swoole-src-5.0.2
+   phpize
+   ./configure
+   make && make install
+3. vim /usr/local/php8/etc/php.ini 加入 extension=swoole.so 且添加 swoole.use_shortname='Off'
 4. 查看扩展是否添加成功
    php -m
    php --ri swoole
-5. 还需要安装进程控制扩展pcntl
-    cd /usr/local/src/php-8.0.1/ext/pcntl
-    phpize 
-    ./configure 
-    make && make install
-6. vim /usr/local/php8/etc/php.ini  加入 extension=pcntl.so
+5. 还需要安装进程控制扩展 pcntl
+   cd /usr/local/src/php-8.0.1/ext/pcntl
+   phpize
+   ./configure
+   make && make install
+6. vim /usr/local/php8/etc/php.ini 加入 extension=pcntl.so
 7. 查看扩展是否添加成功
    php -m
-
 
 # Hyperf
 
@@ -830,11 +875,11 @@ composer require topthink/think-multi-app
 
 ### windows
 
-windows先安装docker，就不需要其他环境了，前置条件只需控制面板-程序功能-启用或关闭Windows功能:开启hyper-V(wsl/wsl2是装linux子系统的还得下系统,开启后夜神模拟器无法启动需关闭)
+windows 先安装 docker，就不需要其他环境了，前置条件只需控制面板-程序功能-启用或关闭 Windows 功能:开启 hyper-V(wsl/wsl2 是装 linux 子系统的还得下系统,开启后夜神模拟器无法启动需关闭)
 
 [下载](https://www.docker.com/)
 
-镜像源加速设置json docker桌面版 setting->docker engine
+镜像源加速设置 json docker 桌面版 setting->docker engine
 
 ```
  "registry-mirrors": [
@@ -844,25 +889,27 @@ windows先安装docker，就不需要其他环境了，前置条件只需控制�
   ]
 ```
 
-安装到其他盘 
-1. 创建D:\docker
+安装到其他盘
+
+1. 创建 D:\docker
 2. 创建软链 mklink /j "C:\Program Files\Docker" "D:\docker"
-最后安装exe
+   最后安装 exe
 3. 安装后重启电脑才能启动
 
 4. 拉取官方镜像
 
-    cmd输入 docker pull hyperf/hyperf
+   cmd 输入 docker pull hyperf/hyperf
 
-    运行容器hyperf/hyperf 就是你拉取的镜像 
-    并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux共享目录
+   运行容器 hyperf/hyperf 就是你拉取的镜像
+   并绑定项目目录 E:/code/gitserver/本机共享目录 /data/projectlinux 共享目录
 
-    ```
-    #官方php8.0 他的镜像是Alpine hyperf3.0需要swoole5.0+ 安装后需要重新安装swoole扩展
-    docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
-    #centos手动安装php8也可以 这样可以保持环境完全一致
-    docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
-    ```
+   ```
+   #官方php8.0 他的镜像是Alpine hyperf3.0需要swoole5.0+ 安装后需要重新安装swoole扩展
+   docker run -d --name hyperf -v E:/code/gitserver/:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh hyperf/hyperf:8.0-alpine-v3.15-swoole
+   #centos手动安装php8也可以 这样可以保持环境完全一致
+   docker run -d --name centos7 -v E:/code/hyperf:/data/project -p 9501:9501 -p 22:22 -it --privileged -u root --entrypoint /bin/sh centos:7
+   ```
+
 5. docker
    ```
    #查看容器ID
@@ -878,38 +925,38 @@ windows先安装docker，就不需要其他环境了，前置条件只需控制�
    #再删除
    docker rm  容器ID
    ```
-6. 安装mysql容器
-   启动参数需要加上MYSQL_ROOT_PASSWORD 123456 否则无法启动
+6. 安装 mysql 容器
+   启动参数需要加上 MYSQL_ROOT_PASSWORD 123456 否则无法启动
 
-!> windows是无法ping通容器内的ip的，传文件的话直接利用共享目录,另外需要注意Linux内核版本，查看不同的安装命令
+!> windows 是无法 ping 通容器内的 ip 的，传文件的话直接利用共享目录,另外需要注意 Linux 内核版本，查看不同的安装命令
 
 ### yasdDebug
 
-1. 需要手动在centos7里面安装php环境，包括swoole扩展，yasd扩展，以及他们的前置扩展,或者直接下载官方的镜像
+1. 需要手动在 centos7 里面安装 php 环境，包括 swoole 扩展，yasd 扩展，以及他们的前置扩展,或者直接下载官方的镜像
 
-2. 容器启动SSH ssh-keygen -A 需要在最后加上&符号 /usr/sbin/sshd -D &
+2. 容器启动 SSH ssh-keygen -A 需要在最后加上&符号 /usr/sbin/sshd -D &
 
-3. Docker可以通过多个-p 映射多个win到docker容器的端口  数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
+3. Docker 可以通过多个-p 映射多个 win 到 docker 容器的端口 数据都是通过这个端口转发,容器可以提交保存后以新的方式启动
 
-4. PHP_IDE_CONFIG错误 export PHP_IDE_CONFIG="serverName=servername",或者发现监听不到了重新执行一下
+4. PHP_IDE_CONFIG 错误 export PHP_IDE_CONFIG="serverName=servername",或者发现监听不到了重新执行一下
 
-5. 调试只需要配置PHP->DEBUG的端口,别的都不需要
+5. 调试只需要配置 PHP->DEBUG 的端口,别的都不需要
 
-6. 调试先打开小电话开启监听9000，在缓存类打上断点，接着用php -e bin/hyperf.php start 启动，最后浏览器访问
+6. 调试先打开小电话开启监听 9000，在缓存类打上断点，接着用 php -e bin/hyperf.php start 启动，最后浏览器访问
 
-7. yasd 需要用低版本扩展0.2.5版本,配置的端口为IDE的端口，IP为主机的局域网IP
+7. yasd 需要用低版本扩展 0.2.5 版本,配置的端口为 IDE 的端口，IP 为主机的局域网 IP
 
-8. 如需要配置IDE PHP版本为容器php则需要容器启动ssh去配置
+8. 如需要配置 IDE PHP 版本为容器 php 则需要容器启动 ssh 去配置
 
-9. hyper只能调试缓存代理类
+9. hyper 只能调试缓存代理类
 
-10. Aphine内核安装php编译工具 apk add autoconf dpkg-dev file g++ gcc libc-dev make php8-dev php8-pear re2c pcre pcre-dev,注意使用时 phpize8 [如果缺少config.m4](https://zhuanlan.zhihu.com/p/565444042)
+10. Aphine 内核安装 php 编译工具 apk add autoconf dpkg-dev file g++ gcc libc-dev make php8-dev php8-pear re2c pcre pcre-dev,注意使用时 phpize8 [如果缺少 config.m4](https://zhuanlan.zhihu.com/p/565444042)
 
 11. Aphine boost: apk add --no-cache boost boost-dev
 
 ### linux
 
-直接安装composer，并且已经安装好php8,mysql
+直接安装 composer，并且已经安装好 php8,mysql
 
 ```
 #安装程序
@@ -925,7 +972,7 @@ composer -v
 composer config -g repo.packagist composer https://mirrors.aliyun.com/composer
 ```
 
-composer常用命令
+composer 常用命令
 
 ```
  1、composer list：获取帮助信息；
@@ -961,7 +1008,7 @@ php bin/hyperf.php start
 
 访问 http://127.0.0.1:9501/
 
-!> 直接用服务器的composer下载依赖，vendor提交到git
+!> 直接用服务器的 composer 下载依赖，vendor 提交到 git
 
 ### 热更新
 
@@ -1082,7 +1129,7 @@ $wg->wait();//等待计数器为0
 echo "我被阻塞";
 ```
 
-parallel相同功能也是等待所有协程执行完毕后输出 下面的是简写 也有wait写法类似
+parallel 相同功能也是等待所有协程执行完毕后输出 下面的是简写 也有 wait 写法类似
 
 ```php
 $result = parallel([
@@ -1115,10 +1162,10 @@ echo Context::has('foo');//1
 
 ### 配置
 
-获取配置在config/config.php 或者/config/autoload/xxx.php(通过文件名.配置)
+获取配置在 config/config.php 或者/config/autoload/xxx.php(通过文件名.配置)
 
 #### 通过对象获取
-   
+
 ```php
 #[Inject()]
 private ConfigInterface $config;
@@ -1128,7 +1175,7 @@ var_dump($this->config->get('server.mode'));//2
 ```
 
 #### 通过注解赋值
-   
+
 ```php
 #[Value("config.app_name")]
 private $appName;
@@ -1171,7 +1218,7 @@ use App\Annotation\SxcAnnotation;
 public function index() {}
 ```
 
-### 依赖注入DI
+### 依赖注入 DI
 
 相当于把类放入一个容器中，想用就拿一下
 
@@ -1331,7 +1378,7 @@ private EventDispatcherInterface $eventDispatcher;
 $this->eventDispatcher->dispatch(new UserRegister("张三"));
 ```
 
-### AOP切面
+### AOP 切面
 
 可以用来做权限处理，或者对某些方法增强
 
@@ -1339,7 +1386,7 @@ $this->eventDispatcher->dispatch(new UserRegister("张三"));
 
 app/Aspect/DemoAspect.php
 
-SxcAnnotation参考注解章节
+SxcAnnotation 参考注解章节
 
 ```php
 <?php
@@ -1428,10 +1475,9 @@ Router::addGroup('/index', function () {
 });
 ```
 
-
 #### 注解路由
 
-**自动生成GET/POST路由**(控制器名称+方法名)小写全拼+下划线方式)
+**自动生成 GET/POST 路由**(控制器名称+方法名)小写全拼+下划线方式)
 适用于简单的方法,感觉用不到
 
 ```php
@@ -1476,7 +1522,7 @@ class IndexController extends AbstractController {
 Router::get('/getFn/{id}', 'App\Controller\IndexController@getFn');
 ```
 
-**获取1**
+**获取 1**
 
 ```php
 public function getFn(int $id) {
@@ -1484,7 +1530,7 @@ public function getFn(int $id) {
 }
 ```
 
-**获取2**
+**获取 2**
 
 ```php
 use Hyperf\HttpServer\Contract\RequestInterface;
@@ -1552,7 +1598,7 @@ class CorsMiddleware implements MiddlewareInterface {
     if ($request->getMethod() == 'OPTIONS') {
       return $response;
     }
-    
+
     return $handler->handle($request);
   }
 
@@ -1613,7 +1659,7 @@ class AuthMiddleware implements MiddlewareInterface {
 
 #### 全局中间件
 
-只能在配置文件中config/autoload/middlewares.php声明，一般用这个
+只能在配置文件中 config/autoload/middlewares.php 声明，一般用这个
 
 #### 配置文件路由中间件
 
@@ -1695,7 +1741,7 @@ class IndexController extends AbstractController {
 
 ### 请求
 
-#### URL相关方法
+#### URL 相关方法
 
 ```php
 //获取请求路径 /index/requestFn
@@ -1710,12 +1756,13 @@ echo $request->isMethod('post');
 
 #### 获取传参相关方法
 
-假设json传参
+假设 json 传参
+
 ```json
 {
-    "form": {
-        "id": 1
-    }
+  "form": {
+    "id": 1
+  }
 }
 ```
 
@@ -1724,7 +1771,7 @@ echo $request->isMethod('post');
 echo $request->route('id',0);
 //获取所有传参 GET/POST会合并到一个数组里面
 var_dump($request->all());
-//获取指定key 不存在默认为0 
+//获取指定key 不存在默认为0
 echo $request->input("id", 0);
 //获取多个key GET/POST会合并到一个数组里面
 var_dump($request->inputs(["id", "name"], ["0", "默认名称"]));
@@ -1777,7 +1824,7 @@ public function json(ResponseInterface $response): Psr7ResponseInterface {
 }
 ```
 
-#### 返回json
+#### 返回 json
 
 ```php
 <?php
@@ -1893,16 +1940,15 @@ return [
 ];
 ```
 
+### redis 缓存
 
-### redis缓存
-
-#### 配置redis
+#### 配置 redis
 
 config/autoload/redis.php
 
 #### 使用
 
-假如缓存数据库用户信息app/Service/UserService.php,当调用$this->userService->getInfoById(1)该方法时，就会缓存
+假如缓存数据库用户信息 app/Service/UserService.php,当调用$this->userService->getInfoById(1)该方法时，就会缓存
 
 ```php
 <?php
@@ -2025,7 +2071,7 @@ class IndexController extends AbstractController {
 }
 ```
 
-#### 关于封装CustomLog有两种方法
+#### 关于封装 CustomLog 有两种方法
 
 app/Log/CustomLog.php
 
@@ -2054,7 +2100,7 @@ class CustomLog {
 
 2. 魔术方法(推荐)
 
-魔术方法就是当静态方法不存在时，会调用魔术方法，并把方法和参数传入，__call也是相同的作用
+魔术方法就是当静态方法不存在时，会调用魔术方法，并把方法和参数传入，\_\_call 也是相同的作用
 
 ```php
 <?php
@@ -2104,9 +2150,9 @@ config/autoload/logger.php
 ]
 ```
 
-#### sql日志
+#### sql 日志
 
-默认已经写好了app/Listener/DbQueryExecutedListener.php，注意如果要事务的日志自己加一下就行
+默认已经写好了 app/Listener/DbQueryExecutedListener.php，注意如果要事务的日志自己加一下就行
 
 https://hyperf.wiki/3.0/#/zh-cn/db/event?id=%e8%bf%90%e8%a1%8c%e4%ba%8b%e4%bb%b6
 
@@ -2115,6 +2161,7 @@ https://hyperf.wiki/3.0/#/zh-cn/db/event?id=%e8%bf%90%e8%a1%8c%e4%ba%8b%e4%bb%b6
 #### 安装
 
 需要安装的扩展
+
 ```shell
 composer require hyperf/validation
 ```
@@ -2143,7 +2190,7 @@ return [
   'handler' => [
     'http' => [
       //使用内置的验证器异常处理类 这个一般不行
-      ValidationExceptionHandler::class,    
+      ValidationExceptionHandler::class,
       //使用自定义的验证器异常处理类 推荐
       CustomValidationExceptionHandler::class,
     ],
@@ -2151,7 +2198,7 @@ return [
 ];
 ```
 
-也可以配置自己的异常处理器去捕获验证器异常（用这个，因为一般验证不通过也是返回json）app/Exception/Handler/CustomValidationExceptionHandler.php
+也可以配置自己的异常处理器去捕获验证器异常（用这个，因为一般验证不通过也是返回 json）app/Exception/Handler/CustomValidationExceptionHandler.php
 
 ```php
 <?php
@@ -2195,7 +2242,6 @@ class CustomValidationExceptionHandler extends ExceptionHandler {
 
 }
 ```
-
 
 验证器的消息依赖多语言组件
 
@@ -2250,7 +2296,7 @@ class UserRequest extends FormRequest {
 
 ```
 
-使用验证器类替换原来的RequestInterface app/Controller/IndexController.php
+使用验证器类替换原来的 RequestInterface app/Controller/IndexController.php
 
 ```php
 <?php
@@ -2283,8 +2329,7 @@ class IndexController extends AbstractController {
 }
 ```
 
-访问http://127.0.0.1:9501/index/requestFn 页面提示username 字段是必须的
-
+访问http://127.0.0.1:9501/index/requestFn 页面提示 username 字段是必须的
 
 #### 场景
 
@@ -2355,8 +2400,8 @@ class UserRequest extends FormRequest {
     $validated = $request->validated();
 ```
 
+使用注解 推荐 3.0.0 版本以上才支持
 
-使用注解 推荐 3.0.0版本以上才支持
 ```php
 <?php
 
@@ -2395,7 +2440,7 @@ class IndexController extends AbstractController {
 
 ### 配置
 
-主要配置一下几个 注意编码如果是utfmb4也配置这个即可
+主要配置一下几个 注意编码如果是 utfmb4 也配置这个即可
 
 ```php
 <?php
@@ -2430,7 +2475,7 @@ Db::delete("DELETE FROM user WHERE name = ?", ["王六"]);
 Db::select("SELECT * FROM user ");
 ```
 
-### 输出最后sql语句
+### 输出最后 sql 语句
 
 仅限开发环境
 
@@ -2545,6 +2590,7 @@ $users = Db::table('user')->find(1);
 ```php
 $name = Db::table('user')->value("name");
 ```
+
 #### 查询单列
 
 ```php
@@ -2579,7 +2625,7 @@ $users = Db::table('user')->select('name as n', 'age as a')->get();
 
 #### 强制索引
 
-EXPLAIN执行后没有使用的索引的可以使用查询索引，一些情况下会破坏索引，例如使用!=,<>
+EXPLAIN 执行后没有使用的索引的可以使用查询索引，一些情况下会破坏索引，例如使用!=,<>
 
 ```php
 $users = Db::table('user')->forceIndexes(['age_index'])
@@ -2600,7 +2646,7 @@ $users = Db::table('user as u')
     ->get();
 ```
 
-左连右连查询leftJoin/rightJoin
+左连右连查询 leftJoin/rightJoin
 
 ##### 子查询
 
@@ -2611,11 +2657,11 @@ $users = Db::table('user')
   ->get();
 ```
 
-类似方法还有leftJoinSub/rightJoinSub 
+类似方法还有 leftJoinSub/rightJoinSub
 
 #### 条件语句
 
-##### 基本where查询
+##### 基本 where 查询
 
 ```php
 //简单等值比较
@@ -2631,7 +2677,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-##### and查询
+##### and 查询
 
 ```php
 $users = Db::table('user')
@@ -2640,7 +2686,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-##### or查询
+##### or 查询
 
 ```php
 $users = Db::table('user')
@@ -2649,7 +2695,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-##### andor查询
+##### andor 查询
 
 条件结构类似 1 and (2 or 3) 使用闭包来构造此类查询
 
@@ -2663,7 +2709,7 @@ $users = Db::table('user')
   ->get();
 ```
 
-生成的sql语句
+生成的 sql 语句
 
 ```sql
 select * from `user` where `name` = ? and (`age` = ? or `age` = ?)
@@ -2677,11 +2723,11 @@ $users = Db::table('user')
   ->get();
 ```
 
-类似方法还有whereNotBetween/whereIn/whereNotIn
+类似方法还有 whereNotBetween/whereIn/whereNotIn
 
-##### exists存在查询
+##### exists 存在查询
 
-exists只查询连接表中的左表 类似与leftjoin 只返回主表内容
+exists 只查询连接表中的左表 类似与 leftjoin 只返回主表内容
 
 比如我要查询所有有地址的用户
 
@@ -2697,7 +2743,7 @@ $users = Db::table('user as u')
     ->get();
 ```
 
-生成的sql语句
+生成的 sql 语句
 
 ```sql
 select * from `user` as `u` where exists (select 1 from `user_address` as `ua` where u.id = ua.user_id)
@@ -2705,7 +2751,7 @@ select * from `user` as `u` where exists (select 1 from `user_address` as `ua` w
 
 ##### 原生查询条件
 
-selectRaw/whereRaw/orWhereRaw 分别替代select/where/orWhere方法
+selectRaw/whereRaw/orWhereRaw 分别替代 select/where/orWhere 方法
 
 ##### 排序
 
@@ -2717,9 +2763,9 @@ $users = Db::table('user')
 
 ##### groupBy
 
-一般用于指定字段进行分组统计,也可用于去重，效率优于distinct
+一般用于指定字段进行分组统计,也可用于去重，效率优于 distinct
 
-配合having 及统计函数count/sum/等使用
+配合 having 及统计函数 count/sum/等使用
 
 ```php
     $users = Db::table('user')
@@ -2801,7 +2847,7 @@ select * from user for update
 
 #### 删除
 
-delete 如果要清空表使用truncate且重置自增id
+delete 如果要清空表使用 truncate 且重置自增 id
 
 ### 模型
 
@@ -2839,7 +2885,7 @@ return [
 php bin/hyperf.php gen:model 表名
 ```
 
-比如生成用户地址model如下，驼峰记得引入tarit CamelCase 否则无效
+比如生成用户地址 model 如下，驼峰记得引入 tarit CamelCase 否则无效
 
 ```php
 <?php
@@ -2882,13 +2928,13 @@ class UserAddress extends Model {
 
 #### 时间戳
 
-表格创建时固定创建两个字段created_at 和 updated_at 框架自动维护这两个时间
+表格创建时固定创建两个字段 created_at 和 updated_at 框架自动维护这两个时间
 
-created_at  timestamp notnull 默认值为CURRENT_TIMESTAMP 创建时间
+created_at timestamp notnull 默认值为 CURRENT_TIMESTAMP 创建时间
 
-updated_at timestamp null 默认值为NULL 勾上根据当前时间更新 更新时间
+updated_at timestamp null 默认值为 NULL 勾上根据当前时间更新 更新时间
 
-!> 如果发现时区不对在启动文件中加上date_default_timezone_set('Asia/Shanghai');即可
+!> 如果发现时区不对在启动文件中加上 date_default_timezone_set('Asia/Shanghai');即可
 
 #### 刷新模型
 
@@ -2909,10 +2955,9 @@ $user = User::query();
 $user->refresh();
 ```
 
-
 #### 查询
 
-用法都差不多 可以省略query() 还是不要省略好
+用法都差不多 可以省略 query() 还是不要省略好
 
 ```php
 $users = User::query()->get();
@@ -2924,7 +2969,7 @@ foreach ($users as $user) {
 
 ##### 数据不存时抛出异常
 
-不存在会抛出Hyperf\Database\Model\ModelNotFoundException 配合异常拦截器可以统一返回数据
+不存在会抛出 Hyperf\Database\Model\ModelNotFoundException 配合异常拦截器可以统一返回数据
 
 ```php
 $users = User::query()
@@ -2945,7 +2990,7 @@ $userAddress = new UserAddress([
 $bool = $userAddress->save();
 ```
 
-或者下面这种批量赋值,如果已经有一个对象可以用fill([])来填充
+或者下面这种批量赋值,如果已经有一个对象可以用 fill([])来填充
 
 ```php
 //返回新增的记录
@@ -2954,7 +2999,7 @@ $address = UserAddress::create(['address' => '上海', "userId" => 18]);
 
 #### 批量新增
 
-这个新增时不会复制updated_at字段 无语
+这个新增时不会复制 updated_at 字段 无语
 
 ```php
 $bool = UserAddress::query()
@@ -2963,7 +3008,6 @@ $bool = UserAddress::query()
     "user_id" => 18,
   ]]);
 ```
-
 
 #### 更新
 
@@ -2983,9 +3027,9 @@ $bool = UserAddress::query()->update([
   ]);
 ```
 
-#### 模型N对N的关系
+#### 模型 N 对 N 的关系
 
-可以简化操作join操作 在模型中定义关系的方法 就可以在控制直接调用方法
+可以简化操作 join 操作 在模型中定义关系的方法 就可以在控制直接调用方法
 
 ##### 基本关系定义
 
@@ -3004,17 +3048,17 @@ public function userAddress(): HasMany {
 $user = User::query()->find(1)->userAddress;
 ```
 
-类似的还有hasOne/belongsTo/belongsToMany 具体要用到在[查看文档](https://hyperf.wiki/3.0/#/zh-cn/db/relationship?id=%e5%a4%9a%e5%af%b9%e5%a4%9a)即可
+类似的还有 hasOne/belongsTo/belongsToMany 具体要用到在[查看文档](https://hyperf.wiki/3.0/#/zh-cn/db/relationship?id=%e5%a4%9a%e5%af%b9%e5%a4%9a)即可
 
 ##### 预加载
 
-比如要查所有用户的所有地址 不使用左连接查询,需要查1 * n次，可以简化为 2次
+比如要查所有用户的所有地址 不使用左连接查询,需要查 1 \* n 次，可以简化为 2 次
 
 ```php
 $users = User::query()->with('userAddress')->get();
 ```
 
-生成的sql类似
+生成的 sql 类似
 
 ```sql
 SELECT * FROM `user`;
@@ -3033,14 +3077,13 @@ SELECT * FROM `user_address` WHERE id in (1, 2, 3, ...);
 
 ### 资源构造器
 
-这玩意除非你的响应里只要data不需要状态码和message否则还是使用之前的返回方法
+这玩意除非你的响应里只要 data 不需要状态码和 message 否则还是使用之前的返回方法
 
 #### 安装扩展
 
 ```shell
 composer require hyperf/resource
 ```
-
 
 #### 生成单个实体类
 
@@ -3050,7 +3093,7 @@ php bin/hyperf.php gen:resource User
 
 #### 自定义返回数据
 
-app/Resource/User.php 修改生成的User类的toArray方法
+app/Resource/User.php 修改生成的 User 类的 toArray 方法
 
 ```php
   public function toArray(): array {
@@ -3067,7 +3110,7 @@ app/Resource/User.php 修改生成的User类的toArray方法
 
 ##### 单个对象
 
-然后使用需要使用toResponse返回数据 这里只能返回单条记录
+然后使用需要使用 toResponse 返回数据 这里只能返回单条记录
 
 ```php
 $user = User::query()
@@ -3079,7 +3122,7 @@ return (new \App\Resource\User($user))->toResponse();
 
 ##### 数组
 
-返回数组使用collection方法 也可以使用上面的方法 注意：两种方法都不能自定义返回数据
+返回数组使用 collection 方法 也可以使用上面的方法 注意：两种方法都不能自定义返回数据
 
 ```php
 $users = User::query()
@@ -3099,9 +3142,9 @@ php bin/hyperf.php gen:resource UserCollection
 
 ##### 数组
 
-app/Resource/UserCollection.php 修改生成的UserCollection类的toArray方法
+app/Resource/UserCollection.php 修改生成的 UserCollection 类的 toArray 方法
 
-注意这里$this->collection会映射单个User实体类 所以单个User实体类不能添加额外的属性
+注意这里$this->collection 会映射单个 User 实体类 所以单个 User 实体类不能添加额外的属性
 
 ```php
 public function toArray(): array {
@@ -3153,11 +3196,11 @@ return [
 ];
 ```
 
-#### 切换redisdb库
+#### 切换 redisdb 库
 
-##### 使用Redis代理类切换
+##### 使用 Redis 代理类切换
 
-自定义一个Redis类通过继承Redis类，重写poolName属性。完成对Redis db的切换
+自定义一个 Redis 类通过继承 Redis 类，重写 poolName 属性。完成对 Redis db 的切换
 
 ```php
 <?php
@@ -3195,7 +3238,7 @@ $result = $this->container->get(RedisFactory::class)
 
 #### 示例
 
-存储用户token 10秒过期
+存储用户 token 10 秒过期
 
 ```php
    $result = $this->container->get(RedisFactory::class)
@@ -3205,15 +3248,15 @@ $result = $this->container->get(RedisFactory::class)
 
 ## 消息队列
 
-### redis异步队列
+### redis 异步队列
 
 ```shell
 composer require hyperf/async-queue
 ```
 
-提供异步延时处理,原理就是启动消费进程去监听消息队列，然后把消息主动投递到队列里，消费进程去执行job任务，消费这个消息
+提供异步延时处理,原理就是启动消费进程去监听消息队列，然后把消息主动投递到队列里，消费进程去执行 job 任务，消费这个消息
 
-#### redis队列驱动配置
+#### redis 队列驱动配置
 
 创建 config/autoload/async_queue.php
 
@@ -3240,7 +3283,7 @@ return [
 
 #### 消费进程配置
 
-配置一个类到进程文件或再消费进程类上写上async_queue的注解,来表示该类是消费进程类
+配置一个类到进程文件或再消费进程类上写上 async_queue 的注解,来表示该类是消费进程类
 
 config/autoload/processes.php
 
@@ -3254,7 +3297,7 @@ return [
 ];
 ```
 
-或创建一个消费进程类app/Process/AsyncQueueConsumer.php
+或创建一个消费进程类 app/Process/AsyncQueueConsumer.php
 
 ```php
 <?php
@@ -3278,9 +3321,9 @@ class AsyncQueueConsumer extends ConsumerProcess {
 
 ##### 传统方式
 
-直接序列化对象 存入redis队列 投递的是延时的消息 存储的数据结构是zset 
+直接序列化对象 存入 redis 队列 投递的是延时的消息 存储的数据结构是 zset
 
-如果对象的属性值完全一致，则前面的会覆盖后面的,会重新计时延迟的消费时间，唯一，如果想要不覆盖,再参数里添加一个uniqid即可 用"uniqId" => uniqid()
+如果对象的属性值完全一致，则前面的会覆盖后面的,会重新计时延迟的消费时间，唯一，如果想要不覆盖,再参数里添加一个 uniqid 即可 用"uniqId" => uniqid()
 
 新建一个任务类 app/Job/ExampleJob.php
 
@@ -3318,7 +3361,7 @@ class ExampleJob extends Job {
 
 ```
 
-投递消息的Service
+投递消息的 Service
 
 ```php
 <?php
@@ -3379,7 +3422,7 @@ class QueueService {
   ], 15);
 ```
 
-显示再redis中就是key为queue:delayed的zset数据结构，每个数据是一个,会根据设定的延时时间，逐个执行
+显示再 redis 中就是 key 为 queue:delayed 的 zset 数据结构，每个数据是一个,会根据设定的延时时间，逐个执行
 
 ```
 O:28:"Hyperf\AsyncQueue\JobMessage":2:{i:0;O:18:"App\Job\ExampleJob":2:{s:6:"params";a:2:{s:4:"name";s:6:"下单";s:6:"userId";i:4;}s:14:"*maxAttempts";i:2;}i:1;i:0;}
@@ -3387,7 +3430,7 @@ O:28:"Hyperf\AsyncQueue\JobMessage":2:{i:0;O:18:"App\Job\ExampleJob":2:{s:6:"par
 
 ##### 注解方式
 
-这种方式是即使消费，不能设置延时时间，且可以重复进入队列，数据结构是list,只要写一个投递消费的类即可，直接在这个类里面执行任务
+这种方式是即使消费，不能设置延时时间，且可以重复进入队列，数据结构是 list,只要写一个投递消费的类即可，直接在这个类里面执行任务
 
 app/Service/QueueServiceAnnotation.php
 
@@ -3429,12 +3472,11 @@ class QueueServiceAnnotation {
   }
 ```
 
-或者去掉循环使用ab测试 ab -n 1000 -c 1000 http://127.0.0.1:9501/index/requestFn
+或者去掉循环使用 ab 测试 ab -n 1000 -c 1000 http://127.0.0.1:9501/index/requestFn
 
 #### 超时消息重启时自动消费
 
-保证消息是幂等的才能开启 就是这个消息执行一次或执行多次的结果是一样的 配置listener  config/autoload/listeners.php
-
+保证消息是幂等的才能开启 就是这个消息执行一次或执行多次的结果是一样的 配置 listener config/autoload/listeners.php
 
 ```php
 Hyperf\AsyncQueue\Listener\ReloadChannelListener::class
@@ -3458,7 +3500,7 @@ config/autoload/processes.php 添加定时任务进程处理类
 Hyperf\Crontab\Process\CrontabDispatcherProcess::class
 ```
 
-创建config/autoload/crontab.php 并开启定时任务
+创建 config/autoload/crontab.php 并开启定时任务
 
 ```php
 <?php
@@ -3498,30 +3540,30 @@ composer create-project codeigniter4/appstarter project-root
 
 ### 运行
 
-PHP>7.2 开启扩展 
+PHP>7.2 开启扩展
 
 ```ini
 extension=intl
 extension=curl
 ```
 
-配置url app/Config/App.php
+配置 url app/Config/App.php
 
 ```php
 public string $baseURL = 'http://www.ci4.com/';
 ```
 
-配置自动路由app/Config/Routes.php
+配置自动路由 app/Config/Routes.php
 
 ```php
 $routes->setAutoRoute(TRUE);
 ```
 
-最后nginx配置public为root目录 重写.php,pathinfo等,最后即可访问
+最后 nginx 配置 public 为 root 目录 重写.php,pathinfo 等,最后即可访问
 
 ## 自动加载
 
-如果不配置自动加载，则引入第三方类或者是自定义类时需要require_once
+如果不配置自动加载，则引入第三方类或者是自定义类时需要 require_once
 
 配置自动加载 /app/Config/Autoload.php 配置命名空间映射对应的所在类的目录
 
@@ -3535,7 +3577,7 @@ public $psr4
     ];
 ```
 
-例如Libraries下有一个Library，接下去就能在controller或者是model中正常使用该类了
+例如 Libraries 下有一个 Library，接下去就能在 controller 或者是 model 中正常使用该类了
 
 ```php
 <?php
@@ -3580,14 +3622,63 @@ protected $helpers = ['test'];
 
 ### 请求
 
+```php
+<?php
+
+namespace App\Controllers;
+
+use CodeIgniter\HTTP\RequestTrait;
+use CodeIgniter\HTTP\ResponseInterface;
+use Config\Services;
+
+class Home extends BaseController {
+
+    use RequestTrait;
+
+    public function index(): ResponseInterface {
+        var_dump($this->request->getPost());//表单请求
+        var_dump($this->request->getGet());//表单请求
+        var_dump($this->request->getPostGet());//表单请求
+        var_dump($this->request->getJSON(TRUE));//*重点 TRUE 则是转PHP数组 否则是std对象
+        var_dump($this->request->getVar("name"));//JSON或者表单都可以
+        var_dump($this->request->getRawInput());
+        var_dump($this->request->getFile("fileName"));
+        var_dump(Services::router()->controllerName() . "\\" . Services::router()->methodName());
+        var_dump($this->getIPAddress());
+        var_dump($this->getServer("HTTP_TOKEN"));
+        var_dump($this->fetchGlobal("get"));//表单请求
+        var_dump($this->fetchGlobal("post"));//表单请求
+        var_dump($this->fetchGlobal("request"));//表单请求
+        return $this->respond(["hello" => "world"], 200, 'success');
+    }
+
+}
+```
+
 ### 响应
 
-返回json
+返回 json
 
 ```php
-$this->response->setStatusCode(200)
-        ->setBody(json_encode(["hello" => "test1"], TRUE))
-        ->setContentType("application/json")
-        ->send();
-    $this->response->setJSON(["hello" => "test1"])->send();
+<?php
+
+namespace App\Controllers;
+
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class Home extends BaseController {
+
+    use ResponseTrait;
+
+    public function index(): ResponseInterface {
+        $this->response->setStatusCode(200)
+            ->setBody(json_encode(['hello' => 'test1'], TRUE))
+            ->setContentType('application/json')
+            ->send();
+        $this->response->setJSON(['hello' => 'test2'])->send();
+        return $this->respond(['hello' => 'test3'], 200, 'success');
+    }
+
+}
 ```
