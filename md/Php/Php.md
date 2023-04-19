@@ -3593,6 +3593,8 @@ class Library {
 }
 ```
 
+!> 如果是命名空间是 App\Libraries 则不需要填写了
+
 ## 辅助函数
 
 创建 /app/Helpers/test_helper.php
@@ -3679,6 +3681,607 @@ class Home extends BaseController {
             ->send();
         $this->response->setJSON(['hello' => 'test2'])->send();
         return $this->respond(['hello' => 'test3'], 200, 'success');
+    }
+
+}
+```
+
+## 数据库
+
+### 原生使用方法
+
+UserModel
+
+```php
+<?php
+
+namespace App\Models;
+
+use CodeIgniter\Model;
+
+class UserModel extends Model {
+
+    protected $table = 'users';
+
+    protected $primaryKey = 'id';
+
+    protected $allowedFields = ['name', 'email'];
+
+    public function getAddresses($userId): array {
+        $builder = $this->db->table('addresses');
+        $builder->where('user_id', $userId);
+        $query = $builder->get();
+        return $query->getRowArray();
+    }
+
+    public function getUsersWithAddresses(): array {
+        $builder = $this->db->table('users');
+        $builder->select('users.*, addresses.*');
+        $builder->join('addresses', 'addresses.user_id = users.id', 'left');
+        $query = $builder->get();
+        return $query->getResultArray();
+    }
+
+}
+```
+
+调用
+
+```php
+<?php
+
+namespace App\Controllers;
+
+use App\Models\UserModel;
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\RequestTrait;
+use CodeIgniter\HTTP\ResponseInterface;
+
+class Home extends BaseController {
+
+    use ResponseTrait;
+    use RequestTrait;
+
+    public function index(): ResponseInterface {
+        $userModel = new UserModel();
+        //1.循环获取
+        $users     = $userModel->findAll();
+        foreach ($users as $user) {
+            $addresses = $userModel->getAddresses($user['id']);
+            // 处理地址数据
+            $user['address'] = $addresses['address'];
+        }
+        //左连接
+        $addresses = $userModel->getUsersWithAddresses();
+        return $this->respond(["users" => $users, 'addresses' => $addresses], 200, 'success');
+    }
+
+}
+```
+
+### 封装基类
+
+基类BaseModel
+
+```php
+<?php
+
+declare(strict_types=1);
+
+namespace App\Models;
+
+use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\ConnectionInterface;
+use CodeIgniter\Model;
+use RuntimeException;
+
+class BaseModel extends Model {
+
+    /**
+     * 表名
+     *
+     * @var string
+     */
+    //表名
+    protected $table = '';
+
+    /**
+     * 主键
+     *
+     * @var string
+     */
+    protected $primaryKey = '';
+
+    /**
+     * 查询构造器
+     *
+     * @var BaseBuilder
+     */
+    protected $builder;
+
+    /**
+     * 允许修改的字段
+     *
+     * @var array
+     */
+    protected $allowedFields = [];
+
+    /**
+     * 构造方法
+     *
+     * @param  \CodeIgniter\Database\ConnectionInterface|null  $db  数据库连接
+     * @param  BaseBuilder|null  $builder  查询构造器
+     */
+    public function __construct(ConnectionInterface &$db = NULL, BaseBuilder $builder = NULL) {
+        parent::__construct($db);
+        if ($builder) {
+            $this->builder = $builder;
+        }
+        else {
+            $this->builder = $this->db->table($this->table);
+        }
+    }
+
+    /**
+     * 原生sql查询单条
+     *
+     * @param $query
+     * @param  array  $bindings
+     *
+     * @return array|mixed|null
+     */
+    public function rowQuery($query, array $bindings = []) {
+        $result = $this->db->query($query, $bindings);
+        return $result->getRowArray();
+    }
+
+    /**
+     * 原生sql 查询多条
+     *
+     * @param $query
+     * @param  array  $bindings
+     *
+     * @return array
+     */
+    public function rowsQuery($query, array $bindings = []): array {
+        $result = $this->db->query($query, $bindings);
+        return $result->getResultArray();
+    }
+
+    /**
+     * 查询单条记录
+     *
+     * @param  int  $id  记录 ID
+     *
+     * @return object|null 查询结果，如果没有查询到则为 null
+     */
+    public function getOne(int $id): ?object {
+        $this->builder->where($this->primaryKey, $id);
+        return $this->builder->get()->getRow();
+    }
+
+    /**
+     * 查询多条记录
+     *
+     * @return array 查询结果数组，如果没有查询到则为空数组
+     */
+    public function getAll(): array {
+        return $this->builder->get()->getResultArray();
+    }
+
+    /**
+     * 左连接查询
+     *
+     * @param  string  $table  连接的表名
+     * @param  string  $condition  连接条件
+     *
+     * @return $this
+     */
+    public function leftJoin(string $table, string $condition): BaseModel {
+        $this->builder->join($table, $condition, 'left');
+        return $this;
+    }
+
+    /**
+     * 右连接查询
+     *
+     * @param  string  $table  连接的表名
+     * @param  string  $condition  连接条件
+     *
+     * @return $this
+     */
+    public function rightJoin(string $table, string $condition): BaseModel {
+        $this->builder->join($table, $condition, 'right');
+        return $this;
+    }
+
+    /**
+     * 统计查询
+     *
+     * @param  array  $condition  查询条件数组，键为字段名，值为待匹配的值
+     *
+     * @return int 统计结果
+     */
+    public function count(array $condition = []): int {
+        if (!empty($condition)) {
+            $this->builder->where($condition);
+        }
+        return $this->builder->countAllResults();
+    }
+
+    /**
+     * 结果去重
+     *
+     * @return $this
+     */
+    public function distinct(bool $val = TRUE): BaseModel {
+        $this->builder->distinct($val);
+        return $this;
+    }
+
+    /**
+     * 分页查询
+     *
+     * @param  int  $perPage  每页记录数
+     * @param  int|null  $page  页码
+     *
+     * @return array 分页查询结果，包含数据和分页信息
+     */
+    public function paginateFn(int $perPage, int $page = NULL): array {
+        $page     = (int) $page <= 0 ? 1 : (int) $page;
+        $total    = $this->builder->countAllResults(FALSE);
+        $lastPage = (int) ceil($total / $perPage);
+        $page     = $page > $lastPage ? $lastPage : $page;
+        $offset   = ($page - 1) * $perPage;
+        $results  = $this->builder->get($perPage, $offset)->getResultArray();
+        return [
+            'data'     => $results,
+            'page'     => $page,
+            'perPage'  => $perPage,
+            'lastPage' => $lastPage,
+            'total'    => $total,
+        ];
+    }
+
+    /**
+     * 新增记录
+     *
+     * @param  mixed  $data  要插入的数据
+     * @param  bool  $returnID  是否返回插入的记录 ID
+     *
+     * @return int|string|null
+     */
+    public function insertData($data, bool $returnID = TRUE) {
+        $this->builder->insert($data);
+        return $returnID ? $this->db->insertID() : NULL;
+    }
+
+    /**
+     * 批量新增记录
+     *
+     * @param  array  $data  待新增的数据数组，二维数组，每个子数组对应一条记录，子数组键为字段名，值为待新增的值
+     *
+     * @return int 新增记录数
+     */
+    public function insertBatchData(array $data): int {
+        $this->builder->insertBatch($data);
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 修改记录
+     *
+     * @param  array  $data  待修改的数据数组，键为字段名，值为待修改的值
+     *
+     * @return int 影响的记录数
+     */
+    public function updateData(array $data): int {
+        $this->builder->update($data);
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 修改记录通过Id
+     *
+     * @param  int  $id  待修改记录的 ID
+     * @param  array  $data  待修改的数据数组，键为字段名，值为待修改的值
+     *
+     * @return int 影响的记录数
+     */
+    public function updateDataById(int $id, array $data): int {
+        $this->builder->where($this->primaryKey, $id);
+        $this->builder->update($data);
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 批量更新数据
+     *
+     * @param  array  $data  更新的数据数组
+     * @param  string  $whereKey  约束条件的键名
+     *
+     * @return false|int|string[]
+     */
+    public function updateBatchData(array $data, string $whereKey = 'id') {
+        if (empty($data)) {
+            return FALSE;
+        }
+        //由于该方法的内部实现，在这之后调用 affectedRows() 方法的返回值可能不正确，替代办法是用 updateBatch() 的返回值，
+        //表示受影响的行数。
+        return $this->builder()->updateBatch($data, $whereKey);
+    }
+
+    /**
+     * 删除记录
+     *
+     * @param  array  $condition
+     *
+     * @return int 影响的记录数
+     */
+    public function deleteData(array $condition): int {
+        if (empty($condition)) {
+            throw new RuntimeException('删除必须要有条件');
+        }
+        $this->builder->where($condition);
+        $this->builder->delete();
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 删除记录
+     *
+     * @param  int  $id  待删除记录的 ID
+     *
+     * @return int 影响的记录数
+     */
+    public function deleteDataById(int $id): int {
+        $this->builder->where($this->primaryKey, $id);
+        $this->builder->delete();
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 批量删除记录
+     *
+     * @param  array  $ids  待删除记录的 ID 数组
+     *
+     * @return int 影响的记录数
+     */
+    public function deleteBatchByIdList(array $ids): int {
+        $this->builder->whereIn($this->primaryKey, $ids);
+        $this->builder->delete();
+        return $this->db->affectedRows();
+    }
+
+    /**
+     * 返回查询结果的第一条记录
+     *
+     * @return mixed 查询结果的第一条记录
+     */
+    public function first() {
+        return $this->builder->get()->getFirstRow();
+    }
+
+    /**
+     * 返回查询结果的第一条记录的指定字段的值
+     *
+     * @param  string  $column  字段名
+     *
+     * @return mixed 字段值
+     */
+    public function value(string $column) {
+        $row = $this->builder->select($column)->get()->getFirstRow();
+        if ($row) {
+            return $row->$column;
+        }
+        return NULL;
+    }
+
+    /**
+     * 返回查询结果的指定字段的值的数组
+     *
+     * @param  string  $column  字段名
+     *
+     * @return array 字段值数组
+     */
+    public function pluck(string $column): array {
+        $rows   = $this->builder->select($column)->get()->getResult();
+        $result = [];
+        foreach ($rows as $row) {
+            $result[] = $row->$column;
+        }
+        return $result;
+    }
+
+    /**
+     * 开启事务
+     */
+    public function beginTransaction() {
+        $this->db->transBegin();
+    }
+
+    /**
+     * 提交事务
+     */
+    public function commit() {
+        $this->db->transCommit();
+    }
+
+    /**
+     * 回滚事务
+     */
+    public function rollback() {
+        $this->db->transRollback();
+    }
+
+    /**
+     * 获取最后执行的sql语句
+     *
+     * @return string
+     */
+    public function getLastSql(): string {
+        return $this->db->showLastQuery();
+    }
+
+}
+```
+
+调用
+
+UserModel
+
+```php
+<?php
+
+namespace App\Models;
+
+use CodeIgniter\Database\BaseBuilder;
+use CodeIgniter\Database\ConnectionInterface;
+
+class UserModel extends BaseModel {
+
+    protected $table = 'users';
+
+    protected $primaryKey = 'id';
+
+    protected $allowedFields = ['name', 'email'];
+
+    public function __construct(ConnectionInterface &$db = NULL, BaseBuilder $builder = NULL) {
+        parent::__construct($db, $builder);
+    }
+
+}
+```
+
+HomeController
+
+```php
+<?php
+
+namespace App\Controllers;
+
+use App\Models\UserModel;
+use CodeIgniter\API\ResponseTrait;
+use CodeIgniter\HTTP\RequestTrait;
+use CodeIgniter\HTTP\ResponseInterface;
+use Exception;
+
+class Home extends BaseController {
+
+    use ResponseTrait;
+    use RequestTrait;
+
+    public function index(): ResponseInterface {
+        $model = new UserModel();
+        //原生查询
+        $queryRow = $model->rowQuery("SELECT `id`,`name` FROM `users` WHERE `id` = 2");
+        //原生查询
+        $queryRows = $model->rowsQuery("SELECT `id`,`name` FROM `users`");
+        //获取单条记录
+        $getOne = $model->select("id,name")->getOne(2);
+        //获取第一条记录
+        $first = $model->select('id,name')->first();
+        //获取指定字段（单个字段）单条
+        $value = $model->value("name");
+        //获取指定字段（单个字段）数组
+        $pluck = $model->pluck('name');
+        //查询多条记录
+        $getAll = $model->select('id,name')->getAll();
+        //条件查询
+        $whereGetAll = $model->select('id,name')->where('id=1')->getAll();
+        //or查询
+        $orWhereGetAll = $model->select('id,name')->where('id=1')->orWhere("id=2")->getAll();
+        //join查询
+        $join = $model->select('users.id,users.name,addresses.address')
+            ->join('addresses', 'users.id = addresses.user_id', 'inner')
+            ->getAll();
+        //leftJoin
+        $leftJoin = $model->select('users.id,users.name,addresses.address')
+            ->leftJoin('addresses', 'users.id = addresses.user_id')
+            ->getAll();
+        //rightJoin
+        $rightJoin = $model->select('users.id,users.name,addresses.address')
+            ->rightJoin('addresses', 'users.id = addresses.user_id')->getAll();
+        //groupBy
+        $groupBy = $model->select("id,name")->groupBy("name")->getAll();
+        //having
+        $having = $model->select('id,name')->groupBy('name')->having("id >", 1)->getAll();
+        //count
+        $count = $model->select("id,name")->groupBy("name")->count();
+        //distinct
+        $distinct = $model->select("name")->distinct()->getAll();
+        //排序
+        $orderBy = $model->select('id,name')
+            ->orderBy('name', 'asc')
+            ->orderBy('id', 'desc')
+            ->getAll();
+        //limit
+        $limit = $model->select('id,name')->limit(1, 2)->getAll();
+        //分页查询
+        $paginateFn = $model->select('id,name')->paginateFn(1, 3);
+        //新增
+        $insertId = $model->insertData(["name" => '张三', 'email' => '444@qq.com']);
+        //批量新增
+        $insertAffectedRow = $model->insertBatchData([
+            ['name' => '批量1', 'email' => '555@qq.com'],
+            ['name' => '批量2', 'email' => '555@qq.com'],
+        ]);
+        //修改单条或多条
+        $updateDataAffectedRow = $model->where(["id >" => 3])->updateData(["name" => "李四"]);
+        //修改单条
+        $updateDataByIdAffectedRow = $model->updateDataById(4, ["name" => "王五"]);
+        //修改多条
+        $updateBatchDataAffectedRow = $model->updateBatchData([
+            [
+                'id'   => 4,
+                'name' => '赵六',
+            ],
+        ], 'id');
+        //删除单条或多条
+        $deleteDataAffectedRow = $model->deleteData(["id >" => 3]);
+        //删除单条
+        $deleteDataByIdAffectedRow = $model->deleteDataById(4);
+        //删除多条
+        $deleteBatchByIdListAffectedRow = $model->deleteBatchByIdList([4, 5, 6]);
+        //事务
+        $model->beginTransaction();
+        try {
+            $model->insert([]);
+            $model->commit();
+        } catch (Exception $e) {
+            $model->rollback();
+        }
+        return $this->respond([
+            'queryRow'                       => $queryRow,
+            'queryRows'                      => $queryRows,
+            'getOne'                         => $getOne,
+            'first'                          => $first,
+            'value'                          => $value,
+            'pluck'                          => $pluck,
+            'getAll'                         => $getAll,
+            'whereGetAll'                    => $whereGetAll,
+            'orWhereGetAll'                  => $orWhereGetAll,
+            'join'                           => $join,
+            'leftJoin'                       => $leftJoin,
+            'rightJoin'                      => $rightJoin,
+            'groupBy'                        => $groupBy,
+            'having'                         => $having,
+            'count'                          => $count,
+            'distinct'                       => $distinct,
+            'limit'                          => $limit,
+            'paginateFn'                     => $paginateFn,
+            'orderBy'                        => $orderBy,
+            'insertId'                       => $insertId,
+            'insertAffectedRow'              => $insertAffectedRow,
+            'updateDataAffectedRow'          => $updateDataAffectedRow,
+            'updateDataByIdAffectedRow'      => $updateDataByIdAffectedRow,
+            'updateBatchDataAffectedRow'     => $updateBatchDataAffectedRow,
+            'deleteDataAffectedRow'          => $deleteDataAffectedRow,
+            'deleteDataByIdAffectedRow'      => $deleteDataByIdAffectedRow,
+            'deleteBatchByIdListAffectedRow' => $deleteBatchByIdListAffectedRow,
+            'getLastSql'                     => $model->getLastSql(),
+        ], 200,
+            'success');
     }
 
 }
