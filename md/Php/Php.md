@@ -3849,6 +3849,25 @@ class BaseModel extends Model {
     }
 
     /**
+     * 原生sql 执行新增修改删除
+     *
+     * @param $sql
+     * @param  array  $params
+     *
+     * @return int|string
+     *
+     */
+    public function execute($sql, array $params = []) {
+        $this->db->query($sql, $params);
+        if (stripos($sql, 'insert') === 0) {
+            return $this->db->insertID();
+        }
+        else {
+            return $this->db->affectedRows();
+        }
+    }
+
+    /**
      * 查询单条记录
      *
      * @param  int  $id  记录 ID
@@ -4174,15 +4193,20 @@ class Home extends BaseController {
     public function index(): ResponseInterface {
         $model = new UserModel();
         //原生查询
-        $queryRow = $model->rowQuery("SELECT `id`,`name` FROM `users` WHERE `id` = 2");
+        $queryRow = $model->rowQuery('SELECT `id`,`name` FROM `users` WHERE `id` = ?', [2]);
         //原生查询
-        $queryRows = $model->rowsQuery("SELECT `id`,`name` FROM `users`");
+        $queryRows = $model->rowsQuery('SELECT `id`,`name` FROM `users`');
+        //原生新增
+        $insertIdRaw = $model->execute('INSERT INTO `users` (`name`,`email`) VALUES ("?","?")',
+            ['张八', '888@qq.com']);
+        //原生修改
+        $updateAffectedRowRaw = $model->execute('UPDATE `users` SET `name`=? WHERE name = ?', ['张四', '张八']);
         //获取单条记录
-        $getOne = $model->select("id,name")->getOne(2);
+        $getOne = $model->select('id,name')->getOne(2);
         //获取第一条记录
         $first = $model->select('id,name')->first();
         //获取指定字段（单个字段）单条
-        $value = $model->value("name");
+        $value = $model->value('name');
         //获取指定字段（单个字段）数组
         $pluck = $model->pluck('name');
         //查询多条记录
@@ -4190,7 +4214,7 @@ class Home extends BaseController {
         //条件查询
         $whereGetAll = $model->select('id,name')->where('id=1')->getAll();
         //or查询
-        $orWhereGetAll = $model->select('id,name')->where('id=1')->orWhere("id=2")->getAll();
+        $orWhereGetAll = $model->select('id,name')->where('id=1')->orWhere('id=2')->getAll();
         //join查询
         $join = $model->select('users.id,users.name,addresses.address')
             ->join('addresses', 'users.id = addresses.user_id', 'inner')
@@ -4203,13 +4227,13 @@ class Home extends BaseController {
         $rightJoin = $model->select('users.id,users.name,addresses.address')
             ->rightJoin('addresses', 'users.id = addresses.user_id')->getAll();
         //groupBy
-        $groupBy = $model->select("id,name")->groupBy("name")->getAll();
+        $groupBy = $model->select('id,name')->groupBy('name')->getAll();
         //having
-        $having = $model->select('id,name')->groupBy('name')->having("id >", 1)->getAll();
+        $having = $model->select('id,name')->groupBy('name')->having('id >', 1)->getAll();
         //count
-        $count = $model->select("id,name")->groupBy("name")->count();
+        $count = $model->select('id,name')->groupBy('name')->count();
         //distinct
-        $distinct = $model->select("name")->distinct()->getAll();
+        $distinct = $model->select('name')->distinct()->getAll();
         //排序
         $orderBy = $model->select('id,name')
             ->orderBy('name', 'asc')
@@ -4220,16 +4244,16 @@ class Home extends BaseController {
         //分页查询
         $paginateFn = $model->select('id,name')->paginateFn(1, 3);
         //新增
-        $insertId = $model->insertData(["name" => '张三', 'email' => '444@qq.com']);
+        $insertId = $model->insertData(['name' => '张三', 'email' => '444@qq.com']);
         //批量新增
         $insertAffectedRow = $model->insertBatchData([
             ['name' => '批量1', 'email' => '555@qq.com'],
             ['name' => '批量2', 'email' => '555@qq.com'],
         ]);
         //修改单条或多条
-        $updateDataAffectedRow = $model->where(["id >" => 3])->updateData(["name" => "李四"]);
+        $updateDataAffectedRow = $model->where(['id >' => 3])->updateData(['name' => '李四']);
         //修改单条
-        $updateDataByIdAffectedRow = $model->updateDataById(4, ["name" => "王五"]);
+        $updateDataByIdAffectedRow = $model->updateDataById(4, ['name' => '王五']);
         //修改多条
         $updateBatchDataAffectedRow = $model->updateBatchData([
             [
@@ -4238,7 +4262,7 @@ class Home extends BaseController {
             ],
         ], 'id');
         //删除单条或多条
-        $deleteDataAffectedRow = $model->deleteData(["id >" => 3]);
+        $deleteDataAffectedRow = $model->deleteData(['id >' => 3]);
         //删除单条
         $deleteDataByIdAffectedRow = $model->deleteDataById(4);
         //删除多条
@@ -4254,6 +4278,8 @@ class Home extends BaseController {
         return $this->respond([
             'queryRow'                       => $queryRow,
             'queryRows'                      => $queryRows,
+            'insertIdRaw'                    => $insertIdRaw,
+            'updateAffectedRowRaw'           => $updateAffectedRowRaw,
             'getOne'                         => $getOne,
             'first'                          => $first,
             'value'                          => $value,
