@@ -116,10 +116,6 @@
 
 [c盘空间扫描](https://www.jam-software.com/treesize_free)
 
-[1080P影视资源](https://fantuan.tv/)
-
-[无广告视频解析接口_VIP视频解析](https://660e.com/?url=)
-
 ## Ios应用上架
 
 [香蕉云编无苹果电脑上传ipa](https://www.yunedit.com/)
