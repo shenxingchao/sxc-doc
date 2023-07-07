@@ -28,6 +28,8 @@ func main() {
 ```shell
 #初始化
 go mod init project-name
+#设置国内镜像
+go env -w GOPROXY=https://goproxy.cn,direct
 #拉取模块
 go mod tidy
 #运行
