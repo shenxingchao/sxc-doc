@@ -34,3 +34,22 @@ func main() {
 	fmt.Println(rand.Intn(10))
 }
 ```
+
+### 函数
+
+```go
+package main
+
+import (
+	"fmt"
+)
+
+func main() {
+	fmt.Println(hello("test"))
+}
+
+func hello(val string) 	string {
+	res := fmt.Sprintf("%v world",val)
+	return res
+}
+```
