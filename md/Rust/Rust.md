@@ -748,6 +748,21 @@ fn main() {
 #### 字符串
 
 ```rs
+fn main() {
+    let mut str1: &str = "hello";
+    str1 += "world"; //错误 ！ 双引号是&str引用类型 是不可变的 加mut都没用
+
+    let mut str2: String = String::from("hello");
+    str2 += "world"; //String::from才是String类型
+
+    let mut str3: String = "hello".to_string();
+    str3 += "world"; //to_string() == String::from  但to_string一般用于类型转换
+
+    print!("{}", 1.to_string());
+}
+```
+
+```rs
 use std::ops::Add;
 
 #[allow(dead_code)] //禁止未使用变量报错
