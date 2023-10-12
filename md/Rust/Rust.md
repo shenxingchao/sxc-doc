@@ -935,11 +935,13 @@ fn main() {
 
 #### unwrap直接抛出错误
 
+unwrap 还能读取Some类型的值
+
 ```rs
 #[allow(dead_code)] //禁止未使用变量报错
 use std::fs::File;
 fn main() {
-    //unwrap 直接抛出错误
+    //unwrap 直接抛出错误  unwrap_err() 直接输出错误信息
     let _greeting_file = File::open("hello.txt").unwrap();
     println!("{:?}", _greeting_file);
 }
