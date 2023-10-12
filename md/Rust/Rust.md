@@ -1279,3 +1279,21 @@ pub fn pass() {
 ```
 
 之后运行```cargo test 或者cargo test --test test```
+
+
+### 宏
+
+#### 定义
+
+```rs
+macro_rules! add_two_numbers {
+    ($x:expr, $y:expr) => {{
+        $x + $y
+    }};
+}
+
+fn main() {
+    let result = add_two_numbers!(5, 3);
+    println!("The sum is {}", result);
+}
+```
