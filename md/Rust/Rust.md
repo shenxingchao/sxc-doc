@@ -1029,14 +1029,14 @@ pub struct Animal {
 }
 
 //狗狗接口
-pub trait Dog {
+pub trait Speak {
     fn say(&self, str: String) -> String;
 }
 
-//动物类实现狗狗接口说话方法
-impl Dog for Animal {
+//为动物类Animal实现一个说话接口
+impl Speak for Animal {
     fn say(&self, str: String) -> String {
-        format!("Dog say({} g):{}", self.weight, str)
+        format!("Animal({} g):{}", self.weight, str)
     }
 }
 ```
@@ -1053,6 +1053,35 @@ fn main() {
         "{}",
         Animal { weight: 10.0 }.say(String::from("hello trait"))
     );
+}
+```
+
+#### 结合泛型
+
+```rs
+// 定义一个 Speak trait
+trait Speak {
+    fn speak(&self) -> String;
+}
+
+// 定义通用的 Animal 结构
+struct Animal<T> {
+    name: T,
+}
+
+// 为 Animal 实现 Speak trait
+impl<T: ToString> Speak for Animal<T> {
+    fn speak(&self) -> String {
+        format!("{} says something", self.name.to_string())
+    }
+}
+
+fn main() {
+    let generic_animal = Animal { name: "Generic Animal" };
+    let dog = Animal { name: "Rex" };
+    
+    println!("{}", generic_animal.speak()); // 输出 "Generic Animal says something"
+    println!("{}", dog.speak());            // 输出 "Rex says something"
 }
 ```
 
