@@ -695,7 +695,7 @@ fn main() {
 
 ### 包
 
-不加pub就是私有
+不加pub就是私有 下面的案例套了两层 过于复杂了
 
 **src\common.rs**
 
@@ -706,7 +706,7 @@ pub mod common {
         #[allow(dead_code)]
         pub fn console(str: &String) {
             println!("{}", str);
-            super::super::private_fn(); //调用并列父级的其他方法
+            super::super::private_fn(); //调用并列父级的其他方法 两层所以加就是外面的外面
         }
     }
 }
@@ -727,8 +727,8 @@ fn private_fn() {}
 
 ```rs
 #[allow(dead_code)] //禁止未使用变量报错
-mod common; //引入模块 类似于命名空间
-use common::util;//使用use 用于简化common::util::console -> util::console
+mod common; //引入模块 类似于命名空间 对应pub mod common
+use common::util;//使用use 对应common.rs中的pub use common::util;导出才能这么用
 
 fn main() {
     common::util::console(&String::from("mod - hello package"));
