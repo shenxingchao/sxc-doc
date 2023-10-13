@@ -1325,3 +1325,35 @@ fn main() {
     println!("{:?}", my_vector); // 打印生成的向量
 }
 ```
+
+
+## tauri
+
+### 创建项目
+
+yarn create tauri-app
+
+### 启动
+
+yarn tauri dev
+
+### 打包
+
+yarn tauri build
+
+[打包无法下载的问题 TZDXF commented on Jul 6](https://github.com/tauri-apps/tauri/issues/7338)
+
+配置
+
+```json
+{
+ "tauri": {
+    "bundle": {
+      "identifier": "com.tauri.kuwo.music", //id
+      "windows": {
+        "wix": { "language": "zh-CN" }//安装包中文
+      }
+    },
+ }
+}
+```
