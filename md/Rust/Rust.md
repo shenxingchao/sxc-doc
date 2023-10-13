@@ -1342,18 +1342,3 @@ yarn tauri dev
 yarn tauri build
 
 [打包无法下载的问题 TZDXF commented on Jul 6](https://github.com/tauri-apps/tauri/issues/7338)
-
-配置
-
-```json
-{
- "tauri": {
-    "bundle": {
-      "identifier": "com.tauri.kuwo.music", //id
-      "windows": {
-        "wix": { "language": "zh-CN" }//安装包中文
-      }
-    },
- }
-}
-```
