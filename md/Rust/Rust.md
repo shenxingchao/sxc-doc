@@ -1283,7 +1283,9 @@ pub fn pass() {
 
 ### 宏
 
-#### 定义
+就是全局函数  传入一些参数 返回一个新的值
+
+#### 定义加法宏
 
 ```rs
 macro_rules! add_two_numbers {
@@ -1295,5 +1297,31 @@ macro_rules! add_two_numbers {
 fn main() {
     let result = add_two_numbers!(5, 3);
     println!("The sum is {}", result);
+}
+```
+
+#### 创建集合宏
+
+类似vec!宏
+
+```rs
+// 定义自定义的vec!宏
+macro_rules! custom_vec {
+    // 匹配传入的参数，并生成相应的代码
+    ($($x:expr),*) => { // 这里的$($x:expr),*表示匹配0个或多个表达式，并将其保存在$x中
+        {
+            let mut temp_vec = Vec::new(); // 创建一个新的向量
+            $(
+                temp_vec.push($x); // 将匹配到的每个表达式添加到向量中
+            )*
+            temp_vec // 返回生成的向量
+        }
+    };
+}
+
+fn main() {
+    // 使用自定义的vec!宏来创建向量
+    let my_vector = custom_vec![1, 2, 3, 4]; // 使用自定义的宏来创建一个包含特定元素的向量
+    println!("{:?}", my_vector); // 打印生成的向量
 }
 ```
