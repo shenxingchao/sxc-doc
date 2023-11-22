@@ -722,7 +722,7 @@ function getRand($proArr){
 
 # thinkphp6 后端框架
 
-此步骤所有文件参考原项目即可 http://demo.o8o8o8.com/vue-admin-thinkphp6/#/
+此步骤所有文件参考原项目即可 http://119.45.19.125:8013/vue-admin-thinkphp6/#/
 
 ## composer
 

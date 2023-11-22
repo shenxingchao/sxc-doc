@@ -7302,7 +7302,7 @@ async def websocketFn(request: Request, ws: socket) -> None:
         print(data)
 
 ```
-[在线聊天室案例](http://sanic-demo.o8o8o8.com/)
+[在线聊天室案例](http://119.45.19.125:8019/)
 
 ## api接口版本管理
 ```py
