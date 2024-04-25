@@ -299,7 +299,7 @@ yum install -y wget && wget -O install.sh https://download.bt.cn/install/install
 #提交镜像删除旧容器
 docker commit centos8-4-1 centos8-4-1:v1
 #重新创建新容器80 http 443 https 22 ssh 6379 redis 3306数据库 22071 宝塔
-docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/www/wwwroot -p 80:80 -p 22:22 -p 443:443 -p 6379:6379 -p 3306:3306 -p 22071:22071 -p 15672:15672 -p 8284:8284 -it --privileged -u root --entrypoint /usr/sbin/init centos8-4-1:v1
+docker run -d --name centos8-4-1 -v E:/sxc/code/docker:/www/wwwroot -p 80:80 -p 22:22 -p 443:443 -p 6379:6379 -p 3306:3306 -p 22071:22071 -p 15672:15672 -p 8284:8284 -p 5672:5672 -it --privileged -u root --entrypoint /usr/sbin/init centos8-4-1:v1
 #进入容器
 docker exec -it --user root 容器ID /bin/bash
 #修改宝塔配置
