@@ -2668,6 +2668,9 @@ DePloyment -->Application context 设置为 /
 
 ## IDEA启动控制台乱码
 
+应该是IDEA HTLP->EDIT CUSTOMVM
+-Dfile.encoding=UTF-8
+
 tomcat/conf/logging.properties
 
 ```java
