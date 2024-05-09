@@ -9121,8 +9121,11 @@ java/com/sxc/config/WebConfig.java
 ```
 
 ```gradle
-    //lombok
+    //lombok 这个是错的
     implementation 'org.projectlombok:lombok:1.18.24'
+    //这个是对的
+    compileOnly 'org.projectlombok:lombok:1.18.24'
+    annotationProcessor 'org.projectlombok:lombok:1.18.24'
 ```
 
 ```java

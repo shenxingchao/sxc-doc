@@ -179,6 +179,9 @@ ps -e|grep php
 
 grep 就是过滤名称 -e : 显示所有进程 -f : 全格式
 
+## 测试端口号
+telnet 127.0.0.1 8080
+
 ## 关闭 FIN_WAIT1
 
 sysctl -a |grep tcp_max_orph 记下 net.ipv4.tcp_max_orphans 的值赋给 orig_orphans
